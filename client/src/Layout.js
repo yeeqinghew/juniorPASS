@@ -1,14 +1,20 @@
 import "./App.css";
 import React from "react";
-import { Layout, Menu, ConfigProvider } from "antd";
+import { Layout, Menu, ConfigProvider, Divider, Flex } from "antd";
+import { Link } from "react-router-dom";
+import {
+  WhatsAppOutlined,
+  MailOutlined,
+  PhoneOutlined,
+} from "@ant-design/icons";
 
 const { Header, Content, Footer } = Layout;
 
 const items = [
-  { key: String("Home"), label: `Home` },
-  { key: String("Classes"), label: `Classes` },
-  { key: String("Plan"), label: `Plan` },
-  { key: String("Contact Us"), label: `Contact Us` },
+  { key: String("Home"), label: <Link to="/">Home</Link> },
+  { key: String("Classes"), label: <Link to="/classes">Classes</Link> },
+  { key: String("Plan"), label: <Link to="/plans">Plans</Link> },
+  { key: String("Contact Us"), label: <Link to="/contactus">ContactUs</Link> },
 ];
 
 const rightMenu = [{ key: String("Login"), label: `Login` }];
@@ -23,14 +29,14 @@ const OverallLayout = ({ children }) => {
           borderRadius: 2,
 
           // Alias Token
-          //   colorBgContainer: "#FCFBF8",
+          colorBgContainer: "#FCFBF8",
           fontSize: 14,
         },
         components: {
           Layout: {
-            /* here is your component tokens */
             headerBg: "#FCFBF8",
             bodyBg: "#FCFBF8",
+            headerHeight: 84,
           },
         },
       }}
@@ -51,11 +57,7 @@ const OverallLayout = ({ children }) => {
             backgroundColor: "#FCFBF8",
           }}
         >
-          <img
-            alt="logo"
-            src={require("./images/juniorPASS.png")}
-            width="180"
-          />
+          <img alt="logo" src={require("./images/logopng.png")} width="180" />
           <Menu
             mode="horizontal"
             items={items}
@@ -74,8 +76,47 @@ const OverallLayout = ({ children }) => {
             {children}
           </div>
         </Content>
-        <Footer style={{ textAlign: "center" }}>
-          juniorPASS © {new Date().getFullYear()}
+        <Footer style={{ background: "#FCFBF8" }}>
+          <Divider></Divider>
+          <Flex vertical={false}>
+            <Flex style={{ width: "30%" }}>
+              <img
+                alt="logo"
+                src={require("./images/logopng.png")}
+                width="180"
+              />
+            </Flex>
+
+            <Flex vertical={false} style={{ right: 0, width: "100%" }}>
+              <Flex
+                vertical
+                gap="large"
+                style={{ width: "50%", textDecoration: "none" }}
+              >
+                <Link to="/classes">Classes</Link>
+                <Link to="/plans">Plans</Link>
+                <Link to="/contactus">ContactUs</Link>
+              </Flex>
+              <Flex vertical gap="large" style={{ width: "50%" }}>
+                <Flex>
+                  <MailOutlined />
+                  <Link to="mailto:hello@juniorpass.sg">
+                    hello@juniorpass.sg
+                  </Link>
+                </Flex>
+
+                <Link to="">
+                  <PhoneOutlined />
+                  (65)XXXX-XXXX
+                </Link>
+                <Link to="">
+                  <WhatsAppOutlined />
+                  (65)XXXX-XXXX
+                </Link>
+              </Flex>
+            </Flex>
+          </Flex>
+          <Divider></Divider>© Copyright {new Date().getFullYear()} juniorPASS
         </Footer>
       </Layout>
     </ConfigProvider>
