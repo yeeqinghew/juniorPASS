@@ -9,7 +9,6 @@ const HomePage = () => {
         src={require("../images/cover.jpg")}
         alt="cover"
         style={{
-          // height: "700px",
           width: "100%",
           backgroundSize: "contain",
           filter: "brightness(50%)",
@@ -19,23 +18,24 @@ const HomePage = () => {
       <Card
         style={{
           backgroundColor: "#FFDEDE",
-          height: "500px",
-          width: "500px",
+          height: "460px",
+          width: "550px",
           borderRadius: "5%",
           position: "absolute",
           margin: "0 auto",
           right: "120px",
           top: "250px",
+          boxShadow: "12px",
         }}
       >
-        <Space direction="vertical">
+        <Space direction="vertical" size={"large"}>
           <Title style={{ color: "#98BDD2", fontWeight: 1000, fontSize: 48 }}>
             Preparing preschoolers for life
           </Title>
-          <Text style={{ fontFamily: "Poppins", fontSize: 14 }}>
+          <Text>
             Unleashing potential through diverse classes for young minds
           </Text>
-          <Button>Find out more</Button>
+          <Button size="large">Find out more</Button>
         </Space>
       </Card>
     </div>

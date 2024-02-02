@@ -1,6 +1,14 @@
 import "./App.css";
 import React from "react";
-import { Layout, Menu, ConfigProvider, Divider, Flex } from "antd";
+import {
+  Layout,
+  Menu,
+  ConfigProvider,
+  Divider,
+  Flex,
+  Typography,
+  Space,
+} from "antd";
 import { Link } from "react-router-dom";
 import {
   WhatsAppOutlined,
@@ -9,6 +17,7 @@ import {
 } from "@ant-design/icons";
 
 const { Header, Content, Footer } = Layout;
+const { Text } = Typography;
 
 const items = [
   { key: String("Home"), label: <Link to="/">Home</Link> },
@@ -17,7 +26,9 @@ const items = [
   { key: String("Contact Us"), label: <Link to="/contactus">ContactUs</Link> },
 ];
 
-const rightMenu = [{ key: String("Login"), label: `Login` }];
+const rightMenu = [
+  { key: String("Login"), label: <Link to="/login">Login</Link> },
+];
 
 const OverallLayout = ({ children }) => {
   return (
@@ -31,6 +42,7 @@ const OverallLayout = ({ children }) => {
           // Alias Token
           colorBgContainer: "#FCFBF8",
           fontSize: 14,
+          colorLink: "black",
         },
         components: {
           Layout: {
@@ -57,12 +69,18 @@ const OverallLayout = ({ children }) => {
             backgroundColor: "#FCFBF8",
           }}
         >
-          <img alt="logo" src={require("./images/logopng.png")} width="180" />
+          <img
+            alt="logo"
+            src={require("./images/logopngResize.png")}
+            width="100"
+          />
+          <div style={{ width: "48px" }}></div>
           <Menu
             mode="horizontal"
             items={items}
             style={{ flex: 1, minWidth: 0 }}
           />
+
           <Menu items={rightMenu} style={{ float: "right" }} />
         </Header>
 
@@ -78,41 +96,41 @@ const OverallLayout = ({ children }) => {
         </Content>
         <Footer style={{ background: "#FCFBF8" }}>
           <Divider></Divider>
-          <Flex vertical={false}>
-            <Flex style={{ width: "30%" }}>
+          <Flex style={{ width: "100%" }}>
+            <Flex style={{ width: "10%", justifyContent: "flex-start" }}>
               <img
                 alt="logo"
-                src={require("./images/logopng.png")}
-                width="180"
+                src={require("./images/logopngResize.png")}
+                width="100"
+                height="50"
               />
             </Flex>
 
-            <Flex vertical={false} style={{ right: 0, width: "100%" }}>
-              <Flex
-                vertical
-                gap="large"
-                style={{ width: "50%", textDecoration: "none" }}
-              >
+            <Flex
+              style={{ right: 0, width: "90%", justifyContent: "flex-end" }}
+            >
+              <Flex vertical gap="large" style={{ width: "25%" }}>
                 <Link to="/classes">Classes</Link>
                 <Link to="/plans">Plans</Link>
                 <Link to="/contactus">ContactUs</Link>
               </Flex>
-              <Flex vertical gap="large" style={{ width: "50%" }}>
-                <Flex>
+              <Flex vertical gap="large" style={{ width: "25%" }}>
+                <Space direction="horizontal">
                   <MailOutlined />
                   <Link to="mailto:hello@juniorpass.sg">
                     hello@juniorpass.sg
                   </Link>
-                </Flex>
+                </Space>
 
-                <Link to="">
+                <Space direction="horizontal">
                   <PhoneOutlined />
-                  (65)XXXX-XXXX
-                </Link>
-                <Link to="">
+                  <Text>(65)XXXX-XXXX</Text>
+                </Space>
+
+                <Space direction="horizontal">
                   <WhatsAppOutlined />
-                  (65)XXXX-XXXX
-                </Link>
+                  <Text>(65)XXXX-XXXX</Text>
+                </Space>
               </Flex>
             </Flex>
           </Flex>
