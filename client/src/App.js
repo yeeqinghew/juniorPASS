@@ -11,6 +11,10 @@ import Login from "./Login";
 const App = () => {
   return (
     <BrowserRouter>
+      <link
+        href="https://api.mapbox.com/mapbox-gl-js/v1.10.1/mapbox-gl.css"
+        rel="stylesheet"
+      />
       <OverallLayout>
         <Routes>
           <Route index element={<HomePage />}></Route>
