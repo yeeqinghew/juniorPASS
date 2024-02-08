@@ -23,7 +23,6 @@ const items = [
   { key: String("Home"), label: <Link to="/">Home</Link> },
   { key: String("Classes"), label: <Link to="/classes">Classes</Link> },
   { key: String("Plan"), label: <Link to="/plans">Plans</Link> },
-  { key: String("Contact Us"), label: <Link to="/contactus">ContactUs</Link> },
 ];
 
 const rightMenu = [
