@@ -1,3 +1,4 @@
+import React from "react";
 import { Avatar, Input, List, Flex } from "antd";
 import ReactMapboxGl, { Layer, Feature } from "react-mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
