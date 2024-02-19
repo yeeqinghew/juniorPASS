@@ -8,6 +8,7 @@ import {
   Flex,
   Typography,
   Space,
+  Image,
 } from "antd";
 import { Link } from "react-router-dom";
 import {
@@ -35,7 +36,7 @@ const OverallLayout = ({ children }) => {
       theme={{
         token: {
           // Seed Token
-          //   colorPrimary: "#FCFBF8",
+          // colorPrimary: "#FCFBF8",
           borderRadius: 2,
 
           // Alias Token
@@ -48,6 +49,9 @@ const OverallLayout = ({ children }) => {
             headerBg: "#FCFBF8",
             bodyBg: "#FCFBF8",
             headerHeight: 84,
+          },
+          Menu: {
+            horizontalItemSelectedColor: "#98BDD2",
           },
         },
       }}
@@ -68,11 +72,16 @@ const OverallLayout = ({ children }) => {
             backgroundColor: "#FCFBF8",
           }}
         >
-          <img
-            alt="logo"
-            src={require("./images/logopngResize.png")}
-            width="100"
-          />
+          <Link to="/">
+            <Image
+              alt="logo"
+              src={require("./images/logopngResize.png")}
+              width={100}
+              height={50}
+              preview={false}
+            />
+          </Link>
+
           <div style={{ width: "48px" }}></div>
           <Menu
             mode="horizontal"
@@ -97,11 +106,12 @@ const OverallLayout = ({ children }) => {
           <Divider></Divider>
           <Flex style={{ width: "100%" }}>
             <Flex style={{ width: "10%", justifyContent: "flex-start" }}>
-              <img
+              <Image
                 alt="logo"
                 src={require("./images/logopngResize.png")}
-                width="100"
-                height="50"
+                width={100}
+                height={50}
+                preview={false}
               />
             </Flex>
 

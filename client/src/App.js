@@ -14,6 +14,8 @@ const App = () => {
         href="https://api.mapbox.com/mapbox-gl-js/v1.10.1/mapbox-gl.css"
         rel="stylesheet"
       />
+      <script src="path-to-the-file/splide.min.js"></script>
+
       <OverallLayout>
         <Routes>
           <Route index element={<HomePage />}></Route>
