@@ -1,5 +1,5 @@
-import React from "react";
-import { Avatar, Input, List, Flex } from "antd";
+import React, { useEffect, useState } from "react";
+import { Avatar, Input, List, Flex, Rate } from "antd";
 import ReactMapboxGl, { Layer, Feature } from "react-mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
@@ -22,6 +22,24 @@ const data = [
 ];
 
 const Classes = () => {
+  const [vendors, setVendors] = useState([]);
+  const getVendors = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:5000/vendors/getAllVendors"
+      );
+      const jsonData = await response.json();
+      setVendors(jsonData);
+      console.log(jsonData);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
+  useEffect(() => {
+    getVendors();
+  }, []);
+
   const Map = ReactMapboxGl({
     accessToken: process.env.REACT_APP_MAPBOX_TOKEN,
     center: [1.35601825, 103.9884945],
@@ -38,21 +56,18 @@ const Classes = () => {
       <Flex justify="space-between">
         <List
           itemLayout="horizontal"
-          dataSource={data}
+          dataSource={vendors}
           style={{
             width: "40%",
           }}
           renderItem={(item, index) => (
             <List.Item>
               <List.Item.Meta
-                avatar={
-                  <Avatar
-                    src={`https://api.dicebear.com/7.x/miniavs/svg?seed=${index}`}
-                  />
-                }
-                title={<a href="https://ant.design">{item.title}</a>}
+                avatar={<Avatar src={item.picture} />}
+                title={<a href="https://ant.design">{item.vendor_name}</a>}
                 description="Ant Design, a design language for background applications, is refined by Ant UED Team"
               ></List.Item.Meta>
+              <Rate defaultValue={item.reviews}></Rate>
             </List.Item>
           )}
         ></List>
