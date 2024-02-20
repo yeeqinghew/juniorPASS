@@ -18,13 +18,13 @@ import "@splidejs/react-splide/dist/css/splide.min.css";
 const { Title, Text } = Typography;
 
 const HomePage = () => {
-  const images = require.context("../images/partners", true);
+  const images = require.context("../../images/partners", true);
   const imageList = images.keys().map((image) => images(image));
 
   return (
     <div>
       <Image
-        src={require("../images/cover.jpg")}
+        src={require("../../images/cover.jpg")}
         alt="cover"
         style={{
           width: "100%",
