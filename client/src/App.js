@@ -8,13 +8,15 @@ import Plans from "./components/Plans";
 import Login from "./Login";
 import UserContext from "./components/UserContext";
 import MainPage from "./components/User/MainPage";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 const App = () => {
   const user = {};
   return (
     <BrowserRouter>
+      <script src="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js"></script>
       <link
-        href="https://api.mapbox.com/mapbox-gl-js/v1.10.1/mapbox-gl.css"
+        href="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css"
         rel="stylesheet"
       />
       <script src="path-to-the-file/splide.min.js"></script>
