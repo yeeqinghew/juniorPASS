@@ -3,7 +3,6 @@ import { Avatar, Input, List, Flex, Rate } from "antd";
 // import ReactMapboxGl, { Layer, Feature, Marker } from "react-mapbox-gl";
 import Map, { Marker, Popup } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import CITIES from "./cities.json";
 const { Search } = Input;
 
 const Classes = () => {
@@ -21,24 +20,14 @@ const Classes = () => {
     }
   };
 
-  const geojson = {
-    type: "FeatureCollection",
-    features: [
-      {
-        type: "Feature",
-        geometry: { type: "Point", coordinates: [103.9884945, 1.35601825] },
-      },
-    ],
-  };
-
   const pins = useMemo(
     () =>
-      CITIES.map((city, index) => (
+      vendors.map((city, index) => (
         <Marker
           key={`marker-${index}`}
           longitude={city.longitude}
           latitude={city.latitude}
-          anchor="bottom"
+          anchor="top"
           onClick={(e) => {
             // If we let the click event propagates to the map, it will immediately close the popup
             // with `closeOnClick: true`
@@ -47,17 +36,8 @@ const Classes = () => {
           }}
         ></Marker>
       )),
-    []
+    [vendors]
   );
-
-  const layerStyle = {
-    id: "point",
-    type: "circle",
-    paint: {
-      "circle-radius": 10,
-      "circle-color": "#007cbf",
-    },
-  };
 
   const onSearch = (value, _e, info) => console.log(info?.source, value);
 
@@ -87,53 +67,15 @@ const Classes = () => {
                 title={<a href={item.website}>{item.vendor_name}</a>}
                 description={item.description}
               ></List.Item.Meta>
-              <Rate defaultValue={item.reviews}></Rate>
+              <Rate disabled defaultValue={item.reviews}></Rate>
             </List.Item>
           )}
         ></List>
-        {/* <Map
-          mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
-          mapLib={import("mapbox-gl")}
-          initialViewState={{
-            longitude: 103.9884945,
-            latitude: 1.35601825,
-            zoom: 3.5,
-            bearing: 0,
-            pitch: 0,
-          }}
-          style={{ width: 600, height: 400 }}
-          mapStyle="mapbox://styles/mapbox/streets-v9"
-        > */}
-        {/* <Marker
-            longitude={103.8189}
-            latitude={1.3069}
-            type="symbol"
-            id="marker"
-            layout={{ "icon-image": "marker-15" }}
-            onClick={() => {
-              setShowPopup(true);
-            }}
-          >
-            {showPopup && (
-              <Popup
-                longitude={103.8189}
-                latitude={1.3069}
-                onClose={() => setShowPopup(false)}
-              >
-                vbleh
-              </Popup>
-            )}
-          </Marker>
-           */}
-        {/* <Source id="my-data" type="geojson" data={geojson}>
-            <Layer {...layerStyle} onClick={mapOnClick} />
-          </Source>
-        </Map> */}
-
         <Map
           initialViewState={{
             longitude: 103.8189,
             latitude: 1.3069,
+            zoom: 10,
           }}
           mapStyle="mapbox://styles/mapbox/streets-v9"
           mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
@@ -150,13 +92,10 @@ const Classes = () => {
               onClose={() => setPopupInfo(null)}
             >
               <div>
-                {popupInfo.city}, {popupInfo.state}
-                <a
-                  target="_new"
-                  href={`http://en.wikipedia.org/w/index.php?title=Special:Search&search=${popupInfo.city}, ${popupInfo.state}`}
-                ></a>
+                {popupInfo.vendor_name}
+                <a target="_new" href={``}></a>
               </div>
-              <img width="100%" src={popupInfo.image} />
+              <img width="100%" src={popupInfo.picture} />
             </Popup>
           )}
         </Map>
