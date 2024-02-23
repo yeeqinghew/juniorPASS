@@ -54,12 +54,18 @@ const HomePage = () => {
             Unleashing potential through diverse classes for young minds
           </Text>
           <Link to="/classes">
-            <Button size="large">Find out more</Button>
+            <Button
+              style={{
+                borderRadius: "30px",
+              }}
+            >
+              Find out more
+            </Button>
           </Link>
         </Space>
       </Card>
       <div style={{ height: 48 }}></div>
-      <h1 style={{ textAlign: "center" }}>Education Partners</h1>
+      <h1 style={{ textAlign: "center" }}>Partners</h1>
       <Splide
         style={{
           width: "100vh",
@@ -68,8 +74,14 @@ const HomePage = () => {
         options={{
           pagination: false,
           grid: {
-            rows: 2,
-            cols: 3,
+            rows: 1,
+            cols: 5,
+          },
+          autoplay: "true",
+          type: "loop",
+          rewind: true,
+          autoScroll: {
+            speed: 1,
           },
         }}
       >
@@ -84,7 +96,7 @@ const HomePage = () => {
                 key={index}
                 src={image}
                 alt={`image-${index}`}
-                // width={288}
+                width={240}
                 preview={false}
                 margin={24}
               />

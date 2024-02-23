@@ -16,19 +16,10 @@ import {
   MailOutlined,
   PhoneOutlined,
 } from "@ant-design/icons";
+import "./Layout.css";
 
 const { Header, Content, Footer } = Layout;
 const { Text } = Typography;
-
-const items = [
-  { key: String("Home"), label: <Link to="/">Home</Link> },
-  { key: String("Classes"), label: <Link to="/classes">Classes</Link> },
-  { key: String("Plan"), label: <Link to="/plans">Plans</Link> },
-];
-
-const rightMenu = [
-  { key: String("Login"), label: <Link to="/login">Login</Link> },
-];
 
 const OverallLayout = ({ children }) => {
   return (
@@ -85,11 +76,21 @@ const OverallLayout = ({ children }) => {
           <div style={{ width: "48px" }}></div>
           <Menu
             mode="horizontal"
-            items={items}
-            style={{ flex: 1, minWidth: 0 }}
-          />
-
-          <Menu items={rightMenu} style={{ float: "right" }} />
+            style={{ flex: 1, minWidth: 0, display: "block" }}
+          >
+            <Menu.Item key="home">
+              <Link to="/">Home</Link>
+            </Menu.Item>
+            <Menu.Item key="classes">
+              <Link to="/classes">Classes</Link>
+            </Menu.Item>
+            <Menu.Item key="plan">
+              <Link to="/plans">Plans</Link>
+            </Menu.Item>
+            <Menu.Item key="login" style={{ float: "right" }}>
+              <Link to="/login">Login</Link>
+            </Menu.Item>
+          </Menu>
         </Header>
 
         <Content style={{ padding: "0 48px" }}>
@@ -106,13 +107,15 @@ const OverallLayout = ({ children }) => {
           <Divider></Divider>
           <Flex style={{ width: "100%" }}>
             <Flex style={{ width: "10%", justifyContent: "flex-start" }}>
-              <Image
-                alt="logo"
-                src={require("./images/logopngResize.png")}
-                width={100}
-                height={50}
-                preview={false}
-              />
+              <Link to="/">
+                <Image
+                  alt="logo"
+                  src={require("./images/logopngResize.png")}
+                  width={100}
+                  height={50}
+                  preview={false}
+                />
+              </Link>
             </Flex>
 
             <Flex

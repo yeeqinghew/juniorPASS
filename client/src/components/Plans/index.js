@@ -1,21 +1,29 @@
 import React from "react";
-import { Typography, Card } from "antd";
+import { Typography, Card, Col, Row } from "antd";
 const { Text } = Typography;
 
 const Plans = () => {
   return (
     <>
-      <h1>Avaible Plans</h1>
-      <Text>Simple pricing.</Text>
-      <Card hoverable style={{ width: 300, boxShadow: 25 }}>
-        <h3>12 credits</h3>
-        <p>SGD 60</p>
-      </Card>
+      <div style={{ textAlign: "center" }}>
+        <h1>Avaible Plans</h1>
+        <Text>Simple pricing.</Text>
+      </div>
 
-      <Card hoverable style={{ width: 300, boxShadow: 25 }}>
-        <h3>25 credits</h3>
-        <p>SGD 100</p>
-      </Card>
+      <Row gutter={16}>
+        <Col span={12}>
+          <Card hoverable style={{ width: 300, boxShadow: 25 }}>
+            <h3>SGD 60</h3>
+            <p>for 12 credits</p>
+          </Card>
+        </Col>
+        <Col span={12}>
+          <Card hoverable style={{ width: 300, boxShadow: 25 }}>
+            <h3>SGD 100</h3>
+            <p>for 25 credits</p>
+          </Card>
+        </Col>
+      </Row>
       <Text>Book classes in Singapore</Text>
     </>
   );
