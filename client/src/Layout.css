@@ -1,0 +1,21 @@
+.ant-menu-horizontal,
+.ant-menu-item::after,
+.ant-menu-submenu::after {
+    border: none !important;
+}
+
+.ant-menu-item-selected {
+    border-bottom: none !important;
+}
+
+.ant-menu-item:hover {
+    border-bottom: none !important;
+}
+
+.ant-menu-item:hover::after {
+    border-bottom: none !important;
+}
+
+.ant-menu-item-selected::after {
+    border-bottom: none !important;
+}

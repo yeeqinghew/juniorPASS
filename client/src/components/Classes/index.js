@@ -1,13 +1,19 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Avatar, Input, List, Flex, Rate } from "antd";
-// import ReactMapboxGl, { Layer, Feature, Marker } from "react-mapbox-gl";
-import Map, { Marker, Popup } from "react-map-gl";
+import { Avatar, Input, List, Flex, Rate, Image } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
+import Map, {
+  Marker,
+  Popup,
+  NavigationControl,
+  GeolocateControl,
+} from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 const { Search } = Input;
 
 const Classes = () => {
   const [popupInfo, setPopupInfo] = useState(null);
   const [vendors, setVendors] = useState([]);
+  const [filterInput, setFilterInput] = useState(null);
   const getVendors = async () => {
     try {
       const response = await fetch(
@@ -39,7 +45,16 @@ const Classes = () => {
     [vendors]
   );
 
-  const onSearch = (value, _e, info) => console.log(info?.source, value);
+  const onSearch = (e) => {
+    const filteredData = vendors.filter((item) => {
+      return Object.keys(item).some((key) => {
+        return String(item[key])
+          .toLowerCase()
+          .includes(e.target.value.toLowerCase());
+      });
+    });
+    setFilterInput(filteredData);
+  };
 
   useEffect(() => {
     getVendors();
@@ -47,23 +62,24 @@ const Classes = () => {
 
   return (
     <>
-      <Search
-        placeholder="input search text"
+      <Input
+        size="large"
         allowClear
-        onSearch={onSearch}
-        style={{ width: "100vw" }}
+        onChange={onSearch}
+        style={{ width: "100vh" }}
+        prefix={<SearchOutlined />}
       />
       <Flex justify="space-between">
         <List
           itemLayout="horizontal"
-          dataSource={vendors}
+          dataSource={filterInput == null ? vendors : filterInput}
           style={{
             width: "40%",
           }}
           renderItem={(item, index) => (
             <List.Item>
               <List.Item.Meta
-                avatar={<Avatar src={item.picture} />}
+                avatar={<Image src={item.picture} width={240} />}
                 title={<a href={item.website}>{item.vendor_name}</a>}
                 description={item.description}
               ></List.Item.Meta>
@@ -71,17 +87,20 @@ const Classes = () => {
             </List.Item>
           )}
         ></List>
+
         <Map
           initialViewState={{
             longitude: 103.8189,
             latitude: 1.3069,
             zoom: 10,
           }}
-          mapStyle="mapbox://styles/mapbox/streets-v9"
+          mapStyle="mapbox://styles/mapbox/streets-v8"
           mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
-          style={{ width: 600, height: 400 }}
+          style={{ width: "50%", height: 400 }}
           mapLib={import("mapbox-gl")}
         >
+          <GeolocateControl position="top-left" />
+          <NavigationControl position="top-left" />
           {pins}
 
           {popupInfo && (
@@ -92,8 +111,9 @@ const Classes = () => {
               onClose={() => setPopupInfo(null)}
             >
               <div>
-                {popupInfo.vendor_name}
-                <a target="_new" href={``}></a>
+                <a target="_new" href={popupInfo.website}>
+                  {popupInfo.vendor_name}
+                </a>
               </div>
               <img width="100%" src={popupInfo.picture} />
             </Popup>
