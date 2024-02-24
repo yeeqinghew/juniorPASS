@@ -8,7 +8,6 @@ import Map, {
   GeolocateControl,
 } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-const { Search } = Input;
 
 const Classes = () => {
   const [popupInfo, setPopupInfo] = useState(null);
@@ -79,7 +78,17 @@ const Classes = () => {
           renderItem={(item, index) => (
             <List.Item>
               <List.Item.Meta
-                avatar={<Image src={item.picture} width={240} />}
+                avatar={
+                  <Image
+                    src={item.picture}
+                    width={240}
+                    preview={false}
+                    onMouseOver={(e) => {
+                      // make the color of the pin changed to white
+                      setPopupInfo(item);
+                    }}
+                  />
+                }
                 title={<a href={item.website}>{item.vendor_name}</a>}
                 description={item.description}
               ></List.Item.Meta>
