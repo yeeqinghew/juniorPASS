@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Avatar, Input, List, Flex, Rate, Image } from "antd";
+import { Space, Input, List, Flex, Rate, Image } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import Map, {
   Marker,
@@ -65,7 +65,7 @@ const Classes = () => {
         size="large"
         allowClear
         onChange={onSearch}
-        style={{ width: "100vh" }}
+        style={{ margin: "0 auto" }}
         prefix={<SearchOutlined />}
       />
       <Flex justify="space-between">
@@ -75,9 +75,14 @@ const Classes = () => {
           style={{
             width: "40%",
           }}
+          size="large"
           renderItem={(item, index) => (
             <List.Item>
               <List.Item.Meta
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                }}
                 avatar={
                   <Image
                     src={item.picture}
@@ -89,10 +94,19 @@ const Classes = () => {
                     }}
                   />
                 }
-                title={<a href={item.website}>{item.vendor_name}</a>}
-                description={item.description}
+                title={
+                  <Space direction="vertical">
+                    <>{item.category.toUpperCase()}</>
+                    <a href={item.website}>{item.vendor_name}</a>
+                  </Space>
+                }
+                description={
+                  <Space direction="vertical">
+                    {item.description}
+                    <Rate disabled defaultValue={item.reviews}></Rate>
+                  </Space>
+                }
               ></List.Item.Meta>
-              <Rate disabled defaultValue={item.reviews}></Rate>
             </List.Item>
           )}
         ></List>
@@ -105,7 +119,12 @@ const Classes = () => {
           }}
           mapStyle="mapbox://styles/mapbox/streets-v8"
           mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
-          style={{ width: "50%", height: 400 }}
+          style={{
+            width: "50%",
+            height: "60%",
+            position: "absolute",
+            right: "124px",
+          }}
           mapLib={import("mapbox-gl")}
         >
           <GeolocateControl position="top-left" />
