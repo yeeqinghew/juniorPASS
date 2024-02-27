@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Space, Input, List, Flex, Rate, Image } from "antd";
+import { Space, Input, List, Flex, Rate, Image, Table } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import Map, {
   Marker,
@@ -76,6 +76,10 @@ const Classes = () => {
             width: "40%",
           }}
           size="large"
+          pagination={{
+            position: "bottom",
+            pageSize: "2",
+          }}
           renderItem={(item, index) => (
             <List.Item>
               <List.Item.Meta
