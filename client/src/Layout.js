@@ -15,6 +15,9 @@ import {
   WhatsAppOutlined,
   MailOutlined,
   PhoneOutlined,
+  FacebookFilled,
+  LinkedinFilled,
+  InstagramOutlined,
 } from "@ant-design/icons";
 import "./Layout.css";
 
@@ -34,6 +37,7 @@ const OverallLayout = ({ children }) => {
           colorBgContainer: "#FCFBF8",
           fontSize: 14,
           colorLink: "black",
+          fontFamily: "Poppins, sans-serif",
         },
         components: {
           Layout: {
@@ -61,6 +65,7 @@ const OverallLayout = ({ children }) => {
             display: "flex",
             alignItems: "center",
             backgroundColor: "#FCFBF8",
+            padding: "38px 100px",
           }}
         >
           <Link to="/">
@@ -93,7 +98,7 @@ const OverallLayout = ({ children }) => {
           </Menu>
         </Header>
 
-        <Content style={{ padding: "0 48px" }}>
+        <Content style={{ padding: "0 100px" }}>
           <div
             style={{
               margin: "16px 0",
@@ -103,7 +108,7 @@ const OverallLayout = ({ children }) => {
             {children}
           </div>
         </Content>
-        <Footer style={{ background: "#FCFBF8" }}>
+        <Footer style={{ background: "#FCFBF8", padding: "0 100px" }}>
           <Divider></Divider>
           <Flex style={{ width: "100%" }}>
             <Flex style={{ width: "10%", justifyContent: "flex-start" }}>
@@ -121,20 +126,34 @@ const OverallLayout = ({ children }) => {
             <Flex
               style={{ right: 0, width: "90%", justifyContent: "flex-end" }}
             >
-              <Flex vertical gap="large" style={{ width: "25%" }}>
+              <Flex vertical gap="large" style={{ width: "15%" }}>
                 <Link to="/classes">Classes</Link>
                 <Link to="/plans">Plans</Link>
-                <Link to="/contactus">ContactUs</Link>
+                {/* <Link to="/contactus">ContactUs</Link> */}
               </Flex>
-              <Flex vertical gap="large" style={{ width: "25%" }}>
+
+              <Flex vertical gap="large" style={{ width: "15%" }}>
                 <Space direction="horizontal">
                   <MailOutlined />
                   <Link to="mailto:hello@juniorpass.sg">
                     hello@juniorpass.sg
                   </Link>
                 </Space>
+                <Flex vertical={false} gap="large" style={{ width: "15%" }}>
+                  <Space direction="horizontal">
+                    <FacebookFilled />
+                  </Space>
 
-                <Space direction="horizontal">
+                  <Space direction="horizontal">
+                    <InstagramOutlined />
+                  </Space>
+
+                  <Space direction="horizontal">
+                    <LinkedinFilled />
+                  </Space>
+                </Flex>
+
+                {/* <Space direction="horizontal">
                   <PhoneOutlined />
                   <Text>(65)XXXX-XXXX</Text>
                 </Space>
@@ -142,7 +161,7 @@ const OverallLayout = ({ children }) => {
                 <Space direction="horizontal">
                   <WhatsAppOutlined />
                   <Text>(65)XXXX-XXXX</Text>
-                </Space>
+                </Space> */}
               </Flex>
             </Flex>
           </Flex>
