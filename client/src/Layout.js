@@ -60,12 +60,12 @@ const OverallLayout = ({ children }) => {
           style={{
             position: "sticky",
             top: 0,
-            zIndex: 1,
+            zIndex: 9999,
             width: "100%",
             display: "flex",
             alignItems: "center",
             backgroundColor: "#FCFBF8",
-            padding: "38px 100px",
+            padding: "50px 150px",
           }}
         >
           <Link to="/">
@@ -108,7 +108,8 @@ const OverallLayout = ({ children }) => {
             {children}
           </div>
         </Content>
-        <Footer style={{ background: "#FCFBF8", padding: "0 100px" }}>
+
+        <Footer style={{ background: "#FCFBF8", padding: "50px 150px" }}>
           <Divider></Divider>
           <Flex style={{ width: "100%" }}>
             <Flex style={{ width: "10%", justifyContent: "flex-start" }}>

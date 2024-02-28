@@ -61,13 +61,26 @@ const Classes = () => {
 
   return (
     <>
-      <Input
-        size="large"
-        allowClear
-        onChange={onSearch}
-        style={{ margin: "0 auto" }}
-        prefix={<SearchOutlined />}
-      />
+      <div
+        style={{
+          margin: "24px",
+        }}
+      >
+        <Input
+          size="large"
+          allowClear
+          onChange={onSearch}
+          style={{
+            margin: "0 auto",
+            padding: "0 1.6rem",
+            borderRadius: "0.7rem",
+            height: "3rem",
+          }}
+          prefix={<SearchOutlined />}
+          placeholder="Search by location, classes, category"
+        />
+      </div>
+
       <Flex justify="space-between">
         <List
           itemLayout="horizontal"
@@ -78,6 +91,7 @@ const Classes = () => {
           size="large"
           pagination={{
             position: "bottom",
+            align: "end",
             pageSize: "2",
           }}
           renderItem={(item, index) => (
@@ -125,7 +139,7 @@ const Classes = () => {
           mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
           style={{
             width: "50%",
-            height: "60%",
+            height: "70%",
             position: "absolute",
             right: "124px",
           }}
