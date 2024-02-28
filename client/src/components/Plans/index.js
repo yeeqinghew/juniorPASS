@@ -1,31 +1,84 @@
 import React from "react";
 import { Typography, Card, Col, Row } from "antd";
-const { Text } = Typography;
+import { CheckOutlined } from "@ant-design/icons";
+const { Text, Title } = Typography;
+
+const CardComponent = ({ planName, planClass, price, credits }) => {
+  return (
+    <Card
+      hoverable
+      style={{
+        boxShadow: 25,
+        width: "fit-content",
+        display: "flex",
+        flexWrap: "wrap",
+        justifyContent: "center",
+        backgroundColor: "#fff",
+        padding: "2.5rem",
+        margin: "12px",
+        borderRadius: "25px",
+        textAlign: "center",
+        transition: "0.3s",
+        cursor: "pointer",
+      }}
+    >
+      <div class={planClass}>
+        {planClass == "popularPlan" && (
+          <span
+            style={{
+              position: "absolute",
+              top: "-20px",
+              left: "50%",
+              transform: "translateX(=50%)",
+              backgroundColor: "black",
+              color: "#fff",
+              padding: "4px 20px",
+              fontSize: "18px",
+              borderRadius: "5px",
+            }}
+          >
+            Most Popular
+          </span>
+        )}
+        <Title level={3}>{planName}</Title>
+        <Text style={{ fontSize: "30px" }}>SGD {price} </Text>
+        <Text> for {credits} credits</Text>
+      </div>
+    </Card>
+  );
+};
 
 const Plans = () => {
   return (
-    <>
-      <div style={{ textAlign: "center" }}>
+    <div style={{ textAlign: "center" }}>
+      <div>
         <h1>Avaible Plans</h1>
         <Text>Simple pricing.</Text>
       </div>
 
-      <Row gutter={16}>
-        <Col span={12}>
-          <Card hoverable style={{ width: 300, boxShadow: 25 }}>
-            <h3>SGD 60</h3>
-            <p>for 12 credits</p>
-          </Card>
+      <Row align={"center"}>
+        <Col>
+          <CardComponent
+            planName="Basic"
+            planClass="plan"
+            price="60"
+            credits="12"
+          />
         </Col>
-        <Col span={12}>
-          <Card hoverable style={{ width: 300, boxShadow: 25 }}>
-            <h3>SGD 100</h3>
-            <p>for 25 credits</p>
-          </Card>
+        <Col>
+          <CardComponent
+            planName="Value"
+            planClass="popularPlan"
+            price="100"
+            credits="25"
+          />
         </Col>
       </Row>
-      <Text>Book classes in Singapore</Text>
-    </>
+      <Text>
+        <CheckOutlined />
+        Book classes in Singapore
+      </Text>
+    </div>
   );
 };
 

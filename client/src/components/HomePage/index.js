@@ -1,19 +1,19 @@
 import React from "react";
-import { Button, Card, Space, Typography, Image, Col, Row } from "antd";
+import {
+  Button,
+  Card,
+  Space,
+  Typography,
+  Image,
+  Col,
+  Row,
+  BackTop,
+} from "antd";
+import { UpOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { Splide, SplideSlide } from "@splidejs/react-splide";
 import { Grid } from "@splidejs/splide-extension-grid";
 import "@splidejs/react-splide/dist/css/splide.min.css";
-
-// Default theme
-// import "@splidejs/react-splide/css";
-
-// or other themes
-// import "@splidejs/react-splide/css/skyblue";
-// import "@splidejs/react-splide/css/sea-green";
-
-// // or only core styles
-// import "@splidejs/splide/css/core";
 
 const { Title, Text } = Typography;
 
@@ -22,7 +22,7 @@ const HomePage = () => {
   const imageList = images.keys().map((image) => images(image));
 
   return (
-    <div>
+    <div style={{ padding: "0 180px" }}>
       {/* thumbnail */}
       <div>
         <Image
@@ -44,7 +44,7 @@ const HomePage = () => {
             borderRadius: "30px",
             position: "absolute",
             margin: "0 auto",
-            right: "180px",
+            right: "340px",
             top: "250px",
           }}
         >
@@ -144,7 +144,12 @@ const HomePage = () => {
         </Row>
       </div>
 
+      {/* button */}
       <div></div>
+
+      <BackTop>
+        <UpOutlined />
+      </BackTop>
     </div>
   );
 };
