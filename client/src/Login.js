@@ -51,7 +51,12 @@ const Login = () => {
         >
           Welcome back
         </Title>
-        <GoogleLogin onSuccess={responseMessage} onError={errorMessage} />
+        <GoogleLogin
+          onSuccess={responseMessage}
+          onError={errorMessage}
+          width="290"
+        />
+
         <Divider>OR</Divider>
         <Form
           name="normal_login"
