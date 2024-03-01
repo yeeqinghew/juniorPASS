@@ -1,19 +1,20 @@
-import React, { useEffect } from "react";
-import { LockOutlined, UserOutlined } from "@ant-design/icons";
+import React from "react";
+import {
+  LockOutlined,
+  MailOutlined,
+  EyeTwoTone,
+  EyeInvisibleOutlined,
+} from "@ant-design/icons";
 import { Button, Checkbox, Divider, Form, Input, Typography } from "antd";
 import { GoogleLogin } from "@react-oauth/google";
+import { Link } from "react-router-dom";
 
-const { Text, Title } = Typography;
+const { Title, Text } = Typography;
 
 const Login = () => {
-  useEffect(() => {
-    console.log("pricess", process.env.REACT_APP_GOOGLE_CLIENT_ID);
-  }, []);
   const onFinish = (values) => {
     console.log("Received values of form: ", values);
   };
-
-  const googleButtonHandle = () => {};
 
   const responseMessage = (response) => {
     console.log(response);
@@ -54,6 +55,7 @@ const Login = () => {
         <GoogleLogin
           onSuccess={responseMessage}
           onError={errorMessage}
+          theme="outline"
           width="290"
         />
 
@@ -70,18 +72,20 @@ const Login = () => {
           onFinish={onFinish}
         >
           <Form.Item
-            name="username"
+            name="email"
             rules={[
               {
                 required: true,
-                message: "Please input your Username!",
+                message: "Please input your email!",
               },
             ]}
           >
             <Input
-              prefix={<UserOutlined className="site-form-item-icon" />}
-              placeholder="Username"
+              prefix={<MailOutlined className="site-form-item-icon" />}
+              placeholder="email"
+              type={"email"}
               size={"large"}
+              required
             />
           </Form.Item>
           <Form.Item
@@ -93,11 +97,15 @@ const Login = () => {
               },
             ]}
           >
-            <Input
+            <Input.Password
               prefix={<LockOutlined className="site-form-item-icon" />}
               type="password"
               placeholder="Password"
               size={"large"}
+              iconRender={(visible) =>
+                visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+              }
+              required
             />
           </Form.Item>
           <Form.Item>
@@ -119,9 +127,14 @@ const Login = () => {
             >
               Log in
             </Button>
-            Or <a href="">register now!</a>
+            Or <Link to="/register">register now!</Link>
           </Form.Item>
         </Form>
+
+        <Divider></Divider>
+        <Link to="">
+          <Text>Partner Login</Text>
+        </Link>
       </div>
     </section>
   );

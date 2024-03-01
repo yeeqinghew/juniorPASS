@@ -5,7 +5,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HomePage from "./components/HomePage";
 import Classes from "./components/Classes";
 import Plans from "./components/Plans";
-import Login from "./Login";
+import Login from "./components/Login";
+import Register from "./components/Register";
 import UserContext from "./components/UserContext";
 import MainPage from "./components/User/MainPage";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -31,6 +32,7 @@ const App = () => {
           <Route path="/classes" element={<Classes />}></Route>
           <Route path="/plans" element={<Plans />}></Route>
           <Route path="/login" element={<Login />}></Route>
+          <Route path="/register" element={<Register />}></Route>
           {/* <Route path="*"></Route> */}
           {/* Authenticated Routes */}
         </Routes>
