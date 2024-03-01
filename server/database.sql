@@ -4,7 +4,6 @@ DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS child CASCADE;
 DROP TABLE IF EXISTS parent CASCADE;
 DROP TABLE IF EXISTS vendors CASCADE;
-DROP TABLE IF EXISTS vendor_outlet CASCADE;
 DROP TABLE IF EXISTS transactions CASCADE;
 
 CREATE OR REPLACE FUNCTION trigger_set_timestamp ()
@@ -24,11 +23,12 @@ CREATE TYPE categories AS ENUM('Sports', 'Music');
 
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
     user_type userTypes,
     email VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(50) NOT NULL,
-    created_at TIMESTAMP NOT NULL,
-    phone_number VARCHAR(50),
+    password VARCHAR(255) NOT NULL,
+    created_on DATE,
+    phone_number VARCHAR(8),
     method methods
 );
 
@@ -50,19 +50,19 @@ CREATE TABLE vendors (
     description VARCHAR(1000),
     category categories NOT NULL,
     website VARCHAR(1000),
-    password VARCHAR(50) NOT NULL,
+    password VARCHAR(244) NOT NULL,
     reviews BIGINT NOT NULL,
     picture VARCHAR(1000),
     address VARCHAR(1000) NOT NULL,
     latitude VARCHAR(50) NOT NULL,
     longitude VARCHAR(50) NOT NULL,
-    created_at TIMESTAMP NOT NULL
+    created_on DATE
 );
 
 CREATE TABLE transactions (
     transaction_id SERIAL PRIMARY KEY,
     done_by VARCHAR(50) NOT NULL,
-    created_at VARCHAR(10) NOT NULL
+    created_on DATE
 );
 
 INSERT INTO vendors (vendor_name, email, description, category, website, password, reviews, picture, address, latitude, longitude, created_at)
