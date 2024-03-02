@@ -4,8 +4,21 @@ const pool = require("../db");
 const bcrypt = require("bcrypt");
 const jwtGenerator = require("../utils/jwtGenerator");
 const validInfo = require("../middleware/validInfo");
+const authorization = require("../middleware/authorization");
 
-// create a user
+router.get("/", authorization, async (req, res) => {
+  try {
+    const user = await pool.query("SELECT * FROM users WHERE user_id = $1", [
+      req.user,
+    ]);
+
+    res.json(user.rows[0]);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json("Server Error");
+  }
+});
+
 router.post("/register", validInfo, async (req, res) => {
   const { userType, name, phoneNumber, email, password, method, createdOn } =
     req.body;
@@ -63,8 +76,16 @@ router.post("/login", validInfo, async (req, res) => {
   }
 });
 
-// get all users
-router.get("/", async (req, res) => {
+router.get("/is-verify", authorization, async (req, res) => {
+  try {
+    res.json(true);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Server Error");
+  }
+});
+
+router.get("/getAllUsers", async (req, res) => {
   try {
     const user = await pool.query("SELECT * FROM users");
     res.json(user.rows);

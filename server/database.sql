@@ -22,7 +22,7 @@ CREATE TYPE genders AS ENUM('M', 'F');
 CREATE TYPE categories AS ENUM('Sports', 'Music');
 
 CREATE TABLE users (
-    user_id SERIAL PRIMARY KEY,
+    user_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(100),
     user_type userTypes,
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE users (
 
 CREATE TABLE child (
     child_id SERIAL PRIMARY KEY,
-    user_id SERIAL,
+    user_id uuid,
     gender genders,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
@@ -65,14 +65,14 @@ CREATE TABLE transactions (
     created_on DATE
 );
 
-INSERT INTO vendors (vendor_name, email, description, category, website, password, reviews, picture, address, latitude, longitude, created_at)
+INSERT INTO vendors (vendor_name, email, description, category, website, password, reviews, picture, address, latitude, longitude, created_on)
     VALUES('SG Basketball', 'admin@sgbasketball.com', 'SG Basketball Pte Ltd is the leading service provider for basketball in Singapore. Our programs and events cater for players of all ages, from beginner to advanced levels. Our coaches and tournament organizers are passionate about ensuring that every participant has a positive experience - and that their sport experience enriches their lives.', 'Sports', 'https://www.sgbasketball.com/', 'password', 5, 'https://images.squarespace-cdn.com/content/v1/5ad0064b31d4df14309baeb5/1561030353172-ES8S0PN75WS044UIWCDT/SGBASKETBALL.png?format=1500w', '750B Chai Chee Rd #01-02 S(469002)', '1.3235', '103.9207', '2024-1-1');
     
-INSERT INTO vendors (vendor_name, email, description, category, website, password, reviews, picture, address, latitude, longitude, created_at)
+INSERT INTO vendors (vendor_name, email, description, category, website, password, reviews, picture, address, latitude, longitude, created_on)
     VALUES('Swim Werks', 'sales@swimwerks.com.sg', 'Swimwerks is a trusted provider of lifeguard services for various organisations in Singapore, playing a key role in ensuring the safety of thousands of swimmers across a multitude of contexts, from the open seas to hotel swimming pools.', 'Sports', 'https://swimwerks.com.sg/', 'password', 5, 'https://swimwerks.com.sg/wp-content/uploads/2023/04/Swimwerks-Logo.png', '3 Gambas Cres, #07-11 Nordcom 1, Singapore 757088', '1.4442', '103.8139', '2024-1-1');
 
-INSERT INTO vendors (vendor_name, email, description, category, website, password, reviews, picture, address, latitude, longitude, created_at)
+INSERT INTO vendors (vendor_name, email, description, category, website, password, reviews, picture, address, latitude, longitude, created_on)
     VALUES('Aureus Academy', 'contact@areusacademy.com', 'Aureus Academy is Singapore''s fastest growing music school with over 18,000 students enrolled between all our schools.', 'Music', 'https://www.aureusacademy.com/', 'password', 5, 'https://w7.pngwing.com/pngs/949/42/png-transparent-aureus-academy-at-northpoint-city-music-lesson-aureus-academy-at-eastpoint-others-text-trademark-logo.png', '23 Serangoon Central, #04-01A/02 NEX, Singapore 556083', '1.3506', '103.8718', '2024-1-1');
 
-INSERT INTO vendors (vendor_name, email, description, category, website, password, reviews, picture, address, latitude, longitude, created_at)
+INSERT INTO vendors (vendor_name, email, description, category, website, password, reviews, picture, address, latitude, longitude, created_on)
     VALUES('Little Kickers', 'Singapore@littlekickers.sg', 'The home of pre-school football we believe in something we call "Play not Push". It means teaching football in a fun, pressure-free environment. We want to give children a positive introduction to sport as a whole and have FUN along the way', 'Sports', 'https://www.littlekickers.sg/', 'password', 5, 'https://pbs.twimg.com/profile_images/1205502044741742592/aA3NOOhs_400x400.jpg', '16 Raffles Quay Quay, Hong Leong Building Singapore, Singapore 48581', '1.281308', '103.850939', '2024-1-1');
