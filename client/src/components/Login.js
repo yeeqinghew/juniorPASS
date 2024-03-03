@@ -8,12 +8,34 @@ import {
 import { Button, Checkbox, Divider, Form, Input, Typography } from "antd";
 import { GoogleLogin } from "@react-oauth/google";
 import { Link } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 
 const { Title, Text } = Typography;
 
-const Login = () => {
-  const onFinish = (values) => {
-    console.log("Received values of form: ", values);
+const Login = ({ setAuth }) => {
+  const onFinish = async (values) => {
+    try {
+      const response = await fetch("http://localhost:5000/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+
+      const parseRes = await response.json();
+      if (parseRes.token) {
+        localStorage.setItem("token", parseRes.token);
+        setAuth(true);
+        toast.success("Login successfully");
+      } else {
+        setAuth(false);
+        toast.error("Wrong credential");
+      }
+    } catch (error) {
+      console.error(error.message);
+      toast.error(error.message);
+    }
   };
 
   const responseMessage = (response) => {
@@ -32,6 +54,7 @@ const Login = () => {
         alignItems: "center",
       }}
     >
+      <Toaster />
       <div
         style={{
           position: "relative",

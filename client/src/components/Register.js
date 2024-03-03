@@ -11,24 +11,43 @@ import {
 import { Button, Form, Input, Typography } from "antd";
 import { Link } from "react-router-dom";
 const { Title, Text } = Typography;
+import toast, { Toaster } from "react-hot-toast";
 
-const Register = () => {
+const Register = ({ setAuth }) => {
   const onRegister = async (values) => {
     try {
-      const response = await fetch("http://localhost:5000/jwtAuth/register", {
+      const body = {
+        ...values,
+        userType: "parent",
+        method: "normal",
+        createdOn: new Date().toLocaleString(),
+      };
+      const response = await fetch("http://localhost:5000/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify(body),
       });
-      console.log("Received values of form: ", values);
+
+      const parseRes = await response.json();
+      if (parseRes.token) {
+        localStorage.setItem("token", parseRes.token);
+        setAuth(true);
+        toast.success("Register successfully");
+      } else {
+        setAuth(false);
+        toast.error("Failed. Please try later");
+      }
     } catch (error) {
-      console.error(error);
+      console.error(error.message);
+      toast.error(error.message);
     }
   };
 
   return (
     <div>
+      <Toaster />
       <Title level={3}>Register</Title>
       <Form
         name="register"
