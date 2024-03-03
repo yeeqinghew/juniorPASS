@@ -18,13 +18,18 @@ import {
   FacebookFilled,
   LinkedinFilled,
   InstagramOutlined,
+  LogoutOutlined,
 } from "@ant-design/icons";
 import "./Layout.css";
 
 const { Header, Content, Footer } = Layout;
 const { Text } = Typography;
 
-const OverallLayout = ({ children }) => {
+const OverallLayout = ({ isAuthenticated, setAuth, children }) => {
+  const handleLogout = () => {
+    setAuth(false);
+  };
+
   return (
     <ConfigProvider
       theme={{
@@ -92,9 +97,20 @@ const OverallLayout = ({ children }) => {
             <Menu.Item key="plan">
               <Link to="/plans">Plans</Link>
             </Menu.Item>
-            <Menu.Item key="login" style={{ float: "right" }}>
-              <Link to="/login">Login</Link>
-            </Menu.Item>
+            {isAuthenticated ? (
+              <>
+                <Menu.Item key="logout" style={{ float: "right" }}>
+                  <LogoutOutlined onClick={handleLogout} />
+                </Menu.Item>
+                <Menu.Item key="profile" style={{ float: "right" }}>
+                  <Link to="/profile">Profile</Link>
+                </Menu.Item>
+              </>
+            ) : (
+              <Menu.Item key="login" style={{ float: "right" }}>
+                <Link to="/login">Login</Link>
+              </Menu.Item>
+            )}
           </Menu>
         </Header>
 
