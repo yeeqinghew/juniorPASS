@@ -7,7 +7,7 @@ import {
   Image,
   Col,
   Row,
-  BackTop,
+  FloatButton,
 } from "antd";
 import { UpOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
@@ -147,9 +147,7 @@ const HomePage = () => {
       {/* button */}
       <div></div>
 
-      <BackTop>
-        <UpOutlined />
-      </BackTop>
+      <FloatButton.BackTop icon={<UpOutlined />} />
     </div>
   );
 };

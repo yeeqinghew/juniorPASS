@@ -8,19 +8,47 @@ import {
   EyeInvisibleOutlined,
   NumberOutlined,
 } from "@ant-design/icons";
-import { Button, Form, Input, Typography } from "antd";
+import { Button, Form, Input, Typography, Divider } from "antd";
 import { Link } from "react-router-dom";
-const { Title, Text } = Typography;
 import toast, { Toaster } from "react-hot-toast";
+import { GoogleLogin } from "@react-oauth/google";
+
+const { Title, Text } = Typography;
 
 const Register = ({ setAuth }) => {
+  const handleGoogleLogin = async (values) => {
+    console.log(values);
+    const { clientId, credential } = values;
+    if (credential) {
+      const response = await fetch("http://localhost:5000/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          token: credential,
+          method: "gmail",
+          userType: "parent",
+        }),
+      });
+      const parseRes = await response.json();
+      if (parseRes.token) {
+        localStorage.setItem("token", parseRes.token);
+        setAuth(true);
+        toast.success("Register successfully");
+      } else {
+        setAuth(false);
+        toast.error("Failed. Please try later");
+      }
+    }
+  };
+
   const onRegister = async (values) => {
     try {
       const body = {
         ...values,
         userType: "parent",
         method: "normal",
-        createdOn: new Date().toLocaleString(),
       };
       const response = await fetch("http://localhost:5000/auth/register", {
         method: "POST",
@@ -32,7 +60,7 @@ const Register = ({ setAuth }) => {
 
       const parseRes = await response.json();
       if (parseRes.token) {
-        localStorage.setItem("token", parseRes.token);
+        localStorage.setItem("token", { token: parseRes.token });
         setAuth(true);
         toast.success("Register successfully");
       } else {
@@ -45,10 +73,22 @@ const Register = ({ setAuth }) => {
     }
   };
 
+  const errorMessage = (error) => {
+    console.log(error);
+  };
+
   return (
     <div>
       <Toaster />
       <Title level={3}>Register</Title>
+      <GoogleLogin
+        onSuccess={handleGoogleLogin}
+        onError={errorMessage}
+        theme="outline"
+        width="290"
+      />
+
+      <Divider>OR</Divider>
       <Form
         name="register"
         className="register-form"

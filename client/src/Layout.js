@@ -1,5 +1,4 @@
-import "./App.css";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Layout,
   Menu,
@@ -20,14 +19,20 @@ import {
   InstagramOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
+import toast, { Toaster } from "react-hot-toast";
 import "./Layout.css";
+import { googleLogout } from "@react-oauth/google";
 
 const { Header, Content, Footer } = Layout;
 const { Text } = Typography;
 
 const OverallLayout = ({ isAuthenticated, setAuth, children }) => {
   const handleLogout = () => {
+    localStorage.removeItem("user");
     setAuth(false);
+    // logout of Google account
+    googleLogout();
+    toast.success("Logout successfully");
   };
 
   return (
@@ -121,6 +126,7 @@ const OverallLayout = ({ isAuthenticated, setAuth, children }) => {
               padding: 24,
             }}
           >
+            <Toaster />
             {children}
           </div>
         </Content>

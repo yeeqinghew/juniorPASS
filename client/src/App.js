@@ -1,5 +1,4 @@
-import "./App.css";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import OverallLayout from "./Layout";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import HomePage from "./components/HomePage";
@@ -19,6 +18,28 @@ const App = () => {
   const setAuth = (boolean) => {
     setIsAuthenticated(boolean);
   };
+
+  const isAuth = async () => {
+    try {
+      console.log("JSONSOSNOSNSO", JSON.parse(localStorage.user).method);
+      const response = await fetch("http://localhost:5000/auth/is-verify", {
+        method: "GET",
+        headers: {
+          token: JSON.parse(localStorage.user).token,
+          method: JSON.parse(localStorage.user).method,
+        },
+      });
+
+      const parseRes = await response.json();
+      parseRes === true ? setAuth(true) : setAuth(false);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
+  useEffect(() => {
+    isAuth();
+  }, []);
 
   return (
     <BrowserRouter>
@@ -61,13 +82,8 @@ const App = () => {
           <Route
             path="/profile"
             element={
-              isAuthenticated ? (
-                <Profile setAuth={setAuth} />
-              ) : (
-                <Navigate replace to="/login" />
-              )
+              isAuthenticated ? <Profile /> : <Navigate replace to="/login" />
             }
-            // element={<Profile />}
           ></Route>
           {/* <Route path="*"></Route> */}
           {/* Authenticated Routes */}
