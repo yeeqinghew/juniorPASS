@@ -13,7 +13,7 @@ import toast, { Toaster } from "react-hot-toast";
 const { Title, Text } = Typography;
 
 const Login = ({ setAuth }) => {
-  const onFinish = async (values) => {
+  const handleLogin = async (values) => {
     try {
       const response = await fetch("http://localhost:5000/auth/login", {
         method: "POST",
@@ -25,7 +25,10 @@ const Login = ({ setAuth }) => {
 
       const parseRes = await response.json();
       if (parseRes.token) {
-        localStorage.setItem("token", parseRes.token);
+        localStorage.setItem(
+          "user",
+          JSON.stringify({ token: parseRes.token, method: parseRes.method })
+        );
         setAuth(true);
         toast.success("Login successfully");
       } else {
@@ -38,9 +41,27 @@ const Login = ({ setAuth }) => {
     }
   };
 
-  const responseMessage = (response) => {
-    console.log(response);
+  const handleGoogleLogin = async (values) => {
+    console.log(values);
+    const { clientId, credential } = values;
+    if (credential) {
+      // const response = await fetch("http://localhost:5000/auth/login", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify({
+      //     token: credential,
+      //     method: "gmail",
+      //   }),
+      // });
+      // const parseRes = await response.json();
+      // console.log("parseRes", parseRes);
+      // save to DB with available data if this is not found in DB
+      //
+    }
   };
+
   const errorMessage = (error) => {
     console.log(error);
   };
@@ -76,7 +97,7 @@ const Login = ({ setAuth }) => {
           Welcome back
         </Title>
         <GoogleLogin
-          onSuccess={responseMessage}
+          onSuccess={handleGoogleLogin}
           onError={errorMessage}
           theme="outline"
           width="290"
@@ -92,7 +113,7 @@ const Login = ({ setAuth }) => {
           style={{
             maxWidth: "300px",
           }}
-          onFinish={onFinish}
+          onFinish={handleLogin}
         >
           <Form.Item
             name="email"

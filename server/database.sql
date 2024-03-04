@@ -26,10 +26,11 @@ CREATE TABLE users (
     name VARCHAR(100),
     user_type userTypes,
     email VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
+    password VARCHAR(255),
     created_on DATE,
     phone_number VARCHAR(8),
-    method methods
+    method methods,
+    display_picture VARCHAR(255),
 );
 
 CREATE TABLE child (
