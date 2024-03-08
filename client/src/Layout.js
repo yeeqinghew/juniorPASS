@@ -61,7 +61,7 @@ const OverallLayout = ({ isAuthenticated, setAuth, children }) => {
             display: "flex",
             alignItems: "center",
             backgroundColor: "#FCFBF8",
-            padding: "50px 50px",
+            padding: "50px",
           }}
         >
           <Link to="/">
@@ -182,7 +182,42 @@ const OverallLayout = ({ isAuthenticated, setAuth, children }) => {
 
   function FooterConfig() {
     if (width < 1024) {
-      return null;
+      return (
+        <Footer style={{ background: "#FCFBF8", padding: "50px" }}>
+          <Divider></Divider>
+          <Flex vertical gap="large" style={{ alignItems: "center" }}>
+            <Link to="/">
+              <Image
+                alt="logo"
+                src={require("./images/logopngResize.png")}
+                width={100}
+                height={50}
+                preview={false}
+              />
+            </Link>
+
+            <Flex vertical gap="large" style={{ alignItems: "center" }}>
+              <Space direction="horizontal">
+                <MailOutlined />
+                <Link to="mailto:hello@juniorpass.sg">hello@juniorpass.sg</Link>
+              </Space>
+              <Flex vertical={false} gap="large">
+                <Space direction="horizontal">
+                  <FacebookFilled />
+                </Space>
+
+                <Space direction="horizontal">
+                  <InstagramOutlined />
+                </Space>
+
+                <Space direction="horizontal">
+                  <LinkedinFilled />
+                </Space>
+              </Flex>
+            </Flex>
+          </Flex>
+        </Footer>
+      );
     }
     if (1024 <= width) {
       return (
