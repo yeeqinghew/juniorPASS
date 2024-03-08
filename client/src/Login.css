@@ -1,15 +1,43 @@
-#components-form-demo-normal-login .login-form {
-    max-width: 300px;
+/* mobile: 360px x 640px */
+@media (min-width: 350px) {}
+
+/* tablet portrait: 768px x 1024px */
+@media (min-width: 768px) {}
+
+/* tablet landscape: 1024px x 768px */
+@media (min-width: 1024px) {
+    #components-form-demo-normal-login .login-form {
+        max-width: 300px;
+    }
+
+    #components-form-demo-normal-login .login-form-forgot {
+        float: right;
+    }
+
+    #components-form-demo-normal-login .ant-col-rtl .login-form-forgot {
+        float: left;
+    }
+
+    #components-form-demo-normal-login .login-form-button {
+        width: 100%;
+    }
 }
 
-#components-form-demo-normal-login .login-form-forgot {
-    float: right;
-}
+/* desktop: 1336px x 768px */
+@media (min-width: 1336px) {
+    #components-form-demo-normal-login .login-form {
+        max-width: 300px;
+    }
 
-#components-form-demo-normal-login .ant-col-rtl .login-form-forgot {
-    float: left;
-}
+    #components-form-demo-normal-login .login-form-forgot {
+        float: right;
+    }
 
-#components-form-demo-normal-login .login-form-button {
-    width: 100%;
+    #components-form-demo-normal-login .ant-col-rtl .login-form-forgot {
+        float: left;
+    }
+
+    #components-form-demo-normal-login .login-form-button {
+        width: 100%;
+    }
 }
