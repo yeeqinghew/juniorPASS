@@ -21,7 +21,6 @@ const App = () => {
 
   const isAuth = async () => {
     try {
-      console.log("JSONSOSNOSNSO", JSON.parse(localStorage.user).method);
       const response = await fetch("http://localhost:5000/auth/is-verify", {
         method: "GET",
         headers: {
