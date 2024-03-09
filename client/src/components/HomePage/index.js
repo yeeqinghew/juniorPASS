@@ -20,11 +20,30 @@ const { Title, Text } = Typography;
 const HomePage = () => {
   const images = require.context("../../images/partners", true);
   const imageList = images.keys().map((image) => images(image));
+  const desktopStyles = {
+    div: {
+      padding: "0 180px",
+    },
+    splideCard: {
+      width: 240,
+      height: 240,
+    },
+  };
+
+  const mobileStyles = {
+    div: {
+      padding: 0,
+    },
+    splideCard: {
+      width: 240,
+      height: 240,
+    },
+  };
 
   return (
-    <div style={{ padding: "0 180px" }}>
+    <div>
       {/* thumbnail */}
-      <div>
+      {/* <div>
         <Image
           src={require("../../images/cover.jpg")}
           alt="cover"
@@ -66,7 +85,7 @@ const HomePage = () => {
             </Link>
           </Space>
         </Card>
-      </div>
+      </div> */}
 
       <div style={{ height: 48 }}></div>
 
@@ -102,8 +121,6 @@ const HomePage = () => {
             <SplideSlide>
               <Card
                 style={{
-                  width: 240,
-                  height: 240,
                   display: "flex",
                 }}
                 bodyStyle={{
