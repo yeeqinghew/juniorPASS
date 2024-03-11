@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-const { jwtDecode } = require("jwt-decode");
 require("dotenv").config();
 
 module.exports = async (req, res, next) => {

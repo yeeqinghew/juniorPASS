@@ -31,7 +31,7 @@ const { Text } = Typography;
 
 const OverallLayout = ({ isAuthenticated, setAuth, children }) => {
   const [open, setOpen] = useState(false);
-  const { height, width } = useWindowDimensions();
+  const { width, isDesktop } = useWindowDimensions();
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -317,11 +317,11 @@ const OverallLayout = ({ isAuthenticated, setAuth, children }) => {
         }}
       >
         <HeaderConfig />
-        <Content style={{ padding: "0 100px" }}>
+        <Content style={{ padding: isDesktop ? "0 100px" : "0" }}>
           <div
             style={{
-              margin: "16px 0",
-              padding: 24,
+              margin: isDesktop ? "16px 0" : "8px",
+              padding: isDesktop ? 24 : 16,
             }}
           >
             <Toaster />

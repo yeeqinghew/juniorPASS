@@ -15,7 +15,6 @@ const Profile = () => {
         });
 
         const parseRes = await response.json();
-        console.log("name in proflle", parseRes);
         setName(parseRes.name);
       } catch (error) {
         console.error(error.message);
