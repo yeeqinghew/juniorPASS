@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Typography } from "antd";
+import { Tabs, Typography } from "antd";
+import StickyBox from "react-sticky-box";
+
 const { Title, Text } = Typography;
 
 const Profile = () => {
@@ -24,10 +26,58 @@ const Profile = () => {
     fetchName();
   }, []);
 
+  const renderTabBar = (props, DefaultTabBar) => (
+    <StickyBox
+      offsetTop={64}
+      offsetBottom={20}
+      style={{
+        zIndex: 1,
+      }}
+    >
+      <DefaultTabBar {...props} />
+    </StickyBox>
+  );
+
+  const items = [
+    {
+      label: "My Account",
+      key: "account",
+      children: (
+        <>
+          <h1>Profile</h1>
+          <Text>{name}</Text>
+        </>
+      ),
+    },
+    {
+      label: "Child(ren)",
+      key: "child",
+      children: `Content of My Child(ren)`,
+    },
+    {
+      label: "Credit",
+      key: "credit",
+      children: `Content of Credit`,
+    },
+    {
+      label: "My Classes",
+      key: "classes",
+      children: `Content of My Classes`,
+    },
+  ];
   return (
     <>
-      <h1>Profile</h1>
-      <Text>{name}</Text>
+      <Tabs
+        type="card"
+        tabPosition={"left"}
+        renderTabBar={renderTabBar}
+        items={items}
+        tabBarStyle={{
+          height: "100%",
+          color: "red",
+        }}
+        tabBarGutter={4}
+      />
     </>
   );
 };

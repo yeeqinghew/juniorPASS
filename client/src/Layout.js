@@ -9,6 +9,7 @@ import {
   Space,
   Image,
   Drawer,
+  Badge,
 } from "antd";
 import { Link } from "react-router-dom";
 import {
@@ -20,6 +21,7 @@ import {
   InstagramOutlined,
   LogoutOutlined,
   MenuOutlined,
+  ShoppingCartOutlined,
 } from "@ant-design/icons";
 import toast, { Toaster } from "react-hot-toast";
 import "./Layout.css";
@@ -159,10 +161,18 @@ const OverallLayout = ({ isAuthenticated, setAuth, children }) => {
             <Menu.Item key="plan">
               <Link to="/plans">Plans</Link>
             </Menu.Item>
+            <></>
             {isAuthenticated ? (
               <>
                 <Menu.Item key="logout" style={{ float: "right" }}>
                   <LogoutOutlined onClick={handleLogout} />
+                </Menu.Item>
+                <Menu.Item key="cart" style={{ float: "right" }}>
+                  <ShoppingCartOutlined />
+                </Menu.Item>
+                <Menu.Item key="notification" style={{ float: "right" }}>
+                  {/* TODO: <Badge> */}
+                  <i className="fa fa-bell-o"></i>
                 </Menu.Item>
                 <Menu.Item key="profile" style={{ float: "right" }}>
                   <Link to="/profile">Profile</Link>
@@ -317,7 +327,7 @@ const OverallLayout = ({ isAuthenticated, setAuth, children }) => {
         }}
       >
         <HeaderConfig />
-        <Content style={{ padding: isDesktop ? "0 100px" : "0" }}>
+        <Content style={{ padding: isDesktop ? "0 150px" : "0" }}>
           <div
             style={{
               margin: isDesktop ? "16px 0" : "8px",
