@@ -10,6 +10,7 @@ import UserContext from "./components/UserContext";
 import MainPage from "./components/User/MainPage";
 import "mapbox-gl/dist/mapbox-gl.css";
 import Profile from "./components/Profile";
+import Class from "./components/Classes/Class";
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -57,6 +58,7 @@ const App = () => {
           <Route index element={<HomePage />}></Route>
           <Route path="/" element={<HomePage />}></Route>
           <Route path="/classes" element={<Classes />}></Route>
+          <Route path="/class/:classId" element={<Class />}></Route>
           <Route path="/plans" element={<Plans />}></Route>
           <Route
             path="/login"
