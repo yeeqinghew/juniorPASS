@@ -5,7 +5,6 @@ const bcrypt = require("bcrypt");
 const jwtGenerator = require("../utils/jwtGenerator");
 const validInfo = require("../middleware/validInfo");
 const authorization = require("../middleware/authorization");
-const { jwtDecode } = require("jwt-decode");
 
 router.get("/", authorization, async (req, res) => {
   try {
@@ -59,6 +58,8 @@ router.post("/register", validInfo, async (req, res) => {
         new Date().toLocaleString(),
       ]
     );
+
+    // TODO: userType = parent -> create an entry in parent table
 
     // generate jwt token
     const token = jwtGenerator(newUser.rows[0].user_id);
