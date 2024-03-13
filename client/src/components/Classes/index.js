@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Space, Input, List, Flex, Rate, Image, Table } from "antd";
+import { Space, Input, List, Flex, Rate, Image } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import Map, {
   Marker,
@@ -8,11 +8,14 @@ import Map, {
   GeolocateControl,
 } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { useNavigate } from "react-router-dom";
 
 const Classes = () => {
   const [popupInfo, setPopupInfo] = useState(null);
   const [vendors, setVendors] = useState([]);
   const [filterInput, setFilterInput] = useState(null);
+  const navigate = useNavigate();
+
   const getVendors = async () => {
     try {
       const response = await fetch(
@@ -39,7 +42,14 @@ const Classes = () => {
             e.originalEvent.stopPropagation();
             setPopupInfo(city);
           }}
-        ></Marker>
+        >
+          <Image
+            src={require("../../images/pin.png")}
+            width={24}
+            height={24}
+            preview={false}
+          ></Image>
+        </Marker>
       )),
     [vendors]
   );
@@ -95,7 +105,16 @@ const Classes = () => {
             pageSize: "2",
           }}
           renderItem={(item, index) => (
-            <List.Item>
+            <List.Item
+              key={index}
+              onClick={(e) => {
+                navigate(`/class/${item.vendor_id}`, {
+                  state: {
+                    item,
+                  },
+                });
+              }}
+            >
               <List.Item.Meta
                 style={{
                   display: "flex",
@@ -106,10 +125,11 @@ const Classes = () => {
                     src={item.picture}
                     width={240}
                     preview={false}
-                    onMouseOver={(e) => {
-                      // make the color of the pin changed to white
+                    onMouseOver={() => {
+                      // TODO: make the color of the pin changed to white
                       setPopupInfo(item);
                     }}
+                    onMouseLeave={() => setPopupInfo(null)}
                   />
                 }
                 title={
@@ -121,6 +141,26 @@ const Classes = () => {
                 description={
                   <Space direction="vertical">
                     {item.description}
+                    <Space>
+                      <Image
+                        src={require("../../images/location.png")}
+                        width={24}
+                        height={24}
+                        preview={false}
+                      />
+                      {item.region}
+                    </Space>
+                    <Space>
+                      <Image
+                        src={require("../../images/graduation-hat.png")}
+                        width={24}
+                        height={24}
+                        preview={false}
+                      />
+                      {item.age_group}
+                    </Space>
+
+                    {/* TODO: if review is null, it should be shown none */}
                     <Rate disabled defaultValue={item.reviews}></Rate>
                   </Space>
                 }
