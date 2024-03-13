@@ -60,7 +60,7 @@ const Register = ({ setAuth }) => {
 
       const parseRes = await response.json();
       if (parseRes.token) {
-        localStorage.setItem("token", { token: parseRes.token });
+        localStorage.setItem("token", parseRes.token);
         setAuth(true);
         toast.success("Register successfully");
       } else {
@@ -74,7 +74,7 @@ const Register = ({ setAuth }) => {
   };
 
   const errorMessage = (error) => {
-    console.log(error);
+    console.error(error);
   };
 
   return (

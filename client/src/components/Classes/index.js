@@ -108,7 +108,6 @@ const Classes = () => {
             <List.Item
               key={index}
               onClick={(e) => {
-                console.log(item);
                 navigate(`/class/${item.vendor_id}`, {
                   state: {
                     item,

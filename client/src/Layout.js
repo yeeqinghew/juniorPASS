@@ -11,7 +11,7 @@ import {
   Drawer,
   Badge,
 } from "antd";
-import { Link } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import {
   WhatsAppOutlined,
   MailOutlined,
@@ -29,17 +29,17 @@ import { googleLogout } from "@react-oauth/google";
 import useWindowDimensions from "./hooks/useWindowDimensions";
 
 const { Header, Content, Footer } = Layout;
-const { Text } = Typography;
+const { Text, Title } = Typography;
 
 const OverallLayout = ({ isAuthenticated, setAuth, children }) => {
   const [open, setOpen] = useState(false);
   const { width, isDesktop } = useWindowDimensions();
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
+    localStorage.removeItem("token");
     setAuth(false);
     // logout of Google account
-    googleLogout();
+    // googleLogout();
     toast.success("Logout successfully");
   };
 
@@ -174,6 +174,11 @@ const OverallLayout = ({ isAuthenticated, setAuth, children }) => {
                   {/* TODO: <Badge> */}
                   <i className="fa fa-bell-o"></i>
                 </Menu.Item>
+                <Menu.Item key="credit" style={{ float: "right" }}>
+                  <i className="fa fa-usd" aria-hidden="true">
+                    <Text>X</Text>
+                  </i>
+                </Menu.Item>
                 <Menu.Item key="profile" style={{ float: "right" }}>
                   <Link to="/profile">Profile</Link>
                 </Menu.Item>
@@ -234,28 +239,41 @@ const OverallLayout = ({ isAuthenticated, setAuth, children }) => {
         <Footer style={{ background: "#FCFBF8", padding: "50px 150px" }}>
           <Divider></Divider>
           <Flex style={{ width: "100%" }}>
-            <Flex style={{ width: "10%", justifyContent: "flex-start" }}>
-              <Link to="/">
-                <Image
-                  alt="logo"
-                  src={require("./images/logopngResize.png")}
-                  width={100}
-                  height={50}
-                  preview={false}
-                />
-              </Link>
+            <Flex style={{ width: "25%", justifyContent: "flex-start" }}>
+              <Flex vertical gap="large">
+                <Link to="/">
+                  <Image
+                    alt="logo"
+                    src={require("./images/logopngResize.png")}
+                    width={100}
+                    height={50}
+                    preview={false}
+                  />
+                </Link>
+              </Flex>
             </Flex>
 
             <Flex
               style={{ right: 0, width: "90%", justifyContent: "flex-end" }}
             >
               <Flex vertical gap="large" style={{ width: "15%" }}>
+                <Title level={5}>QUICK LINKS</Title>
+                <Link to="/">Home</Link>
                 <Link to="/classes">Classes</Link>
                 <Link to="/plans">Plans</Link>
                 {/* <Link to="/contactus">ContactUs</Link> */}
               </Flex>
 
               <Flex vertical gap="large" style={{ width: "15%" }}>
+                <Title level={5}>SUPPORT</Title>
+                <Link to="/classes">FAQ</Link>
+                <Link to="/classes">Become a partner</Link>
+                <Link to="/plans">Partner Login</Link>
+                {/* <Link to="/contactus">ContactUs</Link> */}
+              </Flex>
+
+              <Flex vertical gap="large" style={{ width: "15%" }}>
+                <Title level={5}>FOLLOW US</Title>
                 <Space direction="horizontal">
                   <MailOutlined />
                   <Link to="mailto:hello@juniorpass.sg">
@@ -275,7 +293,6 @@ const OverallLayout = ({ isAuthenticated, setAuth, children }) => {
                     <LinkedinFilled />
                   </Space>
                 </Flex>
-
                 {/* <Space direction="horizontal">
               <PhoneOutlined />
               <Text>(65)XXXX-XXXX</Text>
@@ -318,6 +335,12 @@ const OverallLayout = ({ isAuthenticated, setAuth, children }) => {
           Menu: {
             horizontalItemSelectedColor: "#98BDD2",
           },
+          Tabs: {
+            itemActiveColor: "#98BDD2",
+            itemHoverColor: "#98BDD2",
+            itemSelectedColor: "#98BDD2",
+            inkBarColor: "#98BDD2",
+          },
         },
       }}
     >
@@ -335,7 +358,7 @@ const OverallLayout = ({ isAuthenticated, setAuth, children }) => {
             }}
           >
             <Toaster />
-            {children}
+            <Outlet />
           </div>
         </Content>
         <FooterConfig />

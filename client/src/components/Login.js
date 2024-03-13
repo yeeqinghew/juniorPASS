@@ -25,10 +25,7 @@ const Login = ({ setAuth }) => {
 
       const parseRes = await response.json();
       if (parseRes.token) {
-        localStorage.setItem(
-          "user",
-          JSON.stringify({ token: parseRes.token, method: parseRes.method })
-        );
+        localStorage.setItem("token", parseRes.token);
         setAuth(true);
         toast.success("Login successfully");
       } else {
@@ -63,7 +60,7 @@ const Login = ({ setAuth }) => {
   };
 
   const errorMessage = (error) => {
-    console.log(error);
+    console.error(error);
   };
 
   return (
