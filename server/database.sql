@@ -4,6 +4,7 @@ DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS child CASCADE;
 DROP TABLE IF EXISTS parent CASCADE;
 DROP TABLE IF EXISTS vendors CASCADE;
+DROP TABLE IF EXISTS listings CASCADE;
 DROP TABLE IF EXISTS transactions CASCADE;
 
 CREATE OR REPLACE FUNCTION trigger_set_timestamp ()
@@ -38,18 +39,16 @@ CREATE TABLE users (
 ALTER TABLE users ALTER COLUMN credit SET DEFAULT 0;
 
 CREATE TABLE child (
-    child_id VARCHAR(200) UNIQUE,
-    gender genders,
-    FOREIGN KEY (child_id) REFERENCES users(user_id) ON DELETE CASCADE
+    child_id uuid REFERENCES users(user_id) NOT NULL UNIQUE,
+    gender genders
 );
 
 CREATE TABLE parent (
-    parent_id VARCHAR(200) UNIQUE,
-    FOREIGN KEY (parent_id) REFERENCES users(user_id) ON DELETE CASCADE
+    parent_id uuid REFERENCES users(user_id) NOT NULL UNIQUE
 );
 
 CREATE TABLE vendors (
-    vendor_id PRIMARY KEY DEFAULT uuid_generate_v4(),
+    vendor_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     vendor_name VARCHAR(50) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     description VARCHAR(1000),
@@ -67,9 +66,9 @@ CREATE TABLE vendors (
 
 ALTER TABLE vendors ALTER COLUMN rating SET DEFAULT 0;
 
-CREATE TABLE listings {
-    listing_id PRIMARY KEY DEFAULT uuid_generate_v4(),
-    vendor_id SERIAL,
+CREATE TABLE listings (
+    listing_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    vendor_id uuid REFERENCES vendors(vendor_id) NOT NULL,
     listing_title VARCHAR(1000) NOT NULL,
     price INTEGER,
     category categories NOT NULL,
@@ -83,16 +82,15 @@ CREATE TABLE listings {
     age_group VARCHAR(50) NOT NULL,
     pictures VARCHAR(5000) NOT NULL,
     created_on DATE,
-    registeredParents VARCHAR(500),
-    FOREIGN KEY (vendor_id) REFERENCES vendors(vendor_id) ON DELETE CASCADE
-}
+    registeredParents VARCHAR(500)
+);
 
 CREATE TABLE transactions (
-    transaction_id PRIMARY KEY DEFAULT uuid_generate_v4(),
-    parent_id VARCHAR(200) NOT NULL,
-    child_id VARCHAR(200) NOT NULL,
+    transaction_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    parent_id uuid REFERENCES parent(parent_id) NOT NULL,     
+    child_id uuid REFERENCES child(child_id)NOT NULL,
     done_by VARCHAR(50) NOT NULL,
-    listing_id VARCHAR(200) NOT NULL,
+    listing_id uuid REFERENCES listings(listing_id) NOT NULL,
     used_credit INTEGER NOT NULL,
     transaction_type transactionType NOT NULL,
     created_on DATE
