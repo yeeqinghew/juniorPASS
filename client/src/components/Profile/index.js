@@ -1,33 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Avatar, Tabs, Typography } from "antd";
 import Account from "./Account";
 import Child from "./Child";
 import Credits from "./Credits";
 import AllClasses from "./AllClasses";
+import UserContext from "../UserContext";
 
 const { Title, Text } = Typography;
 
 const Profile = () => {
-  // const [name, setName] = useState(null);
-  // useEffect(() => {
-  //   const fetchName = async () => {
-  //     try {
-  //       const response = await fetch("http://localhost:5000/auth/", {
-  //         method: "GET",
-  //         headers: {
-  //           token: JSON.parse(localStorage.user).token,
-  //         },
-  //       });
-
-  //       const parseRes = await response.json();
-  //       setName(parseRes.name);
-  //     } catch (error) {
-  //       console.error(error.message);
-  //     }
-  //   };
-
-  //   fetchName();
-  // }, []);
+  const user = useContext(UserContext);
 
   const renderTabBar = (props, DefaultTabBar) => (
     <DefaultTabBar

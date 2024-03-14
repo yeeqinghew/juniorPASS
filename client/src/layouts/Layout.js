@@ -26,18 +26,19 @@ import {
 import toast, { Toaster } from "react-hot-toast";
 import "./Layout.css";
 import { googleLogout } from "@react-oauth/google";
-import useWindowDimensions from "./hooks/useWindowDimensions";
+import useWindowDimensions from "../hooks/useWindowDimensions";
 
 const { Header, Content, Footer } = Layout;
 const { Text, Title } = Typography;
 
-const OverallLayout = ({ isAuthenticated, setAuth, children }) => {
+const OverallLayout = ({ isAuthenticated, setAuth, setLoading, children }) => {
   const [open, setOpen] = useState(false);
   const { width, isDesktop } = useWindowDimensions();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     setAuth(false);
+    setLoading(false);
     // logout of Google account
     // googleLogout();
     toast.success("Logout successfully");
@@ -69,7 +70,7 @@ const OverallLayout = ({ isAuthenticated, setAuth, children }) => {
           <Link to="/">
             <Image
               alt="logo"
-              src={require("./images/logopngResize.png")}
+              src={require("../images/logopngResize.png")}
               width={100}
               height={50}
               preview={false}
@@ -140,7 +141,7 @@ const OverallLayout = ({ isAuthenticated, setAuth, children }) => {
           <Link to="/">
             <Image
               alt="logo"
-              src={require("./images/logopngResize.png")}
+              src={require("../images/logopngResize.png")}
               width={100}
               height={50}
               preview={false}
@@ -204,7 +205,7 @@ const OverallLayout = ({ isAuthenticated, setAuth, children }) => {
             <Link to="/">
               <Image
                 alt="logo"
-                src={require("./images/logopngResize.png")}
+                src={require("../images/logopngResize.png")}
                 width={100}
                 height={50}
                 preview={false}
@@ -244,7 +245,7 @@ const OverallLayout = ({ isAuthenticated, setAuth, children }) => {
                 <Link to="/">
                   <Image
                     alt="logo"
-                    src={require("./images/logopngResize.png")}
+                    src={require("../images/logopngResize.png")}
                     width={100}
                     height={50}
                     preview={false}
@@ -317,8 +318,9 @@ const OverallLayout = ({ isAuthenticated, setAuth, children }) => {
       theme={{
         token: {
           // Seed Token
-          // colorPrimary: "#FCFBF8",
           borderRadius: 2,
+          colorPrimary: "#98BDD2",
+          colorPrimaryActive: "#98BDD2",
 
           // Alias Token
           colorBgContainer: "#FCFBF8",

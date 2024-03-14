@@ -3,7 +3,7 @@ import Routers from "./router";
 
 const App = () => {
   return (
-    <div>
+    <div className="App">
       <Routers />
     </div>
   );

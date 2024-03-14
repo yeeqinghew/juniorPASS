@@ -52,7 +52,7 @@ const Plans = () => {
   return (
     <div style={{ textAlign: "center" }}>
       <div>
-        <h1>Avaible Plans</h1>
+        <Title level={1}>Avaible Plans</Title>
         <Text>Simple pricing.</Text>
       </div>
 

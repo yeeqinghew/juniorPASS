@@ -173,7 +173,7 @@ const Login = ({ setAuth }) => {
         </Form>
 
         <Divider></Divider>
-        <Link to="">
+        <Link to="/partner/login">
           <Text>Partner Login</Text>
         </Link>
       </div>
