@@ -9,10 +9,13 @@
 
 1. Clone this repository to your local computer by running this command on Terminal: `git clone https://github.com/yeeqinghew/juniorPASS.git`
 2. Run this command to set up DB locally:
+
    ```
    psql -U postgres
+   CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
    \i [file where u cloned your project/juniorPASS/server/database.sql]
    ```
+
 3. Once the repository got cloned into your computer, run these commands to run your FrontEnd on localhost:
    ```
    cd client
