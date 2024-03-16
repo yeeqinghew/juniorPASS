@@ -23,7 +23,7 @@ const CardComponent = ({ planName, planClass, price, credits }) => {
       }}
     >
       <div className={planClass}>
-        {planClass == "popularPlan" && (
+        {planClass === "popularPlan" && (
           <span
             style={{
               position: "absolute",

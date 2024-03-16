@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Layout,
   Menu,
@@ -11,7 +11,7 @@ import {
   Drawer,
   Badge,
 } from "antd";
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import {
   WhatsAppOutlined,
   MailOutlined,
@@ -27,13 +27,16 @@ import toast, { Toaster } from "react-hot-toast";
 import "./Layout.css";
 import { googleLogout } from "@react-oauth/google";
 import useWindowDimensions from "../hooks/useWindowDimensions";
+import UserContext from "../components/UserContext";
 
 const { Header, Content, Footer } = Layout;
 const { Text, Title } = Typography;
 
-const OverallLayout = ({ isAuthenticated, setAuth, setLoading, children }) => {
+const OverallLayout = ({ isAuthenticated, setAuth, setLoading }) => {
   const [open, setOpen] = useState(false);
   const { width, isDesktop } = useWindowDimensions();
+  const { user } = useContext(UserContext);
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -168,16 +171,36 @@ const OverallLayout = ({ isAuthenticated, setAuth, setLoading, children }) => {
                 <Menu.Item key="logout" style={{ float: "right" }}>
                   <LogoutOutlined onClick={handleLogout} />
                 </Menu.Item>
-                <Menu.Item key="cart" style={{ float: "right" }}>
+                <Menu.Item
+                  key="cart"
+                  style={{ float: "right" }}
+                  onClick={() => {
+                    navigate("/cart");
+                  }}
+                >
                   <ShoppingCartOutlined />
                 </Menu.Item>
-                <Menu.Item key="notification" style={{ float: "right" }}>
+                <Menu.Item
+                  key="notification"
+                  style={{ float: "right" }}
+                  onClick={() => {
+                    // TODO: Popover antd to show a list of notifcations
+                  }}
+                >
                   {/* TODO: <Badge> */}
                   <i className="fa fa-bell-o"></i>
                 </Menu.Item>
-                <Menu.Item key="credit" style={{ float: "right" }}>
+                <Menu.Item
+                  key="credit"
+                  style={{ float: "right" }}
+                  onClick={() => {
+                    navigate("/profile", {
+                      state: "credit",
+                    });
+                  }}
+                >
                   <i className="fa fa-usd" aria-hidden="true">
-                    <Text>X</Text>
+                    <Text>{user.credit}</Text>
                   </i>
                 </Menu.Item>
                 <Menu.Item key="profile" style={{ float: "right" }}>

@@ -96,6 +96,17 @@ CREATE TABLE transactions (
     created_on DATE
 );
 
+CREATE TABLE cart (
+    cart_id uuid PRIMARY KEY DEFAULT uuid_generate_v4,
+    parent_id uuid REFERENCES parent(parent_id) NOT NULL,
+    created_on DATE,
+    last_updated TIMESTAMP
+);
+
+CREATE TABLE cartItem (
+    item_id uuid PRIMARY KEY DEFAULT uuid_generate_v4
+);
+
 INSERT INTO vendors (vendor_name, email, description, category, website, password, rating, picture, address, latitude, longitude, region, created_on)
     VALUES('SG Basketball', 'admin@sgbasketball.com', 'SG Basketball Pte Ltd is the leading service provider for basketball in Singapore. Our programs and events cater for players of all ages, from beginner to advanced levels. Our coaches and tournament organizers are passionate about ensuring that every participant has a positive experience - and that their sport experience enriches their lives.', 'Sports', 'https://www.sgbasketball.com/', 'password', 5, 'https://images.squarespace-cdn.com/content/v1/5ad0064b31d4df14309baeb5/1561030353172-ES8S0PN75WS044UIWCDT/SGBASKETBALL.png?format=1500w', '750B Chai Chee Rd #01-02 S(469002)', '1.3235', '103.9207', 'Kembangan', '2024-1-1');
     

@@ -5,12 +5,12 @@ import Child from "./Child";
 import Credits from "./Credits";
 import AllClasses from "./AllClasses";
 import UserContext from "../UserContext";
+import { useLocation } from "react-router-dom";
 
 const { Title, Text } = Typography;
 
 const Profile = () => {
-  const user = useContext(UserContext);
-
+  const { state } = useLocation();
   const renderTabBar = (props, DefaultTabBar) => (
     <DefaultTabBar
       {...props}
@@ -58,15 +58,13 @@ const Profile = () => {
   );
 
   return (
-    <>
-      <Tabs
-        tabPosition={"left"}
-        renderTabBar={renderTabBar}
-        items={items}
-        tabBarGutter={12}
-        tabBarExtraContent={{ left: displayPicture }}
-      />
-    </>
+    <Tabs
+      tabPosition={"left"}
+      renderTabBar={renderTabBar}
+      items={items}
+      tabBarGutter={12}
+      tabBarExtraContent={{ left: displayPicture }}
+    />
   );
 };
 
