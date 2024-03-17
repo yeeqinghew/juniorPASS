@@ -114,7 +114,9 @@ const OverallLayout = ({ isAuthenticated, setAuth, setLoading }) => {
                     <LogoutOutlined onClick={handleLogout} />
                   </Menu.Item>
                   <Menu.Item key="profile" style={{ float: "right" }}>
-                    <Link to="/profile">Profile</Link>
+                    <Link to="/profile" state={"account"}>
+                      Profile
+                    </Link>
                   </Menu.Item>
                 </>
               ) : (
@@ -204,7 +206,9 @@ const OverallLayout = ({ isAuthenticated, setAuth, setLoading }) => {
                   </i>
                 </Menu.Item>
                 <Menu.Item key="profile" style={{ float: "right" }}>
-                  <Link to="/profile">Profile</Link>
+                  <Link to="/profile" state={"account"}>
+                    Profile
+                  </Link>
                 </Menu.Item>
               </>
             ) : (

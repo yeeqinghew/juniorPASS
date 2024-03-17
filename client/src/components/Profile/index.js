@@ -1,13 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Avatar, Tabs, Typography } from "antd";
+import React from "react";
+import { Avatar, Tabs } from "antd";
 import Account from "./Account";
 import Child from "./Child";
 import Credits from "./Credits";
 import AllClasses from "./AllClasses";
-import UserContext from "../UserContext";
 import { useLocation } from "react-router-dom";
-
-const { Title, Text } = Typography;
 
 const Profile = () => {
   const { state } = useLocation();
@@ -59,6 +56,8 @@ const Profile = () => {
 
   return (
     <Tabs
+      defaultActiveKey={state || "account"}
+      activeKey={state}
       tabPosition={"left"}
       renderTabBar={renderTabBar}
       items={items}
