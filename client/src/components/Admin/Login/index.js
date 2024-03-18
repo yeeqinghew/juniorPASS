@@ -1,5 +1,5 @@
-import { Image } from "antd";
 import React from "react";
+import { Image } from "antd";
 import {
   LockOutlined,
   MailOutlined,
@@ -8,17 +8,40 @@ import {
 } from "@ant-design/icons";
 import { Button, Form, Input, Typography } from "antd";
 import toast, { Toaster } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const { Title } = Typography;
 
-const PartnerLogin = () => {
+const AdminLogin = ({ setAuth }) => {
   const handleLogin = async (values) => {
-    console.log("handleLogin");
+    try {
+      const response = await fetch("http://localhost:5000/admin/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+
+      const parseRes = await response.json();
+      if (parseRes.token) {
+        localStorage.setItem("token", parseRes.token);
+        setAuth(true);
+        // to /admin/home
+        toast.success("Login successfully");
+      } else {
+        setAuth(false);
+        toast.error("Wrong credential");
+      }
+    } catch (error) {
+      console.error(error.message);
+      toast.error(error.message);
+    }
   };
 
   return (
     <>
-      <section
+      <div
         style={{
           display: "flex",
           justifyContent: "center",
@@ -27,12 +50,12 @@ const PartnerLogin = () => {
           margin: "auto",
         }}
       >
-        <Toaster />
         <div
           style={{
             width: "300px",
           }}
         >
+          <Toaster />
           <div
             style={{
               display: "flex",
@@ -45,7 +68,6 @@ const PartnerLogin = () => {
               preview={false}
               style={{
                 margin: 8,
-                textAlign: "center",
                 width: "auto",
               }}
             />
@@ -68,21 +90,20 @@ const PartnerLogin = () => {
                 textAlign: "center",
               }}
             >
-              Partner Login
+              Admin portal
             </Title>
             <Form.Item
-              name="email"
+              name="username"
               rules={[
                 {
                   required: true,
-                  message: "Please input your email!",
+                  message: "Please input your usernmae!",
                 },
               ]}
             >
               <Input
                 prefix={<MailOutlined className="site-form-item-icon" />}
-                placeholder="Email"
-                type={"email"}
+                placeholder="Username"
                 size={"large"}
                 required
               />
@@ -115,15 +136,12 @@ const PartnerLogin = () => {
               >
                 Log in
               </Button>
-              <a className="login-form-forgot" href="">
-                Forgot password
-              </a>
             </Form.Item>
           </Form>
         </div>
-      </section>
+      </div>
     </>
   );
 };
 
-export default PartnerLogin;
+export default AdminLogin;

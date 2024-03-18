@@ -16,15 +16,17 @@ import AuthenticatedRoute from "./AuthenticatedRoute";
 import PartnerLayout from "../layouts/PartnerLayout";
 import NotFound from "../utils/404";
 import { confirmAlert } from "react-confirm-alert"; // Import
-import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
 import toast, { Toaster } from "react-hot-toast";
 import Cart from "../components/User/MainPage/Cart";
+import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
+import AdminLogin from "../components/Admin/Login";
+import AdminLandingLayout from "../layouts/AdminLandingLayout";
+import AdminHome from "../components/Admin/Home";
 
 export default () => {
   const [user, setUser] = useState({});
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
-  //   const token = useLocalStorage("token");
   const navigate = useNavigate();
 
   const setAuth = (boolean) => {
@@ -48,6 +50,7 @@ export default () => {
   };
 
   const isAuth = async () => {
+    // TODO: not call this function if user === ADMIN
     try {
       const response = await fetch("http://localhost:5000/auth/is-verify", {
         method: "GET",
@@ -57,15 +60,32 @@ export default () => {
       });
 
       const parseRes = await response.json();
+      if (response.status === 401) {
+        throw new Error("Error in authorization from BE: 401");
+      }
       parseRes === true ? setAuth(true) : setAuth(false);
       getUser();
       setLoading(false);
     } catch (error) {
-      console.error("ERROR in /auth/is-verify: ", error.message);
+      console.error("ERROR in /auth/is-verify: ", error);
+      if (error.message === "Error in authorization from BE: 401") {
+        localStorage.removeItem("token");
+        localStorage.clear();
+        setAuth(false);
+        setLoading(false);
+        toast.error(error.message);
+      }
     }
   };
 
   useEffect(() => {
+    const currentLocation = window.location.pathname;
+    if (
+      currentLocation.includes("admin") ||
+      currentLocation.includes("partner")
+    )
+      return;
+
     isAuth();
   }, []);
 
@@ -99,7 +119,8 @@ export default () => {
   };
 
   const { getRemainingTime, getLastActiveTime } = useIdleTimer({
-    timeout: 7200000,
+    timeout: 7200000, // 2hr
+    // timeout: 1000,
     onIdle: handleOnIdle,
   });
 
@@ -141,7 +162,7 @@ export default () => {
               !isAuthenticated ? (
                 <Login setAuth={setAuth} />
               ) : (
-                <Navigate replace to="/profile" />
+                <Navigate replace to="/profile" state={"account"} />
               )
             }
           ></Route>
@@ -151,7 +172,7 @@ export default () => {
               !isAuthenticated ? (
                 <Register setAuth={setAuth} />
               ) : (
-                <Navigate replace to="/profile" />
+                <Navigate replace to="/profile" state={"account"} />
               )
             }
           ></Route>
@@ -176,6 +197,17 @@ export default () => {
          *******************/}
         <Route element={<PartnerLayout />}>
           <Route path="/partner/login" element={<PartnerLogin />}></Route>
+        </Route>
+
+        {/*******************
+         ******  Admin ******
+         *******************/}
+        <Route element={<AdminLandingLayout />}>
+          <Route
+            path="/admin/login"
+            element={<AdminLogin setAuth={setAuth} />}
+          ></Route>
+          <Route path="/admin/home" element={<AdminHome />}></Route>
         </Route>
       </Routes>
     </UserContext.Provider>

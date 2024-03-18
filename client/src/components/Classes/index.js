@@ -114,23 +114,19 @@ const Classes = () => {
                   },
                 });
               }}
+              onMouseOver={() => {
+                setPopupInfo(item);
+              }}
+              onMouseLeave={() => setPopupInfo(null)}
             >
               <List.Item.Meta
                 style={{
                   display: "flex",
                   alignItems: "center",
+                  cursor: "pointer",
                 }}
                 avatar={
-                  <Image
-                    src={item.picture}
-                    width={240}
-                    preview={false}
-                    onMouseOver={() => {
-                      // TODO: make the color of the pin changed to white
-                      setPopupInfo(item);
-                    }}
-                    onMouseLeave={() => setPopupInfo(null)}
-                  />
+                  <Image src={item.picture} width={240} preview={false} />
                 }
                 title={
                   <Space direction="vertical">

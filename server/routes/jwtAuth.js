@@ -43,8 +43,7 @@ router.post("/register", validInfo, async (req, res) => {
 
     // bcrypt password
     const saltRound = 10;
-    const salt = await bcrypt.genSalt(saltRound);
-    const bcryptedPassword = bcrypt.hashSync(password, salt);
+    const bcryptedPassword = bcrypt.hashSync(password, saltRound);
 
     const newUser = await pool.query(
       "INSERT INTO users(name, user_type, email, password, phone_number, method, created_on) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *",
@@ -113,4 +112,31 @@ router.get("/getAllUsers", async (req, res) => {
     res.status(500);
   }
 });
+
+// PARTNER
+router.post("/partner/login", validInfo, async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await pool.query("SELECT * FROM partners WHERE email = $1", [
+      email,
+    ]);
+
+    if (user.rows.length === 0) {
+      return res.status(401).json("Invalid Credential");
+    }
+
+    const validPassword = await bcrypt.compare(password, user.rows[0].password);
+    if (!validPassword) {
+      return res.status(401).json("Password or Email is incorrect");
+    }
+
+    const token = jwtGenerator(user.rows[0].user_id);
+    return res.json({ token });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server error");
+  }
+});
+
 module.exports = router;
