@@ -68,7 +68,7 @@ const PartnerLogin = () => {
                 textAlign: "center",
               }}
             >
-              Partner Login
+              Partner Portal
             </Title>
             <Form.Item
               name="email"

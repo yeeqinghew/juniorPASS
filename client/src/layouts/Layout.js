@@ -194,16 +194,22 @@ const OverallLayout = ({ isAuthenticated, setAuth, setLoading }) => {
                 </Menu.Item>
                 <Menu.Item
                   key="credit"
-                  style={{ float: "right" }}
+                  style={{
+                    float: "right",
+                  }}
                   onClick={() => {
                     navigate("/profile", {
                       state: "credit",
                     });
                   }}
                 >
-                  <i className="fa fa-usd" aria-hidden="true">
-                    <Text>{user.credit}</Text>
-                  </i>
+                  <Image
+                    src={require("../images/credit.png")}
+                    width={24}
+                    height={24}
+                    preview={false}
+                  />
+                  <Text>{user.credit}</Text>
                 </Menu.Item>
                 <Menu.Item key="profile" style={{ float: "right" }}>
                   <Link to="/profile" state={"account"}>

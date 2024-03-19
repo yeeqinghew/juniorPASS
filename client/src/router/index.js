@@ -13,15 +13,16 @@ import Register from "../components/Register";
 import UserContext from "../components/UserContext";
 import Class from "../components/Classes/Class";
 import AuthenticatedRoute from "./AuthenticatedRoute";
-import PartnerLayout from "../layouts/PartnerLayout";
+import PartnerLayout from "../layouts/Partner/PartnerLandingLayout";
 import NotFound from "../utils/404";
 import { confirmAlert } from "react-confirm-alert"; // Import
 import toast, { Toaster } from "react-hot-toast";
 import Cart from "../components/User/MainPage/Cart";
 import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
 import AdminLogin from "../components/Admin/Login";
-import AdminLandingLayout from "../layouts/AdminLandingLayout";
+import AdminLandingLayout from "../layouts/Admin/AdminLandingLayout";
 import AdminHome from "../components/Admin/Home";
+import AdminHomeLayout from "../layouts/Admin/AdminHomeLayout";
 
 export default () => {
   const [user, setUser] = useState({});
@@ -207,7 +208,9 @@ export default () => {
             path="/admin/login"
             element={<AdminLogin setAuth={setAuth} />}
           ></Route>
-          <Route path="/admin/home" element={<AdminHome />}></Route>
+          <Route element={<AdminHomeLayout />}>
+            <Route path="/admin/home" element={<AdminHome />}></Route>
+          </Route>
         </Route>
       </Routes>
     </UserContext.Provider>

@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 const { Title } = Typography;
 
 const AdminLogin = ({ setAuth }) => {
+  const navigate = useNavigate();
   const handleLogin = async (values) => {
     try {
       const response = await fetch("http://localhost:5000/admin/login", {
@@ -28,6 +29,7 @@ const AdminLogin = ({ setAuth }) => {
         localStorage.setItem("token", parseRes.token);
         setAuth(true);
         // to /admin/home
+        navigate("/admin/home");
         toast.success("Login successfully");
       } else {
         setAuth(false);
