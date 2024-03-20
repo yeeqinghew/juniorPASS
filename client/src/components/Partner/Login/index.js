@@ -8,12 +8,33 @@ import {
 } from "@ant-design/icons";
 import { Button, Form, Input, Typography } from "antd";
 import toast, { Toaster } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const { Title } = Typography;
 
 const PartnerLogin = () => {
+  const navigate = useNavigate();
   const handleLogin = async (values) => {
-    console.log("handleLogin");
+    try {
+      const response = await fetch("http://localhost:5000/partner/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+
+      const parseRes = await response.json();
+      if (parseRes.token) {
+        localStorage.setItem("token", parseRes.token);
+        // TODO: to /partner/home
+        navigate("/partner/home");
+        toast.success("Login successfully");
+      }
+    } catch (err) {
+      console.error(err.message);
+      toast.error(err.message);
+    }
   };
 
   return (

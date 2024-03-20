@@ -302,7 +302,7 @@ const OverallLayout = ({ isAuthenticated, setAuth, setLoading }) => {
                 <Title level={5}>SUPPORT</Title>
                 <Link to="/classes">FAQ</Link>
                 <Link to="/classes">Become a partner</Link>
-                <Link to="/plans">Partner Login</Link>
+                <Link to="/partner/login">Partner Login</Link>
                 {/* <Link to="/contactus">ContactUs</Link> */}
               </Flex>
 

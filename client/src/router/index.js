@@ -13,7 +13,7 @@ import Register from "../components/Register";
 import UserContext from "../components/UserContext";
 import Class from "../components/Classes/Class";
 import AuthenticatedRoute from "./AuthenticatedRoute";
-import PartnerLayout from "../layouts/Partner/PartnerLandingLayout";
+import PartnerLandingLayout from "../layouts/Partner/PartnerLandingLayout";
 import NotFound from "../utils/404";
 import { confirmAlert } from "react-confirm-alert"; // Import
 import toast, { Toaster } from "react-hot-toast";
@@ -23,6 +23,9 @@ import AdminLogin from "../components/Admin/Login";
 import AdminLandingLayout from "../layouts/Admin/AdminLandingLayout";
 import AdminHome from "../components/Admin/Home";
 import AdminHomeLayout from "../layouts/Admin/AdminHomeLayout";
+import PartnerHomeLayout from "../layouts/Partner/PartnerHomeLayout";
+import PartnerHome from "../components/Partner/Home";
+import PartnerClasses from "../components/Partner/Classes";
 
 export default () => {
   const [user, setUser] = useState({});
@@ -196,8 +199,12 @@ export default () => {
         {/*******************
          *****  Partner *****
          *******************/}
-        <Route element={<PartnerLayout />}>
+        <Route element={<PartnerLandingLayout />}>
           <Route path="/partner/login" element={<PartnerLogin />}></Route>
+          <Route element={<PartnerHomeLayout />}>
+            <Route path="/partner/home" element={<PartnerHome />}></Route>
+            <Route path="/partner/classes" element={<PartnerClasses />}></Route>
+          </Route>
         </Route>
 
         {/*******************

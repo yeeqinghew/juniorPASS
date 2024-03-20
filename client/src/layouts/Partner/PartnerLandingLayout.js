@@ -12,8 +12,30 @@ const PartnerLayout = () => {
           colorPrimaryActive: "#98BDD2",
 
           // Alias
+          colorBgContainer: "#FCFBF8",
           fontSize: 14,
           fontFamily: "Poppins, sans-serif",
+        },
+        components: {
+          Layout: {
+            headerBg: "#FCFBF8",
+            bodyBg: "#FCFBF8",
+            headerHeight: 84,
+            lightSiderBg: "#FCFBF8",
+            siderBg: "#FCFBF8",
+            triggerBg: "#98BDD2",
+            lightTriggerBg: "#98BDD2",
+            bodyBg: "#FCFBF8",
+          },
+          Menu: {
+            horizontalItemSelectedColor: "#98BDD2",
+          },
+          Tabs: {
+            itemActiveColor: "#98BDD2",
+            itemHoverColor: "#98BDD2",
+            itemSelectedColor: "#98BDD2",
+            inkBarColor: "#98BDD2",
+          },
         },
       }}
     >

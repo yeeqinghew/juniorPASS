@@ -1,26 +1,48 @@
-import React, { useState } from "react";
+import React from "react";
 import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
   UploadOutlined,
   UserOutlined,
   VideoCameraOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu, Button, theme, Image } from "antd";
+import { Layout, Menu, Image, Divider } from "antd";
+import { Outlet } from "react-router-dom";
 const { Header, Sider, Content } = Layout;
 
 const AdminHomeLayout = () => {
-  const [collapsed, setCollapsed] = useState(false);
   return (
     <Layout
-      hasSider={true}
       style={{
         minHeight: "100vh",
       }}
     >
-      <Sider trigger={null} collapsible collapsed={collapsed}>
-        <div className="demo-logo-vertical" />
+      <Sider
+        style={{
+          overflow: "auto",
+          height: "100vh",
+          width: "200px",
+          position: "fixed",
+          left: 0,
+          top: 0,
+          bottom: 0,
+        }}
+      >
+        <div
+          style={{
+            margin: 24,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Image
+            src={require("../../images/logopngResize.png")}
+            preview={false}
+            width={100}
+          />
+        </div>
+        <Divider />
+
         <Menu
           mode="inline"
           defaultSelectedKeys={["1"]}
@@ -60,24 +82,17 @@ const AdminHomeLayout = () => {
         />
       </Sider>
 
-      <Layout>
+      <Layout
+        style={{
+          marginLeft: 200,
+        }}
+      >
         <Header
           style={{
             padding: 0,
             display: "flex",
           }}
         >
-          <Button
-            type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={() => setCollapsed(!collapsed)}
-            style={{
-              fontSize: "16px",
-              width: 64,
-              height: 64,
-            }}
-          />
-
           <Menu
             mode="horizontal"
             style={{ flex: 1, minWidth: 0, display: "block" }}
@@ -110,7 +125,7 @@ const AdminHomeLayout = () => {
             borderRadius: "25px",
           }}
         >
-          Content
+          <Outlet />
         </Content>
       </Layout>
     </Layout>

@@ -4,45 +4,33 @@ const pool = require("../db");
 const bcrypt = require("bcrypt");
 const jwtGenerator = require("../utils/jwtGenerator");
 
-// ADMIN
+// PARTNER
 router.post("/login", async (req, res) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
   try {
-    const admin = await pool.query("SELECT * FROM admins WHERE username = $1", [
-      username,
-    ]);
+    const partner = await pool.query(
+      "SELECT * FROM partners WHERE email = $1",
+      [email]
+    );
 
-    if (admin.rows.length === 0) {
+    if (partner.rows.length === 0) {
       return res.status(401).json("Invalid Credential");
     }
 
     const validPassword = await bcrypt.compare(
       password,
-      admin.rows[0].password
+      partner.rows[0].password
     );
-
     if (!validPassword) {
       return res.status(401).json("Password or Email is incorrect");
     }
 
-    const token = jwtGenerator(admin.rows[0].admin_id);
+    const token = jwtGenerator(partner.rows[0].partner_id);
     return res.json({ token });
   } catch (error) {
     console.error(error);
     res.status(500).send("Server error");
-  }
-});
-
-// USERS
-router.get("/getAllUsers", async (req, res) => {
-  // TODO: use middleware to check if user is superadmin
-  try {
-    const allUsers = await pool.query("SELECT * FROM users");
-    res.json(allUsers.rows);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500);
   }
 });
 
