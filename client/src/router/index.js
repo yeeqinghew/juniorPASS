@@ -3,7 +3,6 @@ import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { useIdleTimer } from "react-idle-timer/dist/index.legacy.cjs.js";
 import "mapbox-gl/dist/mapbox-gl.css";
 import OverallLayout from "../layouts/Layout";
-import PartnerLogin from "../components/Partner/Login";
 import Profile from "../components/Profile";
 import HomePage from "../components/HomePage";
 import Classes from "../components/Classes";
@@ -13,19 +12,11 @@ import Register from "../components/Register";
 import UserContext from "../components/UserContext";
 import Class from "../components/Classes/Class";
 import AuthenticatedRoute from "./AuthenticatedRoute";
-import PartnerLandingLayout from "../layouts/Partner/PartnerLandingLayout";
 import NotFound from "../utils/404";
 import { confirmAlert } from "react-confirm-alert"; // Import
 import toast, { Toaster } from "react-hot-toast";
 import Cart from "../components/User/MainPage/Cart";
 import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
-import AdminLogin from "../components/Admin/Login";
-import AdminLandingLayout from "../layouts/Admin/AdminLandingLayout";
-import AdminHome from "../components/Admin/Home";
-import AdminHomeLayout from "../layouts/Admin/AdminHomeLayout";
-import PartnerHomeLayout from "../layouts/Partner/PartnerHomeLayout";
-import PartnerHome from "../components/Partner/Home";
-import PartnerClasses from "../components/Partner/Classes";
 
 export default () => {
   const [user, setUser] = useState({});
@@ -72,24 +63,17 @@ export default () => {
       setLoading(false);
     } catch (error) {
       console.error("ERROR in /auth/is-verify: ", error);
-      if (error.message === "Error in authorization from BE: 401") {
-        localStorage.removeItem("token");
-        localStorage.clear();
-        setAuth(false);
-        setLoading(false);
-        toast.error(error.message);
-      }
+      // if (error.message === "Error in authorization from BE: 401") {
+      //   localStorage.removeItem("token");
+      //   localStorage.clear();
+      //   setAuth(false);
+      //   setLoading(false);
+      //   toast.error(error.message);
+      // }
     }
   };
 
   useEffect(() => {
-    const currentLocation = window.location.pathname;
-    if (
-      currentLocation.includes("admin") ||
-      currentLocation.includes("partner")
-    )
-      return;
-
     isAuth();
   }, []);
 
@@ -195,29 +179,6 @@ export default () => {
             <Route path="/cart" element={<Cart />}></Route>
           </Route>
           <Route path="*" element={<NotFound />}></Route>
-        </Route>
-        {/*******************
-         *****  Partner *****
-         *******************/}
-        <Route element={<PartnerLandingLayout />}>
-          <Route path="/partner/login" element={<PartnerLogin />}></Route>
-          <Route element={<PartnerHomeLayout />}>
-            <Route path="/partner/home" element={<PartnerHome />}></Route>
-            <Route path="/partner/classes" element={<PartnerClasses />}></Route>
-          </Route>
-        </Route>
-
-        {/*******************
-         ******  Admin ******
-         *******************/}
-        <Route element={<AdminLandingLayout />}>
-          <Route
-            path="/admin/login"
-            element={<AdminLogin setAuth={setAuth} />}
-          ></Route>
-          <Route element={<AdminHomeLayout />}>
-            <Route path="/admin/home" element={<AdminHome />}></Route>
-          </Route>
         </Route>
       </Routes>
     </UserContext.Provider>
