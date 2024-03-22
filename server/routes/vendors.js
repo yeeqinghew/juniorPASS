@@ -5,7 +5,7 @@ const pool = require("../db");
 // get all vendors
 router.get("/getAllVendors", async (req, res) => {
   try {
-    const vendors = await pool.query("SELECT * FROM vendors");
+    const vendors = await pool.query("SELECT * FROM partners");
     res.json(vendors.rows);
   } catch (error) {
     console.error(error.message);
