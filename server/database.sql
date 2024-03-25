@@ -58,7 +58,6 @@ CREATE TABLE listings (
     category categories NOT NULL,
     description VARCHAR(1000),
     rating BIGINT NOT NULL,
-    picture VARCHAR(1000),
     address VARCHAR(1000) NOT NULL,
     latitude VARCHAR(50) NOT NULL,
     longitude VARCHAR(50) NOT NULL,

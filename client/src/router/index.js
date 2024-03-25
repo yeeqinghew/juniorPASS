@@ -19,7 +19,7 @@ import Cart from "../components/User/MainPage/Cart";
 import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
 
 export default () => {
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -45,7 +45,6 @@ export default () => {
   };
 
   const isAuth = async () => {
-    // TODO: not call this function if user === ADMIN
     try {
       const response = await fetch("http://localhost:5000/auth/is-verify", {
         method: "GET",
