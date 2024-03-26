@@ -9,6 +9,7 @@ DROP TABLE IF EXISTS cart CASCADE;
 DROP TABLE IF EXISTS cartItem CASCADE;
 DROP TABLE IF EXISTS partners CASCADE;
 DROP TABLE IF EXISTS admins CASCADE;
+DROP TABLE IF EXISTS ageGroups CASCADE;
 
 CREATE OR REPLACE FUNCTION trigger_set_timestamp ()
     RETURNS TRIGGER
@@ -20,16 +21,17 @@ END;
 $$
 LANGUAGE plpgsql;
 
-CREATE TYPE userTypes AS ENUM ('parent', 'child');
+CREATE TYPE user_types AS ENUM ('parent', 'child');
 CREATE TYPE methods AS ENUM('normal', 'gmail');
 CREATE TYPE genders AS ENUM('M', 'F');
 CREATE TYPE categories AS ENUM('Sports', 'Music');
-CREATE TYPE transactionType AS ENUM('CREDIT', 'DEBIT');
+CREATE TYPE transaction_types AS ENUM('CREDIT', 'DEBIT');
+CREATE TYPE age_groups AS ENUM ('infant', 'toddler', 'preschooler', 'above 7');
 
 CREATE TABLE users (
     user_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(100),
-    user_type userTypes,
+    user_type user_types,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255),
     created_on TIMESTAMP,
@@ -75,7 +77,7 @@ CREATE TABLE transactions (
     done_by VARCHAR(50) NOT NULL,
     listing_id uuid REFERENCES listings(listing_id) NOT NULL,
     used_credit INTEGER NOT NULL,
-    transaction_type transactionType NOT NULL,
+    transaction_type transaction_types NOT NULL,
     created_on TIMESTAMP
 );
 
@@ -125,6 +127,20 @@ INSERT INTO partners(partner_name, email, password, description, category, websi
     , ('Little Kickers', 'Singapore@littlekickers.sg', '$2b$10$tk2dxadGFGRMGsj3mjJr2OQ4VpsxvS7cSvajbTUbRJIchUOvYOAGO', 'The home of pre-school football we believe in something we call "Play not Push". It means teaching football in a fun, pressure-free environment. We want to give children a positive introduction to sport as a whole and have FUN along the way', 
     'Sports', 'https://www.littlekickers.sg/', 5, 'https://pbs.twimg.com/profile_images/1205502044741742592/aA3NOOhs_400x400.jpg', '16 Raffles Quay, Hong Leong Building Singapore, Singapore 48581', '1.281308', '103.850939', 'City Hall', '67890987', CURRENT_TIMESTAMP)
     ;
+
+CREATE TABLE ageGroups (
+    id SERIAL PRIMARY KEY,
+    name age_groups,
+    min_age INTEGER,
+    max_age INTEGER
+);
+
+INSERT INTO ageGroups (name, min_age, max_age) 
+    VALUES
+    ('infant', 0, 1),
+    ('toddler', 1, 2),
+    ('preschooler', 3, 6),
+    ('above 7', 7, null);
 
 -- ADMIN PORTAL
 CREATE TABLE admins (
