@@ -32,7 +32,7 @@ CREATE TABLE users (
     user_type userTypes,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255),
-    created_on DATE,
+    created_on TIMESTAMP,
     phone_number VARCHAR(8),
     method methods,
     credit INTEGER,
@@ -64,7 +64,7 @@ CREATE TABLE listings (
     region VARCHAR(50) NOT NULL,
     age_group VARCHAR(50) NOT NULL,
     pictures VARCHAR(5000) NOT NULL,
-    created_on DATE,
+    created_on TIMESTAMP,
     registeredParents VARCHAR(500)
 );
 
@@ -76,13 +76,13 @@ CREATE TABLE transactions (
     listing_id uuid REFERENCES listings(listing_id) NOT NULL,
     used_credit INTEGER NOT NULL,
     transaction_type transactionType NOT NULL,
-    created_on DATE
+    created_on TIMESTAMP
 );
 
 CREATE TABLE cart (
     cart_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     parent_id uuid REFERENCES parent(parent_id) NOT NULL,
-    created_on DATE,
+    created_on TIMESTAMP,
     last_updated TIMESTAMP
 );
 

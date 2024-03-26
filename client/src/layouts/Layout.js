@@ -209,7 +209,7 @@ const OverallLayout = ({ isAuthenticated, setAuth, setLoading }) => {
                     height={24}
                     preview={false}
                   />
-                  <Text>{user.credit}</Text>
+                  <Text>{user?.credit}</Text>
                 </Menu.Item>
                 <Menu.Item key="profile" style={{ float: "right" }}>
                   <Link to="/profile" state={"account"}>
