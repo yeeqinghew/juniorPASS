@@ -11,4 +11,13 @@ router.get("/getAllAgeGroups", async (req, res) => {
   }
 });
 
+router.get("/getAllCategories", async (req, res) => {
+  try {
+    const categories = await pool.query("SELECT enum_range(NULL::categories)");
+    res.json(categories.rows[0]);
+  } catch (error) {
+    console.error("ERROR in /misc/getAllCategories", error.message);
+  }
+});
+
 module.exports = router;

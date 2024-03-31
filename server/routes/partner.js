@@ -3,8 +3,22 @@ const router = express.Router();
 const pool = require("../db");
 const bcrypt = require("bcrypt");
 const jwtGenerator = require("../utils/jwtGenerator");
+const authorization = require("../middleware/authorization");
 
 // PARTNER
+router.get("/", authorization, async (req, res) => {
+  try {
+    const partner = await pool.query(
+      "SELECT * FROM partners WHERE partner_id = $1",
+      [req.user]
+    );
+    res.json(partner.rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json("Server Error");
+  }
+});
+
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
