@@ -52,11 +52,17 @@ const Plans = () => {
   return (
     <div style={{ textAlign: "center" }}>
       <div>
+        <Text>Discover</Text>
         <Title level={1}>Avaible Plans</Title>
-        <Text>Simple pricing.</Text>
+        <Text>Choose the perfect pricing plans for your needs</Text>
       </div>
 
-      <Row align={"center"}>
+      <Row
+        align={"center"}
+        style={{
+          margin: "24px 0",
+        }}
+      >
         <Col>
           <CardComponent
             planName="Basic"

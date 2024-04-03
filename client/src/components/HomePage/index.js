@@ -126,7 +126,7 @@ const HomePage = () => {
         </Title>
         <Splide
           style={{
-            width: "100vh",
+            width: "100%",
           }}
           extensions={{ Grid }}
           options={{

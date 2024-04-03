@@ -290,7 +290,7 @@ const OverallLayout = ({ isAuthenticated, setAuth, setLoading }) => {
             <Flex
               style={{ right: 0, width: "90%", justifyContent: "flex-end" }}
             >
-              <Flex vertical gap="large" style={{ width: "15%" }}>
+              <Flex vertical gap="large" style={{ width: "20%" }}>
                 <Title level={5}>QUICK LINKS</Title>
                 <Link to="/">Home</Link>
                 <Link to="/classes">Classes</Link>
@@ -298,7 +298,7 @@ const OverallLayout = ({ isAuthenticated, setAuth, setLoading }) => {
                 {/* <Link to="/contactus">ContactUs</Link> */}
               </Flex>
 
-              <Flex vertical gap="large" style={{ width: "15%" }}>
+              <Flex vertical gap="large" style={{ width: "20%" }}>
                 <Title level={5}>SUPPORT</Title>
                 <Link to="/classes">FAQ</Link>
                 <Link to="/classes">Become a partner</Link>
@@ -306,7 +306,7 @@ const OverallLayout = ({ isAuthenticated, setAuth, setLoading }) => {
                 {/* <Link to="/contactus">ContactUs</Link> */}
               </Flex>
 
-              <Flex vertical gap="large" style={{ width: "15%" }}>
+              <Flex vertical gap="large" style={{ width: "20%" }}>
                 <Title level={5}>FOLLOW US</Title>
                 <Space direction="horizontal">
                   <MailOutlined />
@@ -340,6 +340,7 @@ const OverallLayout = ({ isAuthenticated, setAuth, setLoading }) => {
             </Flex>
           </Flex>
           <Divider></Divider>© Copyright {new Date().getFullYear()} juniorPASS
+          (UEN: 202411484C)
         </Footer>
       );
     }

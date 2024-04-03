@@ -71,32 +71,26 @@ const Classes = () => {
 
   return (
     <>
-      <div
+      <Input
+        size="large"
+        allowClear
+        onChange={onSearch}
         style={{
-          margin: "24px",
+          margin: "0 auto",
+          padding: "0 1.6rem",
+          borderRadius: "0.7rem",
+          height: "3rem",
         }}
-      >
-        <Input
-          size="large"
-          allowClear
-          onChange={onSearch}
-          style={{
-            margin: "0 auto",
-            padding: "0 1.6rem",
-            borderRadius: "0.7rem",
-            height: "3rem",
-          }}
-          prefix={<SearchOutlined />}
-          placeholder="Search by location, classes, category"
-        />
-      </div>
+        prefix={<SearchOutlined />}
+        placeholder="Search by location, classes, category"
+      />
 
-      <Flex justify="space-between">
+      <Flex justify="space-between" style={{ margin: "24px 0" }}>
         <List
           itemLayout="horizontal"
           dataSource={filterInput == null ? vendors : filterInput}
           style={{
-            width: "40%",
+            width: "40vw",
           }}
           size="large"
           pagination={{
@@ -174,10 +168,8 @@ const Classes = () => {
           mapStyle="mapbox://styles/mapbox/streets-v8"
           mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
           style={{
-            width: "50%",
-            height: "70%",
-            position: "absolute",
-            right: "124px",
+            width: "40vw",
+            height: "70vh",
           }}
           mapLib={import("mapbox-gl")}
         >

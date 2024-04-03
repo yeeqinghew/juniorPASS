@@ -10,7 +10,6 @@ router.post("/createListing", async (req, res) => {
       price,
       category,
       description,
-      picture,
       address,
       region,
       age_group,
@@ -51,8 +50,7 @@ router.post("/createListing", async (req, res) => {
     //     new Date().toLocaleString(),
     //   ]
     // );
-    // TODO: add message for this
-    // res.status(200).message("Successfully added listing");
+    res.json(listing.rows[0]);
   } catch (err) {
     console.error("ERROR in /listing/createListing", err.message);
   }

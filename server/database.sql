@@ -10,6 +10,7 @@ DROP TABLE IF EXISTS cartItem CASCADE;
 DROP TABLE IF EXISTS partners CASCADE;
 DROP TABLE IF EXISTS admins CASCADE;
 DROP TABLE IF EXISTS ageGroups CASCADE;
+DROP TABLE IF EXISTS categories_listing CASCADE;
 
 CREATE OR REPLACE FUNCTION trigger_set_timestamp ()
     RETURNS TRIGGER
@@ -128,6 +129,16 @@ CREATE TABLE cart (
 CREATE TABLE cartItem (
     item_id uuid PRIMARY KEY DEFAULT uuid_generate_v4()
 );
+
+CREATE TABLE categories_listing (
+    id SERIAL PRIMARY KEY,
+    name categories
+);
+
+INSERT INTO categories_listing (name) 
+    VALUES
+    ('Music'),
+    ('Sports');
 
 CREATE TABLE ageGroups (
     id SERIAL PRIMARY KEY,

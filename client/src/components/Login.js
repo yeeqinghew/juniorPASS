@@ -99,7 +99,6 @@ const Login = ({ setAuth }) => {
           theme="outline"
           width="290"
         />
-
         <Divider>OR</Divider>
         <Form
           name="normal_login"
@@ -158,7 +157,6 @@ const Login = ({ setAuth }) => {
               Forgot password
             </a>
           </Form.Item>
-
           <Form.Item>
             <Button
               type="primary"
@@ -168,14 +166,15 @@ const Login = ({ setAuth }) => {
             >
               Log in
             </Button>
-            Or <Link to="/register">register now!</Link>
           </Form.Item>
         </Form>
-
-        <Divider></Divider>
-        <Link to="/partner/login">
-          <Text>Partner Login</Text>
-        </Link>
+        <div style={{ textAlign: "center" }}>
+          Or <Link to="/register">register now!</Link>
+          <Divider></Divider>
+          <Link to="/partner/login">
+            <Text>Partner Login</Text>
+          </Link>
+        </div>
       </div>
     </section>
   );
