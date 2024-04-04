@@ -84,6 +84,10 @@ const Plans = () => {
         <CheckOutlined />
         Book classes in Singapore
       </Text>
+      <Text>
+        <CheckOutlined />
+        No expiration date
+      </Text>
     </div>
   );
 };

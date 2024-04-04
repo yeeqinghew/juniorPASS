@@ -14,6 +14,7 @@ app.use("/partner", require("./routes/partner"));
 app.use("/listing", require("./routes/listing"));
 app.use("/misc", require("./routes/misc"));
 
-app.listen(5000, () => {
-  console.log("Server has started on port 5000");
+const port = process.env.PORT || 5000;
+app.listen(port, () => {
+  console.log(`Server has started on port ${port}`);
 });

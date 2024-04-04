@@ -13,9 +13,14 @@ import toast, { Toaster } from "react-hot-toast";
 const { Title, Text } = Typography;
 
 const Login = ({ setAuth }) => {
+  const baseURL =
+    process.env.NODE_ENV === "production"
+      ? "auth/login"
+      : "http://localhost:5000/auth/login";
+
   const handleLogin = async (values) => {
     try {
-      const response = await fetch("http://localhost:5000/auth/login", {
+      const response = await fetch(baseURL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

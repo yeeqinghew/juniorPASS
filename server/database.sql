@@ -103,7 +103,7 @@ CREATE TABLE listings (
     longitude VARCHAR(50) NOT NULL,
     region VARCHAR(50) NOT NULL,
     age_group VARCHAR(50) NOT NULL,
-    -- pictures VARCHAR(5000) NOT NULL,
+    pictures VARCHAR(5000),
     created_on TIMESTAMP,
     registeredParents VARCHAR(500)
 );
