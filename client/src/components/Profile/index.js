@@ -8,6 +8,7 @@ import { useLocation } from "react-router-dom";
 
 const Profile = () => {
   const { state } = useLocation();
+
   const renderTabBar = (props, DefaultTabBar) => (
     <DefaultTabBar
       {...props}
@@ -57,7 +58,6 @@ const Profile = () => {
   return (
     <Tabs
       defaultActiveKey={state || "account"}
-      activeKey={state}
       tabPosition={"left"}
       renderTabBar={renderTabBar}
       items={items}

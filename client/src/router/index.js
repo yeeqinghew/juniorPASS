@@ -73,6 +73,7 @@ export default () => {
   };
 
   useEffect(() => {
+    if (isAuthenticated) return;
     isAuth();
   }, [isAuthenticated]);
 
