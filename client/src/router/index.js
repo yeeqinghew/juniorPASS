@@ -74,7 +74,7 @@ export default () => {
 
   useEffect(() => {
     isAuth();
-  }, []);
+  }, [isAuthenticated]);
 
   const handleOnIdle = () => {
     if (isAuthenticated) {
