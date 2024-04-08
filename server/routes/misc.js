@@ -1,6 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../db");
+const generateS3UploadURL = require("../utils/s3.js");
+
+router.get("/s3url", async (req, res) => {
+  const url = await generateS3UploadURL();
+  res.json({ url });
+});
 
 router.get("/getAllAgeGroups", async (req, res) => {
   try {
