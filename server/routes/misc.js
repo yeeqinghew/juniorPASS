@@ -17,9 +17,18 @@ router.get("/getAllAgeGroups", async (req, res) => {
   }
 });
 
+router.get("/getAllPackages", async (req, res) => {
+  try {
+    const packageTypes = await pool.query("SELECT * FROM packageTypes");
+    res.json(packageTypes.rows);
+  } catch (error) {
+    console.error("ERROR in /misc/getAllPackages", error.message);
+  }
+});
+
 router.get("/getAllCategories", async (req, res) => {
   try {
-    const categories = await pool.query("SELECT * FROM categories_listing");
+    const categories = await pool.query("SELECT * FROM categoriesListing");
     res.json(categories.rows);
   } catch (error) {
     console.error("ERROR in /misc/getAllCategories", error.message);

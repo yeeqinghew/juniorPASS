@@ -14,10 +14,26 @@ router.post("/createListing", async (req, res) => {
       region,
       age_group,
       file,
+      package_types,
       partner_id,
     } = req.body;
     const listing = await pool.query(
-      "INSERT INTO listings(partner_id, listing_title, price, category, description, address, latitude, longitude, region, age_group, rating, pictures, created_on) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *",
+      `INSERT INTO listings(
+        partner_id, 
+        listing_title, 
+        price,
+        category, 
+        description, 
+        address, 
+        latitude, 
+        longitude, 
+        region, 
+        age_group, 
+        rating, 
+        pictures, 
+        package_types,
+        created_on
+        ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *`,
       [
         partner_id,
         title,
@@ -31,6 +47,7 @@ router.post("/createListing", async (req, res) => {
         age_group,
         0,
         file,
+        package_types,
         new Date().toLocaleString(),
       ]
     );

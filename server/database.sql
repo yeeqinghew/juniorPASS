@@ -10,7 +10,16 @@ DROP TABLE IF EXISTS cartItem CASCADE;
 DROP TABLE IF EXISTS partners CASCADE;
 DROP TABLE IF EXISTS admins CASCADE;
 DROP TABLE IF EXISTS ageGroups CASCADE;
-DROP TABLE IF EXISTS categories_listing CASCADE;
+DROP TABLE IF EXISTS categoriesListing CASCADE;
+DROP TABLE IF EXISTS packageTypes CASCADE;
+
+DROP TYPE IF EXISTS user_types CASCADE;
+DROP TYPE IF EXISTS methods CASCADE;
+DROP TYPE IF EXISTS genders CASCADE;
+DROP TYPE IF EXISTS categories CASCADE;
+DROP TYPE IF EXISTS package_types CASCADE;
+DROP TYPE IF EXISTS transaction_types CASCADE;
+DROP TYPE IF EXISTS age_groups CASCADE;
 
 CREATE OR REPLACE FUNCTION trigger_set_timestamp ()
     RETURNS TRIGGER
@@ -26,6 +35,7 @@ CREATE TYPE user_types AS ENUM ('parent', 'child');
 CREATE TYPE methods AS ENUM('normal', 'gmail');
 CREATE TYPE genders AS ENUM('M', 'F');
 CREATE TYPE categories AS ENUM('Sports', 'Music');
+CREATE TYPE package_types AS ENUM('pay-as-you-go', 'short-term', 'long-term');
 CREATE TYPE transaction_types AS ENUM('CREDIT', 'DEBIT');
 CREATE TYPE age_groups AS ENUM ('infant', 'toddler', 'preschooler', 'above 7');
 
@@ -96,6 +106,7 @@ CREATE TABLE listings (
     listing_title VARCHAR(1000) NOT NULL,
     price INTEGER,
     category categories NOT NULL,
+    package_type package_types NOT NULL,
     description VARCHAR(1000),
     rating BIGINT NOT NULL,
     address VARCHAR(1000) NOT NULL,
@@ -130,15 +141,28 @@ CREATE TABLE cartItem (
     item_id uuid PRIMARY KEY DEFAULT uuid_generate_v4()
 );
 
-CREATE TABLE categories_listing (
+CREATE TABLE categoriesListing (
     id SERIAL PRIMARY KEY,
     name categories
 );
 
-INSERT INTO categories_listing (name) 
+INSERT INTO categoriesListing (name) 
     VALUES
     ('Music'),
     ('Sports');
+
+
+CREATE TABLE packageTypes (
+    ID SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    package_type package_types
+);
+
+INSERT INTO packageTypes (name, package_type) 
+    VALUES
+    ('Pay-as-you-go', 'pay-as-you-go'),
+    ('Short term package', 'short-term'),
+    ('Long term package', 'long-term');
 
 CREATE TABLE ageGroups (
     id SERIAL PRIMARY KEY,
