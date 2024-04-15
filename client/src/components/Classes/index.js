@@ -19,7 +19,7 @@ const Classes = () => {
   const getVendors = async () => {
     try {
       const response = await fetch(
-        "http://localhost:5000/vendor/getAllVendors"
+        "http://localhost:5000/partner/getAllPartners"
       );
       const jsonData = await response.json();
       setVendors(jsonData);

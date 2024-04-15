@@ -8,7 +8,6 @@ app.use(express.json());
 
 // ROUTES
 app.use("/auth", require("./routes/jwtAuth"));
-app.use("/vendor", require("./routes/vendor"));
 app.use("/admin", require("./routes/admin"));
 app.use("/partner", require("./routes/partner"));
 app.use("/listing", require("./routes/listing"));

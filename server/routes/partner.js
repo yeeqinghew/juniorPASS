@@ -9,7 +9,7 @@ const authorization = require("../middleware/authorization");
 router.get("/", authorization, async (req, res) => {
   try {
     const partner = await pool.query(
-      "SELECT * FROM partners WHERE partner_id = $1",
+      "SELECT * FROM partner WHERE partner_id = $1",
       [req.user]
     );
     res.json(partner.rows[0]);
@@ -23,10 +23,9 @@ router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const partner = await pool.query(
-      "SELECT * FROM partners WHERE email = $1",
-      [email]
-    );
+    const partner = await pool.query("SELECT * FROM partner WHERE email = $1", [
+      email,
+    ]);
 
     if (partner.rows.length === 0) {
       return res.status(401).json("Invalid Credential");
@@ -45,6 +44,16 @@ router.post("/login", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send("Server error");
+  }
+});
+
+// get all partners
+router.get("/getAllPartners", async (req, res) => {
+  try {
+    const partners = await pool.query("SELECT * FROM partner");
+    res.json(partners.rows);
+  } catch (error) {
+    console.error(error.message);
   }
 });
 

@@ -3,12 +3,13 @@ CREATE DATABASE juniorPASS;
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS child CASCADE;
 DROP TABLE IF EXISTS parent CASCADE;
-DROP TABLE IF EXISTS listings CASCADE;
-DROP TABLE IF EXISTS transactions CASCADE;
+DROP TABLE IF EXISTS listing CASCADE;
+DROP TABLE IF EXISTS transaction CASCADE;
 DROP TABLE IF EXISTS cart CASCADE;
 DROP TABLE IF EXISTS cartItem CASCADE;
-DROP TABLE IF EXISTS partners CASCADE;
-DROP TABLE IF EXISTS admins CASCADE;
+DROP TABLE IF EXISTS partner CASCADE;
+DROP TABLE IF EXISTS review CASCADE;
+DROP TABLE IF EXISTS admin CASCADE;
 DROP TABLE IF EXISTS ageGroups CASCADE;
 DROP TABLE IF EXISTS categoriesListing CASCADE;
 DROP TABLE IF EXISTS packageTypes CASCADE;
@@ -45,11 +46,11 @@ CREATE TABLE users (
     user_type user_types,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255),
-    created_on TIMESTAMP,
     phone_number VARCHAR(8),
     method methods,
     credit INTEGER,
-    display_picture VARCHAR(255)
+    display_picture VARCHAR(255),
+    created_on TIMESTAMP
 );
 
 ALTER TABLE users ALTER COLUMN credit SET DEFAULT 0;
@@ -64,7 +65,7 @@ CREATE TABLE parent (
 );
 
 -- PARTNER PORTAL
-CREATE TABLE partners (
+CREATE TABLE partner (
     partner_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     partner_name VARCHAR(50) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
@@ -79,13 +80,12 @@ CREATE TABLE partners (
     longitude VARCHAR(50) NOT NULL,
     region VARCHAR(50) NOT NULL, 
     phone_number VARCHAR(8),
-    age_group VARCHAR(50),
     created_on TIMESTAMP
 );
 
-ALTER TABLE partners ALTER COLUMN rating SET DEFAULT 0;
+ALTER TABLE partner ALTER COLUMN rating SET DEFAULT 0;
 
-INSERT INTO partners(partner_name, email, password, description, category, website, rating, picture, address, latitude, longitude, region, phone_number, created_on)
+INSERT INTO partner(partner_name, email, password, description, category, website, rating, picture, address, latitude, longitude, region, phone_number, created_on)
     VALUES
     ('SG Basketball', 'admin@sgbasketball.com', '$2b$10$tk2dxadGFGRMGsj3mjJr2OQ4VpsxvS7cSvajbTUbRJIchUOvYOAGO', 'SG Basketball Pte Ltd is the leading service provider for basketball in Singapore. Our programs and events cater for players of all ages, from beginner to advanced levels. Our coaches and tournament organizers are passionate about ensuring that every participant has a positive experience - and that their sport experience enriches their lives.', 
     'Sports', 'https://www.sgbasketball.com/', 5, 'https://images.squarespace-cdn.com/content/v1/5ad0064b31d4df14309baeb5/1561030353172-ES8S0PN75WS044UIWCDT/SGBASKETBALL.png?format=1500w', '750B Chai Chee Rd #01-02 S(469002)', '1.3235', '103.9207', 'Kembangan', '98763456', CURRENT_TIMESTAMP)
@@ -100,33 +100,39 @@ INSERT INTO partners(partner_name, email, password, description, category, websi
     'Sports', 'https://www.littlekickers.sg/', 5, 'https://pbs.twimg.com/profile_images/1205502044741742592/aA3NOOhs_400x400.jpg', '16 Raffles Quay, Hong Leong Building Singapore, Singapore 48581', '1.281308', '103.850939', 'City Hall', '67890987', CURRENT_TIMESTAMP)
     ;
 
-CREATE TABLE listings (
+CREATE TABLE listing (
     listing_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-    partner_id uuid REFERENCES partners(partner_id) NOT NULL,
+    partner_id uuid REFERENCES partner(partner_id) NOT NULL,
     listing_title VARCHAR(1000) NOT NULL,
-    price INTEGER,
+    credit INTEGER,
     category categories NOT NULL,
     package_type package_types NOT NULL,
     description VARCHAR(1000),
     rating BIGINT NOT NULL,
-    address VARCHAR(1000) NOT NULL,
-    latitude VARCHAR(50) NOT NULL,
-    longitude VARCHAR(50) NOT NULL,
-    region VARCHAR(50) NOT NULL,
+    schedules VARCHAR(2000) NOT NULL,
+    locations VARCHAR(2000) NOT NULL,
     age_group VARCHAR(50) NOT NULL,
     pictures VARCHAR(5000),
-    created_on TIMESTAMP,
-    registeredParents VARCHAR(500)
+    registered_parents VARCHAR(500),
+    created_on TIMESTAMP
 );
 
-CREATE TABLE transactions (
+CREATE TABLE transaction (
     transaction_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     parent_id uuid REFERENCES parent(parent_id) NOT NULL,     
-    child_id uuid REFERENCES child(child_id)NOT NULL,
-    done_by VARCHAR(50) NOT NULL,
-    listing_id uuid REFERENCES listings(listing_id) NOT NULL,
+    child_id uuid REFERENCES child(child_id) NOT NULL,
+    listing_id uuid REFERENCES listing(listing_id) NOT NULL,
     used_credit INTEGER NOT NULL,
     transaction_type transaction_types NOT NULL,
+    created_on TIMESTAMP
+);
+
+CREATE TABLE review (
+    review_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    listing_id uuid REFERENCES listing(listing_id) NOT NULL,
+    user_id uuid REFERENCES users(user_id) NOT NULL,
+    rating INTEGER NOT NULL,
+    comment VARCHAR(5000) NOT NULL,
     created_on TIMESTAMP
 );
 
@@ -138,7 +144,11 @@ CREATE TABLE cart (
 );
 
 CREATE TABLE cartItem (
-    item_id uuid PRIMARY KEY DEFAULT uuid_generate_v4()
+    cart_item_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    cart_id uuid REFERENCES cart(cart_id),
+    listing_id uuid REFERENCES listing(listing_id),
+    parent_id uuid REFERENCES parent(parent_id),
+    child_id uuid REFERENCES child(child_id)    
 );
 
 CREATE TABLE categoriesListing (
@@ -179,13 +189,13 @@ INSERT INTO ageGroups (name, min_age, max_age)
     ('above 7', 7, null);
 
 -- ADMIN PORTAL
-CREATE TABLE admins (
+CREATE TABLE admin (
     admin_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     username VARCHAR(20),
     password VARCHAR(200)
 );
 
-INSERT INTO admins(username, password)
+INSERT INTO admin(username, password)
     VALUES('superadmin', '$2b$10$tk2dxadGFGRMGsj3mjJr2OQ4VpsxvS7cSvajbTUbRJIchUOvYOAGO');
 
 

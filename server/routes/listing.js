@@ -18,7 +18,7 @@ router.post("/createListing", async (req, res) => {
       partner_id,
     } = req.body;
     const listing = await pool.query(
-      `INSERT INTO listings(
+      `INSERT INTO listing(
         partner_id, 
         listing_title, 
         price,
@@ -77,7 +77,7 @@ router.post("/createListing", async (req, res) => {
 // get all listings
 router.get("/getAllListings", async (req, res) => {
   try {
-    const listings = await pool.query("SELECT * FROM listings");
+    const listings = await pool.query("SELECT * FROM listing");
     res.json(listings.rows);
   } catch (err) {
     console.error("ERROR in /listing/getAllListings", err.message);
