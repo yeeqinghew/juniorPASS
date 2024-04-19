@@ -105,15 +105,14 @@ CREATE TABLE listing (
     partner_id uuid REFERENCES partner(partner_id) NOT NULL,
     listing_title VARCHAR(1000) NOT NULL,
     credit INTEGER,
-    category categories NOT NULL,
-    package_type package_types NOT NULL,
-    description VARCHAR(1000),
+    category categories[] NOT NULL,
+    package_types package_types[] NOT NULL,
+    description VARCHAR(5000),
     rating BIGINT NOT NULL,
-    schedules VARCHAR(2000) NOT NULL,
-    locations VARCHAR(2000) NOT NULL,
-    age_group VARCHAR(50) NOT NULL,
-    pictures VARCHAR(5000),
+    age_group VARCHAR(500) NOT NULL,
+    image VARCHAR(5000),
     registered_parents VARCHAR(500),
+    string_outlet_schedules VARCHAR(5000),
     created_on TIMESTAMP
 );
 

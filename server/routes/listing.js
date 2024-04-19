@@ -1,76 +1,58 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../db");
+require("dotenv").config();
 
 // create listing
 router.post("/createListing", async (req, res) => {
   try {
     const {
-      title,
-      price,
-      category,
-      description,
-      address,
-      region,
-      age_group,
-      file,
-      package_types,
       partner_id,
+      title,
+      credit,
+      category,
+      package_types,
+      description,
+      age_group,
+      image,
+      string_outlet_schedules,
     } = req.body;
+
     const listing = await pool.query(
       `INSERT INTO listing(
         partner_id, 
         listing_title, 
-        price,
-        category, 
-        description, 
-        address, 
-        latitude, 
-        longitude, 
-        region, 
+        credit,
+        category,
+        package_types,      
+        description,
         age_group, 
         rating, 
-        pictures, 
-        package_types,
+        image,
+        string_outlet_schedules,
         created_on
-        ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *`,
+        ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
       [
         partner_id,
         title,
-        price,
+        credit,
         category,
+        package_types,
         description,
-        address,
-        address["LATITUDE"],
-        address["LONGITUDE"],
-        region,
         age_group,
         0,
-        file,
-        package_types,
+        image,
+        string_outlet_schedules,
         new Date().toLocaleString(),
       ]
     );
-    // const listing = await pool.query(
-    //   "INSERT INTO listings(listing_title, price, category, description, picture, address, latitude, longitude, region, age_group, pictures, created_on) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *",
-    //   [
-    //     listing_title,
-    //     price,
-    //     category,
-    //     description,
-    //     picture,
-    //     address,
-    //     latitude,
-    //     longitude,
-    //     region,
-    //     age_group,
-    //     pictures,
-    //     new Date().toLocaleString(),
-    //   ]
-    // );
-    res.json(listing.rows[0]);
+    res.status(201).json({
+      message: "Listing has been created!",
+      data: listing,
+    });
   } catch (err) {
     console.error("ERROR in /listing/createListing", err.message);
+    res.json({ error: err.message });
   }
 });
 
