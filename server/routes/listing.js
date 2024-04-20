@@ -1,10 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../db");
+const authorization = require("../middleware/authorization");
 require("dotenv").config();
 
 // create listing
-router.post("/createListing", async (req, res) => {
+router.post("/createListing", authorization, async (req, res) => {
   try {
     const {
       partner_id,
@@ -52,17 +53,20 @@ router.post("/createListing", async (req, res) => {
     });
   } catch (err) {
     console.error("ERROR in /listing/createListing", err.message);
-    res.json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
 // get all listings
-router.get("/getAllListings", async (req, res) => {
+router.get("/getAllListings", authorization, async (req, res) => {
   try {
-    const listings = await pool.query("SELECT * FROM listing");
+    const listings = await pool.query(
+      "SELECT * FROM listing ORDER BY created_on ASC"
+    );
     res.json(listings.rows);
   } catch (err) {
     console.error("ERROR in /listing/getAllListings", err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 

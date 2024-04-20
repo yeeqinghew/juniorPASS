@@ -22,6 +22,7 @@ export default () => {
   const [user, setUser] = useState();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
   const setAuth = (boolean) => {
@@ -33,7 +34,7 @@ export default () => {
       const response = await fetch("http://localhost:5000/auth/", {
         method: "GET",
         headers: {
-          token: localStorage.getItem("token"),
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -49,7 +50,7 @@ export default () => {
       const response = await fetch("http://localhost:5000/auth/is-verify", {
         method: "GET",
         headers: {
-          token: localStorage.getItem("token"),
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -74,6 +75,7 @@ export default () => {
 
   useEffect(() => {
     if (isAuthenticated) return;
+    if (!localStorage.getItem("token")) return;
     isAuth();
   }, [isAuthenticated]);
 
