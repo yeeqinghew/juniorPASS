@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { useIdleTimer } from "react-idle-timer/dist/index.legacy.cjs.js";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -17,67 +17,19 @@ import { confirmAlert } from "react-confirm-alert"; // Import
 import toast, { Toaster } from "react-hot-toast";
 import Cart from "../components/User/MainPage/Cart";
 import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
+import useAuth from "../hooks/useAuth";
 
 export default () => {
-  const [user, setUser] = useState();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const token = localStorage.getItem("token");
   const navigate = useNavigate();
-
-  const setAuth = (boolean) => {
-    setIsAuthenticated(boolean);
-  };
-
-  const getUser = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/auth/", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const parseRes = await response.json();
-      setUser(parseRes);
-    } catch (err) {
-      console.error("ERROR in /auth/: No user", err.message);
-    }
-  };
-
-  const isAuth = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/auth/is-verify", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const parseRes = await response.json();
-      if (response.status === 401) {
-        throw new Error("Error in authorization from BE: 401");
-      }
-      parseRes === true ? setAuth(true) : setAuth(false);
-      getUser();
-      setLoading(false);
-    } catch (error) {
-      console.error("ERROR in /auth/is-verify: ", error);
-      // if (error.message === "Error in authorization from BE: 401") {
-      //   localStorage.removeItem("token");
-      //   localStorage.clear();
-      //   setAuth(false);
-      //   setLoading(false);
-      //   toast.error(error.message);
-      // }
-    }
-  };
-
-  useEffect(() => {
-    if (isAuthenticated) return;
-    if (!localStorage.getItem("token")) return;
-    isAuth();
-  }, [isAuthenticated]);
+  const {
+    isAuthenticated,
+    loading,
+    setLoading,
+    isLoggingOut,
+    setIsLoggingOut,
+    user,
+    setAuth,
+  } = useAuth();
 
   const handleOnIdle = () => {
     if (isAuthenticated) {
@@ -139,6 +91,7 @@ export default () => {
               isAuthenticated={isAuthenticated}
               setAuth={setAuth}
               setLoading={setLoading}
+              setIsLoggingOut={setIsLoggingOut}
             />
           }
         >
@@ -174,6 +127,7 @@ export default () => {
               <AuthenticatedRoute
                 isAuthenticated={isAuthenticated}
                 loading={loading}
+                isLoggingOut={isLoggingOut}
               />
             }
           >

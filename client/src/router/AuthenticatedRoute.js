@@ -3,9 +3,14 @@ import { Navigate, Outlet } from "react-router-dom";
 import Spinner from "../utils/Spinner";
 import toast from "react-hot-toast";
 
-const AuthenticatedRoute = ({ isAuthenticated, loading }) => {
-  if (!isAuthenticated && !loading && !localStorage.getItem("token")) {
-    toast.error("You have not login");
+const AuthenticatedRoute = ({
+  isAuthenticated,
+  loading,
+  isLoggingOut,
+  ...props
+}) => {
+  if (!isAuthenticated && !loading && !isLoggingOut) {
+    toast.error("You have not logged in");
     return <Navigate to="/login" />;
   }
 
@@ -13,6 +18,6 @@ const AuthenticatedRoute = ({ isAuthenticated, loading }) => {
     return <Spinner />;
   }
 
-  return <Outlet />;
+  return <Outlet {...props} />;
 };
 export default AuthenticatedRoute;

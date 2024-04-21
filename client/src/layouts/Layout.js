@@ -32,7 +32,12 @@ import UserContext from "../components/UserContext";
 const { Header, Content, Footer } = Layout;
 const { Text, Title } = Typography;
 
-const OverallLayout = ({ isAuthenticated, setAuth, setLoading }) => {
+const OverallLayout = ({
+  isAuthenticated,
+  setAuth,
+  setLoading,
+  setIsLoggingOut,
+}) => {
   const [open, setOpen] = useState(false);
   const { width, isDesktop } = useWindowDimensions();
   const { user } = useContext(UserContext);
@@ -42,9 +47,11 @@ const OverallLayout = ({ isAuthenticated, setAuth, setLoading }) => {
     localStorage.removeItem("token");
     setAuth(false);
     setLoading(false);
+    setIsLoggingOut(true);
     // logout of Google account
     // googleLogout();
     toast.success("Logout successfully");
+    navigate("/login");
   };
 
   const showBurgerMenu = () => {
