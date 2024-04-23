@@ -38,7 +38,7 @@ CREATE TYPE genders AS ENUM('M', 'F');
 CREATE TYPE categories AS ENUM('Sports', 'Music');
 CREATE TYPE package_types AS ENUM('pay-as-you-go', 'short-term', 'long-term');
 CREATE TYPE transaction_types AS ENUM('CREDIT', 'DEBIT');
-CREATE TYPE age_groups AS ENUM ('infant', 'toddler', 'preschooler', 'above 7');
+CREATE TYPE age_groups AS ENUM ('infant', 'toddler', 'preschooler', 'above-7');
 
 CREATE TABLE users (
     user_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -109,10 +109,10 @@ CREATE TABLE listing (
     package_types package_types[] NOT NULL,
     description VARCHAR(5000),
     rating BIGINT NOT NULL,
-    age_group VARCHAR(500) NOT NULL,
+    age_group age_groups[] NOT NULL,
     image VARCHAR(5000),
     registered_parents VARCHAR(500),
-    string_outlet_schedules VARCHAR(5000),
+    string_outlet_schedules JSONB[],
     created_on TIMESTAMP
 );
 
@@ -185,7 +185,7 @@ INSERT INTO ageGroups (name, min_age, max_age)
     ('infant', 0, 1),
     ('toddler', 1, 2),
     ('preschooler', 3, 6),
-    ('above 7', 7, null);
+    ('above-7', 7, null);
 
 -- ADMIN PORTAL
 CREATE TABLE admin (

@@ -47,14 +47,4 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// get all partners
-router.get("/getAllPartners", authorization, async (req, res) => {
-  try {
-    const partners = await pool.query("SELECT * FROM partner");
-    res.json(partners.rows);
-  } catch (error) {
-    console.error(error.message);
-  }
-});
-
 module.exports = router;

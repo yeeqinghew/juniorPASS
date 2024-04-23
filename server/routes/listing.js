@@ -58,7 +58,7 @@ router.post("/createListing", authorization, async (req, res) => {
 });
 
 // get all listings
-router.get("/getAllListings", authorization, async (req, res) => {
+router.get("/getAllListings", async (req, res) => {
   try {
     const listings = await pool.query(
       "SELECT * FROM listing ORDER BY created_on ASC"

@@ -19,7 +19,7 @@ const Class = () => {
   return (
     <>
       <LeftOutlined onClick={handleGoBackButton} />
-      <Image src={item.picture} preview={false} />
+      <Image src={item.image} preview={false} />
       <Title level={1}>{item.vendor_name}</Title>
       <Text>{item.description}</Text>
       {!_.isEmpty(user) && (
