@@ -307,8 +307,8 @@ const OverallLayout = ({
 
               <Flex vertical gap="large" style={{ width: "20%" }}>
                 <Title level={5}>SUPPORT</Title>
-                <Link to="/classes">FAQ</Link>
-                <Link to="/classes">Become a partner</Link>
+                <Link to="/faq">FAQ</Link>
+                <Link to="/partner-contact">Become a partner</Link>
                 <Link to="/partner/login">Partner Login</Link>
                 {/* <Link to="/contactus">ContactUs</Link> */}
               </Flex>

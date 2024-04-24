@@ -18,6 +18,8 @@ import toast, { Toaster } from "react-hot-toast";
 import Cart from "../components/User/MainPage/Cart";
 import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
 import useAuth from "../hooks/useAuth";
+import ContactUs from "../components/ContactUs";
+import FAQ from "../components/FAQ";
 
 export default () => {
   const navigate = useNavigate();
@@ -95,10 +97,12 @@ export default () => {
             />
           }
         >
-          <Route path="/" element={<HomePage />}></Route>
-          <Route path="/classes" element={<Classes />}></Route>
-          <Route path="/class/:classId" element={<Class />}></Route>
-          <Route path="/plans" element={<Plans />}></Route>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/classes" element={<Classes />} />
+          <Route path="/class/:classId" element={<Class />} />
+          <Route path="/plans" element={<Plans />} />
+          <Route path="/partner-contact" element={<ContactUs />} />
+          <Route path="/faq" element={<FAQ />} />
           <Route
             path="/login"
             element={
@@ -131,10 +135,10 @@ export default () => {
               />
             }
           >
-            <Route path="/profile" element={<Profile />}></Route>
-            <Route path="/cart" element={<Cart />}></Route>
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/cart" element={<Cart />} />
           </Route>
-          <Route path="*" element={<NotFound />}></Route>
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </UserContext.Provider>

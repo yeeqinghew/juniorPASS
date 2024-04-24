@@ -138,7 +138,7 @@ const Classes = () => {
             <List.Item
               key={index}
               onClick={(e) => {
-                navigate(`/class/${item.vendor_id}`, {
+                navigate(`/class/${item.listing_id}`, {
                   state: {
                     item,
                   },
