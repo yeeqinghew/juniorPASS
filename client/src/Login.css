@@ -5,7 +5,7 @@
 @media (min-width: 768px) {}
 
 /* tablet landscape: 1024px x 768px */
-@media (min-width: 1024px) {
+@media screen and (min-width: 1024px) and (orientation: landscape) {
     #components-form-demo-normal-login .login-form {
         max-width: 300px;
     }

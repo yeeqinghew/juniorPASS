@@ -9,7 +9,7 @@ const _ = require("lodash");
 
 const Class = () => {
   const { state } = useLocation();
-  const { item } = state;
+  const { listing } = state;
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
   const handleGoBackButton = () => {
@@ -30,30 +30,30 @@ const Class = () => {
             fontSize: "24px",
           }}
         />
-        <Title lev={1}>{item.listing_title}</Title>
+        <Title lev={1}>{listing?.listing_title}</Title>
       </Flex>
       <Image
-        src={item.image}
+        src={listing?.image}
         preview={false}
         style={{
           width: "500px",
         }}
       />
       <Space direction={"vertical"}>
-        <Title level={1}>{item.vendor_name}</Title>
-        <Text>{item.description}</Text>
+        <Title level={1}>{listing?.listing_title}</Title>
+        <Text>{listing?.description}</Text>
         <Text>Pacakage Types</Text>
-        {item.package_types.map((type) => {
+        {listing?.package_types.map((type) => {
           return <Text>{type}</Text>;
         })}
-        {item.category.map((category) => {
+        {listing?.categories.map((category) => {
           return <Text>{category}</Text>;
         })}
-        {item.age_group.map((age) => {
+        {listing?.age_group.map((age) => {
           return <Text>{age}</Text>;
         })}
-        {item.string_outlet_schedules.map((item) => {
-          return <Text>{item?.address?.ADDRESS}</Text>;
+        {listing?.string_outlet_schedules.map((listing) => {
+          return <Text>{listing?.address?.ADDRESS}</Text>;
         })}
       </Space>
 

@@ -21,13 +21,21 @@
 }
 
 /* mobile: 360px x 640px */
+/* margin: 8px to 16px */
+/* padding: 16px to 24px */
 @media (min-width: 350px) {}
 
 /* tablet portrait: 768px x 1024px */
+/* margin: 16px to 24px */
+/* padding: 16px to 24px */
 @media (min-width: 768px) {}
 
 /* tablet landscape: 1024px x 768px */
-@media (min-width: 1024px) {}
+/* margin: 24px to 32px */
+/* padding: 16px to 24px */
+@media screen and (min-width: 1024px) and (orientation: landscape) {}
 
 /* desktop: 1336px x 768px */
+/* margin: 32px to 48px */
+/* padding: 24px to 32px */
 @media (min-width: 1336px) {}
