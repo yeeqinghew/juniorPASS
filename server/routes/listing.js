@@ -61,7 +61,7 @@ router.post("/createListing", authorization, async (req, res) => {
 router.get("/getAllListings", async (req, res) => {
   try {
     const listings = await pool.query(
-      "SELECT * FROM listing ORDER BY created_on ASC"
+      "SELECT * FROM listing l JOIN partner p USING (partner_id) ORDER BY l.created_on ASC"
     );
     res.json(listings.rows);
   } catch (err) {
