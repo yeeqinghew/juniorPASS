@@ -15,11 +15,12 @@ import AuthenticatedRoute from "./AuthenticatedRoute";
 import NotFound from "../utils/404";
 import { confirmAlert } from "react-confirm-alert"; // Import
 import toast, { Toaster } from "react-hot-toast";
-import Cart from "../components/User/MainPage/Cart";
 import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
 import useAuth from "../hooks/useAuth";
 import ContactUs from "../components/ContactUs";
 import FAQ from "../components/FAQ";
+import AboutUs from "../components/AboutUs";
+import LoggedInLayout from "../layouts/LoggedInLayout";
 
 export default () => {
   const navigate = useNavigate();
@@ -101,6 +102,7 @@ export default () => {
           <Route path="/classes" element={<Classes />} />
           <Route path="/class/:classId" element={<Class />} />
           <Route path="/plans" element={<Plans />} />
+          <Route path="/about-us" element={<AboutUs />} />
           <Route path="/partner-contact" element={<ContactUs />} />
           <Route path="/faq" element={<FAQ />} />
           <Route
@@ -123,9 +125,21 @@ export default () => {
               )
             }
           ></Route>
-          {/*******************
-           ******* User *******
-           *******************/}
+        </Route>
+
+        {/*******************
+         ******* User *******
+         *******************/}
+        <Route
+          element={
+            <LoggedInLayout
+              isAuthenticated={isAuthenticated}
+              setAuth={setAuth}
+              setLoading={setLoading}
+              setIsLoggingOut={setIsLoggingOut}
+            />
+          }
+        >
           <Route
             element={
               <AuthenticatedRoute
@@ -136,7 +150,6 @@ export default () => {
             }
           >
             <Route path="/profile" element={<Profile />} />
-            <Route path="/cart" element={<Cart />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Route>

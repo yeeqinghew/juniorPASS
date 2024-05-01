@@ -1,9 +1,22 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Space, Input, List, Flex, Rate, Image, Typography, Tag } from "antd";
+import {
+  Space,
+  Input,
+  List,
+  Flex,
+  Rate,
+  Image,
+  Typography,
+  Tag,
+  Divider,
+  Button,
+} from "antd";
 import {
   SearchOutlined,
   EnvironmentTwoTone,
   EnvironmentOutlined,
+  DownOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
 import Map, {
   Marker,
@@ -117,13 +130,13 @@ const Classes = () => {
   // TODO: if listing is created less than 7 days, get a NEW tag
 
   return (
-    <>
+    <Space direction="vertical">
       <Input
         size="large"
         allowClear
         onChange={onSearch}
         style={{
-          margin: "0 auto",
+          margin: "12px auto",
           padding: "0 1.6rem",
           borderRadius: "0.7rem",
           height: "3rem",
@@ -131,6 +144,26 @@ const Classes = () => {
         prefix={<SearchOutlined />}
         placeholder="Search by location, classes, category"
       />
+      <Space direction="horizontal" size={"large"}>
+        <Space direction="horizontal">
+          <Text>Categories</Text>
+          <DownOutlined />
+        </Space>
+        <Space direction="horizontal">
+          <Text>Age groups</Text>
+          <DownOutlined />
+        </Space>
+        <Space direction="horizontal">
+          <Text>Package types</Text>
+          <DownOutlined />
+        </Space>
+      </Space>
+      <Space direction="horizontal">
+        <Button block>
+          Clear All <CloseOutlined />
+        </Button>
+      </Space>
+      <Divider />
 
       <Space
         className="container"
@@ -211,7 +244,7 @@ const Classes = () => {
                         height={24}
                         preview={false}
                       />
-                      {listing?.age_group}
+                      {listing?.age_groups}
                     </Space>
 
                     {listing?.rating != 0 && (
@@ -262,7 +295,7 @@ const Classes = () => {
             ))}
         </Map>
       </Space>
-    </>
+    </Space>
   );
 };
 

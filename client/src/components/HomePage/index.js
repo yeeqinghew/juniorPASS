@@ -119,10 +119,27 @@ const HomePage = () => {
 
       <div style={{ height: 48 }}></div>
 
+      {/* Explore by age */}
+      <div style={definedStyle.divPadding}>
+        <Title level={isDesktop ? 1 : 3} style={{ textAlign: "center" }}>
+          Explore by age
+        </Title>
+        <Space direction="horizontal">
+          <Card></Card>
+        </Space>
+      </div>
+
+      {/* Explore by categories */}
+      <div style={definedStyle.divPadding}>
+        <Title level={isDesktop ? 1 : 3} style={{ textAlign: "center" }}>
+          Explore by categories
+        </Title>
+      </div>
+
       {/* partners */}
       <div style={definedStyle.divPadding}>
         <Title level={isDesktop ? 1 : 3} style={{ textAlign: "center" }}>
-          partners
+          As seen on
         </Title>
         <Splide
           style={{
@@ -172,28 +189,16 @@ const HomePage = () => {
         </Splide>
       </div>
 
-      {/* about us */}
-      <div style={definedStyle.divPadding}>
-        <Title level={isDesktop ? 1 : 3}>about juniorPASS</Title>
-        <Row style={definedStyle.divPadding}>
-          <Col span={12}>
-            <Text>
-              At juniorPASS, we strive to transform the children enrichment
-              sector in Singapore by bringing premier enrichment classes and
-              experiences within a single place. If you're looking for swimming
-              lesson or a piano lesson for your kids, fret not - simply book
-              them online through our site.
-            </Text>
-          </Col>
-          <Col span={2}></Col>
-          <Col span={10} style={{ display: "flex", alignItems: "flex-end" }}>
-            <Image src={require("../../images/group.png")} preview={false} />
-          </Col>
-        </Row>
+      {/* CTA button */}
+      <div>
+        <Title level={isDesktop ? 1 : 3}>Discover and book with ease</Title>
+        <Text>
+          At JuniorPass, we make it simple for parents to find and secure the
+          perfect enrichment class for their child. Browse through our extensive
+          selection of classes and book with just a few clicks.
+        </Text>
+        <Button type={"primary"}>Browse</Button>
       </div>
-
-      {/* button */}
-      <div></div>
 
       <FloatButton.BackTop icon={<UpOutlined />} />
     </div>

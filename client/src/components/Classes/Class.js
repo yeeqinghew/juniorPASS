@@ -1,11 +1,23 @@
-import { Button, DatePicker, Flex, Image, Space, Tag, Typography } from "antd";
+import {
+  Avatar,
+  Button,
+  Card,
+  DatePicker,
+  Flex,
+  Image,
+  Space,
+  Tag,
+  Typography,
+} from "antd";
 import React, { useContext, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import UserContext from "../UserContext";
 import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
+const { Meta } = Card;
+
 const _ = require("lodash");
 
 const Class = () => {
@@ -15,12 +27,7 @@ const Class = () => {
   const { listing } = state;
   console.log(listing);
   const { user } = useContext(UserContext);
-  const navigate = useNavigate();
   const dateFormat = "ddd, D MMM YYYY";
-
-  const handleGoBackButton = () => {
-    return navigate(-1);
-  };
 
   const handleDateChange = (dates, dateStrings) => {
     setSelectedDate(dateStrings);
@@ -50,71 +57,86 @@ const Class = () => {
   };
 
   return (
-    <Flex vertical>
-      <Flex
-        style={{
-          alignItems: "center",
-          padding: "24px",
-        }}
-      >
-        <LeftOutlined
-          onClick={handleGoBackButton}
+    <Flex direction="horizontal">
+      <Flex vertical>
+        <Image
+          src={listing?.image}
+          preview={false}
           style={{
-            fontSize: "24px",
+            width: "500px",
           }}
         />
-        <Title lev={1}>{listing?.listing_title}</Title>
+        <Flex direction={"horizontal"}>
+          <Space direction={"vertical"}>
+            <Title level={1}>{listing?.listing_title}</Title>
+            <Text>{listing?.description}</Text>
+            <Text>Pacakage Types</Text>
+            {listing?.package_types.map((type) => {
+              return <Text>{type}</Text>;
+            })}
+            {listing?.categories.map((category) => {
+              return <Tag>{category}</Tag>;
+            })}
+            {listing?.age_groups.map((age) => {
+              return <Text>{age}</Text>;
+            })}
+            <Text>Outlets: </Text>
+            {listing?.string_outlet_schedules.map((listing) => {
+              return (
+                <>
+                  <Tag>{listing?.nearest_mrt}</Tag>
+                  <Text>{listing?.address?.ADDRESS}</Text>
+                </>
+              );
+            })}
+
+            <Title level={5}>Schedules</Title>
+            <div>
+              <LeftOutlined onClick={handlePreviousDay} />
+              <DatePicker
+                value={dayjs(selectedDate)}
+                minDate={dayjs(selectedDate)}
+                format={dateFormat}
+                onChange={handleDateChange}
+                allowClear={false}
+              />
+              <RightOutlined onClick={handleNextDay} />
+            </div>
+          </Space>
+        </Flex>
+
+        {!_.isEmpty(user) && (
+          <Button>
+            <i class="fa fa-plus" aria-hidden="true">
+              Book now
+            </i>
+          </Button>
+        )}
       </Flex>
-      <Image
-        src={listing?.image}
-        preview={false}
+      <Card
         style={{
-          width: "500px",
+          width: 500,
+          marginTop: 16,
+          position: "sticky",
+          top: "64px",
+          zIndex: "10000",
+          height: "200px",
         }}
-      />
-      <Space direction={"vertical"}>
-        <Title level={1}>{listing?.listing_title}</Title>
-        <Text>{listing?.description}</Text>
-        <Text>Pacakage Types</Text>
-        {listing?.package_types.map((type) => {
-          return <Text>{type}</Text>;
-        })}
-        {listing?.categories.map((category) => {
-          return <Tag>{category}</Tag>;
-        })}
-        {listing?.age_groups.map((age) => {
-          return <Text>{age}</Text>;
-        })}
-        <Text>Outlets: </Text>
-        {listing?.string_outlet_schedules.map((listing) => {
-          return (
-            <>
-              <Tag>{listing?.nearest_mrt}</Tag>
-              <Text>{listing?.address?.ADDRESS}</Text>
-            </>
-          );
-        })}
-
-        <Title level={5}>Schedules</Title>
-        <div>
-          <LeftOutlined onClick={handlePreviousDay} />
-          <DatePicker
-            value={dayjs(selectedDate)}
-            minDate={dayjs(selectedDate)}
-            format={dateFormat}
-            onChange={handleDateChange}
-          />
-          <RightOutlined onClick={handleNextDay} />
-        </div>
-      </Space>
-
-      {!_.isEmpty(user) && (
-        <Button>
-          <i class="fa fa-plus" aria-hidden="true">
-            Add to cart
-          </i>
-        </Button>
-      )}
+      >
+        <Meta
+          avatar={
+            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
+          }
+          title={listing?.partner_name}
+          description={
+            <Space direction="vertical">
+              <Text>{listing?.website}</Text>
+              <Text>{listing?.email}</Text>
+            </Space>
+          }
+        />
+        {/* TODO: Map */}
+      </Card>
     </Flex>
   );
 };

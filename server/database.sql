@@ -5,8 +5,6 @@ DROP TABLE IF EXISTS child CASCADE;
 DROP TABLE IF EXISTS parent CASCADE;
 DROP TABLE IF EXISTS listing CASCADE;
 DROP TABLE IF EXISTS transaction CASCADE;
-DROP TABLE IF EXISTS cart CASCADE;
-DROP TABLE IF EXISTS cartItem CASCADE;
 DROP TABLE IF EXISTS partner CASCADE;
 DROP TABLE IF EXISTS review CASCADE;
 DROP TABLE IF EXISTS admin CASCADE;
@@ -48,12 +46,10 @@ CREATE TABLE users (
     password VARCHAR(255),
     phone_number VARCHAR(8),
     method methods,
-    credit INTEGER,
+    credit INTEGER DEFAULT 0,
     display_picture VARCHAR(255),
     created_on TIMESTAMP
 );
-
-ALTER TABLE users ALTER COLUMN credit SET DEFAULT 0;
 
 CREATE TABLE child (
     child_id uuid REFERENCES users(user_id) NOT NULL UNIQUE,
@@ -103,16 +99,19 @@ CREATE TABLE listing (
     listing_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     partner_id uuid REFERENCES partner(partner_id) NOT NULL,
     listing_title VARCHAR(1000) NOT NULL,
+    price INTEGER,
     credit INTEGER,
     categories categories[] NOT NULL,
     package_types package_types[] NOT NULL,
     description VARCHAR(5000),
-    rating BIGINT NOT NULL,
+    rating BIGINT NOT NULL, 
+    -- rating ON UPDATE CASCADE
     age_groups age_groups[] NOT NULL,
     image VARCHAR(5000),
     registered_parents VARCHAR(500),
     string_outlet_schedules JSONB[],
-    created_on TIMESTAMP
+    created_on TIMESTAMP,
+    last_updated_on TIMESTAMP
 );
 
 CREATE TABLE transaction (
@@ -134,20 +133,6 @@ CREATE TABLE review (
     created_on TIMESTAMP
 );
 
-CREATE TABLE cart (
-    cart_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-    parent_id uuid REFERENCES parent(parent_id) NOT NULL,
-    created_on TIMESTAMP,
-    last_updated TIMESTAMP
-);
-
-CREATE TABLE cartItem (
-    cart_item_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-    cart_id uuid REFERENCES cart(cart_id),
-    listing_id uuid REFERENCES listing(listing_id),
-    parent_id uuid REFERENCES parent(parent_id),
-    child_id uuid REFERENCES child(child_id)    
-);
 
 CREATE TABLE categoriesListing (
     id SERIAL PRIMARY KEY,

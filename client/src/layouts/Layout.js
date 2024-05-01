@@ -21,7 +21,6 @@ import {
   InstagramOutlined,
   LogoutOutlined,
   MenuOutlined,
-  ShoppingCartOutlined,
 } from "@ant-design/icons";
 import toast, { Toaster } from "react-hot-toast";
 import "./Layout.css";
@@ -106,9 +105,6 @@ const OverallLayout = ({
               mode="vertical"
               style={{ flex: 1, minWidth: 0, display: "block" }}
             >
-              <Menu.Item key="home">
-                <Link to="/">Home</Link>
-              </Menu.Item>
               <Menu.Item key="classes">
                 <Link to="/classes">Classes</Link>
               </Menu.Item>
@@ -165,9 +161,6 @@ const OverallLayout = ({
             mode="horizontal"
             style={{ flex: 1, minWidth: 0, display: "block" }}
           >
-            <Menu.Item key="home">
-              <Link to="/">Home</Link>
-            </Menu.Item>
             <Menu.Item key="classes">
               <Link to="/classes">Classes</Link>
             </Menu.Item>
@@ -179,15 +172,6 @@ const OverallLayout = ({
               <>
                 <Menu.Item key="logout" style={{ float: "right" }}>
                   <LogoutOutlined onClick={handleLogout} />
-                </Menu.Item>
-                <Menu.Item
-                  key="cart"
-                  style={{ float: "right" }}
-                  onClick={() => {
-                    navigate("/cart");
-                  }}
-                >
-                  <ShoppingCartOutlined />
                 </Menu.Item>
                 <Menu.Item
                   key="notification"
@@ -298,16 +282,20 @@ const OverallLayout = ({
               style={{ right: 0, width: "90%", justifyContent: "flex-end" }}
             >
               <Flex vertical gap="large" style={{ width: "20%" }}>
-                <Title level={5}>QUICK LINKS</Title>
-                <Link to="/">Home</Link>
+                <Title level={5}>JuniorPass</Title>
+                <Link to="/about-us">About us</Link>
                 <Link to="/classes">Classes</Link>
                 <Link to="/plans">Plans</Link>
-                {/* <Link to="/contactus">ContactUs</Link> */}
               </Flex>
 
               <Flex vertical gap="large" style={{ width: "20%" }}>
                 <Title level={5}>SUPPORT</Title>
-                <Link to="/faq">FAQ</Link>
+                <Link to="/contact-us">Contact Us</Link>
+                <Link to="/faq">FAQs</Link>
+              </Flex>
+
+              <Flex vertical gap="large" style={{ width: "20%" }}>
+                <Title level={5}>PARTNERS</Title>
                 <Link to="/partner-contact">Become a partner</Link>
                 <Link to="/partner/login">Partner Login</Link>
                 {/* <Link to="/contactus">ContactUs</Link> */}
@@ -334,12 +322,12 @@ const OverallLayout = ({
                     <LinkedinFilled />
                   </Space>
                 </Flex>
-                {/* <Space direction="horizontal">
-              <PhoneOutlined />
-              <Text>(65)XXXX-XXXX</Text>
-            </Space>
+                <Space direction="horizontal">
+                  <PhoneOutlined />
+                  <Text>(65)XXXX-XXXX</Text>
+                </Space>
 
-            <Space direction="horizontal">
+                {/* <Space direction="horizontal">
               <WhatsAppOutlined />
               <Text>(65)XXXX-XXXX</Text>
             </Space> */}
