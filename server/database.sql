@@ -52,12 +52,14 @@ CREATE TABLE users (
 );
 
 CREATE TABLE child (
-    child_id uuid REFERENCES users(user_id) NOT NULL UNIQUE,
-    gender genders
+    child_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    parent_id uuid REFERENCES users(user_id) ON DELETE CASCADE,
+    age BIGINT,
+    gender genders NOT NULL
 );
 
 CREATE TABLE parent (
-    parent_id uuid REFERENCES users(user_id) NOT NULL UNIQUE
+    parent_id uuid PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 -- PARTNER PORTAL

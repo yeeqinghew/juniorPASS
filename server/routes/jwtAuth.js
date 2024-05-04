@@ -20,16 +20,7 @@ router.get("/", authorization, async (req, res) => {
 });
 
 router.post("/register", validInfo, async (req, res) => {
-  const {
-    userType,
-    name,
-    phoneNumber,
-    email,
-    password,
-    method,
-    // token: jwtToken,
-  } = req.body;
-  // const decodedInfo = jwtDecode(jwtToken);
+  const { userType, name, phoneNumber, email, password, method } = req.body;
 
   try {
     // check if user exists
@@ -58,7 +49,11 @@ router.post("/register", validInfo, async (req, res) => {
       ]
     );
 
-    // TODO: userType = parent -> create an entry in parent table
+    if (newUser) {
+      await pool.query("INSERT INTO parent (uuid) VALUES($1) RETURNING *", [
+        newUser.rows[0].user_id,
+      ]);
+    }
 
     // generate jwt token
     const token = jwtGenerator(newUser.rows[0].user_id);

@@ -1,6 +1,5 @@
 import React from "react";
 import { Avatar, Tabs } from "antd";
-import Account from "./Account";
 import Child from "./Child";
 import Credits from "./Credits";
 import AllClasses from "./AllClasses";
@@ -52,12 +51,15 @@ const Profile = () => {
 
   return (
     <Tabs
-      defaultActiveKey={state || "account"}
+      defaultActiveKey={state || "child"}
       tabPosition={"left"}
       renderTabBar={renderTabBar}
       items={items}
       tabBarGutter={12}
       tabBarExtraContent={{ left: displayPicture }}
+      style={{
+        borderRadius: "18px",
+      }}
     />
   );
 };

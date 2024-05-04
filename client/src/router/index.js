@@ -21,6 +21,7 @@ import ContactUs from "../components/ContactUs";
 import FAQ from "../components/FAQ";
 import AboutUs from "../components/AboutUs";
 import LoggedInLayout from "../layouts/LoggedInLayout";
+import Account from "../components/Profile/Account";
 
 export default () => {
   const navigate = useNavigate();
@@ -150,6 +151,7 @@ export default () => {
             }
           >
             <Route path="/profile" element={<Profile />} />
+            <Route path="/account" element={<Account />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Route>

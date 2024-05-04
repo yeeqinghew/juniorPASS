@@ -111,7 +111,7 @@ const LoggedInLayout = ({
                 <Text>{user?.credit}</Text>
               </Menu.Item>
               <Menu.Item key="profile" style={{ float: "right" }}>
-                <Link to="/profile" state={"account"}>
+                <Link to="/account" state={"account"}>
                   Profile
                 </Link>
               </Menu.Item>
