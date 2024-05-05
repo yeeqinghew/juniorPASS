@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Layout,
   Menu,
@@ -26,7 +26,6 @@ import toast, { Toaster } from "react-hot-toast";
 import "./Layout.css";
 import { googleLogout } from "@react-oauth/google";
 import useWindowDimensions from "../hooks/useWindowDimensions";
-import UserContext from "../components/UserContext";
 
 const { Header, Content, Footer } = Layout;
 const { Text, Title } = Typography;
@@ -39,7 +38,6 @@ const OverallLayout = ({
 }) => {
   const [open, setOpen] = useState(false);
   const { width, isDesktop } = useWindowDimensions();
-  const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -168,51 +166,9 @@ const OverallLayout = ({
               <Link to="/plans">Plans</Link>
             </Menu.Item>
             <></>
-            {isAuthenticated ? (
-              <>
-                <Menu.Item key="logout" style={{ float: "right" }}>
-                  <LogoutOutlined onClick={handleLogout} />
-                </Menu.Item>
-                <Menu.Item
-                  key="notification"
-                  style={{ float: "right" }}
-                  onClick={() => {
-                    // TODO: Popover antd to show a list of notifcations
-                  }}
-                >
-                  {/* TODO: <Badge> */}
-                  <i className="fa fa-bell-o"></i>
-                </Menu.Item>
-                <Menu.Item
-                  key="credit"
-                  style={{
-                    float: "right",
-                  }}
-                  onClick={() => {
-                    navigate("/profile", {
-                      state: "credit",
-                    });
-                  }}
-                >
-                  <Image
-                    src={require("../images/credit.png")}
-                    width={24}
-                    height={24}
-                    preview={false}
-                  />
-                  <Text>{user?.credit}</Text>
-                </Menu.Item>
-                <Menu.Item key="profile" style={{ float: "right" }}>
-                  <Link to="/profile" state={"account"}>
-                    Profile
-                  </Link>
-                </Menu.Item>
-              </>
-            ) : (
-              <Menu.Item key="login" style={{ float: "right" }}>
-                <Link to="/login">Login</Link>
-              </Menu.Item>
-            )}
+            <Menu.Item key="login" style={{ float: "right" }}>
+              <Link to="/login">Login</Link>
+            </Menu.Item>
           </Menu>
         </Header>
       );

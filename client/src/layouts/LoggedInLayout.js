@@ -60,7 +60,7 @@ const LoggedInLayout = ({
           padding: "50px 150px",
         }}
       >
-        <Link to="/">
+        <Link to="/profile">
           <Image
             alt="logo"
             src={require("../images/logopngResize.png")}

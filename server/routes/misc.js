@@ -28,7 +28,7 @@ router.get("/getAllPackages", async (req, res) => {
 
 router.get("/getAllCategories", async (req, res) => {
   try {
-    const categories = await pool.query("SELECT * FROM categoriesListing");
+    const categories = await pool.query("SELECT * FROM categoriesListings");
     res.json(categories.rows);
   } catch (error) {
     console.error("ERROR in /misc/getAllCategories", error.message);

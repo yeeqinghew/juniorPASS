@@ -12,6 +12,7 @@ app.use("/admin", require("./routes/admin"));
 app.use("/partner", require("./routes/partner"));
 app.use("/listing", require("./routes/listing"));
 app.use("/misc", require("./routes/misc"));
+app.use("/child", require("./routes/child"));
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => {

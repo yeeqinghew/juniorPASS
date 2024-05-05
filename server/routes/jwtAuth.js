@@ -50,9 +50,10 @@ router.post("/register", validInfo, async (req, res) => {
     );
 
     if (newUser) {
-      await pool.query("INSERT INTO parent (uuid) VALUES($1) RETURNING *", [
-        newUser.rows[0].user_id,
-      ]);
+      await pool.query(
+        "INSERT INTO parents (parent_id) VALUES($1) RETURNING *",
+        [newUser.rows[0].user_id]
+      );
     }
 
     // generate jwt token

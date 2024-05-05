@@ -18,11 +18,10 @@ import dayjs from "dayjs";
 const { Title, Text } = Typography;
 const { Meta } = Card;
 
-const _ = require("lodash");
-
 const Class = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
-
+  // Check if the selected date is today
+  const isToday = dayjs(selectedDate).isSame(dayjs(), "day");
   const { state } = useLocation();
   const { listing } = state;
   console.log(listing);
@@ -54,6 +53,13 @@ const Class = () => {
       timeSlots.push(`${i < 10 ? "0" + i : i}:00`);
     }
     return timeSlots;
+  };
+
+  const handleBookNow = () => {
+    // TODO: Show modal
+    // TODO: show a list of children
+    // TODO: purchase using credit
+    // TODO: if credit not enough, show alert message saying not enough
   };
 
   return (
@@ -92,7 +98,10 @@ const Class = () => {
 
             <Title level={5}>Schedules</Title>
             <div>
-              <LeftOutlined onClick={handlePreviousDay} />
+              {/* TODO: disable this if <  */}
+              <Button onClick={handlePreviousDay} disabled={isToday}>
+                <LeftOutlined />
+              </Button>
               <DatePicker
                 value={dayjs(selectedDate)}
                 minDate={dayjs(selectedDate)}
@@ -100,18 +109,12 @@ const Class = () => {
                 onChange={handleDateChange}
                 allowClear={false}
               />
-              <RightOutlined onClick={handleNextDay} />
+              <Button onClick={handleNextDay}>
+                <RightOutlined />
+              </Button>
             </div>
           </Space>
         </Flex>
-
-        {!_.isEmpty(user) && (
-          <Button>
-            <i class="fa fa-plus" aria-hidden="true">
-              Book now
-            </i>
-          </Button>
-        )}
       </Flex>
       <Card
         style={{

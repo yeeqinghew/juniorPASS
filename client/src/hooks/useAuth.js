@@ -22,7 +22,7 @@ const useAuth = () => {
       });
 
       const parseRes = await response.json();
-      setUser({ parseRes, ...token });
+      setUser({ ...parseRes, token });
     } catch (err) {
       console.error("ERROR in /auth/: No user", err.message);
     }

@@ -20,7 +20,7 @@ router.post("/createListing", authorization, async (req, res) => {
     } = req.body;
 
     const listing = await pool.query(
-      `INSERT INTO listing(
+      `INSERT INTO listings (
         partner_id, 
         listing_title, 
         credit,
@@ -61,7 +61,7 @@ router.post("/createListing", authorization, async (req, res) => {
 router.get("/getAllListings", async (req, res) => {
   try {
     const listings = await pool.query(
-      "SELECT * FROM listing l JOIN partner p USING (partner_id) ORDER BY l.created_on ASC"
+      "SELECT * FROM listings l JOIN partners p USING (partner_id) ORDER BY l.created_on ASC"
     );
     res.json(listings.rows);
   } catch (err) {
@@ -75,7 +75,7 @@ router.get("/editListing/:id", async (req, res) => {
   const id = req.params.id;
   try {
     const listing = await pool.query(
-      "SELECT * FROM listing WHERE listing_id = $1",
+      "SELECT * FROM listings WHERE listing_id = $1",
       [id]
     );
     res.json(listing.rows[0]);
@@ -101,7 +101,7 @@ router.put("/updateListing/:id", async (req, res) => {
     } = req.body;
     console.log("title", title_name);
     const listing = await pool.query(
-      `UPDATE listing SET
+      `UPDATE listings SET
         listing_title = $1,
         price = $2,
         categories = $3,
