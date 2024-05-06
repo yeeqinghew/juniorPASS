@@ -8,11 +8,11 @@ app.use(express.json());
 
 // ROUTES
 app.use("/auth", require("./routes/jwtAuth"));
-app.use("/admin", require("./routes/admin"));
-app.use("/partner", require("./routes/partner"));
-app.use("/listing", require("./routes/listing"));
+app.use("/admins", require("./routes/admins"));
+app.use("/partners", require("./routes/partners"));
+app.use("/listings", require("./routes/listings"));
 app.use("/misc", require("./routes/misc"));
-app.use("/child", require("./routes/child"));
+app.use("/children", require("./routes/children"));
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
