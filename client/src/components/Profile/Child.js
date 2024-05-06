@@ -39,7 +39,7 @@ const Child = () => {
     addChildForm
       .validateFields()
       .then(async (values) => {
-        const response = await fetch(`http://localhost:5000/child/addChild`, {
+        const response = await fetch(`http://localhost:5000/children`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -64,7 +64,7 @@ const Child = () => {
 
   const getChildren = async () => {
     const response = await fetch(
-      `http://localhost:5000/child/getChildrenByParent/${user?.user_id}`,
+      `http://localhost:5000/children/${user?.user_id}`,
       {
         method: "GET",
       }
@@ -90,12 +90,7 @@ const Child = () => {
                 <Text>You do not have any child profile created.</Text>
               </span>
             }
-          >
-            <Button type="primary" onClick={showAddChildModal}>
-              Create
-              <PlusOutlined />
-            </Button>
-          </Empty>
+          ></Empty>
         ) : (
           <Text>
             These are your children. Click on your child's name to check their

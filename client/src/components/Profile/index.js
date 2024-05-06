@@ -21,7 +21,7 @@ const Profile = () => {
 
   const items = [
     {
-      label: "Child(ren)",
+      label: "Children",
       key: "child",
       children: <Child />,
     },

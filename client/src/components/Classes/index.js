@@ -37,9 +37,7 @@ const Classes = () => {
 
   const getListings = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:5000/listing/getAllListings"
-      );
+      const response = await fetch("http://localhost:5000/listings");
       const jsonData = await response.json();
       setListings(jsonData);
     } catch (error) {

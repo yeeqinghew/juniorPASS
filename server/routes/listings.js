@@ -5,7 +5,7 @@ const authorization = require("../middleware/authorization");
 require("dotenv").config();
 
 // create listing
-router.post("/createListing", authorization, async (req, res) => {
+router.post("", authorization, async (req, res) => {
   try {
     const {
       partner_id,
@@ -16,7 +16,7 @@ router.post("/createListing", authorization, async (req, res) => {
       description,
       age_groups,
       image,
-      string_outlet_schedules,
+      locations,
     } = req.body;
 
     const listing = await pool.query(
@@ -43,7 +43,7 @@ router.post("/createListing", authorization, async (req, res) => {
         age_groups,
         0,
         image,
-        string_outlet_schedules,
+        locations,
         new Date().toLocaleString(),
       ]
     );
@@ -52,26 +52,26 @@ router.post("/createListing", authorization, async (req, res) => {
       data: listing,
     });
   } catch (err) {
-    console.error("ERROR in /listing/createListing", err.message);
+    console.error("ERROR in /listings POST", err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
 // get all listings
-router.get("/getAllListings", async (req, res) => {
+router.get("", async (req, res) => {
   try {
     const listings = await pool.query(
       "SELECT * FROM listings l JOIN partners p USING (partner_id) ORDER BY l.created_on ASC"
     );
     res.json(listings.rows);
   } catch (err) {
-    console.error("ERROR in /listing/getAllListings", err.message);
+    console.error("ERROR in /listings GET", err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
 // update listing
-router.get("/editListing/:id", async (req, res) => {
+router.get("/:id", async (req, res) => {
   const id = req.params.id;
   try {
     const listing = await pool.query(
@@ -80,13 +80,13 @@ router.get("/editListing/:id", async (req, res) => {
     );
     res.json(listing.rows[0]);
   } catch (err) {
-    console.error(`ERROR in /listing/editListing/${id}`, err.message);
+    console.error(`ERROR in /listings/${id} GET`, err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
 // edit listing
-router.put("/updateListing/:id", async (req, res) => {
+router.put("/:id", async (req, res) => {
   const id = req.params.id;
   try {
     const {
@@ -97,9 +97,9 @@ router.put("/updateListing/:id", async (req, res) => {
       description,
       age_groups,
       image,
-      string_outlet_schedules,
+      locations,
     } = req.body;
-    console.log("title", title_name);
+
     const listing = await pool.query(
       `UPDATE listings SET
         listing_title = $1,
@@ -120,16 +120,30 @@ router.put("/updateListing/:id", async (req, res) => {
         description,
         age_groups,
         image,
-        string_outlet_schedules,
+        locations,
         new Date().toLocaleString(),
         id,
       ]
     );
     res.status(200).json({
       message: "Listing has been updated!",
+      data: listing,
     });
   } catch (err) {
-    console.error(`ERROR in /listing/updateListing/${id}`, err.message);
+    console.error(`ERROR in /listings/${id} PUT`, err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  const id = req.params.id;
+  try {
+    await pool.qeuery(`DELETE FROM listings WHERE listing_id = $1`, [id]);
+    res.status(200).json({
+      message: "Listing has been deleted!",
+    });
+  } catch (err) {
+    console.error(`ERROR in /listings/${id} DELETE`, err.message);
     res.status(500).json({ error: err.message });
   }
 });

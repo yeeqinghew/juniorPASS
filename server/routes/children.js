@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require("../db");
 
 // router.post("/add-child", authorization, async (req, res) => {
-router.post("/addChild", async (req, res) => {
+router.post("", async (req, res) => {
   const { name, age, gender, parent_id } = req.body;
   try {
     const newChild = await pool.query(
@@ -20,7 +20,7 @@ router.post("/addChild", async (req, res) => {
   }
 });
 
-router.get("/getChildrenByParent/:parent_id", async (req, res) => {
+router.get("/:parent_id", async (req, res) => {
   const parent_id = req.params.parent_id;
 
   try {
