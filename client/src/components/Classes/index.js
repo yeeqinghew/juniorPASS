@@ -70,11 +70,12 @@ const Classes = () => {
       const color =
         "#" + (Math.random().toString(16) + "000000").substring(2, 8);
       return listing?.string_outlet_schedules.map((outlet, index) => {
+        const parsedAddress = JSON.parse(outlet?.address);
         return (
           <Marker
             key={`${listing?.listing_id}-${index}`}
-            longitude={outlet.address.LONGITUDE}
-            latitude={outlet.address.LATITUDE}
+            longitude={parsedAddress.LONGITUDE}
+            latitude={parsedAddress.LATITUDE}
             anchor="top"
             onClick={(e) => {
               // If we let the click event propagates to the map, it will immediately close the popup
@@ -231,7 +232,7 @@ const Classes = () => {
                       <EnvironmentOutlined />
                       <Space direction="vertical">
                         {listing?.string_outlet_schedules.map((outlet) => {
-                          return <>{outlet?.address?.ADDRESS}</>;
+                          return <>{JSON.parse(outlet?.address)?.ADDRESS}</>;
                         })}
                       </Space>
                     </Space>
@@ -278,14 +279,14 @@ const Classes = () => {
             popupInfo.string_outlet_schedules.map((outlet, index) => (
               <Popup
                 key={`${popupInfo.listing_id}-${index}`}
-                longitude={outlet.address.LONGITUDE}
-                latitude={outlet.address.LATITUDE}
+                longitude={JSON.parse(outlet.address).LONGITUDE}
+                latitude={JSON.parse(outlet.address).LATITUDE}
                 onClose={() => setPopupInfo(null)}
               >
                 <Space direction="vertical">
                   {/* <a target="_new" href={popupInfo.website}> */}
                   {popupInfo?.listing_title}
-                  {outlet.address.SEARCHVAL}
+                  {JSON.parse(outlet.address).SEARCHVAL}
                   {/* </a> */}
                   <img width="100%" src={popupInfo.image} />
                 </Space>

@@ -26,10 +26,6 @@ const Child = () => {
   const [editChildForm] = Form.useForm();
   const { user } = useContext(UserContext);
 
-  const showAddChildModal = () => {
-    setIsAddChildModalOpen(true);
-  };
-
   const handleCancel = () => {
     setIsAddChildModalOpen(false);
     setIsEditChildModalOpen(false);
