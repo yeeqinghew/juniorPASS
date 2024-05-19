@@ -5,8 +5,12 @@ const bcrypt = require("bcrypt");
 const jwtGenerator = require("../utils/jwtGenerator");
 const validInfo = require("../middleware/validInfo");
 const authorization = require("../middleware/authorization");
+const etagMiddleware = require("../middleware/etagMiddleware");
+const cacheMiddleware = require("../middleware/cacheMiddleware");
 
-router.get("/", authorization, async (req, res) => {
+router.use(etagMiddleware);
+
+router.get("/", authorization, cacheMiddleware, async (req, res) => {
   try {
     const user = await pool.query("SELECT * FROM users WHERE user_id = $1", [
       req.user,
@@ -99,7 +103,7 @@ router.get("/is-verify", authorization, async (req, res) => {
   }
 });
 
-router.get("/getAllUsers", async (req, res) => {
+router.get("/getAllUsers", cacheMiddleware, async (req, res) => {
   try {
     const user = await pool.query("SELECT * FROM users");
     res.json(user.rows);

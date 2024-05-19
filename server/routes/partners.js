@@ -4,6 +4,9 @@ const pool = require("../db");
 const bcrypt = require("bcrypt");
 const jwtGenerator = require("../utils/jwtGenerator");
 const authorization = require("../middleware/authorization");
+const etagMiddleware = require("../middleware/etagMiddleware");
+
+router.use(etagMiddleware);
 
 // PARTNER
 router.get("/", authorization, async (req, res) => {

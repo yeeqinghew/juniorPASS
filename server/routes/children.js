@@ -1,9 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../db");
+const etagMiddleware = require("../middleware/etagMiddleware");
+const cacheMiddleware = require("../middleware/cacheMiddleware");
+
+router.use(etagMiddleware);
 
 // router.post("/add-child", authorization, async (req, res) => {
-router.post("", async (req, res) => {
+router.post("", cacheMiddleware, async (req, res) => {
   const { name, age, gender, parent_id } = req.body;
   try {
     const newChild = await pool.query(
@@ -20,7 +24,7 @@ router.post("", async (req, res) => {
   }
 });
 
-router.get("/:parent_id", async (req, res) => {
+router.get("/:parent_id", cacheMiddleware, async (req, res) => {
   const parent_id = req.params.parent_id;
 
   try {

@@ -2,13 +2,17 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../db");
 const generateS3UploadURL = require("../utils/s3.js");
+const etagMiddleware = require("../middleware/etagMiddleware");
+const cacheMiddleware = require("../middleware/cacheMiddleware");
+
+router.use(etagMiddleware);
 
 router.get("/s3url", async (req, res) => {
   const url = await generateS3UploadURL();
   res.json({ url });
 });
 
-router.get("/getAllAgeGroups", async (req, res) => {
+router.get("/getAllAgeGroups", cacheMiddleware, async (req, res) => {
   try {
     const ageGroups = await pool.query("SELECT * FROM ageGroups");
     res.json(ageGroups.rows);
@@ -17,7 +21,7 @@ router.get("/getAllAgeGroups", async (req, res) => {
   }
 });
 
-router.get("/getAllPackages", async (req, res) => {
+router.get("/getAllPackages", cacheMiddleware, async (req, res) => {
   try {
     const packageTypes = await pool.query("SELECT * FROM packageTypes");
     res.json(packageTypes.rows);
@@ -26,7 +30,7 @@ router.get("/getAllPackages", async (req, res) => {
   }
 });
 
-router.get("/getAllCategories", async (req, res) => {
+router.get("/getAllCategories", cacheMiddleware, async (req, res) => {
   try {
     const categories = await pool.query("SELECT * FROM categoriesListings");
     res.json(categories.rows);

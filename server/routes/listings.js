@@ -2,7 +2,12 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../db");
 const authorization = require("../middleware/authorization");
+const etagMiddleware = require("../middleware/etagMiddleware");
+const cacheMiddleware = require("../middleware/cacheMiddleware");
+const client = require("../utils/redisClient");
+
 require("dotenv").config();
+router.use(etagMiddleware);
 
 // create listing
 router.post("", authorization, async (req, res) => {
@@ -58,7 +63,7 @@ router.post("", authorization, async (req, res) => {
 });
 
 // get all listings
-router.get("", async (req, res) => {
+router.get("", cacheMiddleware, async (req, res) => {
   try {
     const listings = await pool.query(
       "SELECT * FROM listings l JOIN partners p USING (partner_id) ORDER BY l.created_on ASC"
@@ -71,7 +76,7 @@ router.get("", async (req, res) => {
 });
 
 // update listing
-router.get("/:id", async (req, res) => {
+router.get("/:id", cacheMiddleware, async (req, res) => {
   const id = req.params.id;
   try {
     const listing = await pool.query(
@@ -125,6 +130,8 @@ router.put("/:id", async (req, res) => {
         id,
       ]
     );
+    // Invalidate the cache
+    client.del(`/listings/${id}`);
     res.status(200).json({
       message: "Listing has been updated!",
       data: listing,
@@ -139,6 +146,8 @@ router.delete("/:id", async (req, res) => {
   const id = req.params.id;
   try {
     await pool.qeuery(`DELETE FROM listings WHERE listing_id = $1`, [id]);
+    // Invalidate the cache
+    client.del(`/listings/${id}`);
     res.status(200).json({
       message: "Listing has been deleted!",
     });

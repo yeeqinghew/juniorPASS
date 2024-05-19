@@ -3,9 +3,13 @@ const router = express.Router();
 const pool = require("../db");
 const bcrypt = require("bcrypt");
 const jwtGenerator = require("../utils/jwtGenerator");
+const etagMiddleware = require("../middleware/etagMiddleware");
+const cacheMiddleware = require("../middleware/cacheMiddleware");
+
+router.use(etagMiddleware);
 
 // ADMIN
-router.post("/login", async (req, res) => {
+router.post("/login", cacheMiddleware, async (req, res) => {
   const { username, password } = req.body;
 
   try {
@@ -35,7 +39,7 @@ router.post("/login", async (req, res) => {
 });
 
 // USERS
-router.get("/getAllUsers", async (req, res) => {
+router.get("/getAllUsers", cacheMiddleware, async (req, res) => {
   // TODO: use middleware to check if user is superadmin
   try {
     const allUsers = await pool.query("SELECT * FROM users");

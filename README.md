@@ -4,6 +4,7 @@
 2. Install Node.js V16.16.0
 3. Install git
 4. IDE: Visual Studio Code, Sublime
+5. Redis V2.8
 
 # Run your project
 
@@ -17,15 +18,38 @@
    ```
 
 3. Once the repository got cloned into your computer, run these commands to run your FrontEnd on localhost:
+
    ```
    cd client
    npm install --force
    npm start
    ```
-4. Open another terminal to run your BackEnd on localhost:
+
+4. Start Redis
+   Windows
+   4.1 Install WSL:
+
+   ```
+   wsl --install
+   ```
+
+   4.2 Install Redis on WSL:
+
+   ```
+   sudo apt update
+   sudo apt install redis-server
+   ```
+
+   4.3 Start the Redis server:
+
+   ```
+   sudo service redis-server start
+   ```
+
+5. Open another terminal to run your BackEnd on localhost:
    ```
    cd server
    npm install
    npx nodemon
    ```
-5. App is up running on http://localhost:3000
+6. App is up running on http://localhost:3000
