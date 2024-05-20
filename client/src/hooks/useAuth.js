@@ -1,7 +1,9 @@
 import toast from "react-hot-toast";
+import getBaseURL from "../utils/config";
 const { useState, useEffect } = require("react");
 
 const useAuth = () => {
+  const baseURL = getBaseURL();
   const [user, setUser] = useState();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -14,7 +16,7 @@ const useAuth = () => {
 
   const getUserInfo = async () => {
     try {
-      const response = await fetch("http://localhost:5000/auth/", {
+      const response = await fetch(`${baseURL}/auth/`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -30,7 +32,7 @@ const useAuth = () => {
 
   const isAuth = async () => {
     try {
-      const response = await fetch("http://localhost:5000/auth/is-verify", {
+      const response = await fetch(`${baseURL}/auth/is-verify`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,

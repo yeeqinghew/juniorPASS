@@ -22,6 +22,7 @@ import FAQ from "../components/FAQ";
 import AboutUs from "../components/AboutUs";
 import LoggedInLayout from "../layouts/LoggedInLayout";
 import Account from "../components/Profile/Account";
+import Partner from "../components/Partner";
 
 export default () => {
   const navigate = useNavigate();
@@ -102,6 +103,7 @@ export default () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/classes" element={<Classes />} />
           <Route path="/class/:classId" element={<Class />} />
+          <Route path="/partner/:partnerId" element={<Partner />} />
           <Route path="/plans" element={<Plans />} />
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/partner-contact" element={<ContactUs />} />

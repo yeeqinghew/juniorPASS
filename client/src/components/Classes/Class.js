@@ -10,7 +10,7 @@ import {
   Typography,
 } from "antd";
 import React, { useContext, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import UserContext from "../UserContext";
 import dayjs from "dayjs";
@@ -27,6 +27,7 @@ const Class = () => {
   console.log(listing);
   const { user } = useContext(UserContext);
   const dateFormat = "ddd, D MMM YYYY";
+  const navigate = useNavigate();
 
   const handleDateChange = (dates, dateStrings) => {
     setSelectedDate(dateStrings);
@@ -130,6 +131,14 @@ const Class = () => {
           avatar={
             <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
           }
+          onClick={() => {
+            navigate(`/partner/${listing?.partner_id}`, {
+              state: {
+                // TODO: pass partner instead of listing
+                listing,
+              },
+            });
+          }}
           title={listing?.partner_name}
           description={
             <Space direction="vertical">

@@ -128,6 +128,7 @@ CREATE TABLE transactions (
 CREATE TABLE reviews (
     review_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     listing_id uuid REFERENCES listings(listing_id) NOT NULL,
+    partner_id uuid REFERENCES partners(partner_id) NOT NULL,
     user_id uuid REFERENCES users(user_id) NOT NULL,
     rating INTEGER NOT NULL,
     comment VARCHAR(5000) NOT NULL,

@@ -12,15 +12,17 @@ import { Button, Form, Input, Typography, Divider } from "antd";
 import { Link } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import { GoogleLogin } from "@react-oauth/google";
+import getBaseURL from "../utils/config";
 
 const { Title, Text } = Typography;
 
 const Register = ({ setAuth }) => {
+  const baseURL = getBaseURL();
   const handleGoogleLogin = async (values) => {
     console.log(values);
     const { clientId, credential } = values;
     if (credential) {
-      const response = await fetch("http://localhost:5000/auth/register", {
+      const response = await fetch(`${baseURL}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -50,7 +52,7 @@ const Register = ({ setAuth }) => {
         userType: "parent",
         method: "normal",
       };
-      const response = await fetch("http://localhost:5000/auth/register", {
+      const response = await fetch(`${baseURL}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

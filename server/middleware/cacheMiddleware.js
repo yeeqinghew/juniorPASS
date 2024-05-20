@@ -13,9 +13,11 @@ const cacheMiddleware = (req, res, next) => {
     } else {
       res.sendResponse = res.send;
       res.send = (body) => {
-        client.setex(key, 3600, JSON.stringify(body), (err) => {
-          if (err) console.error("Redis SETEX error:", err);
-        }); // Cache for 1 hour
+        if (res.statusCode === 200) {
+          client.setex(key, 3600, JSON.stringify(body), (err) => {
+            if (err) console.error("Redis SETEX error:", err);
+          }); // Cache for 1 hour
+        }
         res.sendResponse(body);
       };
       next();

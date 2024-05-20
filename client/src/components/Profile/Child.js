@@ -15,10 +15,12 @@ import {
 import UserContext from "../UserContext";
 import toast from "react-hot-toast";
 import _ from "lodash";
+import getBaseURL from "../../utils/config";
 
 const { Text, Title } = Typography;
 
 const Child = () => {
+  const baseURL = getBaseURL();
   const [children, setChildren] = useState([]);
   const [isAddChildModalOpen, setIsAddChildModalOpen] = useState(false);
   const [isEditChildModalOpen, setIsEditChildModalOpen] = useState(false);
@@ -35,7 +37,7 @@ const Child = () => {
     addChildForm
       .validateFields()
       .then(async (values) => {
-        const response = await fetch(`http://localhost:5000/children`, {
+        const response = await fetch(`${baseURL}/children`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -59,12 +61,9 @@ const Child = () => {
   const handleEditChild = () => {};
 
   const getChildren = async () => {
-    const response = await fetch(
-      `http://localhost:5000/children/${user?.user_id}`,
-      {
-        method: "GET",
-      }
-    );
+    const response = await fetch(`${baseURL}/children/${user?.user_id}`, {
+      method: "GET",
+    });
     const parseRes = await response.json();
     setChildren(parseRes);
   };

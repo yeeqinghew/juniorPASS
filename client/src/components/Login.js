@@ -9,18 +9,16 @@ import { Button, Checkbox, Divider, Form, Input, Typography } from "antd";
 import { GoogleLogin } from "@react-oauth/google";
 import { Link } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
+import getBaseURL from "../utils/config";
 
 const { Title, Text } = Typography;
 
 const Login = ({ setAuth }) => {
-  const baseURL =
-    process.env.NODE_ENV === "production"
-      ? "auth/login"
-      : "http://localhost:5000/auth/login";
+  const baseURL = getBaseURL();
 
   const handleLogin = async (values) => {
     try {
-      const response = await fetch(baseURL, {
+      const response = await fetch(`${baseURL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -47,7 +45,7 @@ const Login = ({ setAuth }) => {
     console.log(values);
     const { clientId, credential } = values;
     if (credential) {
-      // const response = await fetch("http://localhost:5000/auth/login", {
+      // const response = await fetch(`${baseURL}/auth/login`, {
       //   method: "POST",
       //   headers: {
       //     "Content-Type": "application/json",

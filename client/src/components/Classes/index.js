@@ -3,7 +3,6 @@ import {
   Space,
   Input,
   List,
-  Flex,
   Rate,
   Image,
   Typography,
@@ -26,10 +25,12 @@ import Map, {
 } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useNavigate } from "react-router-dom";
+import getBaseURL from "../../utils/config";
 
 const { Text } = Typography;
 
 const Classes = () => {
+  const baseURL = getBaseURL();
   const [popupInfo, setPopupInfo] = useState(null);
   const [listings, setListings] = useState([]);
   const [filterInput, setFilterInput] = useState(null);
@@ -37,7 +38,7 @@ const Classes = () => {
 
   const getListings = async () => {
     try {
-      const response = await fetch("http://localhost:5000/listings");
+      const response = await fetch(`${baseURL}/listings`);
       const jsonData = await response.json();
       setListings(jsonData);
     } catch (error) {

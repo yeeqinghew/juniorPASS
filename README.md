@@ -26,30 +26,51 @@
    ```
 
 4. Start Redis
-   Windows
-   4.1 Install WSL:
+   **Windows**
+   4.1 Install WSL (skip if installed):
 
    ```
    wsl --install
    ```
 
-   4.2 Install Redis on WSL:
+   4.2 Install Redis on WSL (skip if installed):
 
    ```
    sudo apt update
    sudo apt install redis-server
    ```
 
-   4.3 Start the Redis server:
+   4.3 Start the Redis server on WSL:
 
    ```
+   wsl
    sudo service redis-server start
+   ```
+
+   **Mac**
+   4.1 Install Redis
+
+   ```
+   brew install redis
+   ```
+
+   4.2 Start the redis server:
+
+   ```
+   brew services start redis
+   ```
+
+   4.3 Stop the redis server
+
+   ```
+   brew services stop redis
    ```
 
 5. Open another terminal to run your BackEnd on localhost:
    ```
    cd server
    npm install
-   npx nodemon
+   npx nodemon // for Mac
+   nodemon // for Windows
    ```
 6. App is up running on http://localhost:3000

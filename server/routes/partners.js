@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const jwtGenerator = require("../utils/jwtGenerator");
 const authorization = require("../middleware/authorization");
 const etagMiddleware = require("../middleware/etagMiddleware");
+const cacheMiddleware = require("../middleware/cacheMiddleware");
 
 router.use(etagMiddleware);
 
@@ -50,5 +51,52 @@ router.post("/login", async (req, res) => {
     res.status(500).send("Server error");
   }
 });
+
+router.get("/:id", cacheMiddleware, async (req, res) => {
+  const id = req.params.id;
+  try {
+    const [listings, reviews] = await Promise.all([
+      getListingsByPartnerId(id),
+      getReviwesByPartnerId(id),
+    ]);
+
+    return res.json({
+      success: true,
+      data: {
+        listings,
+        reviews,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server error");
+  }
+});
+
+const getListingsByPartnerId = async (partnerId) => {
+  try {
+    const listings = await pool.query(
+      "SELECT * FROM listings WHERE partner_id = $1",
+      [partnerId]
+    );
+    return listings.rows;
+  } catch (error) {
+    console.error(error);
+    throw new Error("Error fetching listings");
+  }
+};
+
+const getReviwesByPartnerId = async (partnerId) => {
+  try {
+    const reviews = await pool.query(
+      "SELECT * FROM reviews WHERE partner_id = $1",
+      [partnerId]
+    );
+    return reviews.rows;
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server error");
+  }
+};
 
 module.exports = router;
