@@ -5,6 +5,7 @@ const authorization = require("../middleware/authorization");
 const etagMiddleware = require("../middleware/etagMiddleware");
 const cacheMiddleware = require("../middleware/cacheMiddleware");
 const client = require("../utils/redisClient");
+const { deleteS3Objects } = require("../utils/s3");
 
 require("dotenv").config();
 router.use(etagMiddleware);
@@ -145,9 +146,32 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   const id = req.params.id;
   try {
-    await pool.qeuery(`DELETE FROM listings WHERE listing_id = $1`, [id]);
+    // retrieve image URLs from the DB
+    const { rows } = await pool.query(
+      `SELECT image FROM listings WHERE listing_id = $1`,
+      [id]
+    );
+
+    // Extract image URLs from the database result
+    const imageURLsString = rows[0].image;
+
+    const imageURLs = imageURLsString
+      .replace("{", "") // Remove leading '{'
+      .replace("}", "") // Remove trailing '}'
+      .split(","); // Split by comma to get individual URLs
+
+    // Delete images from S3
+    await deleteS3Objects(imageURLs);
+
+    // delete listing from DB
+    await pool.query(`DELETE FROM listings WHERE listing_id = $1`, [id]);
+
     // Invalidate the cache
-    client.del(`/listings/${id}`);
+    await client.del(`/listings/${id}`);
+
+    // Optionally, invalidate or update related cache entries, like the list of all listings
+    await client.del("/listings");
+
     res.status(200).json({
       message: "Listing has been deleted!",
     });

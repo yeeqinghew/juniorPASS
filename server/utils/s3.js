@@ -22,4 +22,19 @@ async function generateS3UploadURL(req) {
   return uploadURL;
 }
 
-module.exports = generateS3UploadURL;
+async function deleteS3Objects(urls) {
+  const objects = urls.map((url) => ({
+    Key: url.split("/").pop(),
+  }));
+  const params = {
+    Bucket: process.env.s3BucketName,
+    Delete: {
+      Objects: objects,
+      Quiet: false,
+    },
+  };
+
+  await s3.deleteObjects(params).promise();
+}
+
+module.exports = { generateS3UploadURL, deleteS3Objects };
