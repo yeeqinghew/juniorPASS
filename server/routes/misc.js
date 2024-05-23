@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../db");
-const generateS3UploadURL = require("../utils/s3.js");
+const { generateS3UploadURL } = require("../utils/s3.js");
 const etagMiddleware = require("../middleware/etagMiddleware");
 const cacheMiddleware = require("../middleware/cacheMiddleware");
 

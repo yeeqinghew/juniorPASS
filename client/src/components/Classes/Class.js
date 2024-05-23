@@ -67,7 +67,8 @@ const Class = () => {
     <Flex direction="horizontal">
       <Flex vertical>
         <Image
-          src={listing?.image}
+          src={listing?.images}
+          // TODO: Change this to Carousel instead
           preview={false}
           style={{
             width: "500px",

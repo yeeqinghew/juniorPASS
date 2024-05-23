@@ -202,7 +202,8 @@ const Classes = () => {
                   cursor: "pointer",
                 }}
                 avatar={
-                  <Image src={listing?.image} width={240} preview={false} />
+                  <Image src={listing?.images} width={240} preview={false} />
+                  // TODO: pick the first image and set as avatar
                 }
                 title={
                   <Space direction="vertical">

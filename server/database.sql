@@ -108,9 +108,11 @@ CREATE TABLE listings (
     rating BIGINT NOT NULL, 
     -- rating ON UPDATE CASCADE
     age_groups age_groups[] NOT NULL,
-    image VARCHAR(5000),
+    images JSONB,
     registered_parents VARCHAR(500),
     string_outlet_schedules JSONB[],
+    short_term_start_date TIMESTAMP,
+    long_term_start_date TIMESTAMP,
     created_on TIMESTAMP,
     last_updated_on TIMESTAMP
 );

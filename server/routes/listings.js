@@ -21,7 +21,9 @@ router.post("", authorization, async (req, res) => {
       package_types,
       description,
       age_groups,
-      image,
+      images,
+      short_term_start_date,
+      long_term_start_date,
       locations,
     } = req.body;
 
@@ -35,10 +37,12 @@ router.post("", authorization, async (req, res) => {
         description,
         age_groups,
         rating, 
-        image,
+        images,
+        short_term_start_date,
+        long_term_start_date,
         string_outlet_schedules,
         created_on
-        ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+        ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *`,
       [
         partner_id,
         title,
@@ -48,11 +52,17 @@ router.post("", authorization, async (req, res) => {
         description,
         age_groups,
         0,
-        image,
+        images,
+        short_term_start_date,
+        long_term_start_date,
         locations,
         new Date().toLocaleString(),
       ]
     );
+
+    // Optionally, invalidate or update related cache entries, like the list of all listings
+    await client.del("/listings");
+
     res.status(201).json({
       message: "Listing has been created!",
       data: listing,
@@ -102,7 +112,7 @@ router.put("/:id", async (req, res) => {
       package_types,
       description,
       age_groups,
-      image,
+      images,
       locations,
     } = req.body;
 
@@ -114,7 +124,7 @@ router.put("/:id", async (req, res) => {
         package_types = $4,
         description = $5,
         age_groups = $6,
-        image = $7,
+        images = $7,
         string_outlet_schedules = $8,
         last_updated_on = $9
        WHERE listing_id = $10`,
@@ -125,7 +135,7 @@ router.put("/:id", async (req, res) => {
         package_types,
         description,
         age_groups,
-        image,
+        images,
         locations,
         new Date().toLocaleString(),
         id,
@@ -148,12 +158,12 @@ router.delete("/:id", async (req, res) => {
   try {
     // retrieve image URLs from the DB
     const { rows } = await pool.query(
-      `SELECT image FROM listings WHERE listing_id = $1`,
+      `SELECT images FROM listings WHERE listing_id = $1`,
       [id]
     );
 
     // Extract image URLs from the database result
-    const imageURLsString = rows[0].image;
+    const imageURLsString = rows[0].images;
 
     const imageURLs = imageURLsString
       .replace("{", "") // Remove leading '{'
