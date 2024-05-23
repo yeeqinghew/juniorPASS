@@ -6,7 +6,7 @@ import OverallLayout from "../layouts/Layout";
 import Profile from "../components/Profile";
 import HomePage from "../components/HomePage";
 import Classes from "../components/Classes";
-import Plans from "../components/Plans";
+import Pricing from "../components/Pricing";
 import Login from "../components/Login";
 import Register from "../components/Register";
 import UserContext from "../components/UserContext";
@@ -104,7 +104,7 @@ export default () => {
           <Route path="/classes" element={<Classes />} />
           <Route path="/class/:classId" element={<Class />} />
           <Route path="/partner/:partnerId" element={<Partner />} />
-          <Route path="/plans" element={<Plans />} />
+          <Route path="/pricing" element={<Pricing />} />
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/partner-contact" element={<ContactUs />} />
           <Route path="/faq" element={<FAQ />} />

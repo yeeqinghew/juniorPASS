@@ -54,12 +54,12 @@ const CardComponent = ({ planName, planClass, price, credits }) => {
   );
 };
 
-const Plans = () => {
+const Pricing = () => {
   return (
     <div style={{ textAlign: "center" }}>
       <div>
         <Text>Discover</Text>
-        <Title level={1}>Available Plans</Title>
+        <Title level={1}>Available Pricing</Title>
         <Text>Choose the perfect pricing plans for your needs</Text>
       </div>
 
@@ -91,15 +91,26 @@ const Plans = () => {
       <Space direction="vertical">
         <Text>
           <CheckOutlined />
-          Book classes in Singapore
+          No expiration date
         </Text>
         <Text>
           <CheckOutlined />
-          No expiration date
+          Flexible Credits
+          {/* Purchase credits that can be used to book any class on our platform. */}
+        </Text>
+        <Text>
+          <CheckOutlined />
+          Easy Scheduling
+          {/* Book classes at your convenience with our user-friendly scheduling system. */}
+        </Text>
+        <Text>
+          <CheckOutlined />
+          Secure Payments
+          {/* All transactions are secure and encrypted for your peace of mind. */}
         </Text>
       </Space>
     </div>
   );
 };
 
-export default Plans;
+export default Pricing;

@@ -168,7 +168,7 @@ const Classes = () => {
       <Space
         className="container"
         direction={"horizontal"}
-        style={{ margin: "24px 0" }}
+        style={{ margin: "24px 0", alignItems: "flex-start" }}
       >
         <List
           itemLayout="horizontal"
@@ -185,7 +185,7 @@ const Classes = () => {
           renderItem={(listing, index) => (
             <List.Item
               key={index}
-              onClick={(e) => {
+              onClick={() => {
                 navigate(`/class/${listing?.listing_id}`, {
                   state: {
                     listing,
@@ -202,8 +202,7 @@ const Classes = () => {
                   cursor: "pointer",
                 }}
                 avatar={
-                  <Image src={listing?.images} width={240} preview={false} />
-                  // TODO: pick the first image and set as avatar
+                  <Image src={listing?.images[0]} width={240} preview={false} />
                 }
                 title={
                   <Space direction="vertical">
@@ -290,7 +289,7 @@ const Classes = () => {
                   {popupInfo?.listing_title}
                   {JSON.parse(outlet.address).SEARCHVAL}
                   {/* </a> */}
-                  <img width="100%" src={popupInfo.image} />
+                  <img width="100%" src={popupInfo.images[0]} />
                 </Space>
               </Popup>
             ))}

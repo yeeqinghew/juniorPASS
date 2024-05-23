@@ -2,12 +2,12 @@ import {
   Avatar,
   Button,
   Card,
+  Carousel,
   DatePicker,
-  Flex,
-  Image,
   Space,
   Tag,
   Typography,
+  Image,
 } from "antd";
 import React, { useContext, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -29,19 +29,17 @@ const Class = () => {
   const dateFormat = "ddd, D MMM YYYY";
   const navigate = useNavigate();
 
-  const handleDateChange = (dates, dateStrings) => {
-    setSelectedDate(dateStrings);
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
   };
 
   const handleNextDay = () => {
-    const nextDay = new Date(selectedDate);
-    nextDay.setDate(selectedDate.getDate() + 1);
+    const nextDay = dayjs(selectedDate).add(1, "day").toDate();
     setSelectedDate(nextDay);
   };
 
   const handlePreviousDay = () => {
-    const previousDay = new Date(selectedDate);
-    previousDay.setDate(selectedDate.getDate() - 1);
+    const previousDay = dayjs(selectedDate).subtract(1, "day").toDate();
     setSelectedDate(previousDay);
   };
 
@@ -64,93 +62,99 @@ const Class = () => {
   };
 
   return (
-    <Flex direction="horizontal">
-      <Flex vertical>
-        <Image
-          src={listing?.images}
-          // TODO: Change this to Carousel instead
-          preview={false}
-          style={{
-            width: "500px",
-          }}
-        />
-        <Flex direction={"horizontal"}>
-          <Space direction={"vertical"}>
-            <Title level={1}>{listing?.listing_title}</Title>
-            <Text>{listing?.description}</Text>
-            <Text>Pacakage Types</Text>
-            {listing?.package_types.map((type) => {
-              return <Text>{type}</Text>;
-            })}
-            {listing?.categories.map((category) => {
-              return <Tag>{category}</Tag>;
-            })}
-            {listing?.age_groups.map((age) => {
-              return <Text>{age}</Text>;
-            })}
-            <Text>Outlets: </Text>
-            {listing?.string_outlet_schedules.map((listing) => {
-              return (
-                <>
-                  <Tag>{listing?.nearest_mrt}</Tag>
-                  <Text>{listing?.address?.ADDRESS}</Text>
-                </>
-              );
-            })}
-
-            <Title level={5}>Schedules</Title>
-            <div>
-              {/* TODO: disable this if <  */}
-              <Button onClick={handlePreviousDay} disabled={isToday}>
-                <LeftOutlined />
-              </Button>
-              <DatePicker
-                value={dayjs(selectedDate)}
-                minDate={dayjs(selectedDate)}
-                format={dateFormat}
-                onChange={handleDateChange}
-                allowClear={false}
+    <Space direction="vertical" style={{ width: "100%" }}>
+      <div style={{ width: "100%", overflow: "hidden" }}>
+        <Carousel autoplay>
+          {listing?.images.map((imgUrl, index) => (
+            <div key={index}>
+              <Image
+                alt={`carousel-${index}`}
+                src={imgUrl}
+                preview={false}
+                style={{
+                  width: "100%",
+                  height: "400px",
+                  objectFit: "cover",
+                }}
               />
-              <Button onClick={handleNextDay}>
-                <RightOutlined />
-              </Button>
             </div>
-          </Space>
-        </Flex>
-      </Flex>
-      <Card
-        style={{
-          width: 500,
-          marginTop: 16,
-          position: "sticky",
-          top: "64px",
-          zIndex: "10000",
-          height: "200px",
-        }}
-      >
-        <Meta
-          avatar={
-            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
-          }
-          onClick={() => {
-            navigate(`/partner/${listing?.partner_id}`, {
-              state: {
-                // TODO: pass partner instead of listing
-                listing,
-              },
-            });
+          ))}
+        </Carousel>
+      </div>
+      <Space direction="horizontal" style={{ width: "100%" }}>
+        <Space direction="vertical" style={{ flex: 1 }}>
+          <Title level={1}>{listing?.listing_title}</Title>
+          <Text>{listing?.description}</Text>
+          <Text>Package Types</Text>
+          {listing?.package_types.map((type, index) => (
+            <Text key={index}>{type}</Text>
+          ))}
+          {listing?.categories.map((category, index) => (
+            <Tag key={index}>{category}</Tag>
+          ))}
+          {listing?.age_groups.map((age, index) => (
+            <Text key={index}>{age}</Text>
+          ))}
+          <Text>Outlets: </Text>
+          {listing?.string_outlet_schedules.map((schedule, index) => {
+            const address = JSON.parse(schedule?.address)?.ADDRESS;
+            return (
+              <div key={index}>
+                <Tag>{schedule?.nearest_mrt}</Tag>
+                <Text>{address}</Text>
+              </div>
+            );
+          })}
+
+          <Title level={5}>Schedules</Title>
+          <div>
+            <Button onClick={handlePreviousDay} disabled={isToday}>
+              <LeftOutlined />
+            </Button>
+            <DatePicker
+              value={dayjs(selectedDate)}
+              format={dateFormat}
+              onChange={handleDateChange}
+              allowClear={false}
+            />
+            <Button onClick={handleNextDay}>
+              <RightOutlined />
+            </Button>
+          </div>
+        </Space>
+        <Card
+          style={{
+            width: 500,
+            marginTop: 16,
+            position: "sticky",
+            top: "64px",
+            zIndex: 1000,
           }}
-          title={listing?.partner_name}
-          description={
-            <Space direction="vertical">
-              <Text>{listing?.website}</Text>
-              <Text>{listing?.email}</Text>
-            </Space>
-          }
-        />
-        {/* TODO: Map */}
-      </Card>
-    </Flex>
+        >
+          <Meta
+            avatar={
+              <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
+            }
+            onClick={() => {
+              navigate(`/partner/${listing?.partner_id}`, {
+                state: {
+                  // TODO: pass partner instead of listing
+                  listing,
+                },
+              });
+            }}
+            title={listing?.partner_name}
+            description={
+              <Space direction="vertical">
+                <Text>{listing?.website}</Text>
+                <Text>{listing?.email}</Text>
+              </Space>
+            }
+          />
+          {/* TODO: Map */}
+        </Card>
+      </Space>
+    </Space>
   );
 };
 

@@ -107,7 +107,7 @@ const OverallLayout = ({
                 <Link to="/classes">Classes</Link>
               </Menu.Item>
               <Menu.Item key="plan">
-                <Link to="/plans">Plans</Link>
+                <Link to="/pricing">Pricing</Link>
               </Menu.Item>
               {isAuthenticated ? (
                 <>
@@ -163,7 +163,7 @@ const OverallLayout = ({
               <Link to="/classes">Classes</Link>
             </Menu.Item>
             <Menu.Item key="plan">
-              <Link to="/plans">Plans</Link>
+              <Link to="/pricing">Pricing</Link>
             </Menu.Item>
             <></>
             <Menu.Item key="login" style={{ float: "right" }}>
@@ -241,7 +241,7 @@ const OverallLayout = ({
                 <Title level={5}>JuniorPass</Title>
                 <Link to="/about-us">About us</Link>
                 <Link to="/classes">Classes</Link>
-                <Link to="/plans">Plans</Link>
+                <Link to="/pricing">Pricing</Link>
               </Flex>
 
               <Flex vertical gap="large" style={{ width: "20%" }}>

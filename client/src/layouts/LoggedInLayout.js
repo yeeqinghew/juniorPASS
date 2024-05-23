@@ -150,7 +150,7 @@ const LoggedInLayout = ({
               <Title level={5}>JuniorPass</Title>
               <Link to="/about-us">About us</Link>
               <Link to="/classes">Classes</Link>
-              <Link to="/plans">Plans</Link>
+              <Link to="/pricing">Pricing</Link>
             </Flex>
 
             <Flex vertical gap="large" style={{ width: "20%" }}>
