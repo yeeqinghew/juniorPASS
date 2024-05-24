@@ -26,6 +26,7 @@ import Map, {
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useNavigate } from "react-router-dom";
 import getBaseURL from "../../utils/config";
+import useParseListings from "../../hooks/useParseListings";
 
 const { Text } = Typography;
 
@@ -34,37 +35,19 @@ const Classes = () => {
   const [popupInfo, setPopupInfo] = useState(null);
   const [listings, setListings] = useState([]);
   const [filterInput, setFilterInput] = useState(null);
+  const parseListings = useParseListings();
   const navigate = useNavigate();
 
   const getListings = async () => {
     try {
       const response = await fetch(`${baseURL}/listings`);
       const jsonData = await response.json();
-      setListings(jsonData);
+      const parsedListings = parseListings(jsonData);
+      setListings(parsedListings);
     } catch (error) {
       console.error(error.message);
     }
   };
-
-  // Function to parse PostgreSQL array string to array
-  const parseArrayString = (arrayString) => {
-    // Remove curly brackets and split the string by commas
-    const trimmedString = arrayString.replace(/[{}]/g, "");
-    const arrayValues = trimmedString.split(",");
-    // Trim whitespace from each value and return the array
-    const returnArray = arrayValues.map((value) => value.trim());
-    return returnArray;
-  };
-
-  // Make categories, package_types, age_groups an array
-  const parsedListings = listings.map((listing) => {
-    return {
-      ...listing,
-      categories: parseArrayString(listing?.categories),
-      package_types: parseArrayString(listing?.package_types),
-      age_groups: parseArrayString(listing?.age_groups),
-    };
-  });
 
   const pins = useMemo(() => {
     return listings.map((listing) => {
@@ -172,7 +155,7 @@ const Classes = () => {
       >
         <List
           itemLayout="horizontal"
-          dataSource={filterInput == null ? parsedListings : filterInput}
+          dataSource={filterInput == null ? listings : filterInput}
           style={{
             width: "40vw",
           }}

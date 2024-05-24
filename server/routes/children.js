@@ -14,6 +14,10 @@ router.post("", cacheMiddleware, async (req, res) => {
       `INSERT INTO children (name, age, gender, parent_id) VALUES ($1, $2, $3, $4) RETURNING *`,
       [name, age, gender, parent_id]
     );
+
+    // Optionally, invalidate or update related cache entries, like the list of all listings
+    await client.del("/children");
+
     res.status(201).json({
       message: "Child has been created!",
       data: newChild,

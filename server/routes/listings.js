@@ -91,7 +91,7 @@ router.get("/:id", cacheMiddleware, async (req, res) => {
   const id = req.params.id;
   try {
     const listing = await pool.query(
-      "SELECT * FROM listings WHERE listing_id = $1",
+      "SELECT * FROM listings l JOIN partners p USING (partner_id) WHERE l.listing_id = $1",
       [id]
     );
     res.json(listing.rows[0]);

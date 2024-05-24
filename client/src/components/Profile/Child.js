@@ -74,76 +74,82 @@ const Child = () => {
 
   return (
     <>
-      <Flex>
+      <Title level={4}>Chidlren</Title>
+      <Flex direction="column" gap={24} style={{ padding: "24px" }}>
         {/* children */}
         {_.isEmpty(children) ? (
           <Empty
-            image="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
-            imageStyle={{ height: 60 }}
+            image={<PlusOutlined />}
+            imageStyle={{ fontSize: "40px", color: "#1890ff" }}
             description={
               <span>
-                <Text>You do not have any child profile created.</Text>
+                <Text>
+                  You do not have any child profile created. Click the button
+                  below to add a new child.
+                </Text>
               </span>
             }
-          ></Empty>
+          >
+            <Button
+              type="primary"
+              onClick={() => {
+                setIsAddChildModalOpen(true);
+              }}
+            >
+              Add Child
+            </Button>
+          </Empty>
         ) : (
-          <Text>
-            These are your children. Click on your child's name to check their
-            progress
-          </Text>
-        )}
-      </Flex>
-
-      <Flex style={{ padding: "24px" }}>
-        <Space direction="horizontal" size="large">
-          {children &&
-            children.map((child, index) => {
-              const gender1 = child?.gender === "F" ? "girls" : "boys";
-              const gender2 = child?.gender === "F" ? "girl" : "boy";
-
-              return (
-                <Space
-                  key={child?.child_id}
-                  direction="vertical"
-                  style={{
-                    alignItems: "center",
-                  }}
-                >
+          <>
+            <Text strong>
+              These are your children. Click on your child's name to check their
+              progress
+            </Text>
+            <Flex direction="row" gap={16} wrap="wrap">
+              <Space direction="horizontal" size="large">
+                {children.map((child, index) => (
                   <Avatar
-                    size={{ xs: 24, sm: 32, md: 40, lg: 64, xl: 80, xxl: 100 }}
-                    src={require(`../../images/profile/${gender1}/${gender2}${index}.png`)}
-                    style={{
-                      boxShadow:
-                        "rgba(17, 17, 26, 0.1) 0px 4px 16px, rgba(17, 17, 26, 0.1) 0px 8px 24px, rgba(17, 17, 26, 0.1) 0px 16px 56px",
-                    }}
+                    key={child.child_id}
+                    size={100}
+                    src={require(`../../images/profile/${
+                      child.gender === "F" ? "girls" : "boys"
+                    }/${child.gender === "F" ? "girl" : "boy"}${index}.png`)}
                     onClick={() => {
                       editChildForm.setFieldsValue({
-                        // Set initial values of the form fields
-                        name: child?.name,
-                        age: child?.age,
-                        gender: child?.gender,
+                        name: child.name,
+                        age: child.age,
+                        gender: child.gender,
                       });
                       setIsEditChildModalOpen(true);
                     }}
-                  />
-                  <Text>{child.name}</Text>
-                </Space>
-              );
-            })}
-          <Avatar
-            size={{ xs: 24, sm: 32, md: 40, lg: 64, xl: 80, xxl: 100 }}
-            icon={<PlusOutlined />}
-            style={{
-              cursor: "pointer",
-            }}
-            onClick={() => {
-              setIsAddChildModalOpen(true);
-            }}
-          ></Avatar>
-        </Space>
+                  >
+                    {child.name}
+                  </Avatar>
+                ))}
+
+                {/* CTA button in toolbar */}
+                <Avatar
+                  size={100}
+                  icon={<PlusOutlined />}
+                  style={{
+                    cursor: "pointer",
+                    border: "1px dashed #1890ff",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                  onClick={() => {
+                    setIsAddChildModalOpen(true);
+                  }}
+                />
+              </Space>
+            </Flex>
+          </>
+        )}
       </Flex>
 
-      <Flex>
+      {/* Classes section */}
+      <Flex justifyContent="center" style={{ marginBottom: "24px" }}>
         <Title level={4}>Classes</Title>
       </Flex>
 

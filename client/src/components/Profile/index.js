@@ -12,9 +12,9 @@ const Profile = () => {
     <DefaultTabBar
       {...props}
       style={{
-        backgroundColor: "#F2F1EB",
-        width: 250,
-        height: "calc(100vh - 285px - 100px - 40px)",
+        backgroundColor: "#fff",
+        borderRadius: "8px",
+        boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
       }}
     />
   );
@@ -37,30 +37,38 @@ const Profile = () => {
     },
   ];
 
+  // Assuming userProfile contains user's profile information including picture
+  const userProfile = {
+    name: "John Doe",
+    profilePicture: "https://example.com/profile-picture.jpg",
+  };
+
   const displayPicture = (
     <Avatar
       size={{ xs: 24, sm: 32, md: 40, lg: 64, xl: 80, xxl: 100 }}
+      src={userProfile.profilePicture}
+      alt={userProfile.name}
       style={{
-        backgroundColor: "#f56a00",
         margin: "24px",
       }}
-    >
-      DP
-    </Avatar>
+    />
   );
 
   return (
-    <Tabs
-      defaultActiveKey={state || "child"}
-      tabPosition={"left"}
-      renderTabBar={renderTabBar}
-      items={items}
-      tabBarGutter={12}
-      tabBarExtraContent={{ left: displayPicture }}
-      style={{
-        borderRadius: "18px",
-      }}
-    />
+    <div style={{ display: "flex" }}>
+      <Tabs
+        defaultActiveKey={state || "child"}
+        tabPosition={"left"}
+        renderTabBar={renderTabBar}
+        tabBarExtraContent={{ left: displayPicture }}
+        items={items}
+        tabBarGutter={12}
+        style={{
+          flex: 1,
+          marginLeft: "16px",
+        }}
+      />
+    </div>
   );
 };
 
