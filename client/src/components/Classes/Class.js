@@ -10,6 +10,10 @@ import {
   Image,
   Spin,
   Alert,
+  Affix,
+  Row,
+  Col,
+  Divider,
 } from "antd";
 import React, { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -19,7 +23,7 @@ import dayjs from "dayjs";
 import getBaseURL from "../../utils/config";
 import useParseListings from "../../hooks/useParseListings";
 
-const { Title, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 const { Meta } = Card;
 
 const Class = () => {
@@ -94,6 +98,8 @@ const Class = () => {
           }
         }
       });
+
+      console.log(acc);
       return acc;
     }, []);
   };
@@ -174,31 +180,32 @@ const Class = () => {
   }
 
   return (
-    <Space direction="vertical" style={{ width: "100%", padding: "0 150px" }}>
-      <Carousel autoplay arrows>
-        {listing?.images.map((imgUrl, index) => (
-          <Image
-            key={index}
-            alt={`carousel-${index}`}
-            src={imgUrl}
-            preview={false}
-            style={{
-              margin: 0,
-              maxHeight: "200px",
-              maxWidth: "100%",
-              background: "#364d79",
-            }}
-          />
-        ))}
-      </Carousel>
-      <Space
-        direction="horizontal"
-        style={{ width: "100%", display: "flex", alignItems: "flex-start" }}
-      >
-        <Space direction="vertical" style={{ flex: 1 }}>
-          <Title level={1}>{listing?.listing_title}</Title>
+    <Row gutter={16} style={{ width: "100%", padding: "0 150px" }}>
+      <Col span={16}>
+        <Title level={1}>{listing?.listing_title}</Title>
+        <Carousel autoplay arrows>
+          {listing?.images.map((imgUrl, index) => (
+            <div key={index}>
+              <Image
+                alt={`carousel-${index}`}
+                src={imgUrl}
+                preview={false}
+                style={{
+                  margin: 0,
+                  // maxHeight: "200px",
+                  // width: "100%",
+                  // objectFit: "cover",
+                  background: "#364d79",
+                }}
+              />
+            </div>
+          ))}
+        </Carousel>
+        {/* Description */}
+        <Space direction="vertical" size="large" style={{ flex: 1 }}>
+          <Title level={3}>About</Title>
           <Text>{listing?.credit}</Text>
-          <Text>{listing?.description}</Text>
+          <Paragraph>{listing?.description}</Paragraph>
           <Text>Package Types</Text>
           {listing?.package_types.map((type, index) => (
             <Text key={`package-type-${index}`}>{type}</Text>
@@ -235,48 +242,57 @@ const Class = () => {
               <RightOutlined />
             </Button>
           </div>
-          <div>
-            <h3>Available Time Slots:</h3>
-            <ul>
-              {generateAvailableTimeSlots().map((slot, index) => (
-                <li key={`timeslot-${index}`}>{slot}</li>
-              ))}
-            </ul>
-          </div>
+
+          <h3>Available Time Slots:</h3>
+          <Row gutter={16}>
+            {generateAvailableTimeSlots().map((slot, index) => (
+              <Col key={index} span={8} style={{ marginBottom: "16px" }}>
+                <Card hoverable style={{}}>
+                  <div>{slot}</div>
+                </Card>
+              </Col>
+            ))}
+          </Row>
         </Space>
-        <Card
-          style={{
-            width: 500,
-            marginTop: 16,
-            position: "sticky",
-            top: "64px",
-            zIndex: 1000,
-          }}
-        >
-          <Meta
-            avatar={
-              <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
-            }
-            onClick={() => {
-              navigate(`/partner/${listing?.partner_id}`, {
-                state: {
-                  // TODO: pass partner instead of listing
-                  listing,
-                },
-              });
+
+        {/* Review */}
+        <Divider orienation="left">Reviews</Divider>
+      </Col>
+
+      <Col span={8}>
+        <Affix offsetTop={200}>
+          <Card
+            style={{
+              width: 500,
+              marginTop: 16,
+              position: "sticky",
+              zIndex: 1000,
             }}
-            title={listing?.partner_name}
-            description={
-              <Space direction="vertical">
-                <Text>{listing?.website}</Text>
-                <Text>{listing?.email}</Text>
-              </Space>
-            }
-          />
-          {/* TODO: Map */}
-        </Card>
-      </Space>
-    </Space>
+          >
+            <Meta
+              avatar={
+                <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
+              }
+              onClick={() => {
+                navigate(`/partner/${listing?.partner_id}`, {
+                  state: {
+                    listing,
+                  },
+                });
+              }}
+              title={listing?.partner_name}
+              description={
+                <Space direction="vertical">
+                  <Text>{listing?.website}</Text>
+                  <Text>{listing?.email}</Text>
+                </Space>
+              }
+            />
+            {/* TODO: Map */}
+          </Card>
+        </Affix>
+      </Col>
+    </Row>
   );
 };
 
