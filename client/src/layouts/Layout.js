@@ -51,87 +51,44 @@ const OverallLayout = ({
     navigate("/login");
   };
 
-  const showBurgerMenu = () => {
-    setOpen(true);
-  };
+  return (
+    <ConfigProvider
+      theme={{
+        token: {
+          // Seed Token
+          borderRadius: 2,
+          colorPrimary: "#98BDD2",
+          colorPrimaryActive: "#98BDD2",
 
-  const closeBurgerMenu = () => {
-    setOpen(false);
-  };
-
-  function HeaderConfig() {
-    if (width < 1024) {
-      return (
-        <Header
-          style={{
-            position: "sticky",
-            top: 0,
-            zIndex: 9999,
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            backgroundColor: "#FCFBF8",
-            padding: "50px",
-          }}
-        >
-          <Link to="/">
-            <Image
-              alt="logo"
-              src={require("../images/logopngResize.png")}
-              width={100}
-              height={50}
-              preview={false}
-            />
-          </Link>
-          <Menu
-            mode="horizontal"
-            style={{ flex: 1, minWidth: 0, display: "block" }}
-          >
-            <Menu.Item key="menu" style={{ float: "right" }}>
-              <MenuOutlined onClick={showBurgerMenu} />
-            </Menu.Item>
-          </Menu>
-
-          <Drawer
-            title=""
-            onClose={closeBurgerMenu}
-            open={open}
-            width={"100vw"}
-            zIndex={9999999}
-          >
-            <Menu
-              mode="vertical"
-              style={{ flex: 1, minWidth: 0, display: "block" }}
-            >
-              <Menu.Item key="classes">
-                <Link to="/classes">Classes</Link>
-              </Menu.Item>
-              <Menu.Item key="plan">
-                <Link to="/pricing">Pricing</Link>
-              </Menu.Item>
-              {isAuthenticated ? (
-                <>
-                  <Menu.Item key="logout" style={{ float: "right" }}>
-                    <LogoutOutlined onClick={handleLogout} />
-                  </Menu.Item>
-                  <Menu.Item key="profile" style={{ float: "right" }}>
-                    <Link to="/profile" state={"account"}>
-                      Profile
-                    </Link>
-                  </Menu.Item>
-                </>
-              ) : (
-                <Menu.Item key="login" style={{ float: "right" }}>
-                  <Link to="/login">Login</Link>
-                </Menu.Item>
-              )}
-            </Menu>
-          </Drawer>
-        </Header>
-      );
-    }
-    if (1024 <= width) {
-      return (
+          // Alias Token
+          colorBgContainer: "#FCFBF8",
+          fontSize: 14,
+          colorLink: "black",
+          fontFamily: "Poppins, sans-serif",
+        },
+        components: {
+          Layout: {
+            headerBg: "#FCFBF8",
+            bodyBg: "#FCFBF8",
+            headerHeight: 84,
+          },
+          Menu: {
+            horizontalItemSelectedColor: "#98BDD2",
+          },
+          Tabs: {
+            itemActiveColor: "#98BDD2",
+            itemHoverColor: "#98BDD2",
+            itemSelectedColor: "#98BDD2",
+            inkBarColor: "#98BDD2",
+          },
+        },
+      }}
+    >
+      <Layout
+        style={{
+          minHeight: "100vh",
+        }}
+      >
         <Header
           style={{
             position: "sticky",
@@ -171,52 +128,17 @@ const OverallLayout = ({
             </Menu.Item>
           </Menu>
         </Header>
-      );
-    }
-    return null;
-  }
-
-  function FooterConfig() {
-    if (width < 1024) {
-      return (
-        <Footer style={{ background: "#FCFBF8", padding: "50px" }}>
-          <Divider></Divider>
-          <Flex vertical gap="large" style={{ alignItems: "center" }}>
-            <Link to="/">
-              <Image
-                alt="logo"
-                src={require("../images/logopngResize.png")}
-                width={100}
-                height={50}
-                preview={false}
-              />
-            </Link>
-
-            <Flex vertical gap="large" style={{ alignItems: "center" }}>
-              <Space direction="horizontal">
-                <MailOutlined />
-                <Link to="mailto:hello@juniorpass.sg">hello@juniorpass.sg</Link>
-              </Space>
-              <Flex vertical={false} gap="large">
-                <Space direction="horizontal">
-                  <FacebookFilled />
-                </Space>
-
-                <Space direction="horizontal">
-                  <InstagramOutlined />
-                </Space>
-
-                <Space direction="horizontal">
-                  <LinkedinFilled />
-                </Space>
-              </Flex>
-            </Flex>
-          </Flex>
-        </Footer>
-      );
-    }
-    if (1024 <= width) {
-      return (
+        <Content style={{ padding: isDesktop ? "0 150px" : "0" }}>
+          <div
+            style={{
+              margin: isDesktop ? "16px 0" : "8px",
+              padding: isDesktop ? 24 : 16,
+            }}
+          >
+            <Toaster />
+            <Outlet />
+          </div>
+        </Content>
         <Footer style={{ background: "#FCFBF8", padding: "50px 150px" }}>
           <Divider></Divider>
           <Flex style={{ width: "100%" }}>
@@ -293,62 +215,6 @@ const OverallLayout = ({
           <Divider></Divider>© Copyright {new Date().getFullYear()} juniorPASS
           (UEN: 202411484C)
         </Footer>
-      );
-    }
-    return null;
-  }
-
-  return (
-    <ConfigProvider
-      theme={{
-        token: {
-          // Seed Token
-          borderRadius: 2,
-          colorPrimary: "#98BDD2",
-          colorPrimaryActive: "#98BDD2",
-
-          // Alias Token
-          colorBgContainer: "#FCFBF8",
-          fontSize: 14,
-          colorLink: "black",
-          fontFamily: "Poppins, sans-serif",
-        },
-        components: {
-          Layout: {
-            headerBg: "#FCFBF8",
-            bodyBg: "#FCFBF8",
-            headerHeight: 84,
-          },
-          Menu: {
-            horizontalItemSelectedColor: "#98BDD2",
-          },
-          Tabs: {
-            itemActiveColor: "#98BDD2",
-            itemHoverColor: "#98BDD2",
-            itemSelectedColor: "#98BDD2",
-            inkBarColor: "#98BDD2",
-          },
-        },
-      }}
-    >
-      <Layout
-        style={{
-          minHeight: "100vh",
-        }}
-      >
-        <HeaderConfig />
-        <Content style={{ padding: isDesktop ? "0 150px" : "0" }}>
-          <div
-            style={{
-              margin: isDesktop ? "16px 0" : "8px",
-              padding: isDesktop ? 24 : 16,
-            }}
-          >
-            <Toaster />
-            <Outlet />
-          </div>
-        </Content>
-        <FooterConfig />
       </Layout>
     </ConfigProvider>
   );

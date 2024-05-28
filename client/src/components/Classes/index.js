@@ -230,7 +230,7 @@ const Classes = () => {
                       {listing?.age_groups}
                     </Space>
 
-                    {listing?.rating != 0 && (
+                    {listing?.rating !== 0 && (
                       <Rate disabled defaultValue={listing?.reviews}></Rate>
                     )}
                   </Space>
@@ -239,6 +239,7 @@ const Classes = () => {
             </List.Item>
           )}
         ></List>
+        <div>1212121</div>
         <Map
           className={"map"}
           initialViewState={{

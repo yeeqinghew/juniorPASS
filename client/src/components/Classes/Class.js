@@ -14,25 +14,34 @@ import {
   Row,
   Col,
   Divider,
+  List,
 } from "antd";
 import React, { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import { LeftOutlined, RightOutlined } from "@ant-design/icons";
+import {
+  LeftOutlined,
+  RightOutlined,
+  MailOutlined,
+  ShopOutlined,
+} from "@ant-design/icons";
 import UserContext from "../UserContext";
 import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
 import getBaseURL from "../../utils/config";
 import useParseListings from "../../hooks/useParseListings";
+import Spinner from "../../utils/Spinner";
+import "./Class.css";
 
 const { Title, Text, Paragraph } = Typography;
 const { Meta } = Card;
+
+dayjs.extend(duration);
 
 const Class = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [listing, setListing] = useState(null);
-  const [schedules, setSchedules] = useState([]);
-  const [timeSlots, setTimeSlots] = useState([]);
 
   const { state } = useLocation();
   const { classId } = useParams();
@@ -43,28 +52,21 @@ const Class = () => {
   const baseURL = getBaseURL();
   const parseListings = useParseListings();
 
-  // Parse string outlet schedules and convert address to object
-  const outletSchedules = listing?.string_outlet_schedules.map((schedule) => ({
-    ...schedule,
-    address: JSON.parse(schedule.address),
-  }));
-
-  const filterSchedules = () => {
-    if (!listing || !listing.string_outlet_schedules) return [];
-
-    return listing.string_outlet_schedules.filter((schedule) => {
-      const day = dayjs(selectedDate).format("dddd");
-      return schedule.schedules.find((item) => item.day === day);
-    });
-  };
-
   const formatTimeslot = (timeslot) => {
-    return `${timeslot[0]} - ${timeslot[1]}`;
+    const startTime = dayjs(timeslot[0], "HH:mm");
+    const endTime = dayjs(timeslot[1], "HH:mm");
+    const duration = dayjs.duration(endTime.diff(startTime)).asMinutes();
+
+    return {
+      timeRange: `${timeslot[0]} - ${timeslot[1]}`,
+      duration: `${duration} mins`,
+    };
   };
 
   // Function to generate available time slots
   const generateAvailableTimeSlots = () => {
     if (!listing || !listing.string_outlet_schedules) return [];
+    console.log(listing.string_outlet_schedules);
 
     const selectedDay = dayjs(selectedDate).format("dddd");
 
@@ -103,6 +105,8 @@ const Class = () => {
       return acc;
     }, []);
   };
+
+  const availableTimeSlots = generateAvailableTimeSlots();
 
   useEffect(() => {
     async function fetchListing() {
@@ -146,17 +150,6 @@ const Class = () => {
     setSelectedDate(previousDay);
   };
 
-  // Function to generate time slots for the selected date
-  const generateTimeSlots = () => {
-    // You can implement your logic here to fetch or generate time slots for the selected date
-    // For simplicity, let's just generate some dummy time slots
-    const timeSlots = [];
-    for (let i = 0; i < 24; i++) {
-      timeSlots.push(`${i < 10 ? "0" + i : i}:00`);
-    }
-    return timeSlots;
-  };
-
   const handleBookNow = () => {
     // TODO: Show modal
     // TODO: show a list of children
@@ -165,7 +158,7 @@ const Class = () => {
   };
 
   if (loading) {
-    return <Spin tip="Loading..." />;
+    return <Spinner />;
   }
 
   if (error) {
@@ -182,7 +175,6 @@ const Class = () => {
   return (
     <Row gutter={16} style={{ width: "100%", padding: "0 150px" }}>
       <Col span={16}>
-        <Title level={1}>{listing?.listing_title}</Title>
         <Carousel autoplay arrows>
           {listing?.images.map((imgUrl, index) => (
             <div key={index}>
@@ -202,9 +194,10 @@ const Class = () => {
           ))}
         </Carousel>
         {/* Description */}
+
         <Space direction="vertical" size="large" style={{ flex: 1 }}>
-          <Title level={3}>About</Title>
-          <Text>{listing?.credit}</Text>
+          <Title level={4}>{listing?.listing_title}</Title>
+          <Title level={5}>$ {listing?.credit}</Title>
           <Paragraph>{listing?.description}</Paragraph>
           <Text>Package Types</Text>
           {listing?.package_types.map((type, index) => (
@@ -216,6 +209,8 @@ const Class = () => {
           {listing?.age_groups.map((age, index) => (
             <Text key={`age-group-${index}`}>{age}</Text>
           ))}
+
+          <Divider />
           <Text>Outlets: </Text>
           {listing?.string_outlet_schedules.map((schedule, index) => {
             const address = JSON.parse(schedule?.address)?.ADDRESS;
@@ -227,9 +222,14 @@ const Class = () => {
             );
           })}
 
+          <Divider />
           <Title level={5}>Schedule</Title>
           <div>
-            <Button onClick={handlePreviousDay} disabled={isToday}>
+            <Button
+              onClick={handlePreviousDay}
+              disabled={isToday}
+              style={{ border: "none" }}
+            >
               <LeftOutlined />
             </Button>
             <DatePicker
@@ -237,30 +237,44 @@ const Class = () => {
               format={dateFormat}
               onChange={handleDateChange}
               allowClear={false}
+              style={{ border: "none", width: 380, textAlign: "center" }}
+              open={false}
+              inputReadOnly
+              suffixIcon={null}
+              className="custom-date-picker"
             />
-            <Button onClick={handleNextDay}>
+            <Button onClick={handleNextDay} style={{ border: "none" }}>
               <RightOutlined />
             </Button>
           </div>
 
-          <h3>Available Time Slots:</h3>
-          <Row gutter={16}>
-            {generateAvailableTimeSlots().map((slot, index) => (
-              <Col key={index} span={8} style={{ marginBottom: "16px" }}>
-                <Card hoverable style={{}}>
-                  <div>{slot}</div>
-                </Card>
-              </Col>
-            ))}
-          </Row>
+          <List
+            itemLayout="horizontal"
+            dataSource={availableTimeSlots}
+            locale={{
+              emptyText: "There are no upcoming classes available on this day",
+            }}
+            renderItem={(item) => (
+              <List.Item
+                style={{ width: "300" }}
+                actions={[<Button type="primary">Book now</Button>]}
+              >
+                <List.Item.Meta
+                  title={item.timeRange}
+                  description={item.duration}
+                />
+              </List.Item>
+            )}
+          />
         </Space>
 
         {/* Review */}
-        <Divider orienation="left">Reviews</Divider>
+        <Divider />
+        <Title level={5}>Reviews</Title>
       </Col>
 
       <Col span={8}>
-        <Affix offsetTop={200}>
+        <Affix offsetTop={100}>
           <Card
             style={{
               width: 500,
@@ -283,8 +297,16 @@ const Class = () => {
               title={listing?.partner_name}
               description={
                 <Space direction="vertical">
-                  <Text>{listing?.website}</Text>
-                  <Text>{listing?.email}</Text>
+                  <Space>
+                    <ShopOutlined />
+                    <Text>{listing?.website}</Text>
+                  </Space>
+
+                  <Space direction="horizontal">
+                    <MailOutlined />
+
+                    <Text>{listing?.email}</Text>
+                  </Space>
                 </Space>
               }
             />
