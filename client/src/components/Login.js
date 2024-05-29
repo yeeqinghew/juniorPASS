@@ -7,7 +7,7 @@ import {
 } from "@ant-design/icons";
 import { Button, Checkbox, Divider, Form, Input, Typography } from "antd";
 import { GoogleLogin } from "@react-oauth/google";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import getBaseURL from "../utils/config";
 
@@ -15,6 +15,9 @@ const { Title, Text } = Typography;
 
 const Login = ({ setAuth }) => {
   const baseURL = getBaseURL();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { from } = location.state || { from: { pathname: "/" } };
 
   const handleLogin = async (values) => {
     try {
@@ -31,6 +34,7 @@ const Login = ({ setAuth }) => {
         localStorage.setItem("token", parseRes.token);
         setAuth(true);
         toast.success("Login successfully");
+        navigate(from); // Navigate back to the previous location after successful login
       } else {
         setAuth(false);
         toast.error("Wrong credential");

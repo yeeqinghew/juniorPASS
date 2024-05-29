@@ -74,7 +74,7 @@ const Child = () => {
 
   return (
     <>
-      <Title level={4}>Chidlren</Title>
+      <Title level={4}>Children</Title>
       <Flex direction="column" gap={24} style={{ padding: "24px" }}>
         {/* children */}
         {_.isEmpty(children) ? (
@@ -100,7 +100,7 @@ const Child = () => {
             </Button>
           </Empty>
         ) : (
-          <>
+          <Space direction="vertical">
             <Text strong>
               These are your children. Click on your child's name to check their
               progress
@@ -144,7 +144,7 @@ const Child = () => {
                 />
               </Space>
             </Flex>
-          </>
+          </Space>
         )}
       </Flex>
 

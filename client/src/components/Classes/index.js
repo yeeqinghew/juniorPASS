@@ -239,7 +239,6 @@ const Classes = () => {
             </List.Item>
           )}
         ></List>
-        <div>1212121</div>
         <Map
           className={"map"}
           initialViewState={{

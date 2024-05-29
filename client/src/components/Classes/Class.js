@@ -14,6 +14,8 @@ import {
   Col,
   Divider,
   List,
+  Modal,
+  Select,
 } from "antd";
 import React, { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -24,11 +26,13 @@ import {
   ShopOutlined,
   PhoneOutlined,
 } from "@ant-design/icons";
+import Map, { Marker } from "react-map-gl";
 import UserContext from "../UserContext";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import getBaseURL from "../../utils/config";
 import Spinner from "../../utils/Spinner";
+import toast from "react-hot-toast";
 import "./Class.css";
 
 const { Title, Text, Paragraph } = Typography;
@@ -41,6 +45,9 @@ const Class = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [listing, setListing] = useState(null);
+  const [isBuyNowModalOpen, setIsBuyNowModalOpen] = useState(false);
+  const [selected, setSelected] = useState(null);
+  const [children, setChildren] = useState([]);
 
   const { state } = useLocation();
   const { classId } = useParams();
@@ -49,7 +56,10 @@ const Class = () => {
   const dateFormat = "ddd, D MMM YYYY";
   const navigate = useNavigate();
   const baseURL = getBaseURL();
-  console.log(listing);
+
+  const handleCancel = () => {
+    setIsBuyNowModalOpen(false);
+  };
 
   const formatTimeslot = (timeslot) => {
     const startTime = dayjs(timeslot[0], "HH:mm");
@@ -144,12 +154,31 @@ const Class = () => {
     setSelectedDate(previousDay);
   };
 
-  const handleBookNow = () => {
-    // TODO: Show modal
-    // TODO: show a list of children
-    // TODO: purchase using credit
-    // TODO: if credit not enough, show alert message saying not enough
+  const handleBookNow = (item) => {
+    if (user) {
+      setIsBuyNowModalOpen(true);
+      setSelected(item);
+    } else {
+      // Navigate to login page with state to remember the class after login
+      navigate("/login", { state: { from: `/class/${classId}` } });
+      toast.error("Please login to book the class");
+    }
   };
+
+  const getChildren = async () => {
+    const response = await fetch(`${baseURL}/children/${user?.user_id}`, {
+      method: "GET",
+    });
+    const parseRes = await response.json();
+    setChildren(parseRes);
+  };
+
+  useEffect(() => {
+    if (!isBuyNowModalOpen) return;
+
+    // fetch all children by the specific user
+    getChildren();
+  }, [isBuyNowModalOpen]);
 
   if (loading) {
     return <Spinner />;
@@ -248,7 +277,11 @@ const Class = () => {
             renderItem={(item) => (
               <List.Item
                 style={{ width: "300" }}
-                actions={[<Button type="primary">Book now</Button>]}
+                actions={[
+                  <Button type="primary" onClick={() => handleBookNow(item)}>
+                    Book now
+                  </Button>,
+                ]}
               >
                 <List.Item.Meta
                   title={`${item.timeRange}    ${item.location.nearest_mrt}`}
@@ -274,18 +307,18 @@ const Class = () => {
               marginTop: 16,
               position: "sticky",
               zIndex: 1000,
-              cursor: "pointer",
+              // cursor: "pointer",
             }}
           >
             <Meta
               avatar={<Avatar src={listing.picture} />}
-              onClick={() => {
-                navigate(`/partner/${listing?.partner_id}`, {
-                  state: {
-                    listing,
-                  },
-                });
-              }}
+              // onClick={() => {
+              //   navigate(`/partner/${listing?.partner_id}`, {
+              //     state: {
+              //       listing,
+              //     },
+              //   });
+              // }}
               title={listing?.partner_name}
               description={
                 <Space direction="vertical">
@@ -312,6 +345,78 @@ const Class = () => {
           </Card>
         </Affix>
       </Col>
+      <Modal
+        title={"Buy now"}
+        open={isBuyNowModalOpen}
+        onCancel={handleCancel}
+        centered
+        style={{
+          borderRadius: "18px",
+        }}
+      >
+        <Space direction="vertical">
+          <Text>{user?.credit}</Text>
+          {/* Select child */}
+          {/* TODO: need to check the age limit before they can confirm */}
+          <Select
+            placeholder="Select the child"
+            style={{ width: "100%", marginBottom: "1rem" }}
+          >
+            {children.map((child) => (
+              <Select.Option key={child?.child_id} value={child?.child_id}>
+                {child.name}
+              </Select.Option>
+            ))}
+          </Select>
+          {/* TODO: Select Package Type */}
+
+          <Map
+            className={"map"}
+            mapStyle="mapbox://styles/mapbox/streets-v8"
+            mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
+            initialViewState={{
+              longitude:
+                selected && JSON.parse(selected?.location?.address)?.LONGITUDE,
+              latitude:
+                selected && JSON.parse(selected?.location?.address)?.LATITUDE,
+              zoom: 15,
+            }}
+            style={{
+              width: "100%",
+              height: "200px",
+            }}
+            mapLib={import("mapbox-gl")}
+            scrollZoom={false}
+          >
+            <Marker
+              longitude={
+                selected && JSON.parse(selected?.location?.address)?.LONGITUDE
+              }
+              latitude={
+                selected && JSON.parse(selected?.location?.address)?.LATITUDE
+              }
+              anchor="top"
+            ></Marker>
+          </Map>
+          {/* Info about the class */}
+          <Space direction="horizontal">
+            <Text>Location:</Text>
+            <Text>
+              {selected && JSON.parse(selected?.location?.address)?.SEARCHVAL}
+            </Text>
+          </Space>
+          <Space direction="">
+            <Text>Timeslot:</Text>
+            <Text> {selected?.timeRange}</Text>
+          </Space>
+          <Space direction="horizontal">
+            <Text>Duration:</Text>
+            <Text> {selected?.duration}</Text>
+          </Space>
+        </Space>
+
+        {/* TODO: Memo for partner to know */}
+      </Modal>
     </Row>
   );
 };

@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require("../db");
 const etagMiddleware = require("../middleware/etagMiddleware");
 const cacheMiddleware = require("../middleware/cacheMiddleware");
-
+const client = require("../utils/redisClient");
 router.use(etagMiddleware);
 
 // router.post("/add-child", authorization, async (req, res) => {
