@@ -8,7 +8,6 @@ import {
   Tag,
   Typography,
   Image,
-  Spin,
   Alert,
   Affix,
   Row,
@@ -23,12 +22,12 @@ import {
   RightOutlined,
   MailOutlined,
   ShopOutlined,
+  PhoneOutlined,
 } from "@ant-design/icons";
 import UserContext from "../UserContext";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import getBaseURL from "../../utils/config";
-import useParseListings from "../../hooks/useParseListings";
 import Spinner from "../../utils/Spinner";
 import "./Class.css";
 
@@ -50,7 +49,7 @@ const Class = () => {
   const dateFormat = "ddd, D MMM YYYY";
   const navigate = useNavigate();
   const baseURL = getBaseURL();
-  const parseListings = useParseListings();
+  console.log(listing);
 
   const formatTimeslot = (timeslot) => {
     const startTime = dayjs(timeslot[0], "HH:mm");
@@ -62,14 +61,11 @@ const Class = () => {
       duration: `${duration} mins`,
     };
   };
-
   // Function to generate available time slots
   const generateAvailableTimeSlots = () => {
     if (!listing || !listing.string_outlet_schedules) return [];
-    console.log(listing.string_outlet_schedules);
 
     const selectedDay = dayjs(selectedDate).format("dddd");
-
     return listing.string_outlet_schedules.reduce((acc, curr) => {
       curr.schedules.forEach((schedule) => {
         const day = schedule.day;
@@ -78,17 +74,17 @@ const Class = () => {
 
         if (frequency === "Daily") {
           if (dayjs(selectedDate).isValid()) {
-            acc.push(formatTimeslot(timeslots));
+            acc.push({ ...formatTimeslot(timeslots), location: curr });
           }
         } else if (frequency === "Weekly") {
           if (selectedDay === day) {
-            acc.push(formatTimeslot(timeslots));
+            acc.push({ ...formatTimeslot(timeslots), location: curr });
           }
         } else if (frequency === "Biweekly") {
           const startDate = dayjs(listing.long_term_start_date);
           const weeksDifference = dayjs(selectedDate).diff(startDate, "week");
           if (weeksDifference % 2 === 0 && selectedDay === day) {
-            acc.push(formatTimeslot(timeslots));
+            acc.push({ ...formatTimeslot(timeslots), location: curr });
           }
         } else if (frequency === "Monthly") {
           const startDate = dayjs(listing.long_term_start_date);
@@ -96,12 +92,11 @@ const Class = () => {
             dayjs(selectedDate).date() === startDate.date() &&
             selectedDay === day
           ) {
-            acc.push(formatTimeslot(timeslots));
+            acc.push({ ...formatTimeslot(timeslots), location: curr });
           }
         }
       });
 
-      console.log(acc);
       return acc;
     }, []);
   };
@@ -119,8 +114,7 @@ const Class = () => {
         }
 
         const data = await response.json();
-        const parsedListings = parseListings([data]);
-        setListing(parsedListings[0]);
+        setListing(data);
       } catch (error) {
         setError(error);
       } finally {
@@ -197,33 +191,30 @@ const Class = () => {
 
         <Space direction="vertical" size="large" style={{ flex: 1 }}>
           <Title level={4}>{listing?.listing_title}</Title>
-          <Title level={5}>$ {listing?.credit}</Title>
+          <Space direction="horizontal">
+            {listing?.package_types.map((type, index) => (
+              <Tag key={`package-type-${index}`}># {type}</Tag>
+            ))}
+            {listing?.categories.map((category, index) => (
+              <Tag key={`category-${index}`}>{category}</Tag>
+            ))}
+          </Space>
+
+          <Title level={5} style={{ marginTop: 0 }}>
+            $ {listing?.credit}
+          </Title>
           <Paragraph>{listing?.description}</Paragraph>
-          <Text>Package Types</Text>
-          {listing?.package_types.map((type, index) => (
-            <Text key={`package-type-${index}`}>{type}</Text>
-          ))}
-          {listing?.categories.map((category, index) => (
-            <Tag key={`category-${index}`}>{category}</Tag>
-          ))}
+
           {listing?.age_groups.map((age, index) => (
-            <Text key={`age-group-${index}`}>{age}</Text>
+            <Text key={`age-group-${index}`}>
+              Suitable for kids aged from {age.min_age}
+            </Text>
           ))}
 
           <Divider />
-          <Text>Outlets: </Text>
-          {listing?.string_outlet_schedules.map((schedule, index) => {
-            const address = JSON.parse(schedule?.address)?.ADDRESS;
-            return (
-              <div key={`schedule-${index}`}>
-                <Tag>{schedule?.nearest_mrt}</Tag>
-                <Text>{address}</Text>
-              </div>
-            );
-          })}
-
-          <Divider />
-          <Title level={5}>Schedule</Title>
+          <Title level={5} style={{ marginTop: 0 }}>
+            Schedule
+          </Title>
           <div>
             <Button
               onClick={handlePreviousDay}
@@ -237,7 +228,7 @@ const Class = () => {
               format={dateFormat}
               onChange={handleDateChange}
               allowClear={false}
-              style={{ border: "none", width: 380, textAlign: "center" }}
+              style={{ border: "none", width: "88%" }}
               open={false}
               inputReadOnly
               suffixIcon={null}
@@ -260,8 +251,10 @@ const Class = () => {
                 actions={[<Button type="primary">Book now</Button>]}
               >
                 <List.Item.Meta
-                  title={item.timeRange}
-                  description={item.duration}
+                  title={`${item.timeRange}    ${item.location.nearest_mrt}`}
+                  description={`${item.duration}    ${
+                    JSON.parse(item.location.address).SEARCHVAL
+                  }`}
                 />
               </List.Item>
             )}
@@ -281,12 +274,11 @@ const Class = () => {
               marginTop: 16,
               position: "sticky",
               zIndex: 1000,
+              cursor: "pointer",
             }}
           >
             <Meta
-              avatar={
-                <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
-              }
+              avatar={<Avatar src={listing.picture} />}
               onClick={() => {
                 navigate(`/partner/${listing?.partner_id}`, {
                   state: {
@@ -302,10 +294,16 @@ const Class = () => {
                     <Text>{listing?.website}</Text>
                   </Space>
 
-                  <Space direction="horizontal">
+                  <Space>
                     <MailOutlined />
 
                     <Text>{listing?.email}</Text>
+                  </Space>
+
+                  <Space>
+                    <PhoneOutlined />
+
+                    <Text>{listing?.phone_number}</Text>
                   </Space>
                 </Space>
               }

@@ -94,6 +94,34 @@ router.get("/:id", cacheMiddleware, async (req, res) => {
       "SELECT * FROM listings l JOIN partners p USING (partner_id) WHERE l.listing_id = $1",
       [id]
     );
+    const ageGroups = await pool.query(`SELECT * FROM ageGroups`);
+
+    listing.rows[0].categories = listing.rows[0].categories
+      .replace(/[{}]/g, "")
+      .split(",");
+    listing.rows[0].package_types = listing.rows[0].package_types
+      .replace(/[{}]/g, "")
+      .split(",");
+    listing.rows[0].age_groups = listing.rows[0].age_groups
+      .replace(/[{}]/g, "")
+      .split(",");
+
+    // Map ageGroups to their respective names
+    const ageGroupMap = {};
+    ageGroups.rows.forEach((ageGroup) => {
+      ageGroupMap[ageGroup.name] = {
+        min_age: ageGroup.min_age,
+        max_age: ageGroup.max_age,
+      };
+    });
+
+    listing.rows[0].age_groups = listing.rows[0].age_groups.map(
+      (ageGroupName) => ({
+        name: ageGroupName,
+        ...ageGroupMap[ageGroupName],
+      })
+    );
+
     res.json(listing.rows[0]);
   } catch (err) {
     console.error(`ERROR in /listings/${id} GET`, err.message);
