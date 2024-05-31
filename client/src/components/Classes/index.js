@@ -147,7 +147,7 @@ const Classes = () => {
       </Space>
       <Divider />
 
-      <div style={{ display: "flex", height: "100vh" }}>
+      <div style={{ display: "flex" }}>
         <div style={{ maxHeight: "70vh", overflowY: "auto" }}>
           <List
             itemLayout="horizontal"

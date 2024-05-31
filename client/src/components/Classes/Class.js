@@ -307,18 +307,14 @@ const Class = () => {
               marginTop: 16,
               position: "sticky",
               zIndex: 1000,
-              // cursor: "pointer",
+              cursor: "pointer",
             }}
           >
             <Meta
               avatar={<Avatar src={listing.picture} />}
-              // onClick={() => {
-              //   navigate(`/partner/${listing?.partner_id}`, {
-              //     state: {
-              //       listing,
-              //     },
-              //   });
-              // }}
+              onClick={() => {
+                navigate(`/partner/${listing?.partner_id}`, {});
+              }}
               title={listing?.partner_name}
               description={
                 <Space direction="vertical">
@@ -355,7 +351,7 @@ const Class = () => {
         }}
       >
         <Space direction="vertical">
-          <Text>{user?.credit}</Text>
+          <Text>$ {user?.credit}</Text>
           {/* Select child */}
           {/* TODO: need to check the age limit before they can confirm */}
           <Select

@@ -1,0 +1,29 @@
+.partner-page {
+    padding: 20px;
+}
+
+.partner-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.partner-info {
+    margin-left: 20px;
+}
+
+.partner-info .ant-typography {
+    margin: 0;
+}
+
+.ant-tabs-tab {
+    font-size: 16px;
+}
+
+.ant-card {
+    transition: transform 0.3s;
+}
+
+.ant-card:hover {
+    transform: scale(1.05);
+}

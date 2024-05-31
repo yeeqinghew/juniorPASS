@@ -55,7 +55,8 @@ router.post("/login", async (req, res) => {
 router.get("/:id", cacheMiddleware, async (req, res) => {
   const id = req.params.id;
   try {
-    const [listings, reviews] = await Promise.all([
+    const [partner, listings, reviews] = await Promise.all([
+      getPartnerByPartnerId(id),
       getListingsByPartnerId(id),
       getReviwesByPartnerId(id),
     ]);
@@ -63,6 +64,7 @@ router.get("/:id", cacheMiddleware, async (req, res) => {
     return res.json({
       success: true,
       data: {
+        partner,
         listings,
         reviews,
       },
@@ -73,10 +75,23 @@ router.get("/:id", cacheMiddleware, async (req, res) => {
   }
 });
 
+const getPartnerByPartnerId = async (partnerId) => {
+  try {
+    const partner = await pool.query(
+      "SELECT * FROM partners WHERE partner_id = $1",
+      [partnerId]
+    );
+    return partner.rows[0];
+  } catch (error) {
+    console.error(error);
+    throw new Error("Error fetching partner");
+  }
+};
+
 const getListingsByPartnerId = async (partnerId) => {
   try {
     const listings = await pool.query(
-      "SELECT * FROM listings WHERE partner_id = $1",
+      "SELECT * FROM listings WHERE partner_id = $1 ORDER BY created_on DESC",
       [partnerId]
     );
     return listings.rows;
