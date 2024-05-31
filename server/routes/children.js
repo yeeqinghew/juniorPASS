@@ -16,7 +16,7 @@ router.post("", cacheMiddleware, async (req, res) => {
     );
 
     // Optionally, invalidate or update related cache entries, like the list of all listings
-    await client.del("/children");
+    await client.del(`/children/${parent_id}`);
 
     res.status(201).json({
       message: "Child has been created!",

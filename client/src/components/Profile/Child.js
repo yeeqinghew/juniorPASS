@@ -122,6 +122,7 @@ const Child = () => {
                       });
                       setIsEditChildModalOpen(true);
                     }}
+                    style={{ cursor: "pointer" }}
                   >
                     {child.name}
                   </Avatar>
@@ -220,6 +221,7 @@ const Child = () => {
             Save changes
           </Button>
         }
+        // TODO: Delete child
       >
         <Form form={editChildForm} autoComplete="off" layout="vertical">
           <Form.Item

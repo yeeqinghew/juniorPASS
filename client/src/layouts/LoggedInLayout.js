@@ -162,7 +162,13 @@ const LoggedInLayout = ({
             <Flex vertical gap="large" style={{ width: "20%" }}>
               <Title level={5}>PARTNERS</Title>
               <Link to="/partner-contact">Become a partner</Link>
-              <Link to="/partner/login">Partner Login</Link>
+              <a
+                href="/partner/login"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Text>Partner Login</Text>
+              </a>
               {/* <Link to="/contactus">ContactUs</Link> */}
             </Flex>
 

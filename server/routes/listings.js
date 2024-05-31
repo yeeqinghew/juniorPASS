@@ -77,7 +77,7 @@ router.post("", authorization, async (req, res) => {
 router.get("", cacheMiddleware, async (req, res) => {
   try {
     const listings = await pool.query(
-      "SELECT * FROM listings l JOIN partners p USING (partner_id) ORDER BY l.created_on ASC"
+      "SELECT * FROM listings l JOIN partners p USING (partner_id) ORDER BY l.created_on DESC"
     );
     res.json(listings.rows);
   } catch (err) {

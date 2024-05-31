@@ -51,8 +51,7 @@ const Classes = () => {
 
   const pins = useMemo(() => {
     return listings.map((listing) => {
-      const color =
-        "#" + (Math.random().toString(16) + "000000").substring(2, 8);
+      const color = "#98BDD2";
       return listing?.string_outlet_schedules.map((outlet, index) => {
         const parsedAddress = JSON.parse(outlet?.address);
         return (
@@ -148,136 +147,134 @@ const Classes = () => {
       </Space>
       <Divider />
 
-      <Space
-        className="container"
-        direction={"horizontal"}
-        style={{ margin: "24px 0", alignItems: "flex-start" }}
-      >
-        <List
-          itemLayout="horizontal"
-          dataSource={filterInput == null ? listings : filterInput}
-          style={{
-            width: "40vw",
-          }}
-          size="large"
-          pagination={{
-            position: "bottom",
-            align: "end",
-            pageSize: "3",
-          }}
-          renderItem={(listing, index) => (
-            <List.Item
-              key={index}
-              onClick={() => {
-                navigate(`/class/${listing?.listing_id}`, {
-                  state: {
-                    listing,
-                  },
-                });
-              }}
-              onMouseEnter={() => handleListHover(listing?.listing_id)}
-              onMouseLeave={handleListLeave}
-            >
-              <List.Item.Meta
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  cursor: "pointer",
+      <div style={{ display: "flex", height: "100vh" }}>
+        <div style={{ maxHeight: "70vh", overflowY: "auto" }}>
+          <List
+            itemLayout="horizontal"
+            dataSource={filterInput == null ? listings : filterInput}
+            style={{
+              width: "40vw",
+            }}
+            size="large"
+            pagination={{
+              position: "bottom",
+              align: "end",
+              pageSize: "10.5",
+            }}
+            renderItem={(listing, index) => (
+              <List.Item
+                key={index}
+                onClick={() => {
+                  navigate(`/class/${listing?.listing_id}`, {
+                    state: {
+                      listing,
+                    },
+                  });
                 }}
-                avatar={
-                  <Image src={listing?.images[0]} width={240} preview={false} />
-                }
-                title={
-                  <Space direction="vertical">
-                    <Space direction="horizontal">
-                      {listing?.categories.map((category, index) => {
-                        return <Tag key={index}>{category}</Tag>;
-                      })}
-                    </Space>
-                    <a href={listing?.website}>{listing?.listing_title}</a>
-                  </Space>
-                }
-                description={
-                  <Space direction="vertical">
-                    <div
-                      style={{
-                        display: "-webkit-box",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        maxHeight: "5em",
-                        lineClamp: 3,
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: "vertical",
-                      }}
-                    >
-                      {listing?.description}
-                    </div>
-                    <Space direction="horizontal">
-                      <EnvironmentOutlined />
-                      <Space direction="vertical">
-                        {listing?.string_outlet_schedules.map((outlet) => {
-                          return <>{JSON.parse(outlet?.address)?.ADDRESS}</>;
+                onMouseEnter={() => handleListHover(listing?.listing_id)}
+                onMouseLeave={handleListLeave}
+              >
+                <List.Item.Meta
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    cursor: "pointer",
+                  }}
+                  avatar={
+                    <Image
+                      src={listing?.images[0]}
+                      width={240}
+                      preview={false}
+                    />
+                  }
+                  title={
+                    <Space direction="vertical">
+                      <Space direction="horizontal">
+                        {listing?.categories.map((category, index) => {
+                          return <Tag key={index}>{category}</Tag>;
                         })}
                       </Space>
+                      <a href={listing?.website}>{listing?.listing_title}</a>
                     </Space>
-                    <Space>
-                      <Image
-                        src={require("../../images/graduation-hat.png")}
-                        width={24}
-                        height={24}
-                        preview={false}
-                      />
-                      {listing?.age_groups}
-                    </Space>
+                  }
+                  description={
+                    <Space direction="vertical">
+                      <div
+                        style={{
+                          display: "-webkit-box",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          maxHeight: "5em",
+                          lineClamp: 3,
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: "vertical",
+                        }}
+                      >
+                        {listing?.description}
+                      </div>
 
-                    {listing?.rating !== 0 && (
-                      <Rate disabled defaultValue={listing?.reviews}></Rate>
-                    )}
+                      <Space>
+                        <Image
+                          src={require("../../images/graduation-hat.png")}
+                          width={24}
+                          height={24}
+                          preview={false}
+                        />
+                        {listing?.age_groups}
+                      </Space>
+
+                      {listing?.rating !== 0 && (
+                        <Rate disabled defaultValue={listing?.reviews}></Rate>
+                      )}
+                    </Space>
+                  }
+                ></List.Item.Meta>
+              </List.Item>
+            )}
+          ></List>
+        </div>
+
+        <div style={{ height: "70vh" }}>
+          <Map
+            className={"map"}
+            initialViewState={{
+              longitude: 103.8189,
+              latitude: 1.3069,
+              zoom: 11,
+            }}
+            mapStyle="mapbox://styles/mapbox/streets-v8"
+            mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
+            style={{
+              width: "40vw",
+              height: "70vh",
+            }}
+            mapLib={import("mapbox-gl")}
+          >
+            <GeolocateControl position="top-left" />
+            <NavigationControl position="top-left" />
+            {pins}
+
+            {/* Display popups for popupInfo */}
+            {popupInfo &&
+              popupInfo.string_outlet_schedules.map((outlet, index) => (
+                <Popup
+                  key={`${popupInfo.listing_id}-${index}`}
+                  longitude={JSON.parse(outlet.address).LONGITUDE}
+                  latitude={JSON.parse(outlet.address).LATITUDE}
+                  onClose={() => setPopupInfo(null)}
+                >
+                  <Space direction="vertical">
+                    {/* <a target="_new" href={popupInfo.website}> */}
+                    {popupInfo?.listing_title}
+                    {JSON.parse(outlet.address).SEARCHVAL}
+                    {/* </a> */}
+                    <img width="100%" src={popupInfo.images[0]} />
                   </Space>
-                }
-              ></List.Item.Meta>
-            </List.Item>
-          )}
-        ></List>
-        <Map
-          className={"map"}
-          initialViewState={{
-            longitude: 103.8189,
-            latitude: 1.3069,
-            zoom: 10,
-          }}
-          mapStyle="mapbox://styles/mapbox/streets-v8"
-          mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
-          style={{
-            width: "40vw",
-            height: "70vh",
-          }}
-          mapLib={import("mapbox-gl")}
-        >
-          <GeolocateControl position="top-left" />
-          <NavigationControl position="top-left" />
-          {pins}
-
-          {/* Display popups for popupInfo */}
-          {popupInfo &&
-            popupInfo.string_outlet_schedules.map((outlet, index) => (
-              <Popup
-                key={`${popupInfo.listing_id}-${index}`}
-                longitude={JSON.parse(outlet.address).LONGITUDE}
-                latitude={JSON.parse(outlet.address).LATITUDE}
-                onClose={() => setPopupInfo(null)}
-              >
-                <Space direction="vertical">
-                  {/* <a target="_new" href={popupInfo.website}> */}
-                  {popupInfo?.listing_title}
-                  {JSON.parse(outlet.address).SEARCHVAL}
-                  {/* </a> */}
-                  <img width="100%" src={popupInfo.images[0]} />
-                </Space>
-              </Popup>
-            ))}
-        </Map>
-      </Space>
+                </Popup>
+              ))}
+          </Map>
+        </div>
+      </div>
     </Space>
   );
 };
