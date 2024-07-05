@@ -49,9 +49,19 @@ const Credits = () => {
       </Space>
 
       <Divider />
-      <Flex>
-        <Title level={3}>Transaction history</Title>
-      </Flex>
+      <Title level={3}>Transaction History</Title>
+      {/* TODO: if empty shows <Empty/> */}
+      <div
+        style={{
+          maxHeight: "400px", // Set the desired maximum height
+          overflowY: "auto", // Enable vertical scrolling
+          padding: "16px", // Optional padding for styling
+          border: "1px solid #f0f0f0", // Optional border for styling
+          borderRadius: "4px", // Optional border radius for styling
+        }}
+      >
+        {/* TODO: Get transaction history */}
+      </div>
 
       <Modal
         title={"Top up"}

@@ -1,5 +1,6 @@
 import React from "react";
 import { Avatar, Tabs } from "antd";
+import Account from "./Account";
 import Child from "./Child";
 import Credits from "./Credits";
 import AllClasses from "./AllClasses";
@@ -21,6 +22,11 @@ const Profile = () => {
 
   const items = [
     {
+      label: "Account",
+      key: "account",
+      children: <Account />,
+    },
+    {
       label: "Children",
       key: "child",
       children: <Child />,
@@ -36,7 +42,6 @@ const Profile = () => {
       children: <Credits />,
     },
   ];
-
   // Assuming userProfile contains user's profile information including picture
   const userProfile = {
     name: "John Doe",

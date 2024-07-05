@@ -150,7 +150,7 @@ const Child = () => {
       </Flex>
 
       {/* Classes section */}
-      <Flex justifyContent="center" style={{ marginBottom: "24px" }}>
+      <Flex style={{ marginBottom: "24px" }}>
         <Title level={4}>Classes</Title>
       </Flex>
 

@@ -155,7 +155,6 @@ export default () => {
               }
             >
               <Route path="/profile" element={<Profile />} />
-              <Route path="/account" element={<Account />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Route>
