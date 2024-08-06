@@ -80,57 +80,79 @@ const Register = ({ setAuth }) => {
   };
 
   return (
-    <div>
+    <section
+      style={{
+        padding: "0 140px",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
       <Toaster />
-      <Title level={3}>Register</Title>
-      <GoogleLogin
-        onSuccess={handleGoogleLogin}
-        onError={errorMessage}
-        theme="outline"
-        width="290"
-      />
-
-      <Divider>OR</Divider>
-      <Form
-        name="register"
-        className="register-form"
+      <div
         style={{
-          maxWidth: "300px",
+          position: "relative",
+          width: "22.2rem",
+          border: "1px solid hsla(0, 0%, 65%, 0.158)",
+          boxShadow: "0 0 36px 1px rgba(0, 0, 0, 0.2)",
+          borderRadius: "25px",
+          backdropFilter: "blur(20px)",
+          zIndex: "99",
+          padding: "2rem",
         }}
-        onFinish={onRegister}
       >
-        <Form.Item
-          name="name"
-          rules={[
-            {
-              required: true,
-              message: "Please input your name!",
-            },
-          ]}
+        <Toaster />
+        <Title level={3} style={{ textAlign: "center" }}>
+          Register
+        </Title>
+        <GoogleLogin
+          onSuccess={handleGoogleLogin}
+          onError={errorMessage}
+          theme="outline"
+          width="290"
+        />
+
+        <Divider>OR</Divider>
+        <Form
+          name="register"
+          className="register-form"
+          style={{
+            maxWidth: "300px",
+          }}
+          onFinish={onRegister}
         >
-          <Input
-            prefix={<UserOutlined className="site-form-item-icon" />}
-            placeholder="Name"
-            size={"large"}
-          />
-        </Form.Item>
-        <Form.Item
-          name="phoneNumber"
-          rules={[
-            {
-              required: true,
-              message: "Please input your phone number!",
-            },
-          ]}
-        >
-          <Input
-            prefix={<PhoneOutlined className="site-form-item-icon" />}
-            placeholder="Phone Number"
-            size={"large"}
-          />
-        </Form.Item>
-        {/* verification code for phone */}
-        {/* <Form.Item
+          <Form.Item
+            name="name"
+            rules={[
+              {
+                required: true,
+                message: "Please input your name!",
+              },
+            ]}
+          >
+            <Input
+              prefix={<UserOutlined className="site-form-item-icon" />}
+              placeholder="Name"
+              size={"large"}
+            />
+          </Form.Item>
+          <Form.Item
+            name="phoneNumber"
+            rules={[
+              {
+                required: true,
+                message: "Please input your phone number!",
+              },
+            ]}
+          >
+            <Input
+              prefix={<PhoneOutlined className="site-form-item-icon" />}
+              placeholder="Phone Number"
+              size={"large"}
+            />
+          </Form.Item>
+          {/* verification code for phone */}
+          {/* <Form.Item
           name="verifyCode"
           rules={[
             {
@@ -145,58 +167,59 @@ const Register = ({ setAuth }) => {
             size={"large"}
           />
         </Form.Item> */}
-        <Form.Item
-          name="email"
-          rules={[
-            {
-              required: true,
-              message: "Please input your email!",
-            },
-          ]}
-        >
-          <Input
-            prefix={<MailOutlined className="site-form-item-icon" />}
-            type={"email"}
-            placeholder="Email"
-            size={"large"}
-            required
-          />
-        </Form.Item>
-        <Form.Item
-          name="password"
-          rules={[
-            {
-              required: true,
-              message: "Please input your password!",
-            },
-          ]}
-        >
-          <Input.Password
-            prefix={<LockOutlined className="site-form-item-icon" />}
-            type={"password"}
-            placeholder="Password"
-            size={"large"}
-            iconRender={(visible) =>
-              visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-            }
-            required
-          />
-        </Form.Item>
-
-        <Form.Item>
-          <Button
-            type="primary"
-            htmlType="submit"
-            className="login-form-button"
-            style={{ width: "100%" }}
+          <Form.Item
+            name="email"
+            rules={[
+              {
+                required: true,
+                message: "Please input your email!",
+              },
+            ]}
           >
-            Register
-          </Button>
-          <Text>Already have an account? </Text>
-          <Link to="/login">Login</Link>
-        </Form.Item>
-      </Form>
-    </div>
+            <Input
+              prefix={<MailOutlined className="site-form-item-icon" />}
+              type={"email"}
+              placeholder="Email"
+              size={"large"}
+              required
+            />
+          </Form.Item>
+          <Form.Item
+            name="password"
+            rules={[
+              {
+                required: true,
+                message: "Please input your password!",
+              },
+            ]}
+          >
+            <Input.Password
+              prefix={<LockOutlined className="site-form-item-icon" />}
+              type={"password"}
+              placeholder="Password"
+              size={"large"}
+              iconRender={(visible) =>
+                visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+              }
+              required
+            />
+          </Form.Item>
+
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="login-form-button"
+              style={{ width: "100%" }}
+            >
+              Register
+            </Button>
+            <Text>Already have an account? </Text>
+            <Link to="/login">Login</Link>
+          </Form.Item>
+        </Form>
+      </div>
+    </section>
   );
 };
 
