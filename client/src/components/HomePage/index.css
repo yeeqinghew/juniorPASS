@@ -1,0 +1,58 @@
+App.css .layout {
+    background: #f0f2f5;
+}
+
+.hero-section {
+    background-color: #d9e7f7;
+    padding: 50px 0;
+    text-align: center;
+}
+
+.hero-title {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+.cta-button {
+    margin-right: 16px;
+}
+
+.hero-illustration img {
+    max-width: 100%;
+}
+
+.trusted-section {
+    margin: 30px 0;
+    text-align: center;
+}
+
+.trusted-section img {
+    margin: 0 15px;
+    max-width: 100px;
+}
+
+.class-section {
+    padding: 50px 0;
+}
+
+.section-title {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.testimonial-section {
+    padding: 50px 0;
+}
+
+.testimonial-section .ant-card {
+    text-align: left;
+}
+
+footer {
+    background: #f0f2f5;
+    padding: 50px 0;
+}
+
+footer .ant-card {
+    min-height: 150px;
+}

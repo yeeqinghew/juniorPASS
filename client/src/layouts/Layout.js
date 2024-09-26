@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React from "react";
 import {
   Layout,
   Menu,
@@ -8,36 +8,24 @@ import {
   Typography,
   Space,
   Image,
-  Drawer,
-  Badge,
 } from "antd";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { Outlet, Link, useNavigate } from "react-router-dom";
 import {
-  WhatsAppOutlined,
   MailOutlined,
   PhoneOutlined,
   FacebookFilled,
   LinkedinFilled,
   InstagramOutlined,
-  LogoutOutlined,
-  MenuOutlined,
 } from "@ant-design/icons";
 import toast, { Toaster } from "react-hot-toast";
 import "./Layout.css";
-import { googleLogout } from "@react-oauth/google";
 import useWindowDimensions from "../hooks/useWindowDimensions";
 
 const { Header, Content, Footer } = Layout;
 const { Text, Title } = Typography;
 
-const OverallLayout = ({
-  isAuthenticated,
-  setAuth,
-  setLoading,
-  setIsLoggingOut,
-}) => {
-  const [open, setOpen] = useState(false);
-  const { width, isDesktop } = useWindowDimensions();
+const OverallLayout = ({ setAuth, setLoading, setIsLoggingOut }) => {
+  const { isDesktop } = useWindowDimensions();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -117,18 +105,17 @@ const OverallLayout = ({
             style={{ flex: 1, minWidth: 0, display: "block" }}
           >
             <Menu.Item key="classes">
-              <Link to="/classes">Classes</Link>
+              <Link to="/classes">Browse our classes</Link>
             </Menu.Item>
             <Menu.Item key="plan">
-              <Link to="/pricing">Pricing</Link>
+              <Link to="/pricing">Plans</Link>
             </Menu.Item>
-            <></>
             <Menu.Item key="login" style={{ float: "right" }}>
               <Link to="/login">Login</Link>
             </Menu.Item>
           </Menu>
         </Header>
-        <Content style={{ padding: isDesktop ? "0 150px" : "0" }}>
+        <Content style={{ padding: "0 50px", minHeight: "100vh" }}>
           <div
             style={{
               margin: isDesktop ? "16px 0" : "8px",
