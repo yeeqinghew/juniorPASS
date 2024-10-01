@@ -26,8 +26,8 @@ function HomePage() {
           left: 0,
           width: "100%",
           height: "100%",
-          objectFit: "cover", // Ensures the video covers the area without distortion
-          zIndex: 1, // set video z-index to 1, so it stays in the background
+          objectFit: "cover",
+          zIndex: 1, // The video stays in the background
         }}
       >
         <source src={homepageVideo} type="video/mp4" />
@@ -37,24 +37,40 @@ function HomePage() {
       {/* Overlay Content */}
       <div
         style={{
-          position: "relative", // set relative to ensure it sits over the video
-          zIndex: 2, // higher than the video to be visible
-          color: "white",
-          backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent black overlay
+          position: "absolute",
+          top: "50%", // Centers vertically
+          left: "50%", // Centers horizontally
+          transform: "translate(-50%, -50%)", // Centers the content
+          zIndex: 2, // Content is above the video
+          color: "#fff", // White text
+          textAlign: "center",
+          backgroundColor: "rgba(0, 0, 0, 0.4)", // Semi-transparent overlay
           padding: "50px",
           borderRadius: "15px",
-          textAlign: "center",
         }}
       >
-        <h1>
+        <h1
+          style={{
+            fontSize: "3rem", // Large font size
+            fontWeight: "bold", // Bold to match the screenshot
+            lineHeight: "1.2", // Adjusts line spacing for readability
+          }}
+        >
           Let us help your kids grow into the best versions of themselves.
         </h1>
 
         <div style={{ marginTop: "20px" }}>
-          <Button type="primary" size="large" style={{ margin: "0 10px" }}>
+          <Button
+            type="primary"
+            size="large"
+            style={{ margin: "0 10px", backgroundColor: "#fff", color: "#000" }}
+          >
             Try for free!
           </Button>
-          <Button size="large" style={{ margin: "0 10px" }}>
+          <Button
+            size="large"
+            style={{ margin: "0 10px", backgroundColor: "#fff", color: "#000" }}
+          >
             About Us
           </Button>
         </div>
