@@ -72,14 +72,20 @@ const OverallLayout = ({ setAuth, setLoading, setIsLoggingOut }) => {
         },
       }}
     >
-      <Layout style={{ minHeight: "100vh", overflow: "hidden" }}>
+      <Layout
+        style={{
+          minHeight: "100vh",
+        }}
+      >
         <Header
           style={{
-            position: "absolute", // Keeps the header at the top, above the video
-            zIndex: 3, // Higher z-index to stay on top of the video
+            position: "sticky",
+            top: 0,
+            zIndex: 9999,
             width: "100%",
-            backgroundColor: "transparent", // Make the header transparent
             display: "flex",
+            alignItems: "center",
+            backgroundColor: "#FCFBF8",
             padding: "50px 150px",
           }}
         >
@@ -93,35 +99,29 @@ const OverallLayout = ({ setAuth, setLoading, setIsLoggingOut }) => {
             />
           </Link>
 
+          <div style={{ width: "48px" }}></div>
           <Menu
             mode="horizontal"
-            style={{
-              background: "transparent",
-              borderBottom: "none",
-              flex: 1,
-              minWidth: 0,
-              display: "block",
-            }}
+            style={{ flex: 1, minWidth: 0, display: "block" }}
           >
             <Menu.Item key="classes">
-              <Link to="/classes" style={{ color: "white" }}>
-                Browse our classes
-              </Link>
+              <Link to="/classes">Browse our classes</Link>
             </Menu.Item>
             <Menu.Item key="plan">
-              <Link to="/pricing" style={{ color: "white" }}>
-                Plans
-              </Link>
+              <Link to="/pricing">Plans</Link>
             </Menu.Item>
             <Menu.Item key="login" style={{ float: "right" }}>
-              <Link to="/login" style={{ color: "white" }}>
-                Login
-              </Link>
+              <Link to="/login">Login</Link>
             </Menu.Item>
           </Menu>
         </Header>
-        <Content style={{ minHeight: "100vh" }}>
-          <div>
+        <Content style={{ padding: "0 50px", minHeight: "100vh" }}>
+          <div
+            style={{
+              margin: isDesktop ? "16px 0" : "8px",
+              padding: isDesktop ? 24 : 16,
+            }}
+          >
             <Toaster />
             <Outlet />
           </div>

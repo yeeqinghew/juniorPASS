@@ -13,7 +13,7 @@ import Class from "../components/Classes/Class";
 import AuthenticatedRoute from "./AuthenticatedRoute";
 import NotFound from "../utils/404";
 import { confirmAlert } from "react-confirm-alert"; // Import
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import useAuth from "../hooks/useAuth";
 import ContactUs from "../components/ContactUs";
 import FAQ from "../components/FAQ";
@@ -86,12 +86,18 @@ export default () => {
           url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap')
         </style>
         <link
+          href="https://fonts.googleapis.com/css2?family=Ovo&display=swap"
+          rel="stylesheet"
+        />
+
+        <link
           href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.css"
           rel="stylesheet"
           type="text/css"
         ></link>
-        <Toaster />
         <Routes>
+          <Route path="/" element={<HomePage />} />
+
           <Route
             element={
               <OverallLayout
@@ -102,7 +108,6 @@ export default () => {
               />
             }
           >
-            <Route path="/" element={<HomePage />} />
             <Route path="/classes" element={<Classes />} />
             <Route path="/class/:classId" element={<Class />} />
             <Route path="/partner/:partnerId" element={<Partner />} />
