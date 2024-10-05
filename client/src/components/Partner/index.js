@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Card, List, Typography, Rate, Divider, Tag, Tabs, Avatar } from "antd";
+import { Card, List, Typography, Rate, Divider, Tabs, Avatar } from "antd";
 import getBaseURL from "../../utils/config";
 import "./index.css"; // Create a separate CSS file for styling
 

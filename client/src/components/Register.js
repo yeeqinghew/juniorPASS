@@ -6,7 +6,6 @@ import {
   MailOutlined,
   EyeTwoTone,
   EyeInvisibleOutlined,
-  NumberOutlined,
 } from "@ant-design/icons";
 import { Button, Form, Input, Typography, Divider } from "antd";
 import { Link } from "react-router-dom";

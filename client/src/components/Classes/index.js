@@ -13,7 +13,6 @@ import {
 import {
   SearchOutlined,
   EnvironmentTwoTone,
-  EnvironmentOutlined,
   DownOutlined,
   CloseOutlined,
 } from "@ant-design/icons";

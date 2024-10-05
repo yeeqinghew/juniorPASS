@@ -1,30 +1,12 @@
 import React from "react";
-import {
-  Layout,
-  Menu,
-  ConfigProvider,
-  Divider,
-  Flex,
-  Typography,
-  Space,
-  Image,
-  Button,
-} from "antd";
-import {
-  MailOutlined,
-  PhoneOutlined,
-  FacebookFilled,
-  LinkedinFilled,
-  InstagramOutlined,
-  UpOutlined,
-} from "@ant-design/icons";
-import { Outlet, Link, useNavigate } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
+import { Layout, Menu, ConfigProvider, Typography, Image, Button } from "antd";
+import { Outlet, Link } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import "./index.css";
 import homepageVideo from "../../videos/homepage.mp4"; // Import the video directly
+import Footer from "../../layouts/Footer";
 
-const { Header, Content, Footer } = Layout;
-const { Text, Title } = Typography;
+const { Header, Content } = Layout;
 
 function HomePage() {
   return (
@@ -112,7 +94,6 @@ function HomePage() {
             </Menu.Item>
           </Menu>
         </Header>
-
         <Content style={{ minHeight: "100vh" }}>
           <div>
             <Toaster />
@@ -169,14 +150,12 @@ function HomePage() {
                       justifyContent: "space-between", // Evenly space the columns
                       gap: "20px", // Add space between columns
                       width: "100%", // Set the overall width of the heading section
-                      textAlign: "left", // Align the text in each column to the left
                     }}
                   >
                     <span style={{ flex: 1 }}>
                       <h1
                         style={{
                           fontSize: "48px", // Large font size
-                          fontWeight: "bold", // Bold to match the screenshot
                           lineHeight: "1.2", // Adjusts line spacing for readability
                           fontFamily: "'Ovo', serif",
                         }}
@@ -228,83 +207,6 @@ function HomePage() {
             </div>
           </div>
         </Content>
-
-        <Footer style={{ background: "#FCFBF8", padding: "50px 150px" }}>
-          <Divider></Divider>
-          <Flex style={{ width: "100%" }}>
-            <Flex style={{ width: "25%", justifyContent: "flex-start" }}>
-              <Flex vertical gap="large">
-                <Link to="/">
-                  <Image
-                    alt="logo"
-                    src={require("../../images/logopngResize.png")}
-                    width={100}
-                    height={50}
-                    preview={false}
-                  />
-                </Link>
-              </Flex>
-            </Flex>
-
-            <Flex
-              style={{ right: 0, width: "90%", justifyContent: "flex-end" }}
-            >
-              <Flex vertical gap="large" style={{ width: "20%" }}>
-                <Title level={5}>JuniorPass</Title>
-                <Link to="/about-us">About us</Link>
-                <Link to="/classes">Classes</Link>
-                <Link to="/pricing">Pricing</Link>
-              </Flex>
-
-              <Flex vertical gap="large" style={{ width: "20%" }}>
-                <Title level={5}>SUPPORT</Title>
-                <Link to="/contact-us">Contact Us</Link>
-                <Link to="/faq">FAQs</Link>
-              </Flex>
-
-              <Flex vertical gap="large" style={{ width: "20%" }}>
-                <Title level={5}>PARTNERS</Title>
-                <Link to="/partner-contact">Become a partner</Link>
-                <Link to="/partner/login">Partner Login</Link>
-                {/* <Link to="/contactus">ContactUs</Link> */}
-              </Flex>
-
-              <Flex vertical gap="large" style={{ width: "20%" }}>
-                <Title level={5}>FOLLOW US</Title>
-                <Space direction="horizontal">
-                  <MailOutlined />
-                  <Link to="mailto:hello@juniorpass.sg">
-                    hello@juniorpass.sg
-                  </Link>
-                </Space>
-                <Flex vertical={false} gap="large" style={{ width: "15%" }}>
-                  <Space direction="horizontal">
-                    <FacebookFilled />
-                  </Space>
-
-                  <Space direction="horizontal">
-                    <InstagramOutlined />
-                  </Space>
-
-                  <Space direction="horizontal">
-                    <LinkedinFilled />
-                  </Space>
-                </Flex>
-                <Space direction="horizontal">
-                  <PhoneOutlined />
-                  <Text>(65)XXXX-XXXX</Text>
-                </Space>
-
-                {/* <Space direction="horizontal">
-              <WhatsAppOutlined />
-              <Text>(65)XXXX-XXXX</Text>
-            </Space> */}
-              </Flex>
-            </Flex>
-          </Flex>
-          <Divider></Divider>© Copyright {new Date().getFullYear()} juniorPASS
-          (UEN: 202411484C)
-        </Footer>
       </Layout>
     </ConfigProvider>
   );
