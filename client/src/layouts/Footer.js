@@ -1,4 +1,4 @@
-import { Divider, Flex, Space, Image, Typography } from "antd";
+import { Divider, Flex, Space, Image, Typography, Layout } from "antd";
 import { Link } from "react-router-dom";
 import {
   MailOutlined,
@@ -10,10 +10,11 @@ import {
 import React from "react";
 
 const { Text, Title } = Typography;
+const { Footer: Foot } = Layout;
 
 const Footer = () => {
   return (
-    <Footer style={{ background: "#FCFBF8", padding: "50px 150px" }}>
+    <Foot style={{ background: "#FCFBF8", padding: "50px 150px" }}>
       <Divider></Divider>
       <Flex style={{ width: "100%" }}>
         <Flex style={{ width: "25%", justifyContent: "flex-start" }}>
@@ -84,7 +85,7 @@ const Footer = () => {
       </Flex>
       <Divider></Divider>© Copyright {new Date().getFullYear()} juniorPASS (UEN:
       202411484C)
-    </Footer>
+    </Foot>
   );
 };
 

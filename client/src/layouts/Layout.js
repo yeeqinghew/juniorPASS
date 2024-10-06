@@ -110,8 +110,8 @@ const OverallLayout = ({ setAuth, setLoading, setIsLoggingOut }) => {
             <Outlet />
           </div>
         </Content>
-        <Footer />
       </Layout>
+      <Footer />
     </ConfigProvider>
   );
 };

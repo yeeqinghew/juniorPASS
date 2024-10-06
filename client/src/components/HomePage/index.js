@@ -208,6 +208,7 @@ function HomePage() {
           </div>
         </Content>
       </Layout>
+      <Footer />
     </ConfigProvider>
   );
 }
