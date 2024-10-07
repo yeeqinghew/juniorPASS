@@ -1,14 +1,93 @@
 import React from "react";
-import { Layout, Menu, ConfigProvider, Typography, Image, Button } from "antd";
+import {
+  Layout,
+  Menu,
+  ConfigProvider,
+  Typography,
+  Image,
+  Button,
+  Row,
+  Col,
+  Card,
+  Divider,
+  Rate,
+} from "antd";
 import { Outlet, Link } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
+import { ArrowRightOutlined } from "@ant-design/icons";
 import "./index.css";
 import homepageVideo from "../../videos/homepage.mp4"; // Import the video directly
 import Footer from "../../layouts/Footer";
+import FAQ from "../FAQ";
 
 const { Header, Content } = Layout;
+const { Text, Title } = Typography;
 
 function HomePage() {
+  const coursesData = [
+    {
+      title: "LEGO® Robotics",
+      image: require("../../images/cover.jpg"),
+      provider: "Bricks 4 Kidz",
+      rating: 4.88,
+      description:
+        "Add either a description of the course or a quote (testimonial/review)",
+    },
+    {
+      title: "Water Confidence for 2–4 years",
+      image: require("../../images/cover.jpg"),
+      provider: "Dreamers Academy",
+      rating: 4.5,
+      description:
+        "Add either a description of the course or a quote (testimonial/review)",
+    },
+    {
+      title: "Piano Course for 6–8 years",
+      image: require("../../images/cover.jpg"),
+      provider: "Yamaha",
+      rating: 4.9,
+      description:
+        "Add either a description of the course or a quote (testimonial/review)",
+    },
+    {
+      title: "Python Junior 1",
+      image: require("../../images/cover.jpg"),
+      provider: "Coding Lab",
+      rating: 4.78,
+      description:
+        "Add either a description of the course or a quote (testimonial/review)",
+    },
+    {
+      title: "Introductory Gymnastics",
+      image: require("../../images/cover.jpg"),
+      provider: "My Gym",
+      rating: 4.6,
+      description:
+        "Add either a description of the course or a quote (testimonial/review)",
+    },
+  ];
+
+  const classesData = [
+    {
+      title: "Art & Music",
+      image: require("../../images/cover.jpg"),
+      bgColor: "#FBD0D9",
+      textColor: "black",
+    },
+    {
+      title: "Science & Technology",
+      image: require("../../images/cover.jpg"),
+      bgColor: "#D0E7F9",
+      textColor: "black",
+    },
+    {
+      title: "Sports & Fitness",
+      image: require("../../images/cover.jpg"),
+      bgColor: "#D0E7F9",
+      textColor: "black",
+    },
+  ];
+
   return (
     <ConfigProvider
       theme={{
@@ -153,7 +232,8 @@ function HomePage() {
                     }}
                   >
                     <span style={{ flex: 1 }}>
-                      <h1
+                      <Title
+                        level={1}
                         style={{
                           fontSize: "48px", // Large font size
                           lineHeight: "1.2", // Adjusts line spacing for readability
@@ -162,7 +242,7 @@ function HomePage() {
                       >
                         Let us help your kids grow into the best versions of
                         themselves.
-                      </h1>
+                      </Title>
                     </span>
                   </div>
                 </div>
@@ -202,8 +282,298 @@ function HomePage() {
                   </Button>
                 </div>
               </div>
+            </div>
 
-              <div style={{ height: "1000px" }}></div>
+            <div
+              style={{
+                padding: "0 120px",
+              }}
+            >
+              <div
+                style={{
+                  padding: "50px",
+                  textAlign: "center",
+                  backgroundColor: "#fff",
+                }}
+              >
+                {/* Flex container for aligning cards in one row */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    gap: "30px",
+                  }}
+                >
+                  {coursesData.map((course, index) => (
+                    <Card
+                      key={index}
+                      hoverable
+                      bordered={false}
+                      style={{
+                        width: 250,
+                        borderRadius: "15px",
+                        paddingBottom: "20px",
+                        flexShrink: 0, // Prevent cards from shrinking on smaller screens
+                      }}
+                      cover={
+                        <img
+                          alt={course.title}
+                          src={course.image}
+                          style={{
+                            borderRadius: "20px",
+                            width: "100%",
+                            height: "300px",
+                            objectFit: "cover",
+                          }}
+                        />
+                      }
+                    >
+                      <Title level={5} style={{ marginBottom: "10px" }}>
+                        {course.title}
+                      </Title>
+                      <Text type="secondary">{course.provider}</Text>
+                      <div style={{ marginTop: "5px" }}>
+                        <Rate disabled defaultValue={course.rating} allowHalf />{" "}
+                        <Text>({course.rating.toFixed(2)}★)</Text>
+                      </div>
+                      <Text
+                        style={{
+                          display: "block",
+                          marginTop: "10px",
+                          fontSize: "12px",
+                        }}
+                      >
+                        {course.description}
+                      </Text>
+                    </Card>
+                  ))}
+                </div>
+                <span flex={1}>
+                  <Title
+                    level={1}
+                    style={{
+                      fontSize: "48px", // Large font size
+                      lineHeight: "1.2", // Adjusts line spacing for readability
+                      fontFamily: "'Ovo', serif",
+                    }}
+                  >
+                    Best classes near you
+                  </Title>
+                </span>
+              </div>
+
+              <div style={{ padding: "0 100px", textAlign: "center" }}>
+                <Row gutter={[32, 32]} justify="center">
+                  {classesData.map((classItem, index) => (
+                    <Col xs={24} sm={12} md={8} key={index}>
+                      <Card
+                        hoverable
+                        cover={
+                          <img alt={classItem.title} src={classItem.image} />
+                        }
+                        style={{
+                          borderRadius: "8px",
+                          backgroundColor: classItem.bgColor,
+                          border: "none",
+                          textAlign: "center",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            padding: "15px",
+                          }}
+                        >
+                          <Text
+                            strong
+                            style={{
+                              color: classItem.textColor,
+                              fontSize: "18px",
+                            }}
+                          >
+                            {classItem.title}
+                          </Text>
+                          <Button
+                            type="link"
+                            shape="circle"
+                            icon={<ArrowRightOutlined />}
+                            style={{
+                              border: "2px solid white",
+                              padding: "5px",
+                              fontSize: "18px",
+                              transition: "all 0.3s ease",
+                            }}
+                            onMouseEnter={(e) =>
+                              (e.currentTarget.style.backgroundColor = "white")
+                            }
+                            onMouseLeave={(e) =>
+                              (e.currentTarget.style.backgroundColor =
+                                "transparent")
+                            }
+                          />
+                        </div>
+                      </Card>
+                    </Col>
+                  ))}
+                </Row>
+                <div>
+                  <h1
+                    style={{
+                      fontSize: "48px", // Large font size
+                      lineHeight: "1.2", // Adjusts line spacing for readability
+                      fontFamily: "'Ovo', serif",
+                    }}
+                  >
+                    Browse all available classes here
+                  </h1>
+                </div>
+              </div>
+
+              <div style={{ padding: "50px", background: "#F8F9FA" }}>
+                {/* Title and Subtitle */}
+                <div style={{ textAlign: "center", marginBottom: "40px" }}>
+                  <Title
+                    level={1}
+                    style={{
+                      fontSize: "48px", // Large font size
+                      lineHeight: "1.2", // Adjusts line spacing for readability
+                      fontFamily: "'Ovo', serif",
+                    }}
+                  >
+                    Join us —
+                  </Title>
+                  <Text
+                    style={{
+                      fontSize: "24px", // Large font size
+                      lineHeight: "1.2", // Adjusts line spacing for readability
+                      fontFamily: "'Ovo', serif",
+                    }}
+                  >
+                    Here’s what you need to do.
+                  </Text>
+                </div>
+
+                {/* Cards Section */}
+                <Row gutter={[16, 16]} justify="center">
+                  <Col xs={24} sm={12} md={8}>
+                    <Card
+                      bordered={false}
+                      style={{
+                        backgroundColor: "#E0F0FF",
+                        textAlign: "center",
+                        height: "100%", // Ensure card takes full height of column
+                        display: "flex", // For flex behavior
+                        flexDirection: "column", // Column layout for text
+                        justifyContent: "center", // Center content vertically
+                      }}
+                    >
+                      <Title level={4}>Register</Title>
+                      <Text>
+                        Start this section with a brief overview of your
+                        company, including your mission, vision, and
+                        stakeholders.
+                      </Text>
+                    </Card>
+                  </Col>
+
+                  <Col xs={24} sm={12} md={8}>
+                    <Card
+                      bordered={false}
+                      style={{
+                        backgroundColor: "#E0F0FF",
+                        textAlign: "center",
+                        height: "100%", // Ensure card takes full height of column
+                        display: "flex", // For flex behavior
+                        flexDirection: "column", // Column layout for text
+                        justifyContent: "center", // Center content vertically
+                      }}
+                    >
+                      <Title level={4}>Find a Class</Title>
+                      <Text>
+                        Share your goals as a company, and the products or
+                        services you provide to achieve them.
+                      </Text>
+                    </Card>
+                  </Col>
+
+                  <Col xs={24} sm={12} md={8}>
+                    <Card
+                      bordered={false}
+                      style={{
+                        backgroundColor: "#E0F0FF",
+                        textAlign: "center",
+                        height: "100%", // Ensure card takes full height of column
+                        display: "flex", // For flex behavior
+                        flexDirection: "column", // Column layout for text
+                        justifyContent: "center", // Center content vertically
+                      }}
+                    >
+                      <Title level={4}>Book it!</Title>
+                      <Text>
+                        Discuss what you’ve achieved in the past year using a
+                        combination of narrative and visual tools.
+                      </Text>
+                    </Card>
+                  </Col>
+                </Row>
+
+                {/* Divider */}
+                <Divider />
+
+                {/* Additional Text Below */}
+                <div style={{ textAlign: "center", marginTop: "20px" }}>
+                  <Text>This should come with something</Text>
+                </div>
+              </div>
+
+              {/* FAQs */}
+              <div
+                style={{
+                  padding: "50px 0", // Padding on top and bottom
+                  background: "#F8F9FA",
+                  display: "flex", // Flexbox for centering
+                  justifyContent: "center", // Center content horizontally
+                }}
+              >
+                <div
+                  style={{
+                    maxWidth: "1200px", // Maximum width of the container
+                    padding: "0 100px", // Padding on left and right for spacing
+                    width: "100%", // Make sure it occupies full width within the maxWidth
+                  }}
+                >
+                  <Row gutter={16}>
+                    {/* Title Column */}
+                    <Col xs={24} md={6}>
+                      <Row>
+                        <Text
+                          style={{
+                            fontSize: "48px", // Large font size
+                            lineHeight: "1.2", // Adjusts line spacing for readability
+                            fontFamily: "'Ovo', serif",
+                            fontWeight: "600",
+                          }}
+                        >
+                          Frequently Asked Questions
+                        </Text>
+                      </Row>
+                      <Row>
+                        <Text>
+                          Find answers to common questions about our services,
+                          booking process and credit system.
+                        </Text>
+                      </Row>
+                    </Col>
+
+                    {/* FAQ Collapse Column */}
+                    <Col xs={24} md={18}>
+                      <FAQ />
+                    </Col>
+                  </Row>
+                </div>
+              </div>
             </div>
           </div>
         </Content>

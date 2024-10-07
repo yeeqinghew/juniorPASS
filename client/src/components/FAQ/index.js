@@ -19,28 +19,21 @@ const FAQ = () => {
 
   return (
     <Space direction="vertical" style={{ width: "100%", alignItems: "center" }}>
-      <div style={{ textAlign: "center", maxWidth: "600px" }}>
-        <Title>FAQ</Title>
-        <Text>
-          Find answers to common questions about our services, booking process
-          and credit system.
-        </Text>
-      </div>
-
       <Collapse
         items={faqList}
         style={{
           width: "100%",
           maxWidth: "600px",
         }}
+        ghost
       />
 
-      <div style={{ textAlign: "center", maxWidth: "600px" }}>
+      {/* <div style={{ textAlign: "center", maxWidth: "600px" }}>
         <Space direction="vertical">
           <Text>Didn't find the answer you are looking for?</Text>
           <Button type="primary">Contact us</Button>
         </Space>
-      </div>
+      </div> */}
     </Space>
   );
 };

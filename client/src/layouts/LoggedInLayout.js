@@ -26,6 +26,7 @@ import UserContext from "../components/UserContext";
 
 const { Header, Content, Footer } = Layout;
 const { Text, Title } = Typography;
+
 const LoggedInLayout = ({
   isAuthenticated,
   setAuth,
