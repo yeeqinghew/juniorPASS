@@ -64,7 +64,9 @@ const Footer = () => {
               </Space>
 
               <Space direction="horizontal">
-                <InstagramOutlined />
+                <Link to="https://www.instagram.com/juniorpass.sg/">
+                  <InstagramOutlined />
+                </Link>
               </Space>
 
               <Space direction="horizontal">

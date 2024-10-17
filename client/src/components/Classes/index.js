@@ -9,6 +9,9 @@ import {
   Tag,
   Divider,
   Button,
+  Dropdown,
+  Checkbox,
+  Menu,
 } from "antd";
 import {
   SearchOutlined,
@@ -27,13 +30,17 @@ import { useNavigate } from "react-router-dom";
 import getBaseURL from "../../utils/config";
 import useParseListings from "../../hooks/useParseListings";
 
-const { Text } = Typography;
-
 const Classes = () => {
   const baseURL = getBaseURL();
   const [popupInfo, setPopupInfo] = useState(null);
   const [listings, setListings] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [ageGroups, setAgeGroups] = useState([]);
+  const [packageTypes, setPackageTypes] = useState([]);
   const [filterInput, setFilterInput] = useState(null);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedAgeGroups, setSelectedAgeGroups] = useState([]);
+  const [selectedPackageTypes, setSelectedPackageTypes] = useState([]);
   const parseListings = useParseListings();
   const navigate = useNavigate();
 
@@ -43,6 +50,43 @@ const Classes = () => {
       const jsonData = await response.json();
       const parsedListings = parseListings(jsonData);
       setListings(parsedListings);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
+  const getCategories = async () => {
+    try {
+      const response = await fetch(`${baseURL}/misc/getAllCategories`);
+      const jsonData = await response.json();
+      setCategories(jsonData);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
+  const getAgeGroups = async () => {
+    try {
+      const response = await fetch(`${baseURL}/misc/getAllAgeGroups`);
+      const jsonData = await response.json();
+      setAgeGroups(jsonData);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
+  const getAgeGroupLabel = (min_age, max_age) => {
+    if (max_age === null) {
+      return `above ${min_age} years old`;
+    }
+    return `${min_age}-${max_age} years old`;
+  };
+
+  const getPackageTypes = async () => {
+    try {
+      const response = await fetch(`${baseURL}/misc/getAllPackages`);
+      const jsonData = await response.json();
+      setPackageTypes(jsonData);
     } catch (error) {
       console.error(error.message);
     }
@@ -78,6 +122,65 @@ const Classes = () => {
     });
   }, [listings]);
 
+  const handleCategoryChange = (category) => {
+    setSelectedCategories((prevCategories) =>
+      prevCategories.includes(category.name)
+        ? prevCategories.filter((item) => item !== category.name)
+        : [...prevCategories, category.name]
+    );
+  };
+
+  const handleAgeGroupChange = (ageGroup) => {
+    setSelectedAgeGroups((prevAgeGroups) =>
+      prevAgeGroups.includes(ageGroup)
+        ? prevAgeGroups.filter((item) => item !== ageGroup)
+        : [...prevAgeGroups, ageGroup]
+    );
+  };
+
+  const handlePackageTypeChange = (packageType) => {
+    setSelectedPackageTypes((prevSelected) => {
+      if (prevSelected.includes(packageType.package_type)) {
+        return prevSelected.filter((type) => type !== packageType.package_type);
+      } else {
+        return [...prevSelected, packageType.package_type];
+      }
+    });
+  };
+
+  const applyFilters = (listings) => {
+    console.log(listings);
+    console.log(selectedCategories);
+    console.log(selectedAgeGroups);
+    console.log(selectedPackageTypes);
+
+    return listings.filter((listing) => {
+      // Check if the listing matches the selected categories
+      const matchesCategory =
+        selectedCategories.length === 0 || // If no categories are selected, include all
+        listing.categories.some((category) =>
+          selectedCategories.includes(category)
+        );
+
+      // Check if the listing matches the selected age groups
+      const matchesAgeGroup =
+        selectedAgeGroups.length === 0 || // If no age groups are selected, include all
+        listing.age_groups.some((ageGroup) =>
+          selectedAgeGroups.includes(ageGroup)
+        );
+
+      // Check if the listing matches the selected package types
+      const matchesPackageType =
+        selectedPackageTypes.length === 0 || // If no package types are selected, include all
+        listing.package_types.some((type) =>
+          selectedPackageTypes.includes(type)
+        );
+
+      // Return only listings that match all filters
+      return matchesCategory && matchesAgeGroup && matchesPackageType;
+    });
+  };
+
   const onSearch = (e) => {
     const filteredData = listings.filter((item) => {
       return Object.keys(item).some((key) => {
@@ -86,12 +189,19 @@ const Classes = () => {
           .includes(e.target.value.toLowerCase());
       });
     });
-    setFilterInput(filteredData);
+    setFilterInput(applyFilters(filteredData));
   };
 
   useEffect(() => {
     getListings();
+    getCategories();
+    getAgeGroups();
+    getPackageTypes();
   }, []);
+
+  useEffect(() => {
+    setFilterInput(applyFilters(listings));
+  }, [listings, selectedCategories, selectedAgeGroups, selectedPackageTypes]);
 
   const handleListHover = (listingId) => {
     // Find the listing with the matching listingId
@@ -109,7 +219,6 @@ const Classes = () => {
   };
 
   // TODO: if listing is created less than 7 days, get a NEW tag
-
   return (
     <Space direction="vertical">
       <Input
@@ -127,16 +236,86 @@ const Classes = () => {
       />
       <Space direction="horizontal" size={"large"}>
         <Space direction="horizontal">
-          <Text>Categories</Text>
-          <DownOutlined />
+          {/* Categories Filter */}
+          <Dropdown
+            overlay={
+              <Menu>
+                {categories.map((category) => (
+                  <Menu.Item
+                    key={category.id}
+                    onClick={() => handleCategoryChange(category)}
+                  >
+                    <Checkbox
+                      checked={selectedCategories.includes(category.name)}
+                    >
+                      {category.name}
+                    </Checkbox>
+                  </Menu.Item>
+                ))}
+              </Menu>
+            }
+          >
+            <Button>
+              Categories <DownOutlined />
+            </Button>
+          </Dropdown>
         </Space>
         <Space direction="horizontal">
-          <Text>Age groups</Text>
-          <DownOutlined />
+          <Dropdown
+            overlay={
+              <Menu>
+                {ageGroups.map((ageGroup) => (
+                  <Menu.Item
+                    key={ageGroup.id}
+                    onClick={() =>
+                      handleAgeGroupChange(
+                        getAgeGroupLabel(ageGroup.min_age, ageGroup.max_age)
+                      )
+                    }
+                  >
+                    <Checkbox
+                      checked={selectedAgeGroups.includes(
+                        getAgeGroupLabel(ageGroup.min_age, ageGroup.max_age)
+                      )}
+                    >
+                      {getAgeGroupLabel(ageGroup.min_age, ageGroup.max_age)}
+                    </Checkbox>
+                  </Menu.Item>
+                ))}
+              </Menu>
+            }
+          >
+            <Button>
+              Age groups <DownOutlined />
+            </Button>
+          </Dropdown>
         </Space>
         <Space direction="horizontal">
-          <Text>Package types</Text>
-          <DownOutlined />
+          {/* Package Types Filter */}
+          <Dropdown
+            overlay={
+              <Menu>
+                {packageTypes.map((packageType) => (
+                  <Menu.Item
+                    key={packageType.id}
+                    onClick={() => handlePackageTypeChange(packageType)}
+                  >
+                    <Checkbox
+                      checked={selectedPackageTypes.includes(
+                        packageType.package_type
+                      )}
+                    >
+                      {packageType.name}
+                    </Checkbox>
+                  </Menu.Item>
+                ))}
+              </Menu>
+            }
+          >
+            <Button>
+              Package types <DownOutlined />
+            </Button>
+          </Dropdown>
         </Space>
       </Space>
       <Space direction="horizontal">

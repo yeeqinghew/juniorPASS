@@ -238,6 +238,7 @@ function HomePage() {
                           fontSize: "48px", // Large font size
                           lineHeight: "1.2", // Adjusts line spacing for readability
                           fontFamily: "'Ovo', serif",
+                          color: "white",
                         }}
                       >
                         Let us help your kids grow into the best versions of
@@ -284,14 +285,10 @@ function HomePage() {
               </div>
             </div>
 
-            <div
-              style={{
-                padding: "0 120px",
-              }}
-            >
+            <div>
               <div
                 style={{
-                  padding: "50px",
+                  padding: "50px 120px",
                   textAlign: "center",
                   backgroundColor: "#fff",
                 }}
@@ -362,7 +359,12 @@ function HomePage() {
                 </span>
               </div>
 
-              <div style={{ padding: "0 100px", textAlign: "center" }}>
+              <div
+                style={{
+                  textAlign: "center",
+                  padding: "0 120px",
+                }}
+              >
                 <Row gutter={[32, 32]} justify="center">
                   {classesData.map((classItem, index) => (
                     <Col xs={24} sm={12} md={8} key={index}>
@@ -431,7 +433,7 @@ function HomePage() {
                 </div>
               </div>
 
-              <div style={{ padding: "50px", background: "#F8F9FA" }}>
+              <div style={{ padding: "50px 120px", background: "#F8F9FA" }}>
                 {/* Title and Subtitle */}
                 <div style={{ textAlign: "center", marginBottom: "40px" }}>
                   <Title
@@ -532,9 +534,9 @@ function HomePage() {
               <div
                 style={{
                   padding: "50px 0", // Padding on top and bottom
-                  background: "#F8F9FA",
                   display: "flex", // Flexbox for centering
                   justifyContent: "center", // Center content horizontally
+                  backgroundColor: "#E0F0FF",
                 }}
               >
                 <div

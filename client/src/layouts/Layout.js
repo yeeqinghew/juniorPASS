@@ -64,7 +64,7 @@ const OverallLayout = ({ setAuth, setLoading, setIsLoggingOut }) => {
         <Header
           style={{
             position: "sticky",
-            top: 0,
+            top: "30px",
             zIndex: 9999,
             width: "100%",
             display: "flex",
@@ -99,7 +99,7 @@ const OverallLayout = ({ setAuth, setLoading, setIsLoggingOut }) => {
             </Menu.Item>
           </Menu>
         </Header>
-        <Content style={{ padding: "0 50px", minHeight: "100vh" }}>
+        <Content style={{ padding: "0 120px", minHeight: "100vh" }}>
           <div
             style={{
               margin: isDesktop ? "16px 0" : "8px",
