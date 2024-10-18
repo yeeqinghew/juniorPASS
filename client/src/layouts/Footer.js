@@ -14,7 +14,7 @@ const { Footer: Foot } = Layout;
 
 const Footer = () => {
   return (
-    <Foot style={{ background: "#FCFBF8", padding: "50px 150px" }}>
+    <Foot style={{ background: "#FCFBF8", padding: "20px 150px" }}>
       <Divider></Divider>
       <Flex style={{ width: "100%" }}>
         <Flex style={{ width: "25%", justifyContent: "flex-start" }}>

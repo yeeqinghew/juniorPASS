@@ -14,7 +14,9 @@ import {
 } from "antd";
 import { Outlet, Link } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { ArrowRightOutlined } from "@ant-design/icons";
+import { Splide, SplideSlide } from "@splidejs/react-splide";
+import { Grid } from "@splidejs/splide-extension-grid";
+import "@splidejs/react-splide/dist/css/splide.min.css";
 import "./index.css";
 import homepageVideo from "../../videos/homepage.mp4"; // Import the video directly
 import Footer from "../../layouts/Footer";
@@ -24,6 +26,8 @@ const { Header, Content } = Layout;
 const { Text, Title } = Typography;
 
 function HomePage() {
+  const images = require.context("../../images/partners", true);
+  const imageList = images.keys().map((image) => images(image));
   const coursesData = [
     {
       title: "LEGO® Robotics",
@@ -286,154 +290,69 @@ function HomePage() {
             </div>
 
             <div>
-              <div
-                style={{
-                  padding: "50px 120px",
-                  textAlign: "center",
-                  backgroundColor: "#fff",
-                }}
-              >
-                {/* Flex container for aligning cards in one row */}
-                <div
+              {/* partners */}
+              <div style={{ padding: "24px 250px" }}>
+                <Title
+                  level={1}
                   style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    gap: "30px",
+                    fontSize: "48px", // Large font size
+                    lineHeight: "1.2", // Adjusts line spacing for readability
+                    fontFamily: "'Ovo', serif",
+                    textAlign: "center",
                   }}
                 >
-                  {coursesData.map((course, index) => (
-                    <Card
-                      key={index}
-                      hoverable
-                      bordered={false}
-                      style={{
-                        width: 250,
-                        borderRadius: "15px",
-                        paddingBottom: "20px",
-                        flexShrink: 0, // Prevent cards from shrinking on smaller screens
-                      }}
-                      cover={
-                        <img
-                          alt={course.title}
-                          src={course.image}
-                          style={{
-                            borderRadius: "20px",
-                            width: "100%",
-                            height: "300px",
-                            objectFit: "cover",
-                          }}
-                        />
-                      }
-                    >
-                      <Title level={5} style={{ marginBottom: "10px" }}>
-                        {course.title}
-                      </Title>
-                      <Text type="secondary">{course.provider}</Text>
-                      <div style={{ marginTop: "5px" }}>
-                        <Rate disabled defaultValue={course.rating} allowHalf />{" "}
-                        <Text>({course.rating.toFixed(2)}★)</Text>
-                      </div>
-                      <Text
-                        style={{
-                          display: "block",
-                          marginTop: "10px",
-                          fontSize: "12px",
-                        }}
-                      >
-                        {course.description}
-                      </Text>
-                    </Card>
-                  ))}
-                </div>
-                <span flex={1}>
-                  <Title
-                    level={1}
-                    style={{
-                      fontSize: "48px", // Large font size
-                      lineHeight: "1.2", // Adjusts line spacing for readability
-                      fontFamily: "'Ovo', serif",
-                    }}
-                  >
-                    Best classes near you
-                  </Title>
-                </span>
-              </div>
-
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: "0 120px",
-                }}
-              >
-                <Row gutter={[32, 32]} justify="center">
-                  {classesData.map((classItem, index) => (
-                    <Col xs={24} sm={12} md={8} key={index}>
+                  Our partners
+                </Title>
+                <Splide
+                  style={{
+                    width: "100%",
+                  }}
+                  extensions={{ Grid }}
+                  options={{
+                    pagination: false,
+                    drag: "free",
+                    perPage: 4,
+                    perMove: 1,
+                    autoplay: "true",
+                    type: "loop",
+                    rewind: true,
+                    lazyLoad: "nearby",
+                    cover: true,
+                    grid: {
+                      rows: 1,
+                    },
+                    autoScroll: {
+                      speed: 1,
+                    },
+                  }}
+                >
+                  {imageList.map((image, index) => (
+                    <SplideSlide>
                       <Card
-                        hoverable
-                        cover={
-                          <img alt={classItem.title} src={classItem.image} />
-                        }
                         style={{
-                          borderRadius: "8px",
-                          backgroundColor: classItem.bgColor,
-                          border: "none",
-                          textAlign: "center",
+                          display: "flex",
+                          width: 240,
+                          height: 240,
                         }}
+                        bodyStyle={{
+                          alignItems: "center",
+                          display: "flex",
+                        }}
+                        bordered={false}
                       >
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            padding: "15px",
-                          }}
-                        >
-                          <Text
-                            strong
-                            style={{
-                              color: classItem.textColor,
-                              fontSize: "18px",
-                            }}
-                          >
-                            {classItem.title}
-                          </Text>
-                          <Button
-                            type="link"
-                            shape="circle"
-                            icon={<ArrowRightOutlined />}
-                            style={{
-                              border: "2px solid white",
-                              padding: "5px",
-                              fontSize: "18px",
-                              transition: "all 0.3s ease",
-                            }}
-                            onMouseEnter={(e) =>
-                              (e.currentTarget.style.backgroundColor = "white")
-                            }
-                            onMouseLeave={(e) =>
-                              (e.currentTarget.style.backgroundColor =
-                                "transparent")
-                            }
-                          />
-                        </div>
+                        <Image
+                          key={index}
+                          src={image}
+                          alt={`image-${index}`}
+                          preview={false}
+                        />
                       </Card>
-                    </Col>
+                    </SplideSlide>
                   ))}
-                </Row>
-                <div>
-                  <h1
-                    style={{
-                      fontSize: "48px", // Large font size
-                      lineHeight: "1.2", // Adjusts line spacing for readability
-                      fontFamily: "'Ovo', serif",
-                    }}
-                  >
-                    Browse all available classes here
-                  </h1>
-                </div>
+                </Splide>
               </div>
 
-              <div style={{ padding: "50px 120px", background: "#F8F9FA" }}>
+              <div style={{ padding: "50px 200px", background: "#F8F9FA" }}>
                 {/* Title and Subtitle */}
                 <div style={{ textAlign: "center", marginBottom: "40px" }}>
                   <Title
@@ -463,7 +382,7 @@ function HomePage() {
                     <Card
                       bordered={false}
                       style={{
-                        backgroundColor: "#E0F0FF",
+                        backgroundColor: "#FBD0D9",
                         textAlign: "center",
                         height: "100%", // Ensure card takes full height of column
                         display: "flex", // For flex behavior
@@ -471,7 +390,7 @@ function HomePage() {
                         justifyContent: "center", // Center content vertically
                       }}
                     >
-                      <Title level={4}>Register</Title>
+                      <Title level={5}>Register</Title>
                       <Text>
                         Start this section with a brief overview of your
                         company, including your mission, vision, and
@@ -484,7 +403,7 @@ function HomePage() {
                     <Card
                       bordered={false}
                       style={{
-                        backgroundColor: "#E0F0FF",
+                        backgroundColor: "#FBD0D9",
                         textAlign: "center",
                         height: "100%", // Ensure card takes full height of column
                         display: "flex", // For flex behavior
@@ -492,7 +411,7 @@ function HomePage() {
                         justifyContent: "center", // Center content vertically
                       }}
                     >
-                      <Title level={4}>Find a Class</Title>
+                      <Title level={5}>Find a Class</Title>
                       <Text>
                         Share your goals as a company, and the products or
                         services you provide to achieve them.
@@ -504,7 +423,7 @@ function HomePage() {
                     <Card
                       bordered={false}
                       style={{
-                        backgroundColor: "#E0F0FF",
+                        backgroundColor: "#FBD0D9",
                         textAlign: "center",
                         height: "100%", // Ensure card takes full height of column
                         display: "flex", // For flex behavior
@@ -512,7 +431,7 @@ function HomePage() {
                         justifyContent: "center", // Center content vertically
                       }}
                     >
-                      <Title level={4}>Book it!</Title>
+                      <Title level={5}>Book it!</Title>
                       <Text>
                         Discuss what you’ve achieved in the past year using a
                         combination of narrative and visual tools.
@@ -529,7 +448,6 @@ function HomePage() {
                   <Text>This should come with something</Text>
                 </div>
               </div>
-
               {/* FAQs */}
               <div
                 style={{
