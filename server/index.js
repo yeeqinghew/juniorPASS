@@ -13,6 +13,9 @@ app.use((req, res, next) => {
   next();
 });
 
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, "../client/build")));
+
 // ROUTES
 app.use("/auth", require("./routes/jwtAuth"));
 app.use("/admins", require("./routes/admins"));
@@ -20,6 +23,11 @@ app.use("/partners", require("./routes/partners"));
 app.use("/listings", require("./routes/listings"));
 app.use("/misc", require("./routes/misc"));
 app.use("/children", require("./routes/children"));
+
+// Catch-all route to serve React app for any non-API route
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/build", "index.html"));
+});
 
 const port = process.env.PORT || 5000;
 const server = app.listen(port, () => {
