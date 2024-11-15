@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Layout,
   Menu,
@@ -21,11 +21,27 @@ import "./index.css";
 import homepageVideo from "../../videos/homepage.mp4"; // Import the video directly
 import Footer from "../../layouts/Footer";
 import FAQ from "../FAQ";
+import {
+  SmileOutlined,
+  BookOutlined,
+  CheckCircleOutlined,
+} from "@ant-design/icons";
 
 const { Header, Content } = Layout;
 const { Text, Title } = Typography;
 
 function HomePage() {
+  // Keep track of the hovered card index (-1 means none are hovered)
+  const [hoveredIndex, setHoveredIndex] = useState(-1);
+
+  const handleMouseEnter = (index) => {
+    setHoveredIndex(index);
+  };
+
+  const handleMouseLeave = () => {
+    setHoveredIndex(-1);
+  };
+
   const images = require.context("../../images/partners", true);
   const imageList = images.keys().map((image) => images(image));
   const coursesData = [
@@ -91,6 +107,47 @@ function HomePage() {
       textColor: "black",
     },
   ];
+
+  const cardsData = [
+    {
+      title: "Register",
+      icon: <SmileOutlined style={{ fontSize: "40px", color: "#FF6B6B" }} />,
+      description:
+        "Create your account to join a vibrant community of parents and learners. Enjoy easy access to our platform, personalized recommendations, and exclusive benefits.",
+    },
+    {
+      title: "Find a Class",
+      icon: <BookOutlined style={{ fontSize: "40px", color: "#FF6B6B" }} />,
+      description:
+        "Explore a wide variety of classes tailored to your child's interests and needs. From art to science, browse through our curated options and discover their next favorite class.",
+    },
+    {
+      title: "Book it!",
+      icon: (
+        <CheckCircleOutlined style={{ fontSize: "40px", color: "#FF6B6B" }} />
+      ),
+      description:
+        "Secure your spot in just a few clicks! Enjoy a seamless booking process and get your child started on their learning adventure right away.",
+    },
+  ];
+
+  const boxStyle = {
+    backgroundColor: "#FFE3E3",
+    borderRadius: "10px",
+    textAlign: "center",
+    padding: "20px",
+    transition: "transform 0.3s",
+    cursor: "pointer",
+    height: "300px", // Fixed height
+    width: "100%", // Ensure the card spans the full width of its parent column
+    maxWidth: "500px", // Optional: set a maximum width for consistency
+    display: "flex",
+  };
+
+  const hoverEffect = {
+    ...boxStyle,
+    transform: "scale(1.05)",
+  };
 
   return (
     <ConfigProvider
@@ -331,8 +388,8 @@ function HomePage() {
                       <Card
                         style={{
                           display: "flex",
-                          width: 240,
-                          height: 240,
+                          width: 300,
+                          height: 300,
                         }}
                         bodyStyle={{
                           alignItems: "center",
@@ -377,67 +434,33 @@ function HomePage() {
                 </div>
 
                 {/* Cards Section */}
-                <Row gutter={[16, 16]} justify="center">
-                  <Col xs={24} sm={12} md={8}>
-                    <Card
-                      bordered={false}
+                <Row gutter={[32, 32]} justify="center">
+                  {cardsData.map((card, index) => (
+                    <Col
+                      xs={24}
+                      sm={12}
+                      md={8}
+                      key={index}
                       style={{
-                        backgroundColor: "#FBD0D9",
-                        textAlign: "center",
-                        height: "100%", // Ensure card takes full height of column
-                        display: "flex", // For flex behavior
-                        flexDirection: "column", // Column layout for text
-                        justifyContent: "center", // Center content vertically
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: "100%", // Ensure the column takes up the full height of the row
                       }}
                     >
-                      <Title level={5}>Register</Title>
-                      <Text>
-                        Start this section with a brief overview of your
-                        company, including your mission, vision, and
-                        stakeholders.
-                      </Text>
-                    </Card>
-                  </Col>
-
-                  <Col xs={24} sm={12} md={8}>
-                    <Card
-                      bordered={false}
-                      style={{
-                        backgroundColor: "#FBD0D9",
-                        textAlign: "center",
-                        height: "100%", // Ensure card takes full height of column
-                        display: "flex", // For flex behavior
-                        flexDirection: "column", // Column layout for text
-                        justifyContent: "center", // Center content vertically
-                      }}
-                    >
-                      <Title level={5}>Find a Class</Title>
-                      <Text>
-                        Share your goals as a company, and the products or
-                        services you provide to achieve them.
-                      </Text>
-                    </Card>
-                  </Col>
-
-                  <Col xs={24} sm={12} md={8}>
-                    <Card
-                      bordered={false}
-                      style={{
-                        backgroundColor: "#FBD0D9",
-                        textAlign: "center",
-                        height: "100%", // Ensure card takes full height of column
-                        display: "flex", // For flex behavior
-                        flexDirection: "column", // Column layout for text
-                        justifyContent: "center", // Center content vertically
-                      }}
-                    >
-                      <Title level={5}>Book it!</Title>
-                      <Text>
-                        Discuss what you’ve achieved in the past year using a
-                        combination of narrative and visual tools.
-                      </Text>
-                    </Card>
-                  </Col>
+                      <Card
+                        hoverable
+                        style={hoveredIndex === index ? hoverEffect : boxStyle}
+                        bodyStyle={{ padding: "30px" }}
+                        onMouseEnter={() => handleMouseEnter(index)}
+                        onMouseLeave={handleMouseLeave}
+                      >
+                        {card.icon}
+                        <Title level={4}>{card.title}</Title>
+                        <Text>{card.description}</Text>
+                      </Card>
+                    </Col>
+                  ))}
                 </Row>
 
                 {/* Divider */}
@@ -445,7 +468,7 @@ function HomePage() {
 
                 {/* Additional Text Below */}
                 <div style={{ textAlign: "center", marginTop: "20px" }}>
-                  <Text>This should come with something</Text>
+                  <Text></Text>
                 </div>
               </div>
               {/* FAQs */}
