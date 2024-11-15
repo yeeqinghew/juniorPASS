@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path"); // Import path module
 const app = express();
 const cors = require("cors");
 const client = require("./utils/redisClient"); // Import the Redis client
