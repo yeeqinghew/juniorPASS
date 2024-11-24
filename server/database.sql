@@ -11,6 +11,8 @@ DROP TABLE IF EXISTS admins CASCADE;
 DROP TABLE IF EXISTS ageGroups CASCADE;
 DROP TABLE IF EXISTS categoriesListings CASCADE;
 DROP TABLE IF EXISTS packageTypes CASCADE;
+DROP TABLE IF EXISTS outlets CASCADE;
+DROP TABLE IF EXISTS schedules CASCADE;
 
 DROP TYPE IF EXISTS user_types CASCADE;
 DROP TYPE IF EXISTS methods CASCADE;
@@ -110,11 +112,27 @@ CREATE TABLE listings (
     age_groups age_groups[] NOT NULL,
     images JSONB,
     registered_parents VARCHAR(500),
-    string_outlet_schedules JSONB[],
     short_term_start_date TIMESTAMP,
     long_term_start_date TIMESTAMP,
     created_on TIMESTAMP,
     last_updated_on TIMESTAMP
+);
+
+CREATE TABLE outlets (
+    outlet_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    listing_id uuid REFERENCES listings(listing_id) ON DELETE CASCADE,
+    address VARCHAR(1000),
+    nearest_mrt VARCHAR(200),
+    created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE schedules (
+    schedule_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    outlet_id uuid REFERENCES outlets(outlet_id) NOT NULL,
+    day VARCHAR(10) CHECK(day IN ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')),
+    timeslot VARCHAR(10)[],
+    frequency VARCHAR(10) CHECK(frequency IN ('Biweekly', 'Weekly', 'Monthly', 'Yearly')),
+    created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE transactions (
@@ -136,7 +154,6 @@ CREATE TABLE reviews (
     comment VARCHAR(5000) NOT NULL,
     created_on TIMESTAMP
 );
-
 
 CREATE TABLE categoriesListings (
     id SERIAL PRIMARY KEY,

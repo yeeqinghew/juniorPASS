@@ -40,9 +40,8 @@ router.post("", authorization, async (req, res) => {
         images,
         short_term_start_date,
         long_term_start_date,
-        string_outlet_schedules,
         created_on
-        ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *`,
+        ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`,
       [
         partner_id,
         title,
@@ -55,10 +54,34 @@ router.post("", authorization, async (req, res) => {
         images,
         short_term_start_date,
         long_term_start_date,
-        locations,
         new Date().toLocaleString(),
       ]
     );
+
+    const listing_id = listing.rows[0].listing_id;
+
+    // insert outlets and schedules
+    for (let location of locations) {
+      const { address, nearest_mrt, schedules } = location;
+
+      const outletResult = await pool.query(
+        `INSERT INTO outlets (listing_id, address, nearest_mrt, created_on) 
+        VALUES ($1, $2, $3, $4) RETURNING outlet_id`,
+        [listing_id, address, nearest_mrt, new Date().toLocaleString()]
+      );
+
+      const outlet_id = outletResult.rows[0].outlet_id;
+
+      for (schedule of schedules) {
+        const { day, timeslot, frequency } = schedule;
+
+        await pool.query(
+          `INSERT INTO schedules (outlet_id, day, timeslot, frequency, created_on)
+         VALUES($1, $2, $3, $4, $5)`,
+          [outlet_id, day, timeslot, frequency, new Date().toLocaleString()]
+        );
+      }
+    }
 
     // Optionally, invalidate or update related cache entries, like the list of all listings
     await client.del("/listings");
