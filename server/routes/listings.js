@@ -17,7 +17,6 @@ router.post("", authorization, async (req, res) => {
       partner_id,
       title,
       credit,
-      categories,
       package_types,
       description,
       age_groups,
@@ -32,7 +31,6 @@ router.post("", authorization, async (req, res) => {
         partner_id, 
         listing_title, 
         credit,
-        categories,
         package_types,      
         description,
         age_groups,
@@ -40,13 +38,13 @@ router.post("", authorization, async (req, res) => {
         images,
         short_term_start_date,
         long_term_start_date,
+        active,
         created_on
         ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`,
       [
         partner_id,
         title,
         credit,
-        categories,
         package_types,
         description,
         age_groups,
@@ -54,6 +52,7 @@ router.post("", authorization, async (req, res) => {
         images,
         short_term_start_date,
         long_term_start_date,
+        true,
         new Date().toLocaleString(),
       ]
     );
@@ -110,26 +109,29 @@ router.get("", cacheMiddleware, async (req, res) => {
 });
 
 // update listing
-router.get("/:id", cacheMiddleware, async (req, res) => {
+router.get("/:id", async (req, res) => {
   const id = req.params.id;
   try {
-    const listing = await pool.query(
-      "SELECT * FROM listings l JOIN partners p USING (partner_id) WHERE l.listing_id = $1",
+    const listingResult = await pool.query(
+      `SELECT l.*, p.partner_name, p.email, p.website, p.contact_number 
+      FROM listings l 
+      JOIN partners p USING (partner_id) 
+      WHERE l.listing_id = $1`,
       [id]
     );
+
+    if (listingResult.rows.length === 0) {
+      return res.status(404).json({ error: "Listing not found" });
+    }
+
+    let listing = listingResult.rows[0];
+
+    listing.package_types = listing.package_types
+      .replace(/[{}]/g, "")
+      .split(",");
+    listing.age_groups = listing.age_groups.replace(/[{}]/g, "").split(",");
+
     const ageGroups = await pool.query(`SELECT * FROM ageGroups`);
-
-    listing.rows[0].categories = listing.rows[0].categories
-      .replace(/[{}]/g, "")
-      .split(",");
-    listing.rows[0].package_types = listing.rows[0].package_types
-      .replace(/[{}]/g, "")
-      .split(",");
-    listing.rows[0].age_groups = listing.rows[0].age_groups
-      .replace(/[{}]/g, "")
-      .split(",");
-
-    // Map ageGroups to their respective names
     const ageGroupMap = {};
     ageGroups.rows.forEach((ageGroup) => {
       ageGroupMap[ageGroup.name] = {
@@ -138,14 +140,29 @@ router.get("/:id", cacheMiddleware, async (req, res) => {
       };
     });
 
-    listing.rows[0].age_groups = listing.rows[0].age_groups.map(
-      (ageGroupName) => ({
-        name: ageGroupName,
-        ...ageGroupMap[ageGroupName],
-      })
+    // Map age_groups to their respective names and age ranges
+    listing.age_groups = listing.age_groups.map((ageGroupName) => ({
+      name: ageGroupName,
+      ...ageGroupMap[ageGroupName],
+    }));
+
+    const outletsResult = await pool.query(
+      `SELECT * FROM outlets WHERE listing_id = $1`,
+      [id]
     );
 
-    res.json(listing.rows[0]);
+    const outlets = outletsResult.rows;
+    for (let outlet of outlets) {
+      const schedulesResult = await pool.query(
+        `SELECT * FROM schedules WHERE outlet_id = $1`,
+        [outlet.outlet_id]
+      );
+      outlet.schedules = schedulesResult.rows;
+    }
+
+    listing.outlets = outlets;
+
+    res.json(listing);
   } catch (err) {
     console.error(`ERROR in /listings/${id} GET`, err.message);
     res.status(500).json({ error: err.message });
@@ -159,7 +176,6 @@ router.put("/:id", async (req, res) => {
     const {
       title_name,
       price,
-      categories,
       package_types,
       description,
       age_groups,
@@ -171,7 +187,6 @@ router.put("/:id", async (req, res) => {
       `UPDATE listings SET
         listing_title = $1,
         price = $2,
-        categories = $3,
         package_types = $4,
         description = $5,
         age_groups = $6,
@@ -182,7 +197,6 @@ router.put("/:id", async (req, res) => {
       [
         title_name,
         price,
-        categories,
         package_types,
         description,
         age_groups,
@@ -192,8 +206,9 @@ router.put("/:id", async (req, res) => {
         id,
       ]
     );
+
     // Invalidate the cache
-    client.del(`/listings/${id}`);
+    await client.del(`/listings/${id}`);
     res.status(200).json({
       message: "Listing has been updated!",
       data: listing,

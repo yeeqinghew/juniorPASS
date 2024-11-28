@@ -6,6 +6,7 @@ const jwtGenerator = require("../utils/jwtGenerator");
 const authorization = require("../middleware/authorization");
 const etagMiddleware = require("../middleware/etagMiddleware");
 const cacheMiddleware = require("../middleware/cacheMiddleware");
+const client = require("../utils/redisClient");
 
 router.use(etagMiddleware);
 
@@ -75,10 +76,49 @@ router.get("/:id", cacheMiddleware, async (req, res) => {
   }
 });
 
+router.put("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { partner_name, description, address, contact_number, website } =
+      req.body;
+
+    const updatedPartner = await pool.query(
+      `UPDATE partners 
+      SET
+        partner_name = $1,
+        description = $2,
+        address = $3,
+        contact_number = $4,
+        website = $5
+      WHERE partner_id = $6 RETURNING *`,
+      [partner_name, description, address, contact_number, website, id]
+    );
+    await client.del(`/partners/${id}`);
+
+    return res.json(updatedPartner.rows[0]);
+  } catch (error) {
+    console.error("Update Error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 const getPartnerByPartnerId = async (partnerId) => {
   try {
     const partner = await pool.query(
-      "SELECT * FROM partners WHERE partner_id = $1",
+      `SELECT partner_id,
+        partner_name,
+        email,
+        password,
+        description,
+        website,
+        rating,
+        picture,
+        address,
+        region,
+        contact_number,
+        array_to_json(categories) AS categories,
+        created_on 
+      FROM partners WHERE partner_id = $1`,
       [partnerId]
     );
     return partner.rows[0];

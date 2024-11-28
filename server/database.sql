@@ -76,26 +76,25 @@ CREATE TABLE partners (
     rating BIGINT DEFAULT 0,
     picture VARCHAR(1000),
     address VARCHAR(1000) NOT NULL,
-    latitude VARCHAR(50) NOT NULL,
-    longitude VARCHAR(50) NOT NULL,
     region VARCHAR(50) NOT NULL, 
-    phone_number VARCHAR(8),
+    contact_number VARCHAR(8),
+    categories categories[] NOT NULL,
     created_on TIMESTAMP
 );
 
-INSERT INTO partners(partner_name, email, password, description, website, picture, address, latitude, longitude, region, phone_number, created_on)
+INSERT INTO partners(partner_name, email, password, description, website, picture, address, region, contact_number, categories, created_on)
     VALUES
     ('SG Basketball', 'admin@sgbasketball.com', '$2b$10$tk2dxadGFGRMGsj3mjJr2OQ4VpsxvS7cSvajbTUbRJIchUOvYOAGO', 'SG Basketball Pte Ltd is the leading service provider for basketball in Singapore. Our programs and events cater for players of all ages, from beginner to advanced levels. Our coaches and tournament organizers are passionate about ensuring that every participant has a positive experience - and that their sport experience enriches their lives.', 
-     'https://www.sgbasketball.com/', 'https://images.squarespace-cdn.com/content/v1/5ad0064b31d4df14309baeb5/1561030353172-ES8S0PN75WS044UIWCDT/SGBASKETBALL.png?format=1500w', '750B Chai Chee Rd #01-02 S(469002)', '1.3235', '103.9207', 'Kembangan', '98763456', CURRENT_TIMESTAMP)
+     'https://www.sgbasketball.com/', 'https://images.squarespace-cdn.com/content/v1/5ad0064b31d4df14309baeb5/1561030353172-ES8S0PN75WS044UIWCDT/SGBASKETBALL.png?format=1500w', '750B Chai Chee Rd #01-02 S(469002)', 'Kembangan', '98763456', '{"Sports"}', CURRENT_TIMESTAMP)
  
     , ('Swim Werks', 'sales@swimwerks.com.sg', '$2b$10$tk2dxadGFGRMGsj3mjJr2OQ4VpsxvS7cSvajbTUbRJIchUOvYOAGO', 'Swimwerks is a trusted provider of lifeguard services for various organisations in Singapore, playing a key role in ensuring the safety of thousands of swimmers across a multitude of contexts, from the open seas to hotel swimming pools.', 
-     'https://swimwerks.com.sg/', 'https://swimwerks.com.sg/wp-content/uploads/2023/04/Swimwerks-Logo.png', '3 Gambas Cres, #07-11 Nordcom 1, Singapore 757088', '1.4442', '103.8139', 'Sembawang', '66986645', CURRENT_TIMESTAMP)
+     'https://swimwerks.com.sg/', 'https://swimwerks.com.sg/wp-content/uploads/2023/04/Swimwerks-Logo.png', '3 Gambas Cres, #07-11 Nordcom 1, Singapore 757088', 'Sembawang', '66986645', '{"Sports"}',CURRENT_TIMESTAMP)
 
     , ('Aureus Academy', 'contact@areusacademy.com', '$2b$10$tk2dxadGFGRMGsj3mjJr2OQ4VpsxvS7cSvajbTUbRJIchUOvYOAGO', 'Aureus Academy is Singapore''s fastest growing music school with over 18,000 students enrolled between all our schools.', 
-     'https://www.aureusacademy.com/', 'https://w7.pngwing.com/pngs/949/42/png-transparent-aureus-academy-at-northpoint-city-music-lesson-aureus-academy-at-eastpoint-others-text-trademark-logo.png', '23 Serangoon Central, #04-01A/02 NEX, Singapore 556083', '1.3506', '103.8718', 'Serangoon', '65742231', CURRENT_TIMESTAMP)
+     'https://www.aureusacademy.com/', 'https://w7.pngwing.com/pngs/949/42/png-transparent-aureus-academy-at-northpoint-city-music-lesson-aureus-academy-at-eastpoint-others-text-trademark-logo.png', '23 Serangoon Central, #04-01A/02 NEX, Singapore 556083', 'Serangoon', '65742231', '{"Music"}', CURRENT_TIMESTAMP)
 
     , ('Little Kickers', 'Singapore@littlekickers.sg', '$2b$10$tk2dxadGFGRMGsj3mjJr2OQ4VpsxvS7cSvajbTUbRJIchUOvYOAGO', 'The home of pre-school football we believe in something we call "Play not Push". It means teaching football in a fun, pressure-free environment. We want to give children a positive introduction to sport as a whole and have FUN along the way', 
-     'https://www.littlekickers.sg/', 'https://pbs.twimg.com/profile_images/1205502044741742592/aA3NOOhs_400x400.jpg', '16 Raffles Quay, Hong Leong Building Singapore, Singapore 48581', '1.281308', '103.850939', 'City Hall', '67890987', CURRENT_TIMESTAMP)
+     'https://www.littlekickers.sg/', 'https://pbs.twimg.com/profile_images/1205502044741742592/aA3NOOhs_400x400.jpg', '16 Raffles Quay, Hong Leong Building Singapore, Singapore 48581', 'City Hall', '67890987', '{"Sports"}', CURRENT_TIMESTAMP)
     ;
 
 CREATE TABLE listings (
@@ -104,7 +103,6 @@ CREATE TABLE listings (
     listing_title VARCHAR(1000) NOT NULL,
     price INTEGER,
     credit INTEGER,
-    categories categories[] NOT NULL,
     package_types package_types[] NOT NULL,
     description VARCHAR(5000),
     rating BIGINT NOT NULL DEFAULT 0, 
@@ -114,6 +112,7 @@ CREATE TABLE listings (
     registered_parents VARCHAR(500),
     short_term_start_date TIMESTAMP,
     long_term_start_date TIMESTAMP,
+    active BOOLEAN,
     created_on TIMESTAMP,
     last_updated_on TIMESTAMP
 );
