@@ -96,7 +96,7 @@ router.post("", authorization, async (req, res) => {
 });
 
 // get all listings
-router.get("", async (req, res) => {
+router.get("", cacheMiddleware, async (req, res) => {
   try {
     const listings = await pool.query(
       `SELECT 
@@ -163,7 +163,7 @@ router.get("", async (req, res) => {
 });
 
 // get listing by listing_id
-router.get("/:id", async (req, res) => {
+router.get("/:id", cacheMiddleware, async (req, res) => {
   const id = req.params.id;
 
   try {
@@ -231,6 +231,79 @@ router.get("/:id", async (req, res) => {
     res.json(listing.rows[0]);
   } catch (err) {
     console.error(`ERROR in /listings/${id} GET`, err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// get listing by partner_id
+router.get("/partner/:partnerId", async (req, res) => {
+  const { partnerId } = req.params;
+
+  try {
+    const listings = await pool.query(
+      `
+      SELECT 
+        l.listing_id,
+        l.listing_title,
+        l.description AS listing_description,
+        l.price,
+        l.credit,
+        array_to_json(l.package_types) AS package_types,
+        array_to_json(l.age_groups) AS age_groups,
+        l.images,
+        l.rating AS listing_rating,
+        l.created_on AS listing_created_on,
+        l.active,
+        json_build_object(
+          'partner_id', p.partner_id,
+          'partner_name', p.partner_name,
+          'email', p.email,
+          'categories', p.categories,
+          'contact_number', p.contact_number,
+          'rating', p.rating,
+          'picture', p.picture,
+          'website', p.website
+        ) AS partner_info,
+        COALESCE(
+            json_agg(
+                json_build_object(
+                    'outlet_id', o.outlet_id,
+                    'address', o.address,
+                    'nearest_mrt', o.nearest_mrt,
+                    'created_on', o.created_on,
+                    'schedules', os.schedules
+                )
+            ) FILTER (WHERE o.outlet_id IS NOT NULL),
+            '[]'::json
+        ) AS outlets
+      FROM listings l
+      LEFT JOIN partners p ON p.partner_id = l.partner_id
+      LEFT JOIN outlets o ON o.listing_id = l.listing_id
+      LEFT JOIN LATERAL (
+          SELECT 
+              json_agg(
+                  json_build_object(
+                      'schedule_id', s.schedule_id,
+                      'day', s.day,
+                      'timeslot', s.timeslot,
+                      'frequency', s.frequency,
+                      'created_on', s.created_on
+                  )
+              ) AS schedules
+          FROM schedules s
+          WHERE s.outlet_id = o.outlet_id
+      ) os ON true
+      WHERE l.partner_id = $1
+      GROUP BY 
+          l.listing_id, p.partner_id
+      ORDER BY 
+          l.created_on DESC;`,
+      [partnerId]
+    );
+
+    res.json(listings.rows);
+  } catch (err) {
+    console.error(`ERROR in /listings/partner/${partnerId} GET`, err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -320,6 +393,28 @@ router.delete("/:id", async (req, res) => {
   } catch (err) {
     console.error(`ERROR in /listings/${id} DELETE`, err.message);
     res.status(500).json({ error: err.message });
+  }
+});
+
+// make it inactive
+router.patch("/:listing_id/status", async (req, res) => {
+  const { listing_id } = req.params;
+  const { active } = req.body;
+
+  try {
+    await pool.query(`UPDATE listings SET active = $1 WHERE listing_id = $2`, [
+      active,
+      listing_id,
+    ]);
+    res.status(200).json({
+      message: "Listing status updated successfully.",
+    });
+  } catch (error) {
+    console.error(
+      `ERROR in /listings/${listing_id}/status PATCH`,
+      error.message
+    );
+    res.status(500).json({ error: error.message });
   }
 });
 

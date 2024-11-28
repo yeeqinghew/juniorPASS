@@ -43,6 +43,7 @@ const Classes = () => {
 
   const getListings = async () => {
     try {
+      // TODO: get ONLY active listings
       const response = await fetch(`${baseURL}/listings`, {
         method: "GET",
       });
