@@ -5,7 +5,6 @@ import {
   List,
   Rate,
   Image,
-  Typography,
   Tag,
   Divider,
   Button,
@@ -28,7 +27,6 @@ import Map, {
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useNavigate } from "react-router-dom";
 import getBaseURL from "../../utils/config";
-import useParseListings from "../../hooks/useParseListings";
 
 const Classes = () => {
   const baseURL = getBaseURL();
@@ -41,15 +39,15 @@ const Classes = () => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedAgeGroups, setSelectedAgeGroups] = useState([]);
   const [selectedPackageTypes, setSelectedPackageTypes] = useState([]);
-  const parseListings = useParseListings();
   const navigate = useNavigate();
 
   const getListings = async () => {
     try {
-      const response = await fetch(`${baseURL}/listings`);
+      const response = await fetch(`${baseURL}/listings`, {
+        method: "GET",
+      });
       const jsonData = await response.json();
-      const parsedListings = parseListings(jsonData);
-      setListings(parsedListings);
+      setListings(jsonData);
     } catch (error) {
       console.error(error.message);
     }
@@ -95,7 +93,8 @@ const Classes = () => {
   const pins = useMemo(() => {
     return listings.map((listing) => {
       const color = "#98BDD2";
-      return listing?.string_outlet_schedules.map((outlet, index) => {
+
+      return listing?.outlets.map((outlet, index) => {
         const parsedAddress = JSON.parse(outlet?.address);
         return (
           <Marker
@@ -149,16 +148,11 @@ const Classes = () => {
   };
 
   const applyFilters = (listings) => {
-    console.log(listings);
-    console.log(selectedCategories);
-    console.log(selectedAgeGroups);
-    console.log(selectedPackageTypes);
-
     return listings.filter((listing) => {
       // Check if the listing matches the selected categories
       const matchesCategory =
         selectedCategories.length === 0 || // If no categories are selected, include all
-        listing.categories.some((category) =>
+        listing?.partner_info?.categories.some((category) =>
           selectedCategories.includes(category)
         );
 
@@ -368,11 +362,15 @@ const Classes = () => {
                   title={
                     <Space direction="vertical">
                       <Space direction="horizontal">
-                        {listing?.categories.map((category, index) => {
-                          return <Tag key={index}>{category}</Tag>;
-                        })}
+                        {listing?.partner_info?.categories.map(
+                          (category, index) => {
+                            return <Tag key={index}>{category}</Tag>;
+                          }
+                        )}
                       </Space>
-                      <a href={listing?.website}>{listing?.listing_title}</a>
+                      <a href={listing?.partner_info?.website}>
+                        {listing?.listing_title}
+                      </a>
                     </Space>
                   }
                   description={
@@ -388,7 +386,7 @@ const Classes = () => {
                           WebkitBoxOrient: "vertical",
                         }}
                       >
-                        {listing?.description}
+                        {listing?.listing_description}
                       </div>
 
                       <Space>
@@ -401,7 +399,7 @@ const Classes = () => {
                         {listing?.age_groups}
                       </Space>
 
-                      {listing?.rating !== 0 && (
+                      {listing?.partner_info?.rating !== 0 && (
                         <Rate disabled defaultValue={listing?.reviews}></Rate>
                       )}
                     </Space>
@@ -434,7 +432,7 @@ const Classes = () => {
 
             {/* Display popups for popupInfo */}
             {popupInfo &&
-              popupInfo.string_outlet_schedules.map((outlet, index) => (
+              popupInfo.outlets.map((outlet, index) => (
                 <Popup
                   key={`${popupInfo.listing_id}-${index}`}
                   longitude={JSON.parse(outlet.address).LONGITUDE}

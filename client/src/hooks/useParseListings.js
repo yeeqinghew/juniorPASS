@@ -8,9 +8,6 @@ const useParseListings = () => {
     return listings.map((listing) => {
       return {
         ...listing,
-        categories: parseArrayString(listing?.categories),
-        package_types: parseArrayString(listing?.package_types),
-        age_groups: parseArrayString(listing?.age_groups),
       };
     });
   };

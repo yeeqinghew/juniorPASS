@@ -96,10 +96,64 @@ router.post("", authorization, async (req, res) => {
 });
 
 // get all listings
-router.get("", cacheMiddleware, async (req, res) => {
+router.get("", async (req, res) => {
   try {
     const listings = await pool.query(
-      "SELECT * FROM listings l JOIN partners p USING (partner_id) ORDER BY l.created_on DESC"
+      `SELECT 
+        l.listing_id,
+        l.listing_title,
+        l.description AS listing_description,
+        l.price,
+        l.credit,
+        array_to_json(l.package_types) AS package_types,
+        array_to_json(l.age_groups) AS age_groups,
+        l.images,
+        l.rating AS listing_rating,
+        l.created_on AS listing_created_on,
+        l.active,
+        json_build_object(
+          'partner_id', p.partner_id,
+          'partner_name', p.partner_name,
+          'email', p.email,
+          'categories', p.categories,
+          'contact_number', p.contact_number,
+          'rating', p.rating,
+          'picture', p.picture,
+          'website', p.website
+        ) AS partner_info,
+        COALESCE(
+            json_agg(
+                json_build_object(
+                    'outlet_id', o.outlet_id,
+                    'address', o.address,
+                    'nearest_mrt', o.nearest_mrt,
+                    'created_on', o.created_on,
+                    'schedules', os.schedules
+                )
+            ) FILTER (WHERE o.outlet_id IS NOT NULL),
+            '[]'::json
+        ) AS outlets
+      FROM listings l
+      LEFT JOIN partners p ON p.partner_id = l.partner_id
+      LEFT JOIN outlets o ON o.listing_id = l.listing_id
+      LEFT JOIN LATERAL (
+          SELECT 
+              json_agg(
+                  json_build_object(
+                      'schedule_id', s.schedule_id,
+                      'day', s.day,
+                      'timeslot', s.timeslot,
+                      'frequency', s.frequency,
+                      'created_on', s.created_on
+                  )
+              ) AS schedules
+          FROM schedules s
+          WHERE s.outlet_id = o.outlet_id
+      ) os ON true
+      GROUP BY 
+          l.listing_id, p.partner_id
+      ORDER BY 
+          l.created_on DESC;`
     );
     res.json(listings.rows);
   } catch (err) {
@@ -108,61 +162,73 @@ router.get("", cacheMiddleware, async (req, res) => {
   }
 });
 
-// update listing
+// get listing by listing_id
 router.get("/:id", async (req, res) => {
   const id = req.params.id;
+
   try {
-    const listingResult = await pool.query(
-      `SELECT l.*, p.partner_name, p.email, p.website, p.contact_number 
-      FROM listings l 
-      JOIN partners p USING (partner_id) 
-      WHERE l.listing_id = $1`,
+    const listing = await pool.query(
+      `
+      SELECT 
+        l.listing_id,
+        l.listing_title,
+        l.description AS listing_description,
+        l.price,
+        l.credit,
+        array_to_json(l.package_types) AS package_types,
+        array_to_json(l.age_groups) AS age_groups,
+        l.images,
+        l.rating AS listing_rating,
+        l.created_on AS listing_created_on,
+        l.active,
+        json_build_object(
+          'partner_id', p.partner_id,
+          'partner_name', p.partner_name,
+          'email', p.email,
+          'categories', p.categories,
+          'contact_number', p.contact_number,
+          'rating', p.rating,
+          'picture', p.picture,
+          'website', p.website
+        ) AS partner_info,
+        COALESCE(
+            json_agg(
+                json_build_object(
+                    'outlet_id', o.outlet_id,
+                    'address', o.address,
+                    'nearest_mrt', o.nearest_mrt,
+                    'created_on', o.created_on,
+                    'schedules', os.schedules
+                )
+            ) FILTER (WHERE o.outlet_id IS NOT NULL),
+            '[]'::json
+        ) AS outlets
+      FROM listings l
+      LEFT JOIN partners p ON p.partner_id = l.partner_id
+      LEFT JOIN outlets o ON o.listing_id = l.listing_id
+      LEFT JOIN LATERAL (
+          SELECT 
+              json_agg(
+                  json_build_object(
+                      'schedule_id', s.schedule_id,
+                      'day', s.day,
+                      'timeslot', s.timeslot,
+                      'frequency', s.frequency,
+                      'created_on', s.created_on
+                  )
+              ) AS schedules
+          FROM schedules s
+          WHERE s.outlet_id = o.outlet_id
+      ) os ON true
+      WHERE l.listing_id = $1
+      GROUP BY 
+          l.listing_id, p.partner_id
+      ORDER BY 
+          l.created_on DESC;`,
       [id]
     );
 
-    if (listingResult.rows.length === 0) {
-      return res.status(404).json({ error: "Listing not found" });
-    }
-
-    let listing = listingResult.rows[0];
-
-    listing.package_types = listing.package_types
-      .replace(/[{}]/g, "")
-      .split(",");
-    listing.age_groups = listing.age_groups.replace(/[{}]/g, "").split(",");
-
-    const ageGroups = await pool.query(`SELECT * FROM ageGroups`);
-    const ageGroupMap = {};
-    ageGroups.rows.forEach((ageGroup) => {
-      ageGroupMap[ageGroup.name] = {
-        min_age: ageGroup.min_age,
-        max_age: ageGroup.max_age,
-      };
-    });
-
-    // Map age_groups to their respective names and age ranges
-    listing.age_groups = listing.age_groups.map((ageGroupName) => ({
-      name: ageGroupName,
-      ...ageGroupMap[ageGroupName],
-    }));
-
-    const outletsResult = await pool.query(
-      `SELECT * FROM outlets WHERE listing_id = $1`,
-      [id]
-    );
-
-    const outlets = outletsResult.rows;
-    for (let outlet of outlets) {
-      const schedulesResult = await pool.query(
-        `SELECT * FROM schedules WHERE outlet_id = $1`,
-        [outlet.outlet_id]
-      );
-      outlet.schedules = schedulesResult.rows;
-    }
-
-    listing.outlets = outlets;
-
-    res.json(listing);
+    res.json(listing.rows[0]);
   } catch (err) {
     console.error(`ERROR in /listings/${id} GET`, err.message);
     res.status(500).json({ error: err.message });

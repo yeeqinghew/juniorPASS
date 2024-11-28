@@ -73,10 +73,10 @@ const Class = () => {
   };
   // Function to generate available time slots
   const generateAvailableTimeSlots = () => {
-    if (!listing || !listing.string_outlet_schedules) return [];
+    if (!listing || !listing.outlets) return [];
 
     const selectedDay = dayjs(selectedDate).format("dddd");
-    return listing.string_outlet_schedules.reduce((acc, curr) => {
+    return listing?.outlets.reduce((acc, curr) => {
       curr.schedules.forEach((schedule) => {
         const day = schedule.day;
         const frequency = schedule.frequency;
@@ -224,7 +224,7 @@ const Class = () => {
             {listing?.package_types.map((type, index) => (
               <Tag key={`package-type-${index}`}># {type}</Tag>
             ))}
-            {listing?.categories.map((category, index) => (
+            {listing?.partner_info?.categories.map((category, index) => (
               <Tag key={`category-${index}`}>{category}</Tag>
             ))}
           </Space>
@@ -232,7 +232,7 @@ const Class = () => {
           <Title level={5} style={{ marginTop: 0 }}>
             $ {listing?.credit}
           </Title>
-          <Paragraph>{listing?.description}</Paragraph>
+          <Paragraph>{listing?.listing_description}</Paragraph>
 
           {listing?.age_groups.map((age, index) => (
             <Text key={`age-group-${index}`}>
@@ -311,28 +311,28 @@ const Class = () => {
             }}
           >
             <Meta
-              avatar={<Avatar src={listing.picture} />}
+              avatar={<Avatar src={listing?.partner_info?.picture} />}
               onClick={() => {
-                navigate(`/partner/${listing?.partner_id}`, {});
+                navigate(`/partner/${listing?.partner_info?.partner_id}`, {});
               }}
               title={listing?.partner_name}
               description={
                 <Space direction="vertical">
                   <Space>
                     <ShopOutlined />
-                    <Text>{listing?.website}</Text>
+                    <Text>{listing?.partner_info?.website}</Text>
                   </Space>
 
                   <Space>
                     <MailOutlined />
 
-                    <Text>{listing?.email}</Text>
+                    <Text>{listing?.partner_info?.email}</Text>
                   </Space>
 
                   <Space>
                     <PhoneOutlined />
 
-                    <Text>{listing?.phone_number}</Text>
+                    <Text>{listing?.partner_info?.contact_number}</Text>
                   </Space>
                 </Space>
               }
