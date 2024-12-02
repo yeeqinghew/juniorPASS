@@ -10,7 +10,6 @@ import {
   Col,
   Card,
   Divider,
-  Rate,
 } from "antd";
 import { Outlet, Link } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
@@ -26,6 +25,7 @@ import {
   BookOutlined,
   CheckCircleOutlined,
 } from "@ant-design/icons";
+import InfoCard from "../../utils/InfoCard";
 
 const { Header, Content } = Layout;
 const { Text, Title } = Typography;
@@ -42,8 +42,13 @@ function HomePage() {
     setHoveredIndex(-1);
   };
 
-  const images = require.context("../../images/partners", true);
-  const imageList = images.keys().map((image) => images(image));
+  const images = require.context(
+    "../../images/partners",
+    false,
+    /\.(png|jpe?g|svg)$/
+  );
+  const imageList = images.keys().map((key) => images(key));
+
   const coursesData = [
     {
       title: "LEGO® Robotics",
@@ -130,24 +135,6 @@ function HomePage() {
         "Secure your spot in just a few clicks! Enjoy a seamless booking process and get your child started on their learning adventure right away.",
     },
   ];
-
-  const boxStyle = {
-    backgroundColor: "#FFE3E3",
-    borderRadius: "10px",
-    textAlign: "center",
-    padding: "20px",
-    transition: "transform 0.3s",
-    cursor: "pointer",
-    height: "300px", // Fixed height
-    width: "100%", // Ensure the card spans the full width of its parent column
-    maxWidth: "500px", // Optional: set a maximum width for consistency
-    display: "flex",
-  };
-
-  const hoverEffect = {
-    ...boxStyle,
-    transform: "scale(1.05)",
-  };
 
   return (
     <ConfigProvider
@@ -400,7 +387,7 @@ function HomePage() {
                         <Image
                           key={index}
                           src={image}
-                          alt={`image-${index}`}
+                          alt={`partner-${index}`}
                           preview={false}
                         />
                       </Card>
@@ -448,17 +435,14 @@ function HomePage() {
                         height: "100%", // Ensure the column takes up the full height of the row
                       }}
                     >
-                      <Card
-                        hoverable
-                        style={hoveredIndex === index ? hoverEffect : boxStyle}
-                        bodyStyle={{ padding: "30px" }}
-                        onMouseEnter={() => handleMouseEnter(index)}
-                        onMouseLeave={handleMouseLeave}
-                      >
-                        {card.icon}
-                        <Title level={4}>{card.title}</Title>
-                        <Text>{card.description}</Text>
-                      </Card>
+                      <InfoCard
+                        icon={card.icon}
+                        title={card.title}
+                        description={card.description}
+                        hovered={hoveredIndex === index}
+                        onHover={() => handleMouseEnter(index)}
+                        onLeave={() => handleMouseLeave()}
+                      ></InfoCard>
                     </Col>
                   ))}
                 </Row>

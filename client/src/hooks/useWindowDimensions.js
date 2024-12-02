@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react";
 
+// Helper function to get window dimensions and screen size category
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window;
-  const isDesktop = width >= 1024;
-  // const isTabletLandscape = 1024 <= width && width <= 1336;
-  const isMobile = 375 < width && width < 768;
+
+  const isDesktop = width >= 1024; // Desktop: width >= 1024px
+  const isTabletLandscape = 1024 <= width && width <= 1336; // Tablet Landscape: 1024px <= width <= 1336px
+  const isTabletPortrait = 768 <= width && width < 1024; // Tablet Portrait: 768px <= width < 1024px
+  const isMobile = width < 768; // Mobile: width < 768px
 
   return {
     width,
     height,
     isDesktop,
-    // isTabletLandscape,
+    isTabletLandscape,
+    isTabletPortrait,
     isMobile,
   };
 }
