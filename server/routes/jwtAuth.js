@@ -7,6 +7,8 @@ const validInfo = require("../middleware/validInfo");
 const authorization = require("../middleware/authorization");
 const etagMiddleware = require("../middleware/etagMiddleware");
 const cacheMiddleware = require("../middleware/cacheMiddleware");
+const { OAuth2Client } = require("google-auth-library");
+const client = new OAuth2Client(process.env.googleClientID);
 
 router.use(etagMiddleware);
 
@@ -92,6 +94,38 @@ router.post("/login", validInfo, async (req, res) => {
     console.error(error);
     res.status(500).send("Server error");
   }
+});
+
+router.post("/login/google", async (req, res) => {
+  const { googleCredential } = req.body;
+
+  const ticket = await client.verifyIdToken({
+    idToken: googleCredential,
+    audience: process.env.googleClientID,
+  });
+  const payload = ticket.getPayload();
+  const { email, name, picture, email_verified } = payload;
+
+  const existingUser = await pool.query(
+    `SELECT * FROM users WHERE email = $1`,
+    [email]
+  );
+
+  if (existingUser.rows.length === 0) {
+    // new user, register
+    const newUserResult = await pool.query(
+      `INSERT INTO users (email, name, user_type, method, display_picture, created_on) 
+      VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [email, name, "parent", "gmail", picture, new Date().toLocaleString()]
+    );
+    const userId = newUserResult.rows[0].user_id;
+    const token = jwtGenerator(userId);
+    return res.json({ token, newUser: true });
+  }
+
+  // existing Gmail user
+  const token = jwtGenerator(existingUser.rows[0].user_id);
+  return res.json({ token, newUser: false });
 });
 
 router.get("/is-verify", authorization, async (req, res) => {

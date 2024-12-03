@@ -19,6 +19,25 @@ const Login = ({ setAuth }) => {
   const location = useLocation();
   const { from } = location.state || { from: { pathname: "/" } };
 
+  const handleResponse = async (response, navigatePath) => {
+    try {
+      const parseRes = await response.json();
+
+      if (response.ok && parseRes.token) {
+        localStorage.setItem("token", parseRes.token);
+        setAuth(true);
+        toast.success("Login successfully");
+        navigate(navigatePath);
+      } else {
+        setAuth(false);
+        toast.error(parseRes.message || "Invalid credentials");
+      }
+    } catch (error) {
+      console.error("Error parsing response:", error.message);
+      toast.error("An error occurred while processing the response.");
+    }
+  };
+
   const handleLogin = async (values) => {
     try {
       const response = await fetch(`${baseURL}/auth/login`, {
@@ -29,16 +48,7 @@ const Login = ({ setAuth }) => {
         body: JSON.stringify(values),
       });
 
-      const parseRes = await response.json();
-      if (parseRes.token) {
-        localStorage.setItem("token", parseRes.token);
-        setAuth(true);
-        toast.success("Login successfully");
-        navigate(from); // Navigate back to the previous location after successful login
-      } else {
-        setAuth(false);
-        toast.error("Wrong credential");
-      }
+      await handleResponse(response, from);
     } catch (error) {
       console.error(error.message);
       toast.error(error.message);
@@ -46,23 +56,23 @@ const Login = ({ setAuth }) => {
   };
 
   const handleGoogleLogin = async (values) => {
-    console.log(values);
-    const { clientId, credential } = values;
-    if (credential) {
-      // const response = await fetch(`${baseURL}/auth/login`, {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({
-      //     token: credential,
-      //     method: "gmail",
-      //   }),
-      // });
-      // const parseRes = await response.json();
-      // console.log("parseRes", parseRes);
-      // save to DB with available data if this is not found in DB
-      //
+    try {
+      const { clientId, credential, select_by } = values;
+      if (credential) {
+        const response = await fetch(`${baseURL}/auth/login/google`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            googleCredential: credential,
+          }),
+        });
+        await handleResponse(response, from);
+      }
+    } catch (error) {
+      console.error(error.message);
+      toast.error("An error has occured during Google Login.");
     }
   };
 

@@ -1,13 +1,15 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Avatar, Tabs } from "antd";
 import Account from "./Account";
 import Child from "./Child";
 import Credits from "./Credits";
 import AllClasses from "./AllClasses";
 import { useLocation } from "react-router-dom";
+import UserContext from "../UserContext";
 
 const Profile = () => {
   const { state } = useLocation();
+  const { user } = useContext(UserContext);
 
   const renderTabBar = (props, DefaultTabBar) => (
     <DefaultTabBar
@@ -42,17 +44,12 @@ const Profile = () => {
       children: <Credits />,
     },
   ];
-  // Assuming userProfile contains user's profile information including picture
-  const userProfile = {
-    name: "John Doe",
-    profilePicture: "https://example.com/profile-picture.jpg",
-  };
 
   const displayPicture = (
     <Avatar
       size={{ xs: 24, sm: 32, md: 40, lg: 64, xl: 80, xxl: 100 }}
-      src={userProfile.profilePicture}
-      alt={userProfile.name}
+      src={user?.display_picture}
+      alt={user?.name}
       style={{
         margin: "24px",
       }}

@@ -49,7 +49,7 @@ const Register = ({ setAuth }) => {
       const body = {
         ...values,
         userType: "parent",
-        method: "normal",
+        method: "email",
       };
       const response = await fetch(`${baseURL}/auth/register`, {
         method: "POST",

@@ -33,7 +33,7 @@ $$
 LANGUAGE plpgsql;
 
 CREATE TYPE user_types AS ENUM ('parent', 'child');
-CREATE TYPE methods AS ENUM('normal', 'gmail');
+CREATE TYPE methods AS ENUM('email', 'gmail');
 CREATE TYPE genders AS ENUM('M', 'F');
 CREATE TYPE categories AS ENUM('Sports', 'Music');
 CREATE TYPE package_types AS ENUM('pay-as-you-go', 'short-term', 'long-term');
@@ -43,14 +43,14 @@ CREATE TYPE age_groups AS ENUM ('infant', 'toddler', 'preschooler', 'above-7');
 CREATE TABLE users (
     user_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(100),
-    user_type user_types,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255),
-    phone_number VARCHAR(8),
-    method methods,
+    phone_number VARCHAR(8) UNIQUE,
+    user_type user_types,
+    method methods NOT NULL DEFAULT 'email', -- login method used
     credit INTEGER DEFAULT 0,
     display_picture VARCHAR(255),
-    created_on TIMESTAMP
+    created_on TIMESTAMP DEFAULT NOW()
 );
 
 CREATE TABLE parents (
