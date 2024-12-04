@@ -56,7 +56,7 @@ const Footer = () => {
             <Title level={5}>FOLLOW US</Title>
             <Space direction="horizontal">
               <MailOutlined />
-              <Link to="mailto:hello@juniorpass.sg">hello@juniorpass.sg</Link>
+              <Link to="mailto:admin@juniorpass.sg">admin@juniorpass.sg</Link>
             </Space>
             <Flex vertical={false} gap="large" style={{ width: "15%" }}>
               <Space direction="horizontal">
