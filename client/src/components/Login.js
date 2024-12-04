@@ -5,38 +5,20 @@ import {
   EyeTwoTone,
   EyeInvisibleOutlined,
 } from "@ant-design/icons";
-import { Button, Checkbox, Divider, Form, Input, Typography } from "antd";
+import { Button, Divider, Form, Input, Typography } from "antd";
 import { GoogleLogin } from "@react-oauth/google";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import getBaseURL from "../utils/config";
+import useHandleLogin from "../hooks/useHandleLogin";
 
 const { Title, Text } = Typography;
 
 const Login = ({ setAuth }) => {
   const baseURL = getBaseURL();
-  const navigate = useNavigate();
   const location = useLocation();
   const { from } = location.state || { from: { pathname: "/" } };
-
-  const handleResponse = async (response, navigatePath) => {
-    try {
-      const parseRes = await response.json();
-
-      if (response.ok && parseRes.token) {
-        localStorage.setItem("token", parseRes.token);
-        setAuth(true);
-        toast.success("Login successfully");
-        navigate(navigatePath);
-      } else {
-        setAuth(false);
-        toast.error(parseRes.message || "Invalid credentials");
-      }
-    } catch (error) {
-      console.error("Error parsing response:", error.message);
-      toast.error("An error occurred while processing the response.");
-    }
-  };
+  const { handleResponse, handleGoogleLogin } = useHandleLogin(setAuth, from);
 
   const handleLogin = async (values) => {
     try {
@@ -52,27 +34,6 @@ const Login = ({ setAuth }) => {
     } catch (error) {
       console.error(error.message);
       toast.error(error.message);
-    }
-  };
-
-  const handleGoogleLogin = async (values) => {
-    try {
-      const { clientId, credential, select_by } = values;
-      if (credential) {
-        const response = await fetch(`${baseURL}/auth/login/google`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            googleCredential: credential,
-          }),
-        });
-        await handleResponse(response, from);
-      }
-    } catch (error) {
-      console.error(error.message);
-      toast.error("An error has occured during Google Login.");
     }
   };
 
@@ -157,7 +118,7 @@ const Login = ({ setAuth }) => {
             <Input.Password
               prefix={<LockOutlined className="site-form-item-icon" />}
               type="password"
-              placeholder="Password"
+              placeholder="password"
               size={"large"}
               iconRender={(visible) =>
                 visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
@@ -165,12 +126,8 @@ const Login = ({ setAuth }) => {
               required
             />
           </Form.Item>
-          <Form.Item>
-            <Form.Item name="remember" valuePropName="checked" noStyle>
-              <Checkbox>Remember me</Checkbox>
-            </Form.Item>
-
-            <a className="login-form-forgot" href="" style={{ float: "right" }}>
+          <Form.Item style={{ textAlign: "center" }}>
+            <a className="login-form-forgot" href="">
               Forgot password
             </a>
           </Form.Item>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   LockOutlined,
   UserOutlined,
@@ -9,40 +9,21 @@ import {
 } from "@ant-design/icons";
 import { Button, Form, Input, Typography, Divider } from "antd";
 import { Link } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { GoogleLogin } from "@react-oauth/google";
 import getBaseURL from "../utils/config";
+import useHandleLogin from "../hooks/useHandleLogin";
 
 const { Title, Text } = Typography;
 
 const Register = ({ setAuth }) => {
   const baseURL = getBaseURL();
-  const handleGoogleLogin = async (values) => {
-    console.log(values);
-    const { clientId, credential } = values;
-    if (credential) {
-      const response = await fetch(`${baseURL}/auth/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          token: credential,
-          method: "gmail",
-          userType: "parent",
-        }),
-      });
-      const parseRes = await response.json();
-      if (parseRes.token) {
-        localStorage.setItem("token", parseRes.token);
-        setAuth(true);
-        toast.success("Register successfully");
-      } else {
-        setAuth(false);
-        toast.error("Failed. Please try later");
-      }
-    }
-  };
+  const [registerForm] = Form.useForm();
+  const { from } = { from: { pathname: "/" } };
+  const { handleGoogleLogin } = useHandleLogin(setAuth, from);
+  const [otpSent, setOtpSent] = useState(false);
+  const [isSendingOTP, setIsSendingOTP] = useState(false);
+  const [isPhoneValid, setIsPhoneValid] = useState(false);
 
   const onRegister = async (values) => {
     try {
@@ -78,6 +59,31 @@ const Register = ({ setAuth }) => {
     console.error(error);
   };
 
+  // Handler to track phone number validation status
+  const onFormValuesChange = (changedValues) => {
+    if (changedValues.phoneNumber) {
+      const phoneNumber = changedValues.phoneNumber;
+      // Validate the phone number format
+      const phoneValid = /^[689]\d{7}$/.test(phoneNumber);
+      setIsPhoneValid(phoneValid);
+    }
+  };
+
+  const handleSendOTP = () => {
+    setIsSendingOTP(true);
+    try {
+      // Simulate OTP sending process (e.g., using Twilio or other services)
+      setOtpSent(true);
+      toast.success("OTP sent successfully");
+    } catch (error) {
+      setOtpSent(false);
+      console.error("Failed to send OTP. Please try again.");
+      toast.error("Failed to send OTP. Please try again.");
+    } finally {
+      setIsSendingOTP(false);
+    }
+  };
+
   return (
     <section
       style={{
@@ -87,7 +93,6 @@ const Register = ({ setAuth }) => {
         alignItems: "center",
       }}
     >
-      <Toaster />
       <div
         style={{
           position: "relative",
@@ -100,7 +105,6 @@ const Register = ({ setAuth }) => {
           padding: "2rem",
         }}
       >
-        <Toaster />
         <Title level={3} style={{ textAlign: "center" }}>
           Register
         </Title>
@@ -114,11 +118,13 @@ const Register = ({ setAuth }) => {
         <Divider>OR</Divider>
         <Form
           name="register"
+          form={registerForm}
           className="register-form"
           style={{
             maxWidth: "300px",
           }}
           onFinish={onRegister}
+          onValuesChange={onFormValuesChange}
         >
           <Form.Item
             name="name"
@@ -142,6 +148,10 @@ const Register = ({ setAuth }) => {
                 required: true,
                 message: "Please input your phone number!",
               },
+              {
+                pattern: /^[689]\d{7}$/,
+                message: "Phone number is in an invalid format!",
+              },
             ]}
           >
             <Input
@@ -150,22 +160,29 @@ const Register = ({ setAuth }) => {
               size={"large"}
             />
           </Form.Item>
-          {/* verification code for phone */}
-          {/* <Form.Item
-          name="verifyCode"
-          rules={[
-            {
-              required: true,
-              message: "Please input verification code",
-            },
-          ]}
-        >
-          <Input
-            prefix={<NumberOutlined className="site-form-item-icon" />}
-            placeholder="Verification Code"
-            size={"large"}
-          />
-        </Form.Item> */}
+
+          <Form.Item
+            name="otp"
+            rules={[{ required: true, message: "Please enter the OTP!" }]}
+          >
+            <Input.Group compact>
+              <Input
+                style={{ width: "65%" }}
+                placeholder="Enter the OTP"
+                disabled={!otpSent}
+              />
+              <Button
+                type="primary"
+                onClick={handleSendOTP}
+                disabled={otpSent || !isPhoneValid || isSendingOTP} // Disable if OTP sent, phone invalid, or OTP sending
+                loading={isSendingOTP}
+                style={{ width: "35%" }}
+              >
+                {isSendingOTP ? "Sending OTP..." : "Send OTP"}
+              </Button>
+            </Input.Group>
+          </Form.Item>
+
           <Form.Item
             name="email"
             rules={[
@@ -213,8 +230,14 @@ const Register = ({ setAuth }) => {
             >
               Register
             </Button>
-            <Text>Already have an account? </Text>
-            <Link to="/login">Login</Link>
+            <div
+              style={{
+                textAlign: "center",
+              }}
+            >
+              <Text>Already have an account? </Text>
+              <Link to="/login">Login</Link>
+            </div>
           </Form.Item>
         </Form>
       </div>

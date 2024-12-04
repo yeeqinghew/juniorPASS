@@ -42,7 +42,7 @@ const LoggedInLayout = ({
     setLoading(false);
     setIsLoggingOut(true);
     // logout of Google account
-    // googleLogout();
+    googleLogout();
     toast.success("Logout successfully");
     navigate("/login");
   };
