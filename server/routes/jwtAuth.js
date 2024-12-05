@@ -12,21 +12,21 @@ const client = new OAuth2Client(process.env.googleClientID);
 
 router.use(etagMiddleware);
 
-router.get("/", authorization, cacheMiddleware, async (req, res) => {
+router.get("/", authorization, async (req, res) => {
   try {
     const user = await pool.query("SELECT * FROM users WHERE user_id = $1", [
       req.user,
     ]);
 
-    res.json(user.rows[0]);
+    return res.status(200).json(user.rows[0]);
   } catch (error) {
     console.error(error.message);
-    res.status(500).json("Server Error");
+    res.status(500).json({ error: error.message });
   }
 });
 
 router.post("/register", validInfo, async (req, res) => {
-  const { userType, name, phoneNumber, email, password, method } = req.body;
+  const { name, phoneNumber, email, password } = req.body;
 
   try {
     // check if user exists
@@ -34,8 +34,22 @@ router.post("/register", validInfo, async (req, res) => {
       email,
     ]);
 
+    // check if phone number exists
+    const phoneExist = await pool.query(
+      "SELECT * FROM users WHERE phone_number = $1",
+      [phoneNumber]
+    );
+
     if (user.rows.length !== 0) {
-      return res.status(401).json("User already exist");
+      return res
+        .status(401)
+        .json({ message: "User already exist in database. Please login" });
+    }
+
+    if (phoneExist.rows.length !== 0) {
+      return res.status(401).json({
+        message: "Phone number already in use. Please use a different number.",
+      });
     }
 
     // bcrypt password
@@ -43,16 +57,9 @@ router.post("/register", validInfo, async (req, res) => {
     const bcryptedPassword = bcrypt.hashSync(password, saltRound);
 
     const newUser = await pool.query(
-      "INSERT INTO users(name, user_type, email, password, phone_number, method, created_on) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *",
-      [
-        name,
-        userType,
-        email,
-        bcryptedPassword,
-        phoneNumber,
-        method,
-        new Date().toLocaleString(),
-      ]
+      `INSERT INTO users(name, user_type, email, password, phone_number, method)
+       VALUES($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [name, "parent", email, bcryptedPassword, phoneNumber, "email"]
     );
 
     if (newUser) {
@@ -64,10 +71,10 @@ router.post("/register", validInfo, async (req, res) => {
 
     // generate jwt token
     const token = jwtGenerator(newUser.rows[0].user_id);
-    res.json({ token });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server error");
+    return res.status(200).json({ token });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -89,61 +96,66 @@ router.post("/login", validInfo, async (req, res) => {
     }
 
     const token = jwtGenerator(user.rows[0].user_id);
-    return res.json({ token });
+    return res.status(200).json({ token });
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Server error");
+    console.error(error.message);
+    res.status(500).json({ error: error.message });
   }
 });
 
 router.post("/login/google", async (req, res) => {
-  const { googleCredential } = req.body;
+  try {
+    const { googleCredential } = req.body;
 
-  const ticket = await client.verifyIdToken({
-    idToken: googleCredential,
-    audience: process.env.googleClientID,
-  });
-  const payload = ticket.getPayload();
-  const { email, name, picture, email_verified } = payload;
+    const ticket = await client.verifyIdToken({
+      idToken: googleCredential,
+      audience: process.env.googleClientID,
+    });
+    const payload = ticket.getPayload();
+    const { email, name, picture, email_verified } = payload;
 
-  const existingUser = await pool.query(
-    `SELECT * FROM users WHERE email = $1`,
-    [email]
-  );
-
-  if (existingUser.rows.length === 0) {
-    // new user, register
-    const newUserResult = await pool.query(
-      `INSERT INTO users (email, name, user_type, method, display_picture, created_on) 
-      VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [email, name, "parent", "gmail", picture, new Date().toLocaleString()]
+    const existingUser = await pool.query(
+      `SELECT * FROM users WHERE email = $1`,
+      [email]
     );
-    const userId = newUserResult.rows[0].user_id;
-    const token = jwtGenerator(userId);
-    return res.json({ token, newUser: true });
-  }
 
-  // existing Gmail user
-  const token = jwtGenerator(existingUser.rows[0].user_id);
-  return res.json({ token, newUser: false });
+    if (existingUser.rows.length === 0) {
+      // new user, register
+      const newUserResult = await pool.query(
+        `INSERT INTO users (email, name, user_type, method, display_picture) 
+        VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+        [email, name, "parent", "gmail", picture]
+      );
+      const userId = newUserResult.rows[0].user_id;
+      const token = jwtGenerator(userId);
+      return res.status(200).json({ token, newUser: true });
+    }
+
+    // existing Gmail user
+    const token = jwtGenerator(existingUser.rows[0].user_id);
+    return res.status(200).json({ token, newUser: false });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: error.message });
+  }
 });
 
 router.get("/is-verify", authorization, async (req, res) => {
   try {
-    res.json(true);
+    return res.status(200).json(true);
   } catch (error) {
     console.error(error.message);
-    res.status(500).send("Server Error");
+    res.status(500).json({ error: error.message });
   }
 });
 
 router.get("/getAllUsers", cacheMiddleware, async (req, res) => {
   try {
     const user = await pool.query("SELECT * FROM users");
-    res.json(user.rows);
+    return res.status(200).json(user.rows);
   } catch (error) {
     console.error(err.message);
-    res.status(500);
+    res.status(500).json({ error: error.message });
   }
 });
 

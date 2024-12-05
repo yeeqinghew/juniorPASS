@@ -24,7 +24,7 @@ router.post("", cacheMiddleware, async (req, res) => {
     });
   } catch (error) {
     console.error(error.message);
-    res.status(500).send("Server Error");
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -36,10 +36,10 @@ router.get("/:parent_id", cacheMiddleware, async (req, res) => {
       "SELECT * FROM children WHERE parent_id = $1",
       [parent_id]
     );
-    res.json(children.rows);
+    return res.status(200).json(children.rows);
   } catch (error) {
     console.error(error.message);
-    res.status(500).send("Server Error");
+    res.status(500).json({ error: error.message });
   }
 });
 

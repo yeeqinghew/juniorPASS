@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import {
   Layout,
   Menu,
@@ -21,26 +21,19 @@ import {
 import toast, { Toaster } from "react-hot-toast";
 import "./Layout.css";
 import { googleLogout } from "@react-oauth/google";
-import useWindowDimensions from "../hooks/useWindowDimensions";
-import UserContext from "../components/UserContext";
+import { useUserContext } from "../components/UserContext";
 
 const { Header, Content, Footer } = Layout;
 const { Text, Title } = Typography;
 
-const LoggedInLayout = ({
-  isAuthenticated,
-  setAuth,
-  setLoading,
-  setIsLoggingOut,
-}) => {
-  const { user } = useContext(UserContext);
+const LoggedInLayout = () => {
+  const { user, isAuthenticated, setAuth, setLoading } = useUserContext();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     setAuth(false);
     setLoading(false);
-    setIsLoggingOut(true);
     // logout of Google account
     googleLogout();
     toast.success("Logout successfully");

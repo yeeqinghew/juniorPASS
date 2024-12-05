@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import {
   Button,
   Divider,
@@ -9,14 +9,14 @@ import {
   Space,
   Typography,
 } from "antd";
-import UserContext from "../UserContext";
+import { useUserContext } from "../UserContext";
 
 const { Text, Title } = Typography;
 
 const Credits = () => {
   const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
   const [topUpForm] = Form.useForm();
-  const { user } = useContext(UserContext);
+  const { user } = useUserContext();
 
   const handleTopUp = () => {
     setIsTopUpModalOpen(true);

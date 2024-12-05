@@ -39,8 +39,7 @@ router.post("", authorization, async (req, res) => {
         short_term_start_date,
         long_term_start_date,
         active,
-        created_on
-        ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`,
+        ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
       [
         partner_id,
         title,
@@ -53,7 +52,6 @@ router.post("", authorization, async (req, res) => {
         short_term_start_date,
         long_term_start_date,
         true,
-        new Date().toLocaleString(),
       ]
     );
 
@@ -64,9 +62,9 @@ router.post("", authorization, async (req, res) => {
       const { address, nearest_mrt, schedules } = location;
 
       const outletResult = await pool.query(
-        `INSERT INTO outlets (listing_id, address, nearest_mrt, created_on) 
+        `INSERT INTO outlets (listing_id, address, nearest_mrt) 
         VALUES ($1, $2, $3, $4) RETURNING outlet_id`,
-        [listing_id, address, nearest_mrt, new Date().toLocaleString()]
+        [listing_id, address, nearest_mrt]
       );
 
       const outlet_id = outletResult.rows[0].outlet_id;
@@ -75,9 +73,9 @@ router.post("", authorization, async (req, res) => {
         const { day, timeslot, frequency } = schedule;
 
         await pool.query(
-          `INSERT INTO schedules (outlet_id, day, timeslot, frequency, created_on)
+          `INSERT INTO schedules (outlet_id, day, timeslot, frequency)
          VALUES($1, $2, $3, $4, $5)`,
-          [outlet_id, day, timeslot, frequency, new Date().toLocaleString()]
+          [outlet_id, day, timeslot, frequency]
         );
       }
     }
@@ -155,7 +153,7 @@ router.get("", cacheMiddleware, async (req, res) => {
       ORDER BY 
           l.created_on DESC;`
     );
-    res.json(listings.rows);
+    return res.status(200).json(listings.rows);
   } catch (err) {
     console.error("ERROR in /listings GET", err.message);
     res.status(500).json({ error: err.message });
@@ -228,7 +226,7 @@ router.get("/:id", cacheMiddleware, async (req, res) => {
       [id]
     );
 
-    res.json(listing.rows[0]);
+    return res.status(200).json(listing.rows[0]);
   } catch (err) {
     console.error(`ERROR in /listings/${id} GET`, err.message);
     res.status(500).json({ error: err.message });
@@ -301,10 +299,10 @@ router.get("/partner/:partnerId", async (req, res) => {
       [partnerId]
     );
 
-    res.json(listings.rows);
-  } catch (err) {
-    console.error(`ERROR in /listings/partner/${partnerId} GET`, err.message);
-    res.status(500).json({ error: err.message });
+    return res.status(200).json(listings.rows);
+  } catch (error) {
+    console.error(`ERROR in /listings/partner/${partnerId} GET`, error.message);
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -352,9 +350,9 @@ router.put("/:id", async (req, res) => {
       message: "Listing has been updated!",
       data: listing,
     });
-  } catch (err) {
-    console.error(`ERROR in /listings/${id} PUT`, err.message);
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    console.error(`ERROR in /listings/${id} PUT`, error.message);
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -390,9 +388,9 @@ router.delete("/:id", async (req, res) => {
     res.status(200).json({
       message: "Listing has been deleted!",
     });
-  } catch (err) {
-    console.error(`ERROR in /listings/${id} DELETE`, err.message);
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    console.error(`ERROR in /listings/${id} DELETE`, error.message);
+    res.status(500).json({ error: error.message });
   }
 });
 

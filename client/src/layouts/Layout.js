@@ -1,27 +1,15 @@
 import React from "react";
 import { Layout, Menu, ConfigProvider, Image } from "antd";
-import { Outlet, Link, useNavigate } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
+import { Outlet, Link } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import "./Layout.css";
 import useWindowDimensions from "../hooks/useWindowDimensions";
 import Footer from "./Footer";
 
 const { Header, Content } = Layout;
 
-const OverallLayout = ({ setAuth, setLoading, setIsLoggingOut }) => {
+const OverallLayout = () => {
   const { isDesktop } = useWindowDimensions();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    setAuth(false);
-    setLoading(false);
-    setIsLoggingOut(true);
-    // logout of Google account
-    // googleLogout();
-    toast.success("Logout successfully");
-    navigate("/login");
-  };
 
   return (
     <ConfigProvider

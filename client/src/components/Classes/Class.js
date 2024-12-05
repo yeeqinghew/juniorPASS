@@ -17,7 +17,7 @@ import {
   Modal,
   Select,
 } from "antd";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   LeftOutlined,
@@ -27,7 +27,7 @@ import {
   PhoneOutlined,
 } from "@ant-design/icons";
 import Map, { Marker } from "react-map-gl";
-import UserContext from "../UserContext";
+import { useUserContext } from "../UserContext";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import getBaseURL from "../../utils/config";
@@ -51,7 +51,7 @@ const Class = () => {
 
   const { state } = useLocation();
   const { classId } = useParams();
-  const { user } = useContext(UserContext);
+  const { user } = useUserContext();
   const isToday = dayjs(selectedDate).isSame(dayjs(), "day"); // Check if the selected date is today
   const dateFormat = "ddd, D MMM YYYY";
   const navigate = useNavigate();
@@ -127,6 +127,7 @@ const Class = () => {
         setListing(data);
       } catch (error) {
         setError(error);
+        toast.error(error.message);
       } finally {
         setLoading(false);
       }
@@ -166,11 +167,15 @@ const Class = () => {
   };
 
   const getChildren = async () => {
-    const response = await fetch(`${baseURL}/children/${user?.user_id}`, {
-      method: "GET",
-    });
-    const parseRes = await response.json();
-    setChildren(parseRes);
+    try {
+      const response = await fetch(`${baseURL}/children/${user?.user_id}`, {
+        method: "GET",
+      });
+      const parseRes = await response.json();
+      setChildren(parseRes);
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   useEffect(() => {

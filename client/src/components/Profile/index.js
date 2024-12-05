@@ -5,11 +5,11 @@ import Child from "./Child";
 import Credits from "./Credits";
 import AllClasses from "./AllClasses";
 import { useLocation } from "react-router-dom";
-import UserContext from "../UserContext";
+import { useUserContext } from "../UserContext";
 
 const Profile = () => {
   const { state } = useLocation();
-  const { user } = useContext(UserContext);
+  const { user } = useUserContext();
 
   const renderTabBar = (props, DefaultTabBar) => (
     <DefaultTabBar

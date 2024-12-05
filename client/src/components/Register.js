@@ -13,31 +13,27 @@ import toast from "react-hot-toast";
 import { GoogleLogin } from "@react-oauth/google";
 import getBaseURL from "../utils/config";
 import useHandleLogin from "../hooks/useHandleLogin";
+import { useUserContext } from "./UserContext";
 
 const { Title, Text } = Typography;
 
-const Register = ({ setAuth }) => {
+const Register = () => {
   const baseURL = getBaseURL();
   const [registerForm] = Form.useForm();
-  const { from } = { from: { pathname: "/" } };
-  const { handleGoogleLogin } = useHandleLogin(setAuth, from);
   const [otpSent, setOtpSent] = useState(false);
   const [isSendingOTP, setIsSendingOTP] = useState(false);
   const [isPhoneValid, setIsPhoneValid] = useState(false);
-
+  const { from } = { from: { pathname: "/" } };
+  const { handleGoogleLogin } = useHandleLogin({ from });
+  const { setAuth } = useUserContext();
   const onRegister = async (values) => {
     try {
-      const body = {
-        ...values,
-        userType: "parent",
-        method: "email",
-      };
       const response = await fetch(`${baseURL}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify(values),
       });
 
       const parseRes = await response.json();
@@ -47,9 +43,10 @@ const Register = ({ setAuth }) => {
         toast.success("Register successfully");
       } else {
         setAuth(false);
-        toast.error("Failed. Please try later");
+        toast.error(parseRes.message);
       }
     } catch (error) {
+      setAuth(false);
       console.error(error.message);
       toast.error(error.message);
     }
@@ -163,7 +160,7 @@ const Register = ({ setAuth }) => {
 
           <Form.Item
             name="otp"
-            rules={[{ required: true, message: "Please enter the OTP!" }]}
+            // TODO: rules={[{ required: true, message: "Please enter the OTP!" }]}
           >
             <Input.Group compact>
               <Input

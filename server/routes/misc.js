@@ -15,27 +15,30 @@ router.get("/s3url", async (req, res) => {
 router.get("/getAllAgeGroups", cacheMiddleware, async (req, res) => {
   try {
     const ageGroups = await pool.query("SELECT * FROM ageGroups");
-    res.json(ageGroups.rows);
+    return res.status(200).json(ageGroups.rows);
   } catch (error) {
     console.error("ERROR in /misc/getAllAgeGroups", error.message);
+    res.status(500).json({ error: error.message });
   }
 });
 
 router.get("/getAllPackages", cacheMiddleware, async (req, res) => {
   try {
     const packageTypes = await pool.query("SELECT * FROM packageTypes");
-    res.json(packageTypes.rows);
+    return res.status(200).json(packageTypes.rows);
   } catch (error) {
     console.error("ERROR in /misc/getAllPackages", error.message);
+    res.status(500).json({ error: error.message });
   }
 });
 
 router.get("/getAllCategories", cacheMiddleware, async (req, res) => {
   try {
     const categories = await pool.query("SELECT * FROM categoriesListings");
-    res.json(categories.rows);
+    return res.status(200).json(categories.rows);
   } catch (error) {
     console.error("ERROR in /misc/getAllCategories", error.message);
+    res.status(500).json({ error: error.message });
   }
 });
 

@@ -18,7 +18,7 @@ router.post("/login", cacheMiddleware, async (req, res) => {
     ]);
 
     if (admin.rows.length === 0) {
-      return res.status(401).json("Invalid Credential");
+      return res.status(401).json({ message: "Invalid Credential" });
     }
 
     const validPassword = await bcrypt.compare(
@@ -27,14 +27,16 @@ router.post("/login", cacheMiddleware, async (req, res) => {
     );
 
     if (!validPassword) {
-      return res.status(401).json("Password or Email is incorrect");
+      return res
+        .status(401)
+        .json({ message: "Password or Email is incorrect" });
     }
 
     const token = jwtGenerator(admin.rows[0].admin_id);
     return res.json({ token });
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Server error");
+    console.error(error.message);
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -43,10 +45,10 @@ router.get("/getAllUsers", cacheMiddleware, async (req, res) => {
   // TODO: use middleware to check if user is superadmin
   try {
     const allUsers = await pool.query("SELECT * FROM users");
-    res.json(allUsers.rows);
-  } catch (err) {
+    return res.status(200).json(allUsers.rows);
+  } catch (error) {
     console.error(err.message);
-    res.status(500);
+    res.status(500).json({ error: error.message });
   }
 });
 

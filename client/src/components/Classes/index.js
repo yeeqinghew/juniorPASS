@@ -27,6 +27,7 @@ import Map, {
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useNavigate } from "react-router-dom";
 import getBaseURL from "../../utils/config";
+import toast from "react-hot-toast";
 
 const Classes = () => {
   const baseURL = getBaseURL();
@@ -51,6 +52,7 @@ const Classes = () => {
       setListings(jsonData);
     } catch (error) {
       console.error(error.message);
+      toast.error(error.message);
     }
   };
 
@@ -333,6 +335,9 @@ const Classes = () => {
               position: "bottom",
               align: "end",
               pageSize: "10.5",
+            }}
+            locale={{
+              emptyText: "No data available. Please check back later!",
             }}
             renderItem={(listing, index) => (
               <List.Item

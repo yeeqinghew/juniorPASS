@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import {
   Avatar,
@@ -12,7 +12,7 @@ import {
   Space,
   Typography,
 } from "antd";
-import UserContext from "../UserContext";
+import { useUserContext } from "../UserContext";
 import toast from "react-hot-toast";
 import _ from "lodash";
 import getBaseURL from "../../utils/config";
@@ -26,7 +26,7 @@ const Child = () => {
   const [isEditChildModalOpen, setIsEditChildModalOpen] = useState(false);
   const [addChildForm] = Form.useForm();
   const [editChildForm] = Form.useForm();
-  const { user } = useContext(UserContext);
+  const { user } = useUserContext();
 
   const handleCancel = () => {
     setIsAddChildModalOpen(false);
@@ -34,9 +34,8 @@ const Child = () => {
   };
 
   const handleAddChild = () => {
-    addChildForm
-      .validateFields()
-      .then(async (values) => {
+    try {
+      addChildForm.validateFields().then(async (values) => {
         const response = await fetch(`${baseURL}/children`, {
           method: "POST",
           headers: {
@@ -52,20 +51,25 @@ const Child = () => {
           setIsAddChildModalOpen(false);
           getChildren(); // Fetch the updated list of children
         }
-      })
-      .catch((error) => {
-        console.error(error.message);
       });
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   const handleEditChild = () => {};
 
   const getChildren = async () => {
-    const response = await fetch(`${baseURL}/children/${user?.user_id}`, {
-      method: "GET",
-    });
-    const parseRes = await response.json();
-    setChildren(parseRes);
+    try {
+      const response = await fetch(`${baseURL}/children/${user?.user_id}`, {
+        method: "GET",
+      });
+      const parseRes = await response.json();
+      setChildren(parseRes);
+    } catch (error) {
+      console.error(error.message);
+      toast.error(error.message);
+    }
   };
 
   useEffect(() => {

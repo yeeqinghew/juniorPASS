@@ -8,17 +8,19 @@ import {
 import { Button, Divider, Form, Input, Typography } from "antd";
 import { GoogleLogin } from "@react-oauth/google";
 import { Link, useLocation } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import getBaseURL from "../utils/config";
 import useHandleLogin from "../hooks/useHandleLogin";
 
 const { Title, Text } = Typography;
 
-const Login = ({ setAuth }) => {
+const Login = () => {
   const baseURL = getBaseURL();
   const location = useLocation();
   const { from } = location.state || { from: { pathname: "/" } };
-  const { handleResponse, handleGoogleLogin } = useHandleLogin(setAuth, from);
+  const { handleResponse, handleGoogleLogin } = useHandleLogin({
+    from,
+  });
 
   const handleLogin = async (values) => {
     try {
@@ -50,7 +52,6 @@ const Login = ({ setAuth }) => {
         alignItems: "center",
       }}
     >
-      <Toaster />
       <div
         style={{
           position: "relative",
