@@ -13,6 +13,7 @@ DROP TABLE IF EXISTS categoriesListings CASCADE;
 DROP TABLE IF EXISTS packageTypes CASCADE;
 DROP TABLE IF EXISTS outlets CASCADE;
 DROP TABLE IF EXISTS schedules CASCADE;
+DROP TABLE IF EXISTS partnerForms CASCADE;
 
 DROP TYPE IF EXISTS user_types CASCADE;
 DROP TYPE IF EXISTS methods CASCADE;
@@ -79,7 +80,7 @@ CREATE TABLE partners (
     region VARCHAR(50) NOT NULL, 
     contact_number VARCHAR(8),
     categories categories[] NOT NULL,
-    created_on TIMESTAMP
+    created_on TIMESTAMP DEFAULT NOW()
 );
 
 INSERT INTO partners(partner_name, email, password, description, website, picture, address, region, contact_number, categories, created_on)
@@ -113,7 +114,7 @@ CREATE TABLE listings (
     short_term_start_date TIMESTAMP,
     long_term_start_date TIMESTAMP,
     active BOOLEAN,
-    created_on TIMESTAMP,
+    created_on TIMESTAMP DEFAULT NOW(),
     last_updated_on TIMESTAMP
 );
 
@@ -122,7 +123,7 @@ CREATE TABLE outlets (
     listing_id uuid REFERENCES listings(listing_id) ON DELETE CASCADE,
     address VARCHAR(1000),
     nearest_mrt VARCHAR(200),
-    created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_on TIMESTAMP DEFAULT NOW()
 );
 
 CREATE TABLE schedules (
@@ -131,7 +132,7 @@ CREATE TABLE schedules (
     day VARCHAR(10) CHECK(day IN ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')),
     timeslot VARCHAR(10)[],
     frequency VARCHAR(10) CHECK(frequency IN ('Biweekly', 'Weekly', 'Monthly', 'Yearly')),
-    created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_on TIMESTAMP DEFAULT NOW()
 );
 
 CREATE TABLE transactions (
@@ -141,7 +142,7 @@ CREATE TABLE transactions (
     listing_id uuid REFERENCES listings(listing_id) NOT NULL,
     used_credit INTEGER NOT NULL,
     transaction_type transaction_types NOT NULL,
-    created_on TIMESTAMP
+    created_on TIMESTAMP DEFAULT NOW()
 );
 
 CREATE TABLE reviews (
@@ -151,7 +152,7 @@ CREATE TABLE reviews (
     user_id uuid REFERENCES users(user_id) NOT NULL,
     rating INTEGER NOT NULL,
     comment VARCHAR(5000) NOT NULL,
-    created_on TIMESTAMP
+    created_on TIMESTAMP DEFAULT NOW()
 );
 
 CREATE TABLE categoriesListings (
@@ -163,7 +164,6 @@ INSERT INTO categoriesListings (name)
     VALUES
     ('Music'),
     ('Sports');
-
 
 CREATE TABLE packageTypes (
     ID SERIAL PRIMARY KEY,
@@ -201,4 +201,12 @@ CREATE TABLE admins (
 INSERT INTO admins(username, password)
     VALUES('superadmin', '$2b$10$tk2dxadGFGRMGsj3mjJr2OQ4VpsxvS7cSvajbTUbRJIchUOvYOAGO');
 
-
+CREATE TABLE partnerForms (
+    id SERIAL PRIMARY KEY,
+    company_name VARCHAR(255) NOT NULL,
+    contact_person_name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    message TEXT,
+    created_on TIMESTAMP DEFAULT NOW(),
+    responded BOOLEAN DEFAULT FALSE
+);
