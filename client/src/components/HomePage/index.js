@@ -368,6 +368,7 @@ function HomePage() {
                     autoScroll: {
                       speed: 1,
                     },
+                    arrows: true,
                   }}
                 >
                   {imageList.map((image, index) => (
@@ -385,7 +386,6 @@ function HomePage() {
                         bordered={false}
                       >
                         <Image
-                          key={index}
                           src={image}
                           alt={`partner-${index}`}
                           preview={false}

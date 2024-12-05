@@ -56,3 +56,14 @@ footer {
 footer .ant-card {
     min-height: 150px;
 }
+
+/* Splide arrow buttons */
+.splide__arrow--prev {
+    left: -20px;
+    /* Adjust the position of the left arrow */
+}
+
+.splide__arrow--next {
+    right: -20px;
+    /* Adjust the position of the right arrow */
+}
