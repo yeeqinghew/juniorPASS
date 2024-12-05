@@ -10,13 +10,13 @@ import {
   Col,
   Card,
   Divider,
+  Drawer,
 } from "antd";
 import { Outlet, Link } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { Splide, SplideSlide } from "@splidejs/react-splide";
 import { Grid } from "@splidejs/splide-extension-grid";
 import "@splidejs/react-splide/dist/css/splide.min.css";
-import "./index.css";
 import homepageVideo from "../../videos/homepage.mp4"; // Import the video directly
 import Footer from "../../layouts/Footer";
 import FAQ from "../FAQ";
@@ -24,8 +24,10 @@ import {
   SmileOutlined,
   BookOutlined,
   CheckCircleOutlined,
+  MenuOutlined,
 } from "@ant-design/icons";
 import InfoCard from "../../utils/InfoCard";
+import "./index.css";
 
 const { Header, Content } = Layout;
 const { Text, Title } = Typography;
@@ -33,7 +35,7 @@ const { Text, Title } = Typography;
 function HomePage() {
   // Keep track of the hovered card index (-1 means none are hovered)
   const [hoveredIndex, setHoveredIndex] = useState(-1);
-
+  const [drawerVisible, setDrawerVisible] = useState(false);
   const handleMouseEnter = (index) => {
     setHoveredIndex(index);
   };
@@ -113,6 +115,14 @@ function HomePage() {
     },
   ];
 
+  const showDrawer = () => {
+    setDrawerVisible(true);
+  };
+
+  const closeDrawer = () => {
+    setDrawerVisible(false);
+  };
+
   const cardsData = [
     {
       title: "Register",
@@ -171,39 +181,61 @@ function HomePage() {
     >
       <Layout style={{ minHeight: "100vh", overflow: "hidden" }}>
         <Header
+          id={"header-homepage"}
           style={{
-            position: "absolute", // Keeps the header at the top, above the video
-            top: "30px",
-            zIndex: 3, // Higher z-index to stay on top of the video
-            width: "100%",
-            backgroundColor: "transparent", // Make the header transparent
             display: "flex",
-            justifyContent: "space-between", // This ensures logo on the left, menu on the right
-            alignItems: "center", // Vertically center items
-            padding: "50px 150px",
+            justifyContent: "space-between",
+            alignItems: "center",
           }}
         >
+          {/* Logo */}
           <Link to="/">
             <Image
+              className="logo-homepage"
               alt="logo"
               src={require("../../images/logopngResize.png")}
-              width={100}
-              height={50}
               preview={false}
             />
           </Link>
 
-          <Menu
-            mode="horizontal"
-            style={{
-              background: "transparent",
-              borderBottom: "none",
-              flex: 1,
-              display: "flex",
-              justifyContent: "flex-end", // This aligns the menu items to the right
-              fontSize: "15px",
-            }}
+          {/* Hamburger menu (visible on mobile) */}
+          <div className="hamburger-menu" onClick={showDrawer}>
+            <MenuOutlined style={{ fontSize: "24px", color: "white" }} />
+          </div>
+
+          {/* Drawer (Hamburger menu for mobile) */}
+          <Drawer
+            title="Menu"
+            placement="right"
+            onClose={closeDrawer}
+            open={drawerVisible}
+            width={250}
+            style={{ padding: 0 }}
           >
+            <Menu
+              mode="vertical"
+              onClick={closeDrawer}
+              style={{ background: "transparent", color: "black" }}
+            >
+              <Menu.Item key="classes">
+                <Link to="/classes" style={{ fontWeight: "600" }}>
+                  Browse our classes
+                </Link>
+              </Menu.Item>
+              <Menu.Item key="plan">
+                <Link to="/pricing" style={{ fontWeight: "600" }}>
+                  Plans
+                </Link>
+              </Menu.Item>
+              <Menu.Item key="login">
+                <Link to="/login" style={{ fontWeight: "600" }}>
+                  Login/Register
+                </Link>
+              </Menu.Item>
+            </Menu>
+          </Drawer>
+
+          <Menu mode="horizontal">
             <Menu.Item key="classes">
               <Link to="/classes" style={{ color: "white", fontWeight: "600" }}>
                 Browse our classes
