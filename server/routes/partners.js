@@ -7,6 +7,7 @@ const authorization = require("../middleware/authorization");
 const etagMiddleware = require("../middleware/etagMiddleware");
 const cacheMiddleware = require("../middleware/cacheMiddleware");
 const client = require("../utils/redisClient");
+const validInfo = require("../middleware/validInfo");
 
 router.use(etagMiddleware);
 
@@ -17,10 +18,10 @@ router.get("/", authorization, async (req, res) => {
       "SELECT * FROM partners WHERE partner_id = $1",
       [req.user]
     );
-    res.json(partner.rows[0]);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json("Server Error");
+    return res.status(200).json(partner.rows[0]);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -34,7 +35,7 @@ router.post("/login", async (req, res) => {
     );
 
     if (partner.rows.length === 0) {
-      return res.status(401).json("Invalid Credential");
+      return res.status(401).json({ message: "Invalid Credential" });
     }
 
     const validPassword = await bcrypt.compare(
@@ -42,14 +43,16 @@ router.post("/login", async (req, res) => {
       partner.rows[0].password
     );
     if (!validPassword) {
-      return res.status(401).json("Password or Email is incorrect");
+      return res
+        .status(401)
+        .json({ message: "Password or Email is incorrect" });
     }
 
     const token = jwtGenerator(partner.rows[0].partner_id);
-    return res.json({ token });
+    return res.status(200).json({ token });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Server error");
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -62,7 +65,7 @@ router.get("/:id", cacheMiddleware, async (req, res) => {
       getReviwesByPartnerId(id),
     ]);
 
-    return res.json({
+    return res.status(200).json({
       success: true,
       data: {
         partner,
@@ -72,7 +75,7 @@ router.get("/:id", cacheMiddleware, async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Server error");
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -95,9 +98,35 @@ router.put("/:id", async (req, res) => {
     );
     await client.del(`/partners/${id}`);
 
-    return res.json(updatedPartner.rows[0]);
+    return res.status(200).json({
+      message: "Information has been updated",
+      partner: updatedPartner.rows[0],
+    });
   } catch (error) {
     console.error("Update Error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post("/partnerForm", validInfo, async (req, res) => {
+  try {
+    const { companyName, companyPersonName, email, message } = req.body;
+    const request = await pool.query(
+      `INSERT INTO partnerForms (
+        company_name,
+        contact_person_name,
+        email,
+        message
+      )
+      VALUES($1, $2, $3, $4)`,
+      [companyName, companyPersonName, email, message]
+    );
+    res.status(201).json({
+      message:
+        "We've received your request. Our admin will contact you shortly.",
+    });
+  } catch (error) {
+    console.error("ERROR in /misc/contactUs", error.message);
     res.status(500).json({ error: error.message });
   }
 });
@@ -124,7 +153,7 @@ const getPartnerByPartnerId = async (partnerId) => {
     return partner.rows[0];
   } catch (error) {
     console.error(error);
-    throw new Error("Error fetching partner");
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -137,7 +166,7 @@ const getListingsByPartnerId = async (partnerId) => {
     return listings.rows;
   } catch (error) {
     console.error(error);
-    throw new Error("Error fetching listings");
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -150,7 +179,7 @@ const getReviwesByPartnerId = async (partnerId) => {
     return reviews.rows;
   } catch (error) {
     console.error(error);
-    res.status(500).send("Server error");
+    res.status(500).json({ error: error.message });
   }
 };
 

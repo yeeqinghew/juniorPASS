@@ -1,10 +1,35 @@
 import React from "react";
-import { Form, Input, Typography, Button, Space, Row, Col } from "antd";
+import { Form, Input, Typography, Button, Space } from "antd";
+import getBaseURL from "../../utils/config";
+import toast from "react-hot-toast";
 
 const { Title, Text } = Typography;
+const { TextArea } = Input;
 
 const ContactUs = () => {
   const [contactUsForm] = Form.useForm();
+  const baseURL = getBaseURL();
+
+  const handleContactUs = async (values) => {
+    try {
+      const response = await fetch(`${baseURL}/partners/partnerForm`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+      const parseRes = await response.json();
+
+      if (response.ok && parseRes.message) {
+        toast.success(parseRes.message);
+        contactUsForm.resetFields();
+      }
+    } catch (error) {
+      console.error(error.message);
+      toast.error(error.message);
+    }
+  };
 
   return (
     <div
@@ -17,7 +42,7 @@ const ContactUs = () => {
       }}
     >
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
-        <Title level={3} style={{ textAlign: "center", color: "#1890ff" }}>
+        <Title level={3} style={{ textAlign: "center" }}>
           Ready to grow your business?
         </Title>
         <Text
@@ -33,6 +58,7 @@ const ContactUs = () => {
           style={{
             width: "100%",
           }}
+          onFinish={handleContactUs}
         >
           <Form.Item
             name="companyName"
@@ -59,6 +85,13 @@ const ContactUs = () => {
             ]}
           >
             <Input placeholder="Enter your email" size="large" />
+          </Form.Item>
+          <Form.Item
+            name="message"
+            label="Message"
+            rules={[{ required: true, message: "Please enter your email" }]}
+          >
+            <TextArea rows={6}></TextArea>
           </Form.Item>
           <Form.Item>
             <Button
