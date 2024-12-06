@@ -4,6 +4,8 @@
 
 * {
     font-family: 'Ovo', serif !important;
+    margin: 0;
+    padding: 0;
 }
 
 .logo-homepage {
@@ -45,6 +47,7 @@
     border-radius: 25px;
 }
 
+/* Partner Section */
 .partner-div {
     padding: 24px 250px;
 }
@@ -59,15 +62,17 @@
     height: 280px;
 }
 
+/* Join Us Section */
 .join-us-div {
     padding: 50px 200px;
 }
 
 .join-us-subtitle {
     font-size: 24px !important;
-    line-height: 1.2px !important;
+    line-height: 1.2 !important;
 }
 
+/* FAQ Section */
 .faq-div {
     padding: 50px 0;
     display: flex;
@@ -102,11 +107,6 @@
 
     .ant-menu-horizontal {
         display: none !important;
-    }
-
-    /* You might want to adjust the drawer's position */
-    .ant-drawer-content {
-        padding: 0;
     }
 
     .headline-div {
@@ -159,7 +159,7 @@
         font-size: 10px;
     }
 
-    /* Partner */
+    /* Partner Section */
     .partner-div {
         padding: 12px 50px;
     }
@@ -167,7 +167,6 @@
     .partner-title {
         font-size: 24px !important;
         line-height: 1 !important;
-        text-align: center !important;
     }
 
     .partner-splide-card {
@@ -179,15 +178,13 @@
     /* Splide arrow buttons */
     .splide__arrow--prev {
         left: -10px;
-        /* Adjust the position of the left arrow */
     }
 
     .splide__arrow--next {
         right: -10px;
-        /* Adjust the position of the right arrow */
     }
 
-    /* Join us */
+    /* Join Us Section */
     .join-us-div {
         padding: 10px 80px;
     }
@@ -195,14 +192,14 @@
     .join-us-title {
         font-size: 24px !important;
         line-height: 1 !important;
-        text-align: center !important;
     }
 
     .join-us-subtitle {
         font-size: 18px !important;
-        line-height: 1.2px !important;
+        line-height: 1.2 !important;
     }
 
+    /* FAQ Section */
     .faq-title {
         font-size: 24px !important;
         line-height: 1.0 !important;
@@ -237,11 +234,6 @@
         display: none !important;
     }
 
-    /* You might want to adjust the drawer's position */
-    .ant-drawer-content {
-        padding: 0;
-    }
-
     .headline-div {
         position: relative;
         width: 100%;
@@ -258,7 +250,6 @@
 
     .headline-title {
         font-size: 24px !important;
-        line-height: 1 !important;
     }
 
     .overlay-homepage {
@@ -289,7 +280,7 @@
         font-size: 16px;
     }
 
-    /* Partner */
+    /* Partner Section */
     .partner-div {
         padding: 12px 50px;
     }
@@ -309,29 +300,26 @@
     /* Splide arrow buttons */
     .splide__arrow--prev {
         left: -20px;
-        /* Adjust the position of the left arrow */
     }
 
     .splide__arrow--next {
         right: -20px;
-        /* Adjust the position of the right arrow */
     }
 
     .ant-card {
         width: 100% !important;
-        /* Take full width of the container */
         font-size: 12px !important;
-        /* Adjust font size for smaller screens */
     }
 
+    /* FAQ Section */
     .faq-title {
         font-size: 24px !important;
-        line-height: 1.0 !important;
+        line-height: 1 !important;
     }
 
     .faq-subtitle {
         font-size: 18px !important;
-        line-height: 1.0 !important;
+        line-height: 1 !important;
     }
 }
 
@@ -411,12 +399,10 @@
     /* Splide arrow buttons */
     .splide__arrow--prev {
         left: -50px;
-        /* Adjust the position of the left arrow */
     }
 
     .splide__arrow--next {
         right: -50px;
-        /* Adjust the position of the right arrow */
     }
 
     .ant-card {
@@ -495,11 +481,9 @@
     /* Splide arrow buttons */
     .splide__arrow--prev {
         left: -20px;
-        /* Adjust the position of the left arrow */
     }
 
     .splide__arrow--next {
         right: -20px;
-        /* Adjust the position of the right arrow */
     }
 }
