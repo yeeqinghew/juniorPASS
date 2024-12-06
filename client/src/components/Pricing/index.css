@@ -1,0 +1,201 @@
+/* Global Variables for Consistency */
+:root {
+    --primary-color: #98bdd2;
+    --secondary-color: #52c41a;
+    --text-dark: #333;
+    --text-light: #555;
+    --text-muted: #777;
+    --card-bg: #fff;
+    --popular-bg: #f5f5f5;
+    --border-color: #ddd;
+    --shadow-default: 0 4px 8px rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 8px 16px rgba(0, 0, 0, 0.2);
+    --font-small: 12px;
+    --font-medium: 14px;
+    --font-large: 16px;
+    --font-xlarge: 24px;
+}
+
+/* General Styling */
+.pricing-container {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.section-subtitle {
+    color: var(--text-light);
+    margin-bottom: 5px;
+}
+
+.section-title {
+    color: var(--text-dark);
+    margin-bottom: 15px;
+    margin-top: 0.8em !important;
+}
+
+.section-description {
+    font-size: var(--font-medium);
+    color: var(--text-muted);
+}
+
+/* Card Container */
+.card-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+/* Pricing Card */
+.pricing-card {
+    width: 100%;
+    max-width: 320px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    text-align: center;
+    padding: 20px;
+    box-shadow: var(--shadow-default);
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+}
+
+.pricing-card:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-hover);
+}
+
+/* Popular Card */
+.popular-card {
+    background-color: var(--popular-bg);
+    border: 2px solid var(--primary-color);
+}
+
+.popular-label {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--primary-color);
+    color: #fff;
+    padding: 5px 15px;
+    font-size: var(--font-small);
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+/* Card Text */
+.card-title {
+    margin-bottom: 10px;
+    color: var(--text-dark);
+}
+
+.card-price {
+    font-size: var(--font-xlarge);
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.card-credits {
+    display: block;
+    margin-bottom: 20px;
+}
+
+/* Button */
+.choose-plan-btn {
+    border-radius: 20px;
+}
+
+/* Benefits List */
+.benefits-list {
+    margin-top: 40px;
+    text-align: left;
+    max-width: 600px;
+    margin: 40px auto 0;
+}
+
+.benefit-item {
+    font-size: var(--font-medium);
+    color: var(--text-light);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.benefit-icon {
+    color: var(--secondary-color);
+    margin-right: 8px;
+}
+
+/* Media Queries */
+@media screen and (max-width: 767.9px) {
+    .pricing-container {
+        padding: 20px 10px;
+    }
+
+    .section-subtitle,
+    .section-title,
+    .section-description {
+        font-size: var(--font-small) !important;
+    }
+
+    .pricing-card {
+        max-width: 240px;
+        padding: 12px;
+    }
+
+    .popular-label {
+        font-size: var(--font-small) !important;
+    }
+
+    .benefit-item {
+        font-size: var(--font-small) !important;
+    }
+
+    .ant-card {
+        display: block !important;
+    }
+}
+
+@media screen and (min-width: 768px) and (max-width: 979.9px) {
+    .pricing-container {
+        padding: 40px 20px;
+    }
+
+    .section-subtitle,
+    .section-title {
+        font-size: var(--font-large) !important;
+        margin-top: 1em !important;
+    }
+
+    .pricing-card {
+        max-width: 280px;
+    }
+
+    .popular-label {
+        font-size: var(--font-medium) !important;
+    }
+
+    .benefit-item {
+        font-size: var(--font-medium) !important;
+    }
+}
+
+@media screen and (min-width: 980px) and (max-width: 1335.9px) {
+    .pricing-card {
+        max-width: 320px;
+        padding: 20px;
+    }
+
+    .ant-card {
+        display: block !important;
+    }
+}
+
+@media screen and (min-width: 1336px) {
+    .pricing-card {
+        max-width: 320px;
+        padding: 20px;
+    }
+}

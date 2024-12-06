@@ -1,54 +1,38 @@
 import React from "react";
-import { Typography, Card, Col, Row, Space } from "antd";
+import { Typography, Card, Col, Row, Space, Button } from "antd";
 import { CheckOutlined } from "@ant-design/icons";
+import "./index.css"; // Import the external CSS file
+
 const { Text, Title } = Typography;
 
 const CardComponent = ({ planName, planClass, price, credits }) => {
+  const isPopular = planClass === "popularPlan";
+
   return (
-    <Col>
+    <Col
+      xs={24} // Full-width on mobile
+      sm={24} // Full-width on tablet portrait
+      md={24} // 1/3 width on tablet landscape (3 items per row)
+      lg={8}
+      className="card-container"
+    >
       <Card
         hoverable
-        style={{
-          boxShadow: 25,
-          width: "fit-content",
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "center",
-          backgroundColor: "#fff",
-          padding: "2.5rem",
-          margin: "12px",
-          borderRadius: "25px",
-          textAlign: "center",
-          transition: "0.3s",
-          cursor: "pointer",
-        }}
+        className={`pricing-card ${isPopular ? "popular-card" : ""}`}
+        bodyStyle={{ padding: "24px" }}
+        onClick={() => console.log(`${planName} clicked`)}
       >
-        <div className={planClass}>
-          {planClass === "popularPlan" && (
-            <span
-              style={{
-                position: "absolute",
-                top: "-20px",
-                left: "50%",
-                transform: "translateX(=50%)",
-                backgroundColor: "black",
-                color: "#fff",
-                padding: "4px 20px",
-                fontSize: "18px",
-                borderRadius: "5px",
-              }}
-            >
-              Most Popular
-            </span>
-          )}
-          <Title level={3}>{planName}</Title>
-          <Text style={{ fontSize: "30px" }}>
-            <b>SGD {price}</b>{" "}
-          </Text>
-          <Text>
-            for <b>{credits}</b> credits
-          </Text>
-        </div>
+        {isPopular && <span className="popular-label">Most Popular</span>}
+        <Title level={4} className="card-title">
+          {planName}
+        </Title>
+        <Text className="card-price">SGD {price}</Text>
+        <Text className="card-credits">
+          for <b>{credits}</b> credits
+        </Text>
+        <Button type="primary" size="large" className="choose-plan-btn">
+          Choose Plan
+        </Button>
       </Card>
     </Col>
   );
@@ -56,18 +40,24 @@ const CardComponent = ({ planName, planClass, price, credits }) => {
 
 const Pricing = () => {
   return (
-    <div style={{ textAlign: "center" }}>
+    <div className="pricing-container">
       <div>
-        <Text>Discover</Text>
-        <Title level={1}>Available Pricing</Title>
-        <Text>Choose the perfect pricing plans for your needs</Text>
+        <Title level={3} className="section-subtitle">
+          Discover
+        </Title>
+        <Title level={1} className="section-title">
+          Available Pricing
+        </Title>
+        <Text className="section-description">
+          Choose the perfect pricing plans for your needs
+        </Text>
       </div>
 
       <Row
-        align={"center"}
-        style={{
-          margin: "24px 0",
-        }}
+        gutter={[16, 16]}
+        justify="center"
+        className="pricing-cards-row"
+        wrap={true}
       >
         <CardComponent
           planName="Basic"
@@ -88,25 +78,23 @@ const Pricing = () => {
           credits="38"
         />
       </Row>
-      <Space direction="vertical">
-        <Text>
-          <CheckOutlined />
+
+      <Space direction="vertical" className="benefits-list">
+        <Text className="benefit-item">
+          <CheckOutlined className="benefit-icon" />
           No expiration date
         </Text>
-        <Text>
-          <CheckOutlined />
+        <Text className="benefit-item">
+          <CheckOutlined className="benefit-icon" />
           Flexible Credits
-          {/* Purchase credits that can be used to book any class on our platform. */}
         </Text>
-        <Text>
-          <CheckOutlined />
+        <Text className="benefit-item">
+          <CheckOutlined className="benefit-icon" />
           Easy Scheduling
-          {/* Book classes at your convenience with our user-friendly scheduling system. */}
         </Text>
-        <Text>
-          <CheckOutlined />
+        <Text className="benefit-item">
+          <CheckOutlined className="benefit-icon" />
           Secure Payments
-          {/* All transactions are secure and encrypted for your peace of mind. */}
         </Text>
       </Space>
     </div>
