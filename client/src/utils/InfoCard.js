@@ -20,11 +20,20 @@ const hoverEffect = {
   transform: "scale(1.05)",
 };
 
-function InfoCard({ icon, title, description, hovered, onHover, onLeave }) {
+function InfoCard({
+  icon,
+  title,
+  description,
+  hovered,
+  onHover,
+  onLeave,
+  style,
+}) {
+  const overrideBoxStyle = { ...boxStyle, ...style };
   return (
     <Card
       hoverable
-      style={hovered ? hoverEffect : boxStyle}
+      style={hovered ? hoverEffect : overrideBoxStyle}
       onMouseEnter={onHover}
       bodyStyle={{ padding: "30px" }}
       onMouseLeave={onLeave}

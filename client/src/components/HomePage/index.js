@@ -27,6 +27,7 @@ import {
 } from "@ant-design/icons";
 import InfoCard from "../../utils/InfoCard";
 import "./index.css";
+import useWindowDimensions from "../../hooks/useWindowDimensions";
 
 const { Header, Content } = Layout;
 const { Text, Title } = Typography;
@@ -35,6 +36,8 @@ function HomePage() {
   // Keep track of the hovered card index (-1 means none are hovered)
   const [hoveredIndex, setHoveredIndex] = useState(-1);
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const { isDesktop, isTabletLandscape } = useWindowDimensions();
+
   const handleMouseEnter = (index) => {
     setHoveredIndex(index);
   };
@@ -272,7 +275,7 @@ function HomePage() {
                   }}
                 >
                   <span style={{ flex: 1 }}>
-                    <Title level={1} className="headline-title">
+                    <Title level={1} className="title headline-title">
                       Let us help your kids grow into the best versions of
                       themselves.
                     </Title>
@@ -291,27 +294,16 @@ function HomePage() {
 
             <div>
               {/* partners */}
-              <div style={{ padding: "24px 250px" }}>
-                <Title
-                  level={1}
-                  style={{
-                    fontSize: "48px", // Large font size
-                    lineHeight: "1.2", // Adjusts line spacing for readability
-                    fontFamily: "'Ovo', serif",
-                    textAlign: "center",
-                  }}
-                >
+              <div className={"partner-div"}>
+                <Title level={1} className="title partner-title" style={{}}>
                   Our partners
                 </Title>
                 <Splide
-                  style={{
-                    width: "100%",
-                  }}
                   extensions={{ Grid }}
                   options={{
                     pagination: false,
                     drag: "free",
-                    perPage: 4,
+                    perPage: isDesktop || isTabletLandscape ? 4 : 3,
                     perMove: 1,
                     autoplay: "true",
                     type: "loop",
@@ -330,11 +322,7 @@ function HomePage() {
                   {imageList.map((image, index) => (
                     <SplideSlide>
                       <Card
-                        style={{
-                          display: "flex",
-                          width: 300,
-                          height: 300,
-                        }}
+                        className="partner-splide-card"
                         bodyStyle={{
                           alignItems: "center",
                           display: "flex",
@@ -352,45 +340,31 @@ function HomePage() {
                 </Splide>
               </div>
 
-              <div style={{ padding: "50px 200px", background: "#F8F9FA" }}>
+              <div className="join-us-div">
                 {/* Title and Subtitle */}
                 <div style={{ textAlign: "center", marginBottom: "40px" }}>
-                  <Title
-                    level={1}
-                    style={{
-                      fontSize: "48px", // Large font size
-                      lineHeight: "1.2", // Adjusts line spacing for readability
-                      fontFamily: "'Ovo', serif",
-                    }}
-                  >
+                  <Title level={1} className="title join-us-title">
                     Join us —
                   </Title>
-                  <Text
-                    style={{
-                      fontSize: "24px", // Large font size
-                      lineHeight: "1.2", // Adjusts line spacing for readability
-                      fontFamily: "'Ovo', serif",
-                    }}
-                  >
+                  <Text className={"join-us-subtitle"}>
                     Here’s what you need to do.
                   </Text>
                 </div>
 
                 {/* Cards Section */}
-                <Row gutter={[32, 32]} justify="center">
+                <Row
+                  gutter={[16, 16]} // Responsive gutter
+                  justify="center"
+                >
                   {cardsData.map((card, index) => (
                     <Col
-                      xs={24}
-                      sm={12}
-                      md={8}
+                      xs={24} // Full-width on mobile
+                      sm={24} // Full-width on tablet portrait
+                      md={24} // 1/3 width on tablet landscape (3 items per row)
+                      lg={8} // 1/3 width on desktop (3 items per row)
                       key={index}
-                      style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        height: "100%", // Ensure the column takes up the full height of the row
-                      }}
                     >
+                      {/* Center InfoCard within column */}
                       <InfoCard
                         icon={card.icon}
                         title={card.title}
@@ -398,7 +372,7 @@ function HomePage() {
                         hovered={hoveredIndex === index}
                         onHover={() => handleMouseEnter(index)}
                         onLeave={() => handleMouseLeave()}
-                      ></InfoCard>
+                      />
                     </Col>
                   ))}
                 </Row>
@@ -411,47 +385,34 @@ function HomePage() {
                   <Text></Text>
                 </div>
               </div>
+
               {/* FAQs */}
-              <div
-                style={{
-                  padding: "50px 0", // Padding on top and bottom
-                  display: "flex", // Flexbox for centering
-                  justifyContent: "center", // Center content horizontally
-                  backgroundColor: "#E0F0FF",
-                }}
-              >
-                <div
-                  style={{
-                    maxWidth: "1200px", // Maximum width of the container
-                    padding: "0 100px", // Padding on left and right for spacing
-                    width: "100%", // Make sure it occupies full width within the maxWidth
-                  }}
-                >
+              <div className="faq-div">
+                <div className="faq-inner-div">
                   <Row gutter={16}>
                     {/* Title Column */}
-                    <Col xs={24} md={6}>
+                    <Col xs={24} sm={24} md={6} lg={6}>
                       <Row>
-                        <Text
+                        <Title
+                          className="title faq-title"
+                          level={1}
                           style={{
-                            fontSize: "48px", // Large font size
-                            lineHeight: "1.2", // Adjusts line spacing for readability
-                            fontFamily: "'Ovo', serif",
                             fontWeight: "600",
                           }}
                         >
                           Frequently Asked Questions
-                        </Text>
+                        </Title>
                       </Row>
                       <Row>
-                        <Text>
+                        <Text className="faq-subtitle">
                           Find answers to common questions about our services,
-                          booking process and credit system.
+                          booking process, and credit system.
                         </Text>
                       </Row>
                     </Col>
 
                     {/* FAQ Collapse Column */}
-                    <Col xs={24} md={18}>
+                    <Col xs={24} sm={24} md={18} lg={18}>
                       <FAQ />
                     </Col>
                   </Row>

@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 function getWindowDimensions() {
   const { innerWidth: width, innerHeight: height } = window;
 
-  const isDesktop = width >= 1024; // Desktop: width >= 1024px
-  const isTabletLandscape = 1024 <= width && width <= 1336; // Tablet Landscape: 1024px <= width <= 1336px
-  const isTabletPortrait = 768 <= width && width < 1024; // Tablet Portrait: 768px <= width < 1024px
+  const isDesktop = width >= 1336; // Desktop: width >= 1024px
+  const isTabletLandscape = 980 <= width && width <= 1335.9; // Tablet Landscape: 1024px <= width <= 1336px
+  const isTabletPortrait = 768 <= width && width < 979.9; // Tablet Portrait: 768px <= width < 1024px
   const isMobile = width < 768; // Mobile: width < 768px
 
   return {
