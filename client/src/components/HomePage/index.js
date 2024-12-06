@@ -13,7 +13,6 @@ import {
   Drawer,
 } from "antd";
 import { Outlet, Link } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
 import { Splide, SplideSlide } from "@splidejs/react-splide";
 import { Grid } from "@splidejs/splide-extension-grid";
 import "@splidejs/react-splide/dist/css/splide.min.css";
@@ -255,113 +254,38 @@ function HomePage() {
         </Header>
         <Content style={{ minHeight: "100vh" }}>
           <div>
-            <Toaster />
             <Outlet />
-            <div>
-              <div
-                style={{
-                  position: "relative",
-                  width: "100%",
-                  height: "100vh",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                {/* Background Video */}
-                <video
-                  autoPlay
-                  muted
-                  loop
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100vh",
-                    objectFit: "fill",
-                    zIndex: 1, // The video stays in the background
-                  }}
-                >
-                  <source src={homepageVideo} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-                {/* Overlay Content */}
+            <div className="headline-div">
+              {/* Background Video */}
+              <video autoPlay muted loop className="video-src">
+                <source src={homepageVideo} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+              {/* Overlay Content */}
+              <div className="overlay-homepage">
                 <div
                   style={{
-                    position: "absolute",
-                    left: "50%", // Centers horizontally
-                    top: "25%",
-                    transform: "translate(-50%, -50%)", // Centers the content
-                    zIndex: 2, // Content is above the video
-                    color: "#fff", // White text
-                    textAlign: "center",
-                    padding: "50px",
-                    borderRadius: "15px",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
+                    display: "flex", // Create a flexbox container
+                    justifyContent: "space-between", // Evenly space the columns
+                    gap: "20px", // Add space between columns
+                    width: "100%", // Set the overall width of the heading section
                   }}
                 >
-                  <div
-                    style={{
-                      display: "flex", // Create a flexbox container
-                      justifyContent: "space-between", // Evenly space the columns
-                      gap: "20px", // Add space between columns
-                      width: "100%", // Set the overall width of the heading section
-                    }}
-                  >
-                    <span style={{ flex: 1 }}>
-                      <Title
-                        level={1}
-                        style={{
-                          fontSize: "48px", // Large font size
-                          lineHeight: "1.2", // Adjusts line spacing for readability
-                          fontFamily: "'Ovo', serif",
-                          color: "white",
-                        }}
-                      >
-                        Let us help your kids grow into the best versions of
-                        themselves.
-                      </Title>
-                    </span>
-                  </div>
+                  <span style={{ flex: 1 }}>
+                    <Title level={1} className="headline-title">
+                      Let us help your kids grow into the best versions of
+                      themselves.
+                    </Title>
+                  </span>
                 </div>
-                <div
-                  style={{
-                    position: "absolute",
-                    bottom: "75px", // Adjusts the distance from the bottom of the screen
-                    left: "50%", // Centers horizontally
-                    transform: "translateX(-50%)", // Centers the content horizontally
-                    zIndex: 2, // Content is above the video
-                  }}
-                >
-                  <Button
-                    type="primary"
-                    size="large"
-                    style={{
-                      margin: "0 10px",
-                      backgroundColor: "#fff",
-                      color: "#000",
-                      width: "280px",
-                      borderRadius: "25px",
-                    }}
-                  >
-                    Try for free!
-                  </Button>
-                  <Button
-                    size="large"
-                    style={{
-                      margin: "0 10px",
-                      backgroundColor: "#fff",
-                      color: "#000",
-                      width: "280px",
-                      borderRadius: "25px",
-                    }}
-                  >
-                    About Us
-                  </Button>
-                </div>
+              </div>
+              <div className="headline-cta">
+                <Button type="primary" className="headline-button" size="large">
+                  Try for free!
+                </Button>
+                <Button className="headline-button" size="large">
+                  About Us
+                </Button>
               </div>
             </div>
 
