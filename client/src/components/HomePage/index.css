@@ -151,17 +151,22 @@
         top: 20vh;
         transform: translateX(-50%);
         z-index: 2;
+        display: flex;
+        gap: 10px;
     }
 
     .headline-button {
         margin: 0 8px;
         width: 75px;
-        font-size: 10px;
+        height: auto;
+        font-size: 10px !important;
+        justify-content: center;
     }
 
     /* Partner Section */
     .partner-div {
         padding: 12px 50px;
+        margin-top: -150px;
     }
 
     .partner-title {
@@ -171,8 +176,8 @@
 
     .partner-splide-card {
         display: flex;
-        width: 150px;
-        height: 150px;
+        width: 120px;
+        height: 120px;
     }
 
     /* Splide arrow buttons */
@@ -270,6 +275,7 @@
     .headline-cta {
         position: absolute;
         left: 50%;
+        top: 70%;
         transform: translateX(-50%);
         z-index: 2;
     }
@@ -309,6 +315,16 @@
     .ant-card {
         width: 100% !important;
         font-size: 12px !important;
+    }
+
+    .join-us-title {
+        font-size: 24px !important;
+        line-height: 1 !important;
+    }
+
+    .join-us-subtitle {
+        font-size: 18px !important;
+        line-height: 1.2 !important;
     }
 
     /* FAQ Section */
