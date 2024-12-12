@@ -49,7 +49,7 @@
 
 /* Partner Section */
 .partner-div {
-    padding: 24px 250px;
+    padding: 50px 250px;
 }
 
 .partner-title {
@@ -64,7 +64,7 @@
 
 /* Join Us Section */
 .join-us-div {
-    padding: 50px 200px;
+    padding: 50px 250px;
 }
 
 .join-us-subtitle {
@@ -77,7 +77,7 @@
     padding: 50px 0;
     display: flex;
     justify-content: center;
-    background-color: #E0F0FF;
+    background-color: #b7d7e9;
 }
 
 .faq-inner-div {
