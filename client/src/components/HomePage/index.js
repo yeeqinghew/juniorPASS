@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Layout,
   Menu,
@@ -37,6 +37,7 @@ function HomePage() {
   const [hoveredIndex, setHoveredIndex] = useState(-1);
   const [drawerVisible, setDrawerVisible] = useState(false);
   const { isDesktop, isTabletLandscape } = useWindowDimensions();
+  const [scrolled, setScrolled] = useState(false);
 
   const handleMouseEnter = (index) => {
     setHoveredIndex(index);
@@ -148,6 +149,17 @@ function HomePage() {
     },
   ];
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > window.innerHeight); // Check if scrolled past 100vh
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
     <ConfigProvider
       theme={{
@@ -188,6 +200,8 @@ function HomePage() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
+            backgroundColor: scrolled ? "#FCFBF8" : "transparent",
+            transition: "background-color 0.3s ease",
           }}
         >
           {/* Logo */}
@@ -239,17 +253,35 @@ function HomePage() {
 
           <Menu mode="horizontal">
             <Menu.Item key="classes">
-              <Link to="/classes" style={{ color: "white", fontWeight: "600" }}>
+              <Link
+                to="/classes"
+                style={{
+                  background: "transparent",
+                  color: scrolled ? "black" : "white",
+                }}
+              >
                 Browse our classes
               </Link>
             </Menu.Item>
             <Menu.Item key="plan">
-              <Link to="/pricing" style={{ color: "white", fontWeight: "600" }}>
+              <Link
+                to="/pricing"
+                style={{
+                  background: "transparent",
+                  color: scrolled ? "black" : "white",
+                }}
+              >
                 Plans
               </Link>
             </Menu.Item>
             <Menu.Item key="login">
-              <Link to="/login" style={{ color: "white", fontWeight: "600" }}>
+              <Link
+                to="/login"
+                style={{
+                  background: "transparent",
+                  color: scrolled ? "black" : "white",
+                }}
+              >
                 Login/Register
               </Link>
             </Menu.Item>

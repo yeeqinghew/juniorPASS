@@ -27,13 +27,6 @@ const FAQ = () => {
         }}
         ghost
       />
-
-      {/* <div style={{ textAlign: "center", maxWidth: "600px" }}>
-        <Space direction="vertical">
-          <Text>Didn't find the answer you are looking for?</Text>
-          <Button type="primary">Contact us</Button>
-        </Space>
-      </div> */}
     </Space>
   );
 };
