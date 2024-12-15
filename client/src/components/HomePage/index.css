@@ -164,7 +164,7 @@
 
     /* Partner Section */
     .partner-div {
-        padding: 24px 80px;
+        padding: 24px;
     }
 
     .partner-title {
@@ -189,7 +189,7 @@
 
     /* Join Us Section */
     .join-us-div {
-        padding: 24px 80px;
+        padding: 24px;
         margin: 0 auto;
         width: 75%;
     }
@@ -200,13 +200,13 @@
     }
 
     .join-us-subtitle {
-        font-size: 18px !important;
+        font-size: 16px !important;
         line-height: 1.2 !important;
     }
 
     /* FAQ Section */
     .faq-div {
-        padding: 24px 80px;
+        padding: 24px;
     }
 
     .faq-inner-div {
@@ -220,7 +220,7 @@
     }
 
     .faq-subtitle {
-        font-size: 18px !important;
+        font-size: 16px !important;
         line-height: 1.0 !important;
     }
 }
