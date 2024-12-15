@@ -374,7 +374,7 @@
 
     #header-homepage {
         position: absolute;
-        top: 30px;
+        top: 0px;
         z-index: 3;
         width: 100%;
         background-color: transparent;
@@ -462,7 +462,7 @@
 
     #header-homepage {
         position: fixed;
-        top: 30px;
+        top: 0px;
         z-index: 3;
         width: 100%;
         background-color: transparent;
