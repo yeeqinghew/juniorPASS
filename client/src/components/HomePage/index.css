@@ -44,7 +44,7 @@
 .headline-button {
     background-color: #fff;
     color: #000;
-    border-radius: 25px;
+    border-radius: 25px !important;
 }
 
 /* Partner Section */
