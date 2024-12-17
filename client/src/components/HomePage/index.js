@@ -292,7 +292,7 @@ function HomePage() {
             <Outlet />
             <div className="headline-div">
               {/* Background Video */}
-              <video autoPlay muted loop className="video-src">
+              <video autoPlay muted loop className="video-src" playsinline>
                 <source src={homepageVideo} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>

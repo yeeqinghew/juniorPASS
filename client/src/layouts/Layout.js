@@ -132,7 +132,7 @@ const OverallLayout = () => {
             </Menu.Item>
           </Menu>
         </Header>
-        <Content style={{ padding: "0 120px", minHeight: "100vh" }}>
+        <Content style={{ padding: "0 120px", minHeight: "auto" }}>
           <div
             style={{
               margin: isDesktop ? "16px 0" : "8px",
