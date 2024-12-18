@@ -54,11 +54,7 @@ const OverallLayout = () => {
         },
       }}
     >
-      <Layout
-        style={{
-          minHeight: "100vh",
-        }}
-      >
+      <Layout>
         <Header
           style={{
             position: "sticky",
@@ -132,7 +128,7 @@ const OverallLayout = () => {
             </Menu.Item>
           </Menu>
         </Header>
-        <Content style={{ padding: "0 120px", minHeight: "auto" }}>
+        <Content style={{ padding: "0 120px" }}>
           <div
             style={{
               margin: isDesktop ? "16px 0" : "8px",

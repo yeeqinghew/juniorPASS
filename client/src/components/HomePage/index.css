@@ -39,6 +39,16 @@
 
 .headline-title {
     color: white !important;
+    display: -webkit-box;
+    /* Enable webkit-specific behavior */
+    -webkit-line-clamp: 2;
+    /* Limit the text to 2 lines */
+    -webkit-box-orient: vertical;
+    /* Specify box orientation */
+    overflow: hidden;
+    /* Hide overflow text */
+    white-space: normal;
+    /* Allow text wrapping */
 }
 
 .headline-button {
@@ -57,9 +67,14 @@
 }
 
 .partner-splide-card {
-    display: flex;
+    display: flex !important;
     width: 280px;
     height: 280px;
+}
+
+.splide__list {
+    align-items: center !important;
+    justify-content: center !important;
 }
 
 /* Join Us Section */
@@ -108,6 +123,11 @@
         display: none !important;
     }
 
+    .ant-card {
+        display: flex !important;
+        height: auto !important;
+    }
+
     .headline-div {
         position: relative;
         width: 100%;
@@ -124,7 +144,7 @@
     }
 
     .headline-title {
-        font-size: 12px !important;
+        font-size: 10px !important;
         line-height: 1 !important;
         text-align: center;
     }
@@ -164,7 +184,7 @@
 
     /* Partner Section */
     .partner-div {
-        padding: 24px;
+        padding: 24px 48px;
     }
 
     .partner-title {
@@ -173,9 +193,8 @@
     }
 
     .partner-splide-card {
-        display: flex;
-        width: 120px;
-        height: 120px;
+        width: 130px;
+        height: 130px;
     }
 
     /* Splide arrow buttons */
@@ -216,12 +235,12 @@
 
     .faq-title {
         font-size: 24px !important;
-        line-height: 1.0 !important;
+        line-height: 1 !important;
     }
 
     .faq-subtitle {
         font-size: 16px !important;
-        line-height: 1.0 !important;
+        line-height: 1.2 !important;
     }
 }
 
@@ -251,19 +270,20 @@
     .headline-div {
         position: relative;
         width: 100%;
-        height: 70vh;
         display: flex;
         justify-content: center;
         align-items: center;
+        flex-direction: column;
     }
 
     .video-src {
+        position: relative;
         height: auto;
         object-fit: contain;
     }
 
     .headline-title {
-        font-size: 24px !important;
+        font-size: 20px !important;
     }
 
     .overlay-homepage {
@@ -297,7 +317,7 @@
 
     /* Partner Section */
     .partner-div {
-        padding: 24px 50px;
+        padding: 24px 80px;
     }
 
     .partner-title {
@@ -307,9 +327,8 @@
     }
 
     .partner-splide-card {
-        display: flex;
-        width: 180px;
-        height: 180px;
+        width: 150px;
+        height: 150px;
     }
 
     /* Splide arrow buttons */
@@ -322,8 +341,9 @@
     }
 
     .ant-card {
+        display: flex !important;
+        height: auto !important;
         width: 100% !important;
-        font-size: 12px !important;
     }
 
     /* Join Us Section */
@@ -344,7 +364,10 @@
     }
 
     /* FAQ Section */
-    /* FAQ Section */
+    .faq-div {
+        padding: 50px 0;
+    }
+
     .faq-inner-div {
         padding: 0 80px;
         width: 100%;
@@ -396,7 +419,7 @@
     }
 
     .headline-title {
-        font-size: 40px !important;
+        font-size: 28px !important;
         line-height: 1.2 !important;
     }
 
@@ -428,10 +451,13 @@
         width: 220px;
     }
 
+    .partner-div {
+        padding: 50px 160px;
+    }
+
     .partner-splide-card {
-        display: flex;
-        width: 200px;
-        height: 200px;
+        width: 180px;
+        height: 180px;
     }
 
     /* Splide arrow buttons */
@@ -444,8 +470,22 @@
     }
 
     .ant-card {
-        display: flex;
+        display: flex !important;
         height: auto !important;
+    }
+
+    /* Join Us Section */
+    .join-us-div {
+        padding: 50px 160px;
+    }
+
+    /* FAQ Section */
+    .faq-div {
+        padding: 50px 0;
+    }
+
+    .faq-inner-div {
+        padding: 0 160px;
     }
 }
 
@@ -484,7 +524,7 @@
     }
 
     .headline-title {
-        font-size: 48px !important;
+        font-size: 40px !important;
         line-height: 1.2 !important;
     }
 

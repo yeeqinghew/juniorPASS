@@ -324,131 +324,123 @@ function HomePage() {
               </div>
             </div>
 
-            <div>
-              {/* partners */}
-              <div className={"partner-div"}>
-                <Title level={1} className="title partner-title" style={{}}>
-                  Our partners
-                </Title>
-                <Splide
-                  extensions={{ Grid }}
-                  options={{
-                    pagination: false,
-                    drag: "free",
-                    perPage: isDesktop || isTabletLandscape ? 4 : 3,
-                    perMove: 1,
-                    autoplay: "true",
-                    type: "loop",
-                    rewind: true,
-                    lazyLoad: "nearby",
-                    cover: true,
-                    grid: {
-                      rows: 1,
-                    },
-                    autoScroll: {
-                      speed: 1,
-                    },
-                    arrows: true,
-                  }}
-                >
-                  {imageList.map((image, index) => (
-                    <SplideSlide>
-                      <Card
-                        className="partner-splide-card"
-                        bodyStyle={{
-                          alignItems: "center",
-                          display: "flex",
-                        }}
-                        bordered={false}
-                      >
-                        <Image
-                          src={image}
-                          alt={`partner-${index}`}
-                          preview={false}
-                        />
-                      </Card>
-                    </SplideSlide>
-                  ))}
-                </Splide>
-              </div>
-
-              <div className="join-us-div">
-                {/* Title and Subtitle */}
-                <div style={{ textAlign: "center", marginBottom: "40px" }}>
-                  <Title level={1} className="title join-us-title">
-                    Join us —
-                  </Title>
-                  <Text className={"join-us-subtitle"}>
-                    Here’s what you need to do.
-                  </Text>
-                </div>
-
-                {/* Cards Section */}
-                <Row
-                  gutter={[16, 16]} // Responsive gutter
-                  justify="center"
-                >
-                  {cardsData.map((card, index) => (
-                    <Col
-                      xs={24} // Full-width on mobile
-                      sm={24} // Full-width on tablet portrait
-                      md={24} // 1/3 width on tablet landscape (3 items per row)
-                      lg={8} // 1/3 width on desktop (3 items per row)
-                      key={index}
+            {/* partners */}
+            <div className={"partner-div"}>
+              <Title level={1} className="title partner-title" style={{}}>
+                Our partners
+              </Title>
+              <Splide
+                extensions={{ Grid }}
+                options={{
+                  pagination: false,
+                  drag: "free",
+                  perPage: isDesktop || isTabletLandscape ? 4 : 3,
+                  perMove: 1,
+                  autoplay: "true",
+                  type: "loop",
+                  rewind: true,
+                  lazyLoad: "nearby",
+                  cover: true,
+                  grid: {
+                    rows: 1,
+                  },
+                  autoScroll: {
+                    speed: 1,
+                  },
+                  arrows: true,
+                }}
+              >
+                {imageList.map((image, index) => (
+                  <SplideSlide>
+                    <Card
+                      className="partner-splide-card"
+                      style={{
+                        alignItems: "center",
+                        display: "flex",
+                      }}
+                      bordered={false}
                     >
-                      {/* Center InfoCard within column */}
-                      <InfoCard
-                        icon={card.icon}
-                        title={card.title}
-                        description={card.description}
-                        hovered={hoveredIndex === index}
-                        onHover={() => handleMouseEnter(index)}
-                        onLeave={() => handleMouseLeave()}
+                      <Image
+                        src={image}
+                        alt={`partner-${index}`}
+                        preview={false}
                       />
-                    </Col>
-                  ))}
-                </Row>
+                    </Card>
+                  </SplideSlide>
+                ))}
+              </Splide>
+            </div>
 
-                {/* Divider */}
-                <Divider />
-
-                {/* Additional Text Below */}
-                <div style={{ textAlign: "center", marginTop: "20px" }}>
-                  <Text></Text>
-                </div>
+            <div className="join-us-div">
+              {/* Title and Subtitle */}
+              <div style={{ textAlign: "center", marginBottom: "40px" }}>
+                <Title level={1} className="title join-us-title">
+                  Join us —
+                </Title>
+                <Text className={"join-us-subtitle"}>
+                  Here’s what you need to do.
+                </Text>
               </div>
 
-              {/* FAQs */}
-              <div className="faq-div">
-                <div className="faq-inner-div">
-                  <Row gutter={16}>
-                    {/* Title Column */}
-                    <Col xs={24} sm={24} md={6} lg={6}>
-                      <Row>
-                        <Title
-                          className="title faq-title"
-                          level={1}
-                          style={{
-                            fontWeight: "600",
-                          }}
-                        >
-                          Frequently Asked Questions
-                        </Title>
-                      </Row>
-                      <Row>
-                        <Text className="faq-subtitle">
-                          Find answers to common questions about our services,
-                          booking process, and credit system.
-                        </Text>
-                      </Row>
-                    </Col>
+              {/* Cards Section */}
+              <Row
+                gutter={[16, 16]} // Responsive gutter
+                justify="center"
+              >
+                {cardsData.map((card, index) => (
+                  <Col
+                    xs={24} // Full-width on mobile
+                    sm={24} // Full-width on tablet portrait
+                    md={24} // 1/3 width on tablet landscape (3 items per row)
+                    lg={8} // 1/3 width on desktop (3 items per row)
+                    key={index}
+                  >
+                    {/* Center InfoCard within column */}
+                    <InfoCard
+                      icon={card.icon}
+                      title={card.title}
+                      description={card.description}
+                      hovered={hoveredIndex === index}
+                      onHover={() => handleMouseEnter(index)}
+                      onLeave={() => handleMouseLeave()}
+                    />
+                  </Col>
+                ))}
+              </Row>
 
-                    {/* FAQ Collapse Column */}
-                    <Col xs={24} sm={24} md={18} lg={18}>
-                      <FAQ />
-                    </Col>
-                  </Row>
-                </div>
+              {/* Divider */}
+              <Divider />
+
+              {/* Additional Text Below */}
+              <div style={{ textAlign: "center", marginTop: "20px" }}>
+                <Text></Text>
+              </div>
+            </div>
+
+            {/* FAQs */}
+            <div className="faq-div">
+              <div className="faq-inner-div">
+                <Row gutter={16}>
+                  {/* Title Column */}
+                  <Col xs={24} sm={24} md={6} lg={6}>
+                    <Row>
+                      <Title className="title faq-title" level={1}>
+                        Frequently Asked Questions
+                      </Title>
+                    </Row>
+                    <Row>
+                      <Text className="faq-subtitle">
+                        Find answers to common questions about our services,
+                        booking process, and credit system.
+                      </Text>
+                    </Row>
+                  </Col>
+
+                  {/* FAQ Collapse Column */}
+                  <Col xs={24} sm={24} md={18} lg={18}>
+                    <FAQ />
+                  </Col>
+                </Row>
               </div>
             </div>
           </div>
