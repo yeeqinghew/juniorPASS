@@ -55,19 +55,7 @@ const OverallLayout = () => {
       }}
     >
       <Layout>
-        <Header
-          style={{
-            position: "sticky",
-            top: "0px",
-            zIndex: 999,
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            backgroundColor: "#FCFBF8",
-            padding: "50px 150px",
-          }}
-        >
+        <Header className="layout-header">
           <Link to="/">
             <Image
               className="logo-homepage"
@@ -128,7 +116,7 @@ const OverallLayout = () => {
             </Menu.Item>
           </Menu>
         </Header>
-        <Content style={{ padding: "0 120px" }}>
+        <Content className="layout-content">
           <div
             style={{
               margin: isDesktop ? "16px 0" : "8px",

@@ -28,6 +28,8 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { useNavigate } from "react-router-dom";
 import getBaseURL from "../../utils/config";
 import toast from "react-hot-toast";
+import "./index.css";
+import useWindowDimensions from "../../hooks/useWindowDimensions";
 
 const Classes = () => {
   const baseURL = getBaseURL();
@@ -40,6 +42,9 @@ const Classes = () => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedAgeGroups, setSelectedAgeGroups] = useState([]);
   const [selectedPackageTypes, setSelectedPackageTypes] = useState([]);
+  const [view, setView] = useState("list"); // 'list' or 'map'
+  const { isMobile, isTabletPortrait } = useWindowDimensions();
+  const isMobileOrTabletPortrait = isMobile || isTabletPortrait;
   const navigate = useNavigate();
 
   const getListings = async () => {
@@ -217,21 +222,32 @@ const Classes = () => {
 
   // TODO: if listing is created less than 7 days, get a NEW tag
   return (
-    <Space direction="vertical">
-      <Input
-        size="large"
-        allowClear
-        onChange={onSearch}
-        style={{
-          margin: "12px auto",
-          padding: "0 1.6rem",
-          borderRadius: "0.7rem",
-          height: "3rem",
-        }}
-        prefix={<SearchOutlined />}
-        placeholder="Search by location, classes, category"
-      />
-      <Space direction="horizontal" size={"large"}>
+    <Space direction="vertical" className="classes" wrap>
+      <div className="searchbar-container">
+        <Input
+          size="large"
+          allowClear
+          onChange={onSearch}
+          className={"searchbar"}
+          prefix={<SearchOutlined />}
+          placeholder="Search by location, classes, category"
+        />
+        {isMobileOrTabletPortrait && (
+          <Button
+            type="primary"
+            onClick={() => setView(view === "list" ? "map" : "list")}
+            className={"listMapButton"}
+          >
+            {view === "list" ? "Map" : "List"}
+          </Button>
+        )}
+      </div>
+      <Space
+        direction="horizontal"
+        size={"large"}
+        className="filter-container"
+        wrap
+      >
         <Space direction="horizontal">
           {/* Categories Filter */}
           <Dropdown
@@ -322,141 +338,154 @@ const Classes = () => {
       </Space>
       <Divider />
 
-      <div style={{ display: "flex" }}>
-        <div style={{ maxHeight: "70vh", overflowY: "auto" }}>
-          <List
-            itemLayout="horizontal"
-            dataSource={filterInput == null ? listings : filterInput}
+      <Space className={"listingmap-container"}>
+        {(view === "list" || !isMobileOrTabletPortrait) && (
+          <div
+            className={"listing-container"}
             style={{
-              width: "40vw",
+              maxHeight: "70vh",
+              overflowY: "auto",
+              width: isMobileOrTabletPortrait ? "100%" : "40vw",
             }}
-            size="large"
-            pagination={{
-              position: "bottom",
-              align: "end",
-              pageSize: "10.5",
-            }}
-            locale={{
-              emptyText: "No data available. Please check back later!",
-            }}
-            renderItem={(listing, index) => (
-              <List.Item
-                key={index}
-                onClick={() => {
-                  navigate(`/class/${listing?.listing_id}`, {
-                    state: {
-                      listing,
-                    },
-                  });
-                }}
-                onMouseEnter={() => handleListHover(listing?.listing_id)}
-                onMouseLeave={handleListLeave}
-              >
-                <List.Item.Meta
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    cursor: "pointer",
+          >
+            <List
+              itemLayout="horizontal"
+              dataSource={filterInput == null ? listings : filterInput}
+              size="large"
+              pagination={{
+                position: "bottom",
+                align: "end",
+                pageSize: "10.5",
+              }}
+              locale={{
+                emptyText: "No data available. Please check back later!",
+              }}
+              renderItem={(listing, index) => (
+                <List.Item
+                  key={index}
+                  onClick={() => {
+                    navigate(`/class/${listing?.listing_id}`, {
+                      state: {
+                        listing,
+                      },
+                    });
                   }}
-                  avatar={
-                    <Image
-                      src={listing?.images[0]}
-                      width={240}
-                      preview={false}
-                    />
-                  }
-                  title={
-                    <Space direction="vertical">
-                      <Space direction="horizontal">
-                        {listing?.partner_info?.categories.map(
-                          (category, index) => {
-                            return <Tag key={index}>{category}</Tag>;
-                          }
+                  onMouseEnter={() => handleListHover(listing?.listing_id)}
+                  onMouseLeave={handleListLeave}
+                >
+                  <List.Item.Meta
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      cursor: "pointer",
+                    }}
+                    avatar={
+                      <Image
+                        src={listing?.images[0]}
+                        width={240}
+                        preview={false}
+                      />
+                    }
+                    title={
+                      <Space direction="vertical">
+                        <Space direction="horizontal">
+                          {listing?.partner_info?.categories.map(
+                            (category, index) => {
+                              return <Tag key={index}>{category}</Tag>;
+                            }
+                          )}
+                        </Space>
+                        <a href={listing?.partner_info?.website}>
+                          {listing?.listing_title}
+                        </a>
+                      </Space>
+                    }
+                    description={
+                      <Space direction="vertical">
+                        <div
+                          style={{
+                            display: "-webkit-box",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            maxHeight: "5em",
+                            lineClamp: 3,
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: "vertical",
+                          }}
+                        >
+                          {listing?.listing_description}
+                        </div>
+
+                        <Space>
+                          <Image
+                            src={require("../../images/graduation-hat.png")}
+                            width={24}
+                            height={24}
+                            preview={false}
+                          />
+                          {listing?.age_groups}
+                        </Space>
+
+                        {listing?.partner_info?.rating !== 0 && (
+                          <Rate disabled defaultValue={listing?.reviews}></Rate>
                         )}
                       </Space>
-                      <a href={listing?.partner_info?.website}>
-                        {listing?.listing_title}
-                      </a>
-                    </Space>
-                  }
-                  description={
-                    <Space direction="vertical">
-                      <div
-                        style={{
-                          display: "-webkit-box",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          maxHeight: "5em",
-                          lineClamp: 3,
-                          WebkitLineClamp: 3,
-                          WebkitBoxOrient: "vertical",
-                        }}
-                      >
-                        {listing?.listing_description}
-                      </div>
+                    }
+                  ></List.Item.Meta>
+                </List.Item>
+              )}
+            ></List>
+          </div>
+        )}
 
-                      <Space>
-                        <Image
-                          src={require("../../images/graduation-hat.png")}
-                          width={24}
-                          height={24}
-                          preview={false}
-                        />
-                        {listing?.age_groups}
-                      </Space>
-
-                      {listing?.partner_info?.rating !== 0 && (
-                        <Rate disabled defaultValue={listing?.reviews}></Rate>
-                      )}
-                    </Space>
-                  }
-                ></List.Item.Meta>
-              </List.Item>
-            )}
-          ></List>
-        </div>
-
-        <div style={{ height: "70vh" }}>
-          <Map
-            className={"map"}
-            initialViewState={{
-              longitude: 103.8189,
-              latitude: 1.3069,
-              zoom: 11,
-            }}
-            mapStyle="mapbox://styles/mapbox/streets-v8"
-            mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
+        {(view === "map" || !isMobileOrTabletPortrait) && (
+          <div
+            className={"map-container"}
             style={{
-              width: "40vw",
               height: "70vh",
             }}
-            mapLib={import("mapbox-gl")}
           >
-            <GeolocateControl position="top-left" />
-            <NavigationControl position="top-left" />
-            {pins}
+            <Map
+              className={"map"}
+              initialViewState={{
+                longitude: 103.8189,
+                latitude: 1.3069,
+                zoom: 11,
+              }}
+              mapStyle="mapbox://styles/mapbox/streets-v8"
+              mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
+              style={{
+                width: "40vw",
+                height: "70vh",
+              }}
+              mapLib={import("mapbox-gl")}
+            >
+              <GeolocateControl position="top-left" />
+              <NavigationControl position="top-left" />
+              {pins}
 
-            {/* Display popups for popupInfo */}
-            {popupInfo &&
-              popupInfo.outlets.map((outlet, index) => (
-                <Popup
-                  key={`${popupInfo.listing_id}-${index}`}
-                  longitude={JSON.parse(outlet.address).LONGITUDE}
-                  latitude={JSON.parse(outlet.address).LATITUDE}
-                  onClose={() => setPopupInfo(null)}
-                >
-                  <Space direction="vertical">
-                    {/* <a target="_new" href={popupInfo.website}> */}
-                    {popupInfo?.listing_title}
-                    {JSON.parse(outlet.address).SEARCHVAL}
-                    {/* </a> */}
-                    <img width="100%" src={popupInfo.images[0]} />
-                  </Space>
-                </Popup>
-              ))}
-          </Map>
-        </div>
-      </div>
+              {/* Display popups for popupInfo */}
+              {popupInfo &&
+                popupInfo.outlets.map((outlet, index) => (
+                  <Popup
+                    key={`${popupInfo.listing_id}-${index}`}
+                    longitude={JSON.parse(outlet.address).LONGITUDE}
+                    latitude={JSON.parse(outlet.address).LATITUDE}
+                    onClose={() => setPopupInfo(null)}
+                  >
+                    <Space direction="vertical">
+                      {/* <a target="_new" href={popupInfo.website}> */}
+                      {popupInfo?.listing_title}
+                      {JSON.parse(outlet.address).SEARCHVAL}
+                      {/* </a> */}
+                      <img width="100%" src={popupInfo.images[0]} />
+                    </Space>
+                  </Popup>
+                ))}
+            </Map>
+          </div>
+        )}
+      </Space>
     </Space>
   );
 };
