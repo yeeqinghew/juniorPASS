@@ -292,10 +292,21 @@ function HomePage() {
             <Outlet />
             <div className="headline-div">
               {/* Background Video */}
-              <video autoPlay muted loop className="video-src" playsinline>
+              {/* <video
+                autoPlay
+                muted
+                loop
+                className="video-src"
+                playsinline
+                webkit-playsinline
+              >
                 <source src={homepageVideo} type="video/mp4" />
                 Your browser does not support the video tag.
-              </video>
+              </video> */}
+              <Image
+                src={require("../../videos/homepage-webp.webp")}
+                preview={false}
+              />
               {/* Overlay Content */}
               <div className="overlay-homepage">
                 <div
