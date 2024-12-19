@@ -12,14 +12,18 @@
     height: 48px;
 }
 
-.map-container {
-    display: block;
-    height: 70vh;
-}
-
 .listingmap-container {
     display: flex;
     width: 100%;
+}
+
+.listing-container {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.map-container {
+    height: 70vh;
 }
 
 .filter-container {

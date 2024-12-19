@@ -343,8 +343,6 @@ const Classes = () => {
           <div
             className={"listing-container"}
             style={{
-              maxHeight: "70vh",
-              overflowY: "auto",
               width: isMobileOrTabletPortrait ? "100%" : "40vw",
             }}
           >
@@ -439,12 +437,7 @@ const Classes = () => {
         )}
 
         {(view === "map" || !isMobileOrTabletPortrait) && (
-          <div
-            className={"map-container"}
-            style={{
-              height: "70vh",
-            }}
-          >
+          <div className={"map-container"}>
             <Map
               className={"map"}
               initialViewState={{
@@ -455,7 +448,7 @@ const Classes = () => {
               mapStyle="mapbox://styles/mapbox/streets-v8"
               mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
               style={{
-                width: "40vw",
+                width: isMobileOrTabletPortrait ? "100%" : "40vw",
                 height: "70vh",
               }}
               mapLib={import("mapbox-gl")}
