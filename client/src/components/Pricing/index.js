@@ -41,17 +41,15 @@ const CardComponent = ({ planName, planClass, price, credits }) => {
 const Pricing = () => {
   return (
     <div className="pricing-container">
-      <div>
-        <Title level={3} className="section-subtitle">
-          Discover
-        </Title>
-        <Title level={1} className="section-title">
-          Available Pricing
-        </Title>
-        <Text className="section-description">
-          Choose the perfect pricing plans for your needs
-        </Text>
-      </div>
+      <Title level={3} className="section-subtitle">
+        Discover
+      </Title>
+      <Title level={1} className="section-title">
+        Available Pricing
+      </Title>
+      <Text className="section-description">
+        Choose the perfect pricing plans for your needs
+      </Text>
 
       <Row
         gutter={[16, 16]}

@@ -19,7 +19,6 @@
 /* General Styling */
 .pricing-container {
     text-align: center;
-    padding: 40px 20px;
 }
 
 .section-subtitle {
@@ -59,6 +58,8 @@
     box-shadow: var(--shadow-default);
     transition: transform 0.3s, box-shadow 0.3s;
     cursor: pointer;
+    display: flex;
+    justify-content: center;
 }
 
 .pricing-card:hover {
@@ -130,9 +131,6 @@
 
 /* Media Queries */
 @media screen and (max-width: 767.9px) {
-    .pricing-container {
-        padding: 20px 10px;
-    }
 
     .section-subtitle,
     .section-title,
@@ -159,9 +157,6 @@
 }
 
 @media screen and (min-width: 768px) and (max-width: 979.9px) {
-    .pricing-container {
-        padding: 40px 20px;
-    }
 
     .section-subtitle,
     .section-title {

@@ -117,15 +117,8 @@ const OverallLayout = () => {
           </Menu>
         </Header>
         <Content className="layout-content">
-          <div
-            style={{
-              margin: isDesktop ? "16px 0" : "8px",
-              padding: isDesktop ? 24 : 16,
-            }}
-          >
-            <Toaster />
-            <Outlet />
-          </div>
+          <Toaster />
+          <Outlet />
         </Content>
       </Layout>
       <Footer />
