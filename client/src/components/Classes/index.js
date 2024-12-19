@@ -244,7 +244,7 @@ const Classes = () => {
       </div>
       <Space
         direction="horizontal"
-        size={"large"}
+        size={isMobileOrTabletPortrait ? "small" : "large"}
         className="filter-container"
         wrap
       >
@@ -340,12 +340,7 @@ const Classes = () => {
 
       <Space className={"listingmap-container"}>
         {(view === "list" || !isMobileOrTabletPortrait) && (
-          <div
-            className={"listing-container"}
-            style={{
-              width: isMobileOrTabletPortrait ? "100%" : "40vw",
-            }}
-          >
+          <div className={"listing-container"}>
             <List
               itemLayout="horizontal"
               dataSource={filterInput == null ? listings : filterInput}
@@ -435,48 +430,45 @@ const Classes = () => {
             ></List>
           </div>
         )}
-
         {(view === "map" || !isMobileOrTabletPortrait) && (
-          <div className={"map-container"}>
-            <Map
-              className={"map"}
-              initialViewState={{
-                longitude: 103.8189,
-                latitude: 1.3069,
-                zoom: 11,
-              }}
-              mapStyle="mapbox://styles/mapbox/streets-v8"
-              mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
-              style={{
-                width: isMobileOrTabletPortrait ? "100%" : "40vw",
-                height: "70vh",
-              }}
-              mapLib={import("mapbox-gl")}
-            >
-              <GeolocateControl position="top-left" />
-              <NavigationControl position="top-left" />
-              {pins}
+          <Map
+            className={"map"}
+            initialViewState={{
+              longitude: 103.8189,
+              latitude: 1.3069,
+              zoom: 11,
+            }}
+            mapStyle="mapbox://styles/mapbox/streets-v8"
+            mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
+            style={{
+              width: isMobileOrTabletPortrait ? "100%" : "calc(40vw - 48px)",
+              height: "70vh",
+            }}
+            mapLib={import("mapbox-gl")}
+          >
+            <GeolocateControl position="top-left" />
+            <NavigationControl position="top-left" />
+            {pins}
 
-              {/* Display popups for popupInfo */}
-              {popupInfo &&
-                popupInfo.outlets.map((outlet, index) => (
-                  <Popup
-                    key={`${popupInfo.listing_id}-${index}`}
-                    longitude={JSON.parse(outlet.address).LONGITUDE}
-                    latitude={JSON.parse(outlet.address).LATITUDE}
-                    onClose={() => setPopupInfo(null)}
-                  >
-                    <Space direction="vertical">
-                      {/* <a target="_new" href={popupInfo.website}> */}
-                      {popupInfo?.listing_title}
-                      {JSON.parse(outlet.address).SEARCHVAL}
-                      {/* </a> */}
-                      <img width="100%" src={popupInfo.images[0]} />
-                    </Space>
-                  </Popup>
-                ))}
-            </Map>
-          </div>
+            {/* Display popups for popupInfo */}
+            {popupInfo &&
+              popupInfo.outlets.map((outlet, index) => (
+                <Popup
+                  key={`${popupInfo.listing_id}-${index}`}
+                  longitude={JSON.parse(outlet.address).LONGITUDE}
+                  latitude={JSON.parse(outlet.address).LATITUDE}
+                  onClose={() => setPopupInfo(null)}
+                >
+                  <Space direction="vertical">
+                    {/* <a target="_new" href={popupInfo.website}> */}
+                    {popupInfo?.listing_title}
+                    {JSON.parse(outlet.address).SEARCHVAL}
+                    {/* </a> */}
+                    <img width="100%" src={popupInfo.images[0]} />
+                  </Space>
+                </Popup>
+              ))}
+          </Map>
         )}
       </Space>
     </Space>
