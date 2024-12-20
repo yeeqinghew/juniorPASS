@@ -25,8 +25,8 @@
 }
 
 .layout-header {
-    position: 'sticky';
-    top: "0px";
+    position: fixed;
+    top: 0px;
     z-index: 999;
     width: 100%;
     display: flex;
@@ -48,10 +48,7 @@
         display: none !important;
     }
 
-    .layout-header {
-        padding: 50px;
-    }
-
+    .layout-header,
     .layout-content {
         padding: 12px 50px;
     }
@@ -65,10 +62,7 @@
         display: none !important;
     }
 
-    .layout-header {
-        padding: 50px;
-    }
-
+    .layout-header,
     .layout-content {
         padding: 12px 50px;
     }

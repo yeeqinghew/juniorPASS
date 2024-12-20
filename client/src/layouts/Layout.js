@@ -1,16 +1,13 @@
 import React, { useState } from "react";
 import { Layout, Menu, ConfigProvider, Image, Drawer } from "antd";
 import { Outlet, Link } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
 import { MenuOutlined } from "@ant-design/icons";
 import "./Layout.css";
-import useWindowDimensions from "../hooks/useWindowDimensions";
 import Footer from "./Footer";
 
 const { Header, Content } = Layout;
 
 const OverallLayout = () => {
-  const { isDesktop } = useWindowDimensions();
   const [drawerVisible, setDrawerVisible] = useState(false);
 
   const showDrawer = () => {
@@ -117,8 +114,9 @@ const OverallLayout = () => {
           </Menu>
         </Header>
         <Content className="layout-content">
-          <Toaster />
-          <Outlet />
+          <div style={{ margin: "84px 0" }}>
+            <Outlet />
+          </div>
         </Content>
       </Layout>
       <Footer />
