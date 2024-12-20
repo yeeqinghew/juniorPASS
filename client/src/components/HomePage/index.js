@@ -216,7 +216,9 @@ function HomePage() {
 
           {/* Hamburger menu (visible on mobile) */}
           <div className="hamburger-menu" onClick={showDrawer}>
-            <MenuOutlined style={{ fontSize: "24px", color: "white" }} />
+            <MenuOutlined
+              style={{ fontSize: "24px", color: scrolled ? "black" : "white" }}
+            />
           </div>
 
           {/* Drawer (Hamburger menu for mobile) */}
@@ -304,6 +306,7 @@ function HomePage() {
                 Your browser does not support the video tag.
               </video> */}
               <Image
+                className="video-src"
                 src={require("../../videos/homepage-webp.webp")}
                 preview={false}
               />

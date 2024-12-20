@@ -21,15 +21,20 @@
     display: none;
 }
 
+.headline-div {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
 .video-src {
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
     z-index: 1;
-    overflow: hidden;
 }
 
 .title {
@@ -108,10 +113,11 @@
     }
 
     #header-homepage {
-        position: absolute;
+        position: fixed;
+        top: 0px;
         z-index: 3;
+        background-color: white;
         width: 100%;
-        background-color: transparent;
     }
 
     .hamburger-menu {
@@ -128,14 +134,7 @@
         height: auto !important;
     }
 
-    .headline-div {
-        position: relative;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-    }
+    .headline-div {}
 
     .video-src {
         position: relative;
@@ -252,10 +251,11 @@
     }
 
     #header-homepage {
-        position: absolute;
+        position: fixed;
+        top: 0px;
         z-index: 3;
+        background-color: white;
         width: 100%;
-        background-color: transparent;
     }
 
     .hamburger-menu {
@@ -267,18 +267,12 @@
         display: none !important;
     }
 
-    .headline-div {
-        position: relative;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-    }
+    .headline-div {}
 
     .video-src {
         position: relative;
         height: auto;
+        width: 100vw !important;
         object-fit: contain;
     }
 
@@ -404,18 +398,11 @@
         padding: 50px 150px;
     }
 
-    .headline-div {
-        position: relative;
-        width: 100%;
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+    .headline-div {}
 
     .video-src {
-        width: 100%;
-        height: 100vh;
+        width: 100vw !important;
+        height: 100vh !important;
     }
 
     .headline-title {
@@ -497,7 +484,7 @@
         border-bottom: none !important;
         flex: 1;
         justify-content: flex-end !important;
-        font-size: 15px;
+        font-size: 18px;
     }
 
     #header-homepage {
@@ -509,18 +496,11 @@
         padding: 50px 150px;
     }
 
-    .headline-div {
-        position: relative;
-        width: 100%;
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
+    .headline-div {}
 
     .video-src {
-        width: 100%;
-        height: 100vh;
+        width: 100vw !important;
+        height: 100vh !important;
     }
 
     .headline-title {
