@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Layout,
   Menu,
@@ -16,7 +16,8 @@ import { Outlet, Link } from "react-router-dom";
 import { Splide, SplideSlide } from "@splidejs/react-splide";
 import { Grid } from "@splidejs/splide-extension-grid";
 import "@splidejs/react-splide/dist/css/splide.min.css";
-import homepageVideo from "../../videos/homepage.mp4"; // Import the video directly
+import "@splidejs/react-splide/dist/css/splide-core.min.css";
+import "@splidejs/react-splide/dist/css/themes/splide-default.min.css";
 import Footer from "../../layouts/Footer";
 import FAQ from "../FAQ";
 import {
@@ -340,32 +341,25 @@ function HomePage() {
 
             {/* partners */}
             <div className={"partner-div"}>
-              <Title level={1} className="title partner-title" style={{}}>
+              <Title level={1} className="title partner-title">
                 Our partners
               </Title>
               <Splide
                 extensions={{ Grid }}
                 options={{
                   pagination: false,
-                  drag: "free",
                   perPage: isDesktop || isTabletLandscape ? 4 : 3,
                   perMove: 1,
-                  autoplay: "true",
+                  autoplay: true,
                   type: "loop",
-                  rewind: true,
-                  lazyLoad: "nearby",
                   cover: true,
-                  grid: {
-                    rows: 1,
-                  },
-                  autoScroll: {
-                    speed: 1,
-                  },
+                  autoScroll: { speed: 2 },
                   arrows: true,
+                  rewind: false,
                 }}
               >
                 {imageList.map((image, index) => (
-                  <SplideSlide>
+                  <SplideSlide key={`partner-${index}`}>
                     <Card
                       className="partner-splide-card"
                       style={{
