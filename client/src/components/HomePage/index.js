@@ -37,7 +37,7 @@ function HomePage() {
   // Keep track of the hovered card index (-1 means none are hovered)
   const [hoveredIndex, setHoveredIndex] = useState(-1);
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const { isDesktop, isTabletLandscape } = useWindowDimensions();
+  const { isDesktop, isTabletLandscape, isMobile } = useWindowDimensions();
   const [scrolled, setScrolled] = useState(false);
 
   const handleMouseEnter = (index) => {
@@ -152,7 +152,12 @@ function HomePage() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > window.innerHeight); // Check if scrolled past 100vh
+      if (isMobile) {
+        let threshold = 300;
+        setScrolled(window.scrollY > threshold);
+        return;
+      }
+      setScrolled(window.scrollY > window.innerHeight);
     };
 
     window.addEventListener("scroll", handleScroll);

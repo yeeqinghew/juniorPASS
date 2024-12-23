@@ -13,7 +13,7 @@ const CardComponent = ({ planName, planClass, price, credits }) => {
       xs={24} // Full-width on mobile
       sm={24} // Full-width on tablet portrait
       md={24} // 1/3 width on tablet landscape (3 items per row)
-      lg={8}
+      lg={6}
       className="card-container"
     >
       <Card
