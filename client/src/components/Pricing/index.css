@@ -193,4 +193,9 @@
         max-width: 320px;
         padding: 20px;
     }
+
+    .pricing-cards-row {
+        max-width: 1336px !important;
+        margin: 0 auto !important;
+    }
 }

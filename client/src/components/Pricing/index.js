@@ -13,13 +13,14 @@ const CardComponent = ({ planName, planClass, price, credits }) => {
       xs={24} // Full-width on mobile
       sm={24} // Full-width on tablet portrait
       md={24} // 1/3 width on tablet landscape (3 items per row)
-      lg={6}
+      lg={8}
       className="card-container"
     >
       <Card
         hoverable
         className={`pricing-card ${isPopular ? "popular-card" : ""}`}
         bodyStyle={{ padding: "24px" }}
+        // TODO
         onClick={() => console.log(`${planName} clicked`)}
       >
         {isPopular && <span className="popular-label">Most Popular</span>}
