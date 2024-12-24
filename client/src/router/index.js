@@ -126,7 +126,7 @@ export default () => {
           <Route element={<AuthenticatedRoute />}>
             <Route path="/profile" element={<Profile />} />
           </Route>
-          <Route path="*" element={<NotFound />} />
+          {/* <Route path="*" element={<NotFound />} /> */}
         </Route>
       </Routes>
     </div>
