@@ -53,7 +53,7 @@ const Footer = () => {
             <Flex vertical gap="large" style={{ width: "20%" }}>
               <Title level={5}>PARTNERS</Title>
               <Link to="/partner-contact">Become a partner</Link>
-              <Link to="/partner/login">Partner Login</Link>
+              <Link to="/portal/login">Partner Login</Link>
               {/* <Link to="/contactus">ContactUs</Link> */}
             </Flex>
 

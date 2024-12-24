@@ -146,7 +146,7 @@ const Login = () => {
         <div style={{ textAlign: "center" }}>
           Or <Link to="/register">register now!</Link>
           <Divider></Divider>
-          <Link to="/partner/login">
+          <Link to="/portal/login">
             <Text>Partner Login</Text>
           </Link>
         </div>
