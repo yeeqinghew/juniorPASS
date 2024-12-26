@@ -146,7 +146,7 @@ const Login = () => {
         <div style={{ textAlign: "center" }}>
           Or <Link to="/register">register now!</Link>
           <Divider></Divider>
-          <Link href="www.portal.juniorpass.sg">
+          <Link href="https://www.portal.juniorpass.sg" target="_blank">
             <Text>Partner Login</Text>
           </Link>
         </div>
