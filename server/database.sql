@@ -210,3 +210,11 @@ CREATE TABLE partnerForms (
     created_on TIMESTAMP DEFAULT NOW(),
     responded BOOLEAN DEFAULT FALSE
 );
+
+CREATE TABLE password_resets (
+    reset_id SERIAL PRIMARY KEY,
+    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+    token VARCHAR(255) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);

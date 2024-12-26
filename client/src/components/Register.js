@@ -14,6 +14,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import getBaseURL from "../utils/config";
 import useHandleLogin from "../hooks/useHandleLogin";
 import { useUserContext } from "./UserContext";
+import CryptoJS from "crypto-js";
 
 const { Title, Text } = Typography;
 
@@ -26,14 +27,22 @@ const Register = () => {
   const { from } = { from: { pathname: "/" } };
   const { handleGoogleLogin } = useHandleLogin({ from });
   const { setAuth } = useUserContext();
+
   const onRegister = async (values) => {
     try {
+      const encryptedPassword = CryptoJS.SHA256(values.password).toString(
+        CryptoJS.enc.Hex
+      );
+      const registrationData = {
+        ...values,
+        password: encryptedPassword,
+      };
       const response = await fetch(`${baseURL}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify(registrationData),
       });
 
       const parseRes = await response.json();
@@ -92,14 +101,15 @@ const Register = () => {
     >
       <div
         style={{
-          position: "relative",
-          width: "22.2rem",
-          border: "1px solid hsla(0, 0%, 65%, 0.158)",
-          boxShadow: "0 0 36px 1px rgba(0, 0, 0, 0.2)",
-          borderRadius: "25px",
-          backdropFilter: "blur(20px)",
-          zIndex: "99",
-          padding: "2rem",
+          padding: "30px 40px",
+          borderRadius: "10px",
+          maxWidth: "600px",
+          margin: "50px auto",
+          boxShadow: "0 6px 20px rgba(0, 0, 0, 0.1)",
+          background: "#ffffff",
+          display: "flex",
+          flexDirection: "column",
+          gap: "15px",
         }}
       >
         <Title level={3} style={{ textAlign: "center" }}>

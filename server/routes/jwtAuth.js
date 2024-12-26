@@ -2,12 +2,14 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../db");
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 const jwtGenerator = require("../utils/jwtGenerator");
 const validInfo = require("../middleware/validInfo");
 const authorization = require("../middleware/authorization");
 const etagMiddleware = require("../middleware/etagMiddleware");
 const cacheMiddleware = require("../middleware/cacheMiddleware");
 const { OAuth2Client } = require("google-auth-library");
+const sendEmail = require("../utils/emailSender");
 const client = new OAuth2Client(process.env.googleClientID);
 
 router.use(etagMiddleware);
@@ -134,6 +136,91 @@ router.post("/login/google", async (req, res) => {
     // existing Gmail user
     const token = jwtGenerator(existingUser.rows[0].user_id);
     return res.status(200).json({ token, newUser: false });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const userResult = await pool.query(
+      `SELECT * FROM users WHERE email = $1`,
+      [email]
+    );
+
+    if (userResult.rowCount === 0)
+      return res.status(404).json({
+        message: "User not found in the database",
+      });
+
+    const userId = userResult.rows[0].user_id;
+
+    // check if user is using google or email
+    const user = await pool.query("SELECT * FROM users WHERE user_id = $1", [
+      userId,
+    ]);
+
+    if (user && user.rows[0].method === "gmail")
+      return res.status(400).json({
+        message:
+          "Password reset is not available for Gmail users. Please login using Gmail.",
+      });
+
+    const token = crypto.randomBytes(32).toString("hex");
+    const hashedToken = await bcrypt.hash(token, 10);
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+    await pool.query(
+      `INSERT INTO password_resets (user_id, token, expires_at) VALUES ($1, $2, $3)`,
+      [userId, hashedToken, expiresAt]
+    );
+
+    const resetURL = "https://www.juniorpass.sg/reset-password?token=${token}";
+    const emailContent = `<p>You requested a password reset. Click the link below to reset your password:</p>
+            <a href="${resetURL}">Reset Password</a>`;
+
+    await sendEmail(email, "Password Reset Request", emailContent);
+    res.status(200).json({ message: "Password reset email sent" });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post("/reset-password", async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    const resetResult = await pool.query(
+      `SELECT user_id, expires_at FROM password_resets WHERE token = $1`,
+      [token]
+    );
+
+    if (resetResult.rows.length === 0)
+      return res.status(400).json({ message: "Invalid or expired token" });
+
+    const { user_id, expires_at } = resetResult.rows[0];
+
+    if (new Date() > new Date(expires_at)) {
+      return res.status(400).json({ message: "Token expired" });
+    }
+
+    const saltRound = 10;
+    const bcryptedPassword = bcrypt.hashSync(newPassword, saltRound);
+
+    await pool.query(`UPDATE users SET password = $1 WHERE user_id = $2`, [
+      bcryptedPassword,
+      user_id,
+    ]);
+
+    await pool.query(`DELETE FROM password_resets WHERE user_id = $1`, [
+      user_id,
+    ]);
+
+    res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: error.message });

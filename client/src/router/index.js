@@ -22,6 +22,8 @@ import Partner from "../components/Partner";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
+import ForgotPassword from "../components/ForgotPassword";
+import ResetPassword from "../components/ResetPassword";
 
 export default () => {
   const navigate = useNavigate();
@@ -97,6 +99,8 @@ export default () => {
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/partner-contact" element={<ContactUs />} />
           <Route path="/faq" element={<FAQ />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route
             path="/login"
             element={

@@ -4,6 +4,7 @@ import { Outlet, Link } from "react-router-dom";
 import { MenuOutlined } from "@ant-design/icons";
 import "./Layout.css";
 import Footer from "./Footer";
+import { Toaster } from "react-hot-toast";
 
 const { Header, Content } = Layout;
 
@@ -114,9 +115,8 @@ const OverallLayout = () => {
           </Menu>
         </Header>
         <Content className="layout-content">
-          <div style={{ margin: "84px 0" }}>
-            <Outlet />
-          </div>
+          <Toaster />
+          <Outlet />
         </Content>
       </Layout>
       <Footer />

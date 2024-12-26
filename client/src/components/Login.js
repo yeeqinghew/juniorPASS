@@ -11,6 +11,7 @@ import { Link, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import getBaseURL from "../utils/config";
 import useHandleLogin from "../hooks/useHandleLogin";
+import CryptoJS from "crypto-js";
 
 const { Title, Text } = Typography;
 
@@ -24,12 +25,18 @@ const Login = () => {
 
   const handleLogin = async (values) => {
     try {
+      const { password } = values;
+      const encryptedPassword = CryptoJS.SHA256(password).toString(
+        CryptoJS.enc.Hex
+      );
+      const loginData = { ...values, password: encryptedPassword };
+
       const response = await fetch(`${baseURL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify(loginData),
       });
 
       await handleResponse(response, from);
@@ -54,14 +61,15 @@ const Login = () => {
     >
       <div
         style={{
-          position: "relative",
-          width: "22.2rem",
-          border: "1px solid hsla(0, 0%, 65%, 0.158)",
-          boxShadow: "0 0 36px 1px rgba(0, 0, 0, 0.2)",
-          borderRadius: "25px",
-          backdropFilter: "blur(20px)",
-          zIndex: "99",
-          padding: "2rem",
+          padding: "30px 40px",
+          borderRadius: "10px",
+          maxWidth: "600px",
+          margin: "50px auto",
+          boxShadow: "0 6px 20px rgba(0, 0, 0, 0.1)",
+          background: "#ffffff",
+          display: "flex",
+          flexDirection: "column",
+          gap: "15px",
         }}
       >
         <Title
@@ -84,9 +92,6 @@ const Login = () => {
           className="login-form"
           initialValues={{
             remember: true,
-          }}
-          style={{
-            maxWidth: "300px",
           }}
           onFinish={handleLogin}
         >
@@ -128,7 +133,7 @@ const Login = () => {
             />
           </Form.Item>
           <Form.Item style={{ textAlign: "center" }}>
-            <a className="login-form-forgot" href="">
+            <a className="login-form-forgot" href="/forgot-password">
               Forgot password
             </a>
           </Form.Item>
