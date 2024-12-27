@@ -181,14 +181,14 @@ router.post("/forgot-password", async (req, res) => {
       [userId, hashedToken, expiresAt]
     );
 
-    const resetURL = "https://www.juniorpass.sg/reset-password?token=${token}";
+    const resetURL = `https://www.juniorpass.sg/reset-password?token=${hashedToken}`;
     const emailContent = resetPasswordHtmlTemplate(resetURL);
 
     await sendEmail(email, "Password Reset Request", emailContent);
     res.status(200).json({ message: "Password reset email sent" });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error("Error in forgot-password route:", err);
+    res.status(500).json({ error: err });
   }
 });
 
@@ -223,9 +223,9 @@ router.post("/reset-password", async (req, res) => {
     ]);
 
     res.status(200).json({ message: "Password updated successfully" });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error("Error in reset-password route:", err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
