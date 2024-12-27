@@ -10,6 +10,9 @@ const etagMiddleware = require("../middleware/etagMiddleware");
 const cacheMiddleware = require("../middleware/cacheMiddleware");
 const { OAuth2Client } = require("google-auth-library");
 const sendEmail = require("../utils/emailSender");
+const {
+  resetPasswordHtmlTemplate,
+} = require("../utils/resetPasswordHtmlTemplate");
 const client = new OAuth2Client(process.env.googleClientID);
 
 router.use(etagMiddleware);
@@ -179,8 +182,7 @@ router.post("/forgot-password", async (req, res) => {
     );
 
     const resetURL = "https://www.juniorpass.sg/reset-password?token=${token}";
-    const emailContent = `<p>You requested a password reset. Click the link below to reset your password:</p>
-            <a href="${resetURL}">Reset Password</a>`;
+    const emailContent = resetPasswordHtmlTemplate(resetURL);
 
     await sendEmail(email, "Password Reset Request", emailContent);
     res.status(200).json({ message: "Password reset email sent" });
