@@ -1,8 +1,11 @@
 import React, { useState } from "react";
-import { Form, Input, Button } from "antd";
+import { Form, Input, Button, Typography } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import getBaseURL from "../utils/config";
+import CryptoJS from "crypto-js";
+
+const { Title, Text } = Typography;
 
 const ResetPassword = () => {
   const [loading, setLoading] = useState(false);
@@ -16,6 +19,10 @@ const ResetPassword = () => {
   const onFinish = async (values) => {
     setLoading(true);
     try {
+      const { password } = values;
+      const encryptedPassword = CryptoJS.SHA256(password).toString(
+        CryptoJS.enc.Hex
+      );
       const response = await fetch(`${baseURL}/auth/reset-password`, {
         method: "POST",
         headers: {
@@ -23,27 +30,46 @@ const ResetPassword = () => {
         },
         body: JSON.stringify({
           token,
-          newPassword: values.password,
+          newPassword: encryptedPassword,
         }),
       });
       const result = await response.json();
-      if (result.success) {
-        toast.success("Password reset successfully!");
+
+      if (response.ok && result.message) {
+        toast.success(result.message);
         navigate("/login"); // Redirect to login after successful reset
       } else {
         toast.error(result.message || "Failed to reset password.");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error occurred");
+      toast.error("Error occurred during password reset.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: "400px", margin: "0 auto", padding: "20px" }}>
-      <h2>Reset Your Password</h2>
-      <Form onFinish={onFinish} layout="vertical">
+    <div
+      style={{
+        padding: "30px 40px",
+        borderRadius: "10px",
+        maxWidth: "600px",
+        margin: "50px auto",
+        boxShadow: "0 6px 20px rgba(0, 0, 0, 0.1)",
+        background: "#ffffff",
+        display: "flex",
+        flexDirection: "column",
+        gap: "15px",
+      }}
+    >
+      <Title level={3} style={{ textAlign: "center", marginBottom: "20px" }}>
+        Reset Your Password
+      </Title>
+      <Form
+        onFinish={onFinish}
+        layout="vertical"
+        style={{ display: "flex", flexDirection: "column", gap: "15px" }}
+      >
         <Form.Item
           name="password"
           label="New Password"
@@ -58,7 +84,15 @@ const ResetPassword = () => {
             },
           ]}
         >
-          <Input.Password />
+          <Input.Password
+            placeholder="Enter your new password"
+            size="large"
+            style={{
+              borderRadius: "8px",
+              padding: "10px 12px",
+              boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
+            }}
+          />
         </Form.Item>
 
         <Form.Item
@@ -79,11 +113,27 @@ const ResetPassword = () => {
             }),
           ]}
         >
-          <Input.Password />
+          <Input.Password
+            placeholder="Confirm your new password"
+            size="large"
+            style={{
+              borderRadius: "8px",
+              padding: "10px 12px",
+              boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
+            }}
+          />
         </Form.Item>
 
         <Form.Item>
-          <Button type="primary" htmlType="submit" loading={loading} block>
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={loading}
+            style={{
+              width: "100%",
+              borderRadius: "8px",
+            }}
+          >
             Reset Password
           </Button>
         </Form.Item>

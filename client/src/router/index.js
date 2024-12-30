@@ -100,7 +100,7 @@ export default () => {
           <Route path="/partner-contact" element={<ContactUs />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route
             path="/login"
             element={

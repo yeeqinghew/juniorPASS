@@ -12,14 +12,14 @@ const resetPasswordHtmlTemplate = (resetURL) => `
             margin: 0;
             padding: 0;
             font-family: Arial, sans-serif;
-            background-color: #d2e7f5;
+            background-color: #D2E7F5;
             width: 100%;
         }
 
         table {
             border-spacing: 0;
             width: 100%;
-            background-color: #d2e7f5;
+            background-color: #D2E7F5;
         }
 
         td {
