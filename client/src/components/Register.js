@@ -23,7 +23,7 @@ const Register = () => {
   const [registerForm] = Form.useForm();
   const [otpSent, setOtpSent] = useState(false);
   const [isSendingOTP, setIsSendingOTP] = useState(false);
-  const [isPhoneValid, setIsPhoneValid] = useState(false);
+  const [isEmailValid, setIsEmailValid] = useState(false);
   const { from } = { from: { pathname: "/" } };
   const { handleGoogleLogin } = useHandleLogin({ from });
   const { setAuth } = useUserContext();
@@ -71,14 +71,20 @@ const Register = () => {
       const phoneNumber = changedValues.phoneNumber;
       // Validate the phone number format
       const phoneValid = /^[689]\d{7}$/.test(phoneNumber);
-      setIsPhoneValid(phoneValid);
+    }
+
+    if (changedValues.email) {
+      const email = changedValues.email;
+      // Validate the email format
+      const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      setIsEmailValid(emailValid);
     }
   };
 
-  const handleSendOTP = () => {
+  const handleSendOTP = async () => {
     setIsSendingOTP(true);
     try {
-      // Simulate OTP sending process (e.g., using Twilio or other services)
+      // send email OTP
       setOtpSent(true);
       toast.success("OTP sent successfully");
     } catch (error) {
@@ -169,28 +175,6 @@ const Register = () => {
           </Form.Item>
 
           <Form.Item
-            name="otp"
-            // TODO: rules={[{ required: true, message: "Please enter the OTP!" }]}
-          >
-            <Input.Group compact>
-              <Input
-                style={{ width: "65%" }}
-                placeholder="Enter the OTP"
-                disabled={!otpSent}
-              />
-              <Button
-                type="primary"
-                onClick={handleSendOTP}
-                disabled={otpSent || !isPhoneValid || isSendingOTP} // Disable if OTP sent, phone invalid, or OTP sending
-                loading={isSendingOTP}
-                style={{ width: "35%" }}
-              >
-                {isSendingOTP ? "Sending OTP..." : "Send OTP"}
-              </Button>
-            </Input.Group>
-          </Form.Item>
-
-          <Form.Item
             name="email"
             rules={[
               {
@@ -207,6 +191,29 @@ const Register = () => {
               required
             />
           </Form.Item>
+
+          <Form.Item
+            name="otp"
+            rules={[{ required: true, message: "Please enter the OTP!" }]}
+          >
+            <Input.Group compact>
+              <Input
+                style={{ width: "65%" }}
+                placeholder="Enter the OTP"
+                disabled={!otpSent}
+              />
+              <Button
+                type="primary"
+                onClick={handleSendOTP}
+                disabled={otpSent || !isEmailValid || isSendingOTP} // Disable if OTP sent, phone invalid, or OTP sending
+                loading={isSendingOTP}
+                style={{ width: "35%" }}
+              >
+                {isSendingOTP ? "Sending OTP..." : "Send OTP"}
+              </Button>
+            </Input.Group>
+          </Form.Item>
+
           <Form.Item
             name="password"
             rules={[
