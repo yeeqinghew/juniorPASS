@@ -24,9 +24,25 @@ const Register = () => {
   const [otpSent, setOtpSent] = useState(false);
   const [isSendingOTP, setIsSendingOTP] = useState(false);
   const [isEmailValid, setIsEmailValid] = useState(false);
+  const [isEmailDuplicate, setIsEmailDuplicate] = useState(false);
+  const [otpStep, setOtpStep] = useState("send"); // "send" or "verify"
+  const [cooldown, setCooldown] = useState(0);
   const { from } = { from: { pathname: "/" } };
   const { handleGoogleLogin } = useHandleLogin({ from });
   const { setAuth } = useUserContext();
+
+  const startCooldown = () => {
+    let time = 60;
+    setCooldown(time);
+
+    const interval = setInterval(() => {
+      time -= 1;
+      setCooldown(time);
+      if (time === 0) {
+        clearInterval(interval);
+      }
+    }, 1000);
+  };
 
   const onRegister = async (values) => {
     try {
@@ -67,32 +83,111 @@ const Register = () => {
 
   // Handler to track phone number validation status
   const onFormValuesChange = (changedValues) => {
-    if (changedValues.phoneNumber) {
-      const phoneNumber = changedValues.phoneNumber;
-      // Validate the phone number format
-      const phoneValid = /^[689]\d{7}$/.test(phoneNumber);
-    }
-
     if (changedValues.email) {
       const email = changedValues.email;
-      // Validate the email format
       const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
       setIsEmailValid(emailValid);
+
+      // Reset duplicate email state on input change
+      setIsEmailDuplicate(false);
     }
   };
 
-  const handleSendOTP = async () => {
-    setIsSendingOTP(true);
-    try {
-      // send email OTP
-      setOtpSent(true);
-      toast.success("OTP sent successfully");
-    } catch (error) {
-      setOtpSent(false);
-      console.error("Failed to send OTP. Please try again.");
-      toast.error("Failed to send OTP. Please try again.");
-    } finally {
-      setIsSendingOTP(false);
+  const handleSendOrVerifyOTP = async () => {
+    if (cooldown > 0) {
+      toast.error(`Please wait ${cooldown} seconds before trying again.`);
+      return;
+    }
+
+    if (otpStep === "send") {
+      // Handle sending OTP
+      if (!isEmailValid) {
+        toast.error("Please enter a valid email before requesting OTP.");
+        return;
+      }
+
+      setIsSendingOTP(true);
+      try {
+        const email = registerForm.getFieldValue("email");
+
+        // Check email availability
+        const checkEmailResponse = await fetch(`${baseURL}/auth/check-email`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+
+        const checkEmailData = await checkEmailResponse.json();
+
+        // Handle case where the email is already registered
+        if (!checkEmailResponse.ok || !checkEmailData.available) {
+          setIsEmailDuplicate(true);
+          setIsSendingOTP(false); // Stop sending OTP when email is already taken
+          toast.error(
+            checkEmailData.message || "This email is already registered."
+          );
+          return; // Early return to stop OTP sending
+        } else {
+          setIsEmailDuplicate(false);
+        }
+
+        // Start cooldown after email is valid and available
+        startCooldown();
+
+        // Send email OTP
+        const sendOTPResponse = await fetch(`${baseURL}/auth/send-otp`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        });
+
+        const parseRes = await sendOTPResponse.json();
+        if (sendOTPResponse.ok) {
+          setOtpSent(true);
+          setOtpStep("verify");
+          toast.success(parseRes.message || "OTP sent successfully");
+        } else {
+          throw new Error(
+            parseRes.message || "Failed to send OTP. Please try again."
+          );
+        }
+      } catch (error) {
+        console.error("Failed to send OTP. Please try again.");
+        toast.error("Failed to send OTP. Please try again.");
+        setOtpSent(false);
+      } finally {
+        setIsSendingOTP(false);
+      }
+    } else if (otpStep === "verify") {
+      // Handle verifying OTP
+      try {
+        const email = registerForm.getFieldValue("email");
+        const otp = registerForm.getFieldValue("otp");
+
+        const verifyOTPResponse = await fetch(`${baseURL}/auth/verify-otp`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, otp }),
+        });
+
+        const parseRes = await verifyOTPResponse.json();
+        if (verifyOTPResponse.ok) {
+          toast.success(parseRes.message || "OTP verified successfully");
+          setOtpSent("verified");
+        } else {
+          throw new Error(
+            parseRes.message || "Failed to verify OTP. Please try again."
+          );
+        }
+      } catch (error) {
+        console.error("Failed to verify OTP. Please try again.");
+        toast.error("Failed to verify OTP. Please try again.");
+        setOtpSent(false);
+      }
     }
   };
 
@@ -182,6 +277,8 @@ const Register = () => {
                 message: "Please input your email!",
               },
             ]}
+            help={isEmailDuplicate && "This email is already registered."}
+            validateStatus={isEmailDuplicate ? "error" : ""}
           >
             <Input
               prefix={<MailOutlined className="site-form-item-icon" />}
@@ -194,22 +291,38 @@ const Register = () => {
 
           <Form.Item
             name="otp"
-            rules={[{ required: true, message: "Please enter the OTP!" }]}
+            rules={[
+              {
+                required: otpStep !== "send",
+                message: "Please enter the OTP!",
+              },
+            ]}
           >
             <Input.Group compact>
               <Input
                 style={{ width: "65%" }}
                 placeholder="Enter the OTP"
-                disabled={!otpSent}
+                disabled={!otpSent || otpStep === "send"}
               />
               <Button
                 type="primary"
-                onClick={handleSendOTP}
-                disabled={otpSent || !isEmailValid || isSendingOTP} // Disable if OTP sent, phone invalid, or OTP sending
+                onClick={handleSendOrVerifyOTP}
+                disabled={
+                  !isEmailValid ||
+                  isEmailDuplicate ||
+                  cooldown > 0 ||
+                  isSendingOTP
+                }
                 loading={isSendingOTP}
                 style={{ width: "35%" }}
               >
-                {isSendingOTP ? "Sending OTP..." : "Send OTP"}
+                {isSendingOTP
+                  ? "Sending OTP..."
+                  : cooldown > 0
+                  ? `Resend OTP in ${cooldown}s`
+                  : otpStep === "send"
+                  ? "Send OTP"
+                  : "Verify OTP"}
               </Button>
             </Input.Group>
           </Form.Item>

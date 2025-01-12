@@ -14,6 +14,8 @@ DROP TABLE IF EXISTS packageTypes CASCADE;
 DROP TABLE IF EXISTS outlets CASCADE;
 DROP TABLE IF EXISTS schedules CASCADE;
 DROP TABLE IF EXISTS partnerForms CASCADE;
+DROP TABLE IF EXISTS passwordResets CASCADE;
+DROP TABLE IF EXISTS otpRequests CASCADE;
 
 DROP TYPE IF EXISTS user_types CASCADE;
 DROP TYPE IF EXISTS methods CASCADE;
@@ -211,10 +213,19 @@ CREATE TABLE partnerForms (
     responded BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE password_resets (
+CREATE TABLE passwordResets (
     reset_id SERIAL PRIMARY KEY,
     user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
     token VARCHAR(255) NOT NULL,
     expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE otpRequests (
+    otp_id SERIAL PRIMARY KEY,
+    email VARCHAR(255) NOT NULL,
+    otp VARCHAR(6) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    is_verified BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT NOW()
 );

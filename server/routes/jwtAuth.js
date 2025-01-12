@@ -13,6 +13,7 @@ const sendEmail = require("../utils/emailSender");
 const {
   resetPasswordHtmlTemplate,
 } = require("../utils/resetPasswordHtmlTemplate");
+const { otpHtmlTemplate } = require("../utils/otpHtmlTemplate");
 const client = new OAuth2Client(process.env.googleClientID);
 
 router.use(etagMiddleware);
@@ -226,6 +227,80 @@ router.post("/reset-password", async (req, res) => {
   } catch (err) {
     console.error("Error in reset-password route:", err.message);
     res.status(500).json({ error: err.message });
+  }
+});
+
+router.post("/check-email", async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    // check if user exists
+    const user = await pool.query("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
+
+    if (user.rows.length !== 0) {
+      return res
+        .status(401)
+        .json({ message: "User already exist in database. Please login" });
+    }
+
+    // email is available
+    return res.status(200).json({
+      available: true,
+      message: "Email is available",
+    });
+  } catch (err) {
+    console.error("Error in check-email route: ", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post("/send-otp", async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
+
+    await pool.query(
+      `
+    INSERT INTO otpRequests(email, otp, expires_at) VALUES($1, $2, $3)`,
+      [email, code, expiresAt]
+    );
+
+    const emailContent = otpHtmlTemplate(code);
+    await sendEmail(email, "OTP Request", emailContent);
+
+    return res.status(200).json({ message: "OTP sent successfully" });
+  } catch (err) {
+    console.error("Error in send-otp route:", err);
+    res.status(500).json({ error: err });
+  }
+});
+
+router.post("/verify-otp", async (req, res) => {
+  const { email, otp } = req.body;
+
+  try {
+    const otpResult = await pool.query(
+      `SELECT * FROM otpRequests WHERE email = $1 AND otp = $2 AND expires_at > NOW() AND is_verified = false`,
+      [email, otp]
+    );
+
+    if (otpResult.rows.length === 0)
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+
+    // mark OTP as verified
+    await pool.query(
+      `UPDATE otpRequests SET is_verified = true WHERE email = $1 AND otp = $2`,
+      [email, otp]
+    );
+
+    return res.status(200).json({ message: "OTP verified successfully" });
+  } catch (err) {
+    console.error("Error in verify-otp route:", err);
+    res.status(500).json({ error: err });
   }
 });
 
