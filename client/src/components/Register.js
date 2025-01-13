@@ -163,8 +163,10 @@ const Register = () => {
     } else if (otpStep === "verify") {
       // Handle verifying OTP
       try {
+        console.log("Form values: ", registerForm.getFieldsValue());
         const email = registerForm.getFieldValue("email");
         const otp = registerForm.getFieldValue("otp");
+        console.log({ email, otp });
 
         const verifyOTPResponse = await fetch(`${baseURL}/auth/verify-otp`, {
           method: "POST",
@@ -298,9 +300,9 @@ const Register = () => {
               },
             ]}
           >
-            <Input.Group compact>
+            <div style={{ display: "flex", gap: "8px" }}>
               <Input
-                style={{ width: "65%" }}
+                style={{ flex: 1 }}
                 placeholder="Enter the OTP"
                 disabled={!otpSent || otpStep === "send"}
               />
@@ -314,7 +316,6 @@ const Register = () => {
                   isSendingOTP
                 }
                 loading={isSendingOTP}
-                style={{ width: "35%" }}
               >
                 {isSendingOTP
                   ? "Sending OTP..."
@@ -324,7 +325,7 @@ const Register = () => {
                   ? "Send OTP"
                   : "Verify OTP"}
               </Button>
-            </Input.Group>
+            </div>
           </Form.Item>
 
           <Form.Item
