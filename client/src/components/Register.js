@@ -6,6 +6,7 @@ import {
   MailOutlined,
   EyeTwoTone,
   EyeInvisibleOutlined,
+  NumberOutlined,
 } from "@ant-design/icons";
 import { Button, Form, Input, Typography, Divider } from "antd";
 import { Link } from "react-router-dom";
@@ -222,7 +223,7 @@ const Register = () => {
           onSuccess={handleGoogleLogin}
           onError={errorMessage}
           theme="outline"
-          width="290"
+          width="345"
         />
 
         <Divider>OR</Divider>
@@ -231,7 +232,8 @@ const Register = () => {
           form={registerForm}
           className="register-form"
           style={{
-            maxWidth: "300px",
+            maxWidth: "100%",
+            margin: "0 auto",
           }}
           onFinish={onRegister}
           onValuesChange={onFormValuesChange}
@@ -282,13 +284,35 @@ const Register = () => {
             help={isEmailDuplicate && "This email is already registered."}
             validateStatus={isEmailDuplicate ? "error" : ""}
           >
-            <Input
-              prefix={<MailOutlined className="site-form-item-icon" />}
-              type={"email"}
-              placeholder="Email"
-              size={"large"}
-              required
-            />
+            <div style={{ display: "flex", gap: "8px" }}>
+              <Input
+                prefix={<MailOutlined className="site-form-item-icon" />}
+                type={"email"}
+                placeholder="Email"
+                size={"large"}
+                style={{ flex: 1 }}
+                required
+              />
+              <Button
+                type="primary"
+                onClick={handleSendOrVerifyOTP}
+                disabled={
+                  !isEmailValid ||
+                  isEmailDuplicate ||
+                  cooldown > 0 ||
+                  isSendingOTP
+                }
+                loading={isSendingOTP}
+                size={"large"}
+                style={{ flex: 0.7, minWidth: "60px" }}
+              >
+                {isSendingOTP
+                  ? "Sending OTP..."
+                  : cooldown > 0
+                  ? `Resend OTP in ${cooldown}s`
+                  : "Send OTP"}
+              </Button>
+            </div>
           </Form.Item>
 
           <Form.Item
@@ -305,25 +329,17 @@ const Register = () => {
                 style={{ flex: 1 }}
                 placeholder="Enter the OTP"
                 disabled={!otpSent || otpStep === "send"}
+                size={"large"}
+                prefix={<NumberOutlined className="site-form-item-icon" />}
               />
               <Button
                 type="primary"
                 onClick={handleSendOrVerifyOTP}
-                disabled={
-                  !isEmailValid ||
-                  isEmailDuplicate ||
-                  cooldown > 0 ||
-                  isSendingOTP
-                }
-                loading={isSendingOTP}
+                disabled={!otpSent || otpStep === "send"}
+                size={"middle"}
+                style={{ flex: 0.7, minWidth: "60px" }}
               >
-                {isSendingOTP
-                  ? "Sending OTP..."
-                  : cooldown > 0
-                  ? `Resend OTP in ${cooldown}s`
-                  : otpStep === "send"
-                  ? "Send OTP"
-                  : "Verify OTP"}
+                Verify OTP
               </Button>
             </div>
           </Form.Item>
@@ -339,9 +355,41 @@ const Register = () => {
           >
             <Input.Password
               prefix={<LockOutlined className="site-form-item-icon" />}
-              type={"password"}
+              type="password"
               placeholder="Password"
-              size={"large"}
+              size="large"
+              iconRender={(visible) =>
+                visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+              }
+              required
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="confirmPassword"
+            dependencies={["password"]}
+            rules={[
+              {
+                required: true,
+                message: "Please confirm your password!",
+              },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue("password") === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(
+                    new Error("The passwords do not match!")
+                  );
+                },
+              }),
+            ]}
+          >
+            <Input.Password
+              prefix={<LockOutlined className="site-form-item-icon" />}
+              type="password"
+              placeholder="Confirm Password"
+              size="large"
               iconRender={(visible) =>
                 visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
               }
