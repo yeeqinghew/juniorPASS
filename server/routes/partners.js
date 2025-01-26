@@ -152,8 +152,8 @@ const getPartnerByPartnerId = async (partnerId) => {
     );
     return partner.rows[0];
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
+    console.error("ERROR in getPartnerByPartnerId:", error.message);
+    throw error;
   }
 };
 
@@ -165,8 +165,8 @@ const getListingsByPartnerId = async (partnerId) => {
     );
     return listings.rows;
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
+    console.error("ERROR in getPartnerByPartnerId:", error.message);
+    throw error;
   }
 };
 
@@ -178,8 +178,8 @@ const getReviwesByPartnerId = async (partnerId) => {
     );
     return reviews.rows;
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
+    console.error("ERROR in getPartnerByPartnerId:", error.message);
+    throw error;
   }
 };
 

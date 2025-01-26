@@ -35,19 +35,43 @@ router.post("/login", cacheMiddleware, async (req, res) => {
     const token = jwtGenerator(admin.rows[0].admin_id);
     return res.json({ token });
   } catch (error) {
-    console.error(error.message);
+    console.error("ERROR in /admins/login", error.message);
     res.status(500).json({ error: error.message });
   }
 });
 
-// USERS
-router.get("/getAllUsers", cacheMiddleware, async (req, res) => {
+router.get("/getAllParents", cacheMiddleware, async (req, res) => {
   // TODO: use middleware to check if user is superadmin
   try {
-    const allUsers = await pool.query("SELECT * FROM users");
-    return res.status(200).json(allUsers.rows);
+    const allParents = await pool.query(
+      "SELECT * FROM users WHERE user_type = 'parent'"
+    );
+    return res.status(200).json(allParents.rows);
   } catch (error) {
-    console.error(err.message);
+    console.error("ERROR in /admins/getAllParents", error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/getAllChildren", cacheMiddleware, async (req, res) => {
+  // TODO: use middleware to check if user is superadmin
+  try {
+    const allParents = await pool.query(
+      "SELECT * FROM users WHERE user_type = 'child'"
+    );
+    return res.status(200).json(allParents.rows);
+  } catch (error) {
+    console.error("ERROR in /admins/getAllChildren", error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/getAllPartners", async (req, res) => {
+  try {
+    const partners = await pool.query("SELECT * FROM partners");
+    return res.status(200).json(partners.rows);
+  } catch (error) {
+    console.error("ERROR in /admins/getAllPartners", error.message);
     res.status(500).json({ error: error.message });
   }
 });
