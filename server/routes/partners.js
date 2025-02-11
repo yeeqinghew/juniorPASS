@@ -8,6 +8,7 @@ const etagMiddleware = require("../middleware/etagMiddleware");
 const cacheMiddleware = require("../middleware/cacheMiddleware");
 const client = require("../utils/redisClient");
 const validInfo = require("../middleware/validInfo");
+const sendEmail = require("../utils/emailSender");
 
 router.use(etagMiddleware);
 
@@ -121,6 +122,14 @@ router.post("/partnerForm", validInfo, async (req, res) => {
       VALUES($1, $2, $3, $4)`,
       [companyName, companyPersonName, email, message]
     );
+
+    // send email notification to admin
+    await sendEmail(
+      "admin@juniorpass.sg",
+      "New Vendor Contact Request",
+      `A new vendor has submitted a request.\n\nCompany: ${companyName}\nContact Person: ${companyPersonName}\nEmail: ${email}\n\nMessage:\n${message}`
+    );
+
     res.status(201).json({
       message:
         "We've received your request. Our admin will contact you shortly.",
