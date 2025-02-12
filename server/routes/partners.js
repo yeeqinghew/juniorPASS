@@ -126,8 +126,15 @@ router.post("/partnerForm", validInfo, async (req, res) => {
     // send email notification to admin
     await sendEmail(
       "admin@juniorpass.sg",
-      "New Vendor Contact Request",
-      `A new vendor has submitted a request.\n\nCompany: ${companyName}\nContact Person: ${companyPersonName}\nEmail: ${email}\n\nMessage:\n${message}`
+      "New Partner Enquiry",
+      `
+      <p>A new partner has submitted a request.</p>
+      <p><strong>Company:</strong> ${companyName}</p>
+      <p><strong>Contact Person:</strong> ${companyPersonName}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Message:</strong></p>
+      <p>${message}</p>
+      `
     );
 
     res.status(201).json({
