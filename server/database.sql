@@ -12,6 +12,7 @@ DROP TABLE IF EXISTS ageGroups CASCADE;
 DROP TABLE IF EXISTS categoriesListings CASCADE;
 DROP TABLE IF EXISTS packageTypes CASCADE;
 DROP TABLE IF EXISTS outlets CASCADE;
+DROP TABLE IF EXISTS outletListings CASCADE;
 DROP TABLE IF EXISTS schedules CASCADE;
 DROP TABLE IF EXISTS partnerForms CASCADE;
 DROP TABLE IF EXISTS passwordResets CASCADE;
@@ -122,10 +123,17 @@ CREATE TABLE listings (
 
 CREATE TABLE outlets (
     outlet_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    partner_id uuid REFERENCES partners(partner_id) ON DELETE CASCADE,
     listing_id uuid REFERENCES listings(listing_id) ON DELETE CASCADE,
     address VARCHAR(1000),
     nearest_mrt VARCHAR(200),
     created_on TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE outletListings (
+    outlet_id uuid REFERENCES outlets(outlet_id) ON DELETE CASCADE,
+    listing_id uuid REFERENCES listings(listing_id) ON DELETE CASCADE,
+    PRIMARY KEY (outlet_id, listing_id)
 );
 
 CREATE TABLE schedules (
