@@ -57,6 +57,22 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.get("/:partnerId/outlets", authorization, async (req, res) => {
+  const { partnerId } = req.params;
+
+  try {
+    // Query to get outlets for the specific partner
+    const outlets = await pool.query(
+      "SELECT * FROM outlets WHERE partner_id = $1",
+      [partnerId]
+    );
+    return res.status(200).json(outlets.rows);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.get("/:id", cacheMiddleware, async (req, res) => {
   const id = req.params.id;
   try {
@@ -83,8 +99,14 @@ router.get("/:id", cacheMiddleware, async (req, res) => {
 router.put("/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { partner_name, description, address, contact_number, website } =
-      req.body;
+    const {
+      partner_name,
+      description,
+      address,
+      contact_number,
+      website,
+      outlets,
+    } = req.body;
 
     const updatedPartner = await pool.query(
       `UPDATE partners 
@@ -99,8 +121,47 @@ router.put("/:id", async (req, res) => {
     );
     await client.del(`/partners/${id}`);
 
+    // update outlets (UPDATE, ADD New, DELETE removed)
+    const existingOutlets = await pool.query(
+      `SELECT * FROM outlets WHERE partner_id = $1`,
+      [id]
+    );
+
+    const existingOutletIds = new Set(
+      existingOutlets.rows.map((o) => o.outlet_id)
+    );
+    const newOutletIds = new Set(
+      outlets.map((o) => o.outlet_id).filter((id) => id)
+    );
+
+    const updateQueries = outlets
+      .filter((outlet) => existingOutletIds.has(outlet.id))
+      .map(({ id, address, nearest_mrt }) =>
+        pool.query(
+          `UPDATE outlets SET outlet_address = $1, nearest_mrt = $2 WHERE outlet_id = $3`,
+          [address, nearest_mrt, id]
+        )
+      );
+
+    const insertQueries = outlets
+      .filter((outlet) => !outlet.id) // new outlets
+      .map(({ address, nearest_mrt }) =>
+        pool.query(
+          `INSERT INTO outlets (partner_id, address, nearest_mrt) VALUES ($1, $2, $3)`,
+          [id, address, nearest_mrt]
+        )
+      );
+
+    const deleteQueries = [...existingOutletIds]
+      .filter((id) => !newOutletIds.has(id))
+      .map((id) =>
+        pool.query(`DELETE FROM outlets WHERE outlet_id = $1`, [id])
+      );
+
+    await Promise.all([...updateQueries, ...insertQueries, ...deleteQueries]);
+
     return res.status(200).json({
-      message: "Information has been updated",
+      message: "Information has been updated successfully!",
       partner: updatedPartner.rows[0],
     });
   } catch (error) {
