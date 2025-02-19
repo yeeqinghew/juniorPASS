@@ -74,3 +74,5 @@
    nodemon // for Windows
    ```
 6. App is up running on http://localhost:3000
+
+7. Ensure that you have obtain the right `.env` files to get the database and other services up running
