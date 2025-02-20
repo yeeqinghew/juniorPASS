@@ -23,7 +23,7 @@ router.post("", authorization, async (req, res) => {
       images,
       short_term_start_date,
       long_term_start_date,
-      locations,
+      outlets,
     } = req.body;
 
     const listing = await pool.query(
@@ -38,8 +38,8 @@ router.post("", authorization, async (req, res) => {
         images,
         short_term_start_date,
         long_term_start_date,
-        active,
-        ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+        active
+      ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
       [
         partner_id,
         title,
@@ -55,37 +55,36 @@ router.post("", authorization, async (req, res) => {
       ]
     );
 
-    const listing_id = listing.rows[0].listing_id;
+    const listing_id = listing.rows[0].id;
 
-    // insert outlets and schedules
-    for (let location of locations) {
-      const { address, nearest_mrt, schedules } = location;
+    // Insert schedules
+    const schedulePromises = [];
 
-      const outletResult = await pool.query(
-        `INSERT INTO outlets (listing_id, address, nearest_mrt) 
-        VALUES ($1, $2, $3, $4) RETURNING outlet_id`,
-        [listing_id, address, nearest_mrt]
-      );
+    for (let outlet of outlets) {
+      const { outlet_id, schedules } = outlet;
 
-      const outlet_id = outletResult.rows[0].outlet_id;
-
-      for (schedule of schedules) {
+      for (let schedule of schedules) {
         const { day, timeslot, frequency } = schedule;
 
-        await pool.query(
-          `INSERT INTO schedules (outlet_id, day, timeslot, frequency)
-         VALUES($1, $2, $3, $4, $5)`,
-          [outlet_id, day, timeslot, frequency]
+        schedulePromises.push(
+          pool.query(
+            `INSERT INTO schedules (listing_id, outlet_id, day, timeslot, frequency)
+             VALUES($1, $2, $3, $4, $5)`,
+            [listing_id, outlet_id, day, timeslot, frequency]
+          )
         );
       }
     }
 
-    // Optionally, invalidate or update related cache entries, like the list of all listings
+    // Execute all schedule insert queries in parallel
+    await Promise.all(schedulePromises);
+
+    // Invalidate cache
     await client.del("/listings");
 
     res.status(201).json({
       message: "Listing has been created!",
-      data: listing,
+      data: listing.rows[0],
     });
   } catch (err) {
     console.error("ERROR in /listings POST", err.message);

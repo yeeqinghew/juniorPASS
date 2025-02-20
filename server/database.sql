@@ -130,18 +130,13 @@ CREATE TABLE outlets (
     created_on TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE outletListings (
-    outlet_id uuid REFERENCES outlets(outlet_id) ON DELETE CASCADE,
-    listing_id uuid REFERENCES listings(listing_id) ON DELETE CASCADE,
-    PRIMARY KEY (outlet_id, listing_id)
-);
-
 CREATE TABLE schedules (
     schedule_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-    outlet_id uuid REFERENCES outlets(outlet_id) NOT NULL,
-    day VARCHAR(10) CHECK(day IN ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')),
-    timeslot VARCHAR(10)[],
-    frequency VARCHAR(10) CHECK(frequency IN ('Biweekly', 'Weekly', 'Monthly', 'Yearly')),
+    outlet_id uuid NOT NULL REFERENCES outlets(outlet_id),
+    listing_id uuid REFERENCES listings(listing_id) ON DELETE CASCADE,
+    day TEXT CHECK (day IN ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')),
+    timeslot TEXT[],
+    frequency TEXT CHECK (frequency IN ('Biweekly', 'Weekly', 'Monthly', 'Yearly')),
     created_on TIMESTAMP DEFAULT NOW()
 );
 
