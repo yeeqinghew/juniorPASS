@@ -11,20 +11,26 @@ const s3 = new aws.S3({
   signatureVersion: "v4",
 });
 
-async function generateS3UploadURL(req) {
+async function generateS3UploadURL(folder) {
+  if (!folder) throw new Error("Folder name is required");
+
   const rawBytes = await randomBytes(16);
   const imageName = rawBytes.toString("hex");
+
+  folder = folder.replace(/\/$/, ""); // ensure folder path does not start or end with "/"
+  const key = `${folder}/${imageName}`;
+
   const uploadURL = await s3.getSignedUrlPromise("putObject", {
     Bucket: process.env.s3BucketName,
-    Key: imageName,
+    Key: key,
     Expires: 60,
   });
-  return uploadURL;
+  return { uploadURL, key };
 }
 
-async function deleteS3Objects(urls) {
-  const objects = urls.map((url) => ({
-    Key: url.split("/").pop(),
+async function deleteS3Objects(keys) {
+  const objects = keys.map((key) => ({
+    Key: key,
   }));
   const params = {
     Bucket: process.env.s3BucketName,
