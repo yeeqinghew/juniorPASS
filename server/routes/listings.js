@@ -306,51 +306,65 @@ router.get("/partner/:partnerId", async (req, res) => {
 });
 
 // edit listing
-router.put("/:id", async (req, res) => {
+router.patch("/:id", async (req, res) => {
   const id = req.params.id;
   try {
-    const {
-      title_name,
-      price,
-      package_types,
-      description,
-      age_groups,
-      images,
-      locations,
-    } = req.body;
+    // Fetch the existing listing
+    const existingListing = await pool.query(
+      "SELECT * FROM listings WHERE listing_id = $1",
+      [id]
+    );
 
-    const listing = await pool.query(
+    if (existingListing.rows.length === 0) {
+      return res.status(404).json({ error: "Listing not found" });
+    }
+
+    // Merge existing data with new data (partial update)
+    const updatedData = {
+      title_name: req.body.title_name || existingListing.rows[0].listing_title,
+      price: req.body.price ?? existingListing.rows[0].price,
+      package_types:
+        req.body.package_types ?? existingListing.rows[0].package_types,
+      description: req.body.description ?? existingListing.rows[0].description,
+      age_groups: req.body.age_groups ?? existingListing.rows[0].age_groups,
+      images: req.body.images ?? existingListing.rows[0].images,
+      locations:
+        req.body.locations ?? existingListing.rows[0].string_outlet_schedules,
+    };
+
+    // Update listing
+    const updatedListing = await pool.query(
       `UPDATE listings SET
         listing_title = $1,
         price = $2,
-        package_types = $4,
-        description = $5,
-        age_groups = $6,
-        images = $7,
-        string_outlet_schedules = $8,
-        last_updated_on = $9
-       WHERE listing_id = $10`,
+        package_types = $3,
+        description = $4,
+        age_groups = $5,
+        images = $6,
+        string_outlet_schedules = $7,
+        last_updated_on = NOW()
+      WHERE listing_id = $8 RETURNING *`,
       [
-        title_name,
-        price,
-        package_types,
-        description,
-        age_groups,
-        images,
-        locations,
-        new Date().toLocaleString(),
+        updatedData.title_name,
+        updatedData.price,
+        updatedData.package_types,
+        updatedData.description,
+        updatedData.age_groups,
+        updatedData.images,
+        updatedData.locations,
         id,
       ]
     );
 
-    // Invalidate the cache
+    // Invalidate cache
     await client.del(`/listings/${id}`);
+
     res.status(200).json({
       message: "Listing has been updated!",
-      data: listing,
+      data: updatedListing.rows[0],
     });
   } catch (error) {
-    console.error(`ERROR in /listings/${id} PUT`, error.message);
+    console.error(`ERROR in /listings/${id} PATCH`, error.message);
     res.status(500).json({ error: error.message });
   }
 });
@@ -365,15 +379,11 @@ router.delete("/:id", async (req, res) => {
     );
 
     // Extract image URLs from the database result
-    const imageURLsString = rows[0].images;
-
-    const imageURLs = imageURLsString
-      .replace("{", "") // Remove leading '{'
-      .replace("}", "") // Remove trailing '}'
-      .split(","); // Split by comma to get individual URLs
-
-    // Delete images from S3
-    await deleteS3Objects(imageURLs);
+    const imageURLs = rows[0].images;
+    if (Array.isArray(imageURLs) && imageURLs.length > 0) {
+      // Delete images from S3
+      await deleteS3Objects(imageURLs);
+    }
 
     // delete listing from DB
     await pool.query(`DELETE FROM listings WHERE listing_id = $1`, [id]);
