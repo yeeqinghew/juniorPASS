@@ -11,6 +11,8 @@ import {
   Dropdown,
   Checkbox,
   Menu,
+  DatePicker,
+  TimePicker,
 } from "antd";
 import {
   SearchOutlined,
@@ -30,6 +32,9 @@ import getBaseURL from "../../utils/config";
 import toast from "react-hot-toast";
 import "./index.css";
 import useWindowDimensions from "../../hooks/useWindowDimensions";
+import dayjs from "dayjs";
+import isBetween from "dayjs/plugin/isBetween";
+dayjs.extend(isBetween);
 
 const Classes = () => {
   const baseURL = getBaseURL();
@@ -42,6 +47,11 @@ const Classes = () => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedAgeGroups, setSelectedAgeGroups] = useState([]);
   const [selectedPackageTypes, setSelectedPackageTypes] = useState([]);
+  const [selectedDay, setSelectedDay] = useState(null);
+  const [selectedDateTime, setSelectedDateTime] = useState(null);
+  const [useSpecificDate, setUseSpecificDate] = useState(false);
+  const [tempDate, setTempDate] = useState(null);
+  const [tempTime, setTempTime] = useState(null);
   const [view, setView] = useState("list"); // 'list' or 'map'
   const { isMobile, isTabletPortrait } = useWindowDimensions();
   const isMobileOrTabletPortrait = isMobile || isTabletPortrait;
@@ -179,7 +189,62 @@ const Classes = () => {
         selectedPackageTypes.length === 0 ||
         packageTypes.some((type) => selectedPackageTypes.includes(type));
 
-      return matchesCategory && matchesAgeGroup && matchesPackageType;
+      // Filter by Day of the Week (if selected)
+      const matchesSelectedDay =
+        !selectedDay ||
+        listing.outlets.some((outlet) =>
+          outlet.schedules.some((schedule) => schedule.day === selectedDay)
+        );
+
+      // Filter by Specific Date & Time
+      const matchesSpecificDateAndTime =
+        !useSpecificDate || !selectedDateTime
+          ? true
+          : listing.outlets.some((outlet) =>
+              outlet.schedules.some((schedule) => {
+                // Ensure `selectedDate` is a `dayjs` object
+                const selectedDate = dayjs(selectedDateTime);
+                if (!dayjs.isDayjs(selectedDate)) return false;
+
+                const selectedDayName = selectedDate.format("dddd");
+                if (schedule.day !== selectedDayName) return false;
+
+                // Ensure timeslot has at least 2 values (start & end)
+                if (
+                  !Array.isArray(schedule.timeslot) ||
+                  schedule.timeslot.length !== 2
+                )
+                  return false;
+
+                // Extract start and end times
+                const [startTimeStr, endTimeStr] = schedule.timeslot;
+
+                const startTime = selectedDate
+                  .hour(dayjs(startTimeStr, "HH:mm").hour())
+                  .minute(dayjs(startTimeStr, "HH:mm").minute());
+
+                const endTime = selectedDate
+                  .hour(dayjs(endTimeStr, "HH:mm").hour())
+                  .minute(dayjs(endTimeStr, "HH:mm").minute());
+
+                return selectedDate.isBetween(
+                  startTime,
+                  endTime,
+                  "minute",
+                  "[)"
+                );
+              })
+            );
+
+      return useSpecificDate
+        ? matchesCategory &&
+            matchesAgeGroup &&
+            matchesPackageType &&
+            matchesSpecificDateAndTime
+        : matchesCategory &&
+            matchesAgeGroup &&
+            matchesPackageType &&
+            matchesSelectedDay;
     });
   };
 
@@ -203,7 +268,15 @@ const Classes = () => {
 
   useEffect(() => {
     setFilterInput(applyFilters(listings));
-  }, [listings, selectedCategories, selectedAgeGroups, selectedPackageTypes]);
+  }, [
+    listings,
+    selectedCategories,
+    selectedAgeGroups,
+    selectedPackageTypes,
+    selectedDay,
+    selectedDateTime,
+    useSpecificDate,
+  ]);
 
   const handleListHover = (listingId) => {
     // Find the listing with the matching listingId
@@ -330,6 +403,98 @@ const Classes = () => {
                 Package types <DownOutlined />
               </Button>
             </Dropdown>
+
+            {/* Toggle Between "Day of the Week" & "Specific Date" */}
+            <Space direction="horizontal">
+              <Button
+                type={!useSpecificDate ? "primary" : "default"}
+                onClick={() => {
+                  setUseSpecificDate(false);
+                  setSelectedDateTime(null); // Clear specific date filter if switching
+                }}
+              >
+                Filter by Day
+              </Button>
+
+              <Button
+                type={useSpecificDate ? "primary" : "default"}
+                onClick={() => {
+                  setUseSpecificDate(true);
+                  setSelectedDay(null); // Clear day filter if switching
+                }}
+              >
+                Filter by Specific Date
+              </Button>
+            </Space>
+
+            {/* Show "Select Day" only if "Filter by Day" is selected */}
+            {!useSpecificDate && (
+              <Dropdown
+                overlay={
+                  <Menu>
+                    {[
+                      "Monday",
+                      "Tuesday",
+                      "Wednesday",
+                      "Thursday",
+                      "Friday",
+                      "Saturday",
+                      "Sunday",
+                    ].map((day) => (
+                      <Menu.Item key={day} onClick={() => setSelectedDay(day)}>
+                        {day}
+                      </Menu.Item>
+                    ))}
+                  </Menu>
+                }
+              >
+                <Button>
+                  {selectedDay ? `Day: ${selectedDay}` : "Select Day"}{" "}
+                  <DownOutlined />
+                </Button>
+              </Dropdown>
+            )}
+
+            {/* Show "Select Date & Time" only if "Filter by Specific Date" is selected */}
+            {useSpecificDate && (
+              <Space direction="horizontal">
+                <DatePicker
+                  onChange={(date) => {
+                    setTempDate(date);
+                    // Update selectedDateTime immediately if time is already selected
+                    if (date && tempTime) {
+                      setSelectedDateTime(
+                        dayjs(date)
+                          .hour(tempTime.hour())
+                          .minute(tempTime.minute())
+                          .second(0)
+                      );
+                    }
+                  }}
+                  placeholder="Select Date"
+                  allowClear
+                />
+
+                <TimePicker
+                  format="HH:mm"
+                  minuteStep={30}
+                  onChange={(time) => {
+                    setTempTime(time);
+                    // Update selectedDateTime immediately if date is already selected
+                    if (tempDate && time) {
+                      setSelectedDateTime(
+                        dayjs(tempDate)
+                          .hour(time.hour())
+                          .minute(time.minute())
+                          .second(0)
+                      );
+                    }
+                  }}
+                  placeholder="Select Time"
+                  allowClear
+                />
+              </Space>
+            )}
           </Space>
         </Space>
         <Space direction="horizontal">
@@ -338,7 +503,6 @@ const Classes = () => {
           </Button>
         </Space>
         <Divider />
-
         <Space className={"listingmap-container"}>
           {(view === "list" || !isMobileOrTabletPortrait) && (
             <div className={"listing-container"}>
