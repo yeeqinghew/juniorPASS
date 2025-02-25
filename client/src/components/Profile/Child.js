@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { PlusOutlined } from "@ant-design/icons";
+import { FallOutlined, PlusOutlined } from "@ant-design/icons";
 import {
   Avatar,
   Button,
@@ -16,6 +16,10 @@ import { useUserContext } from "../UserContext";
 import toast from "react-hot-toast";
 import _ from "lodash";
 import getBaseURL from "../../utils/config";
+import FullCalendar from "@fullcalendar/react";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import "./Child.css";
 
 const { Text, Title } = Typography;
 
@@ -27,6 +31,8 @@ const Child = () => {
   const [addChildForm] = Form.useForm();
   const [editChildForm] = Form.useForm();
   const { user } = useUserContext();
+  const [selectedChild, setSelectedChild] = useState(null);
+  const [schedule, setSchedule] = useState([]);
 
   const handleCancel = () => {
     setIsAddChildModalOpen(false);
@@ -72,9 +78,95 @@ const Child = () => {
     }
   };
 
+  const fetchChildSchedule = async (childId) => {
+    try {
+      const response = await fetch(`${baseURL}/children/${childId}/schedule`);
+      const data = await response.json();
+      setSchedule(data);
+    } catch (error) {
+      console.error("Error fetching schedule:", error);
+    }
+  };
+
+  const getNextDayOfWeek = (dayName) => {
+    const daysOfWeek = {
+      Sunday: 0,
+      Monday: 1,
+      Tuesday: 2,
+      Wednesday: 3,
+      Thursday: 4,
+      Friday: 5,
+      Saturday: 6,
+    };
+
+    const today = new Date();
+    const todayDayNumber = today.getDay();
+    const targetDayNumber = daysOfWeek[dayName];
+
+    let daysUntilNextTargetDay = targetDayNumber - todayDayNumber;
+    if (daysUntilNextTargetDay < 0) {
+      daysUntilNextTargetDay += 7;
+    }
+
+    const nextClassDate = new Date();
+    nextClassDate.setDate(today.getDate() + daysUntilNextTargetDay);
+
+    return nextClassDate.toISOString().split("T")[0];
+  };
+
+  const getListData = (value) => {
+    const dateString = value.format("YYYY-MM-DD");
+
+    return schedule
+      .filter((classItem) => getNextDayOfWeek(classItem.day) === dateString)
+      .map((classItem) => ({
+        title: classItem.listing_title,
+        time: `${classItem.class_time[0]} - ${classItem.class_time[1]}`,
+        location: classItem.address.ADDRESS,
+      }));
+  };
+
+  const generateWeeklyOccurrences = (dayName, time, weeks = 8) => {
+    const daysOfWeek = {
+      Sunday: 0,
+      Monday: 1,
+      Tuesday: 2,
+      Wednesday: 3,
+      Thursday: 4,
+      Friday: 5,
+      Saturday: 6,
+    };
+
+    const today = new Date();
+    const todayDayNumber = today.getDay();
+    const targetDayNumber = daysOfWeek[dayName];
+
+    let daysUntilTargetDay = targetDayNumber - todayDayNumber;
+    if (daysUntilTargetDay < 0) {
+      daysUntilTargetDay += 7; // Move to the next week's occurrence
+    }
+
+    const occurrences = [];
+    for (let i = 0; i < weeks; i++) {
+      const classDate = new Date();
+      classDate.setDate(today.getDate() + daysUntilTargetDay + i * 7);
+      const dateStr = classDate.toISOString().split("T")[0];
+
+      occurrences.push(`${dateStr}T${time}`);
+    }
+
+    return occurrences;
+  };
+
   useEffect(() => {
     if (user) getChildren();
   }, [user?.user_id]);
+
+  useEffect(() => {
+    if (selectedChild) {
+      fetchChildSchedule(selectedChild);
+    }
+  }, [selectedChild]);
 
   return (
     <>
@@ -154,9 +246,72 @@ const Child = () => {
       </Flex>
 
       {/* Classes section */}
-      <Flex style={{ marginBottom: "24px" }}>
+      {/* <Flex style={{ marginBottom: "24px" }}>
         <Title level={4}>Classes</Title>
+      </Flex> */}
+
+      <Flex
+        style={{
+          marginBottom: "24px",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Title level={4}>Classes</Title>
+
+        {/* Child selection dropdown (aligned to right) */}
+        <Select
+          style={{ width: 200 }}
+          onChange={(childId) => {
+            setSelectedChild(childId);
+            fetchChildSchedule(childId);
+          }}
+          placeholder="Select Child"
+        >
+          {children.map((child) => (
+            <Select.Option key={child.child_id} value={child.child_id}>
+              {child.name}
+            </Select.Option>
+          ))}
+        </Select>
       </Flex>
+
+      {selectedChild && (
+        <FullCalendar
+          plugins={[timeGridPlugin, dayGridPlugin]}
+          initialView="timeGridWeek" // Shows a weekly vertical schedule
+          allDaySlot={false}
+          headerToolbar={{
+            left: "prev,next",
+            center: "title",
+            right: "timeGridWeek,dayGridMonth", // Allows switching between week & month views
+          }}
+          events={schedule.flatMap((classItem) =>
+            generateWeeklyOccurrences(
+              classItem.day,
+              classItem.class_time[0]
+            ).map((startTime) => {
+              const endTime = new Date(startTime);
+              const [startHour, startMin] = classItem.class_time[0]
+                .split(":")
+                .map(Number);
+              const [endHour, endMin] = classItem.class_time[1]
+                .split(":")
+                .map(Number);
+              endTime.setHours(endHour, endMin);
+
+              return {
+                title: `${classItem.listing_title} (S${classItem.postal_code})`,
+                start: startTime,
+                end: endTime.toISOString(),
+              };
+            })
+          )}
+          slotMinTime="08:00:00" // Customize start time (e.g., 8 AM)
+          slotMaxTime="22:00:00" // Customize end time (e.g., 10 PM)
+          height="auto"
+        />
+      )}
 
       {/* Add child modal */}
       <Modal

@@ -1,0 +1,37 @@
+/* Default event background (dark pink) */
+.fc-event {
+  background-color: #ed8294 !important;
+  border: none !important;
+  color: white !important;
+  border-radius: 6px;
+  padding: 5px;
+  font-weight: bold;
+}
+
+/* Style all FullCalendar buttons */
+.fc .fc-button {
+  background-color: #ed8294 !important;
+  border-color: #ed8294 !important;
+  color: #fff !important;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+/* Hover effect */
+.fc .fc-button:hover {
+  background-color: #d46b7e !important; /* Slightly darker pink */
+  border-color: #d46b7e !important;
+}
+
+/* Highlight the active (selected) button */
+.fc .fc-button.fc-button-active {
+  background-color: #d46b7e !important; /* Slightly darker pink when selected */
+  border-color: #d46b7e !important;
+  color: white !important;
+}
+
+/* Style the FullCalendar title (date range text) */
+.fc .fc-toolbar-title {
+  color: #000 !important;
+  font-weight: bold;
+}
