@@ -328,8 +328,6 @@ router.patch("/:id", async (req, res) => {
       description: req.body.description ?? existingListing.rows[0].description,
       age_groups: req.body.age_groups ?? existingListing.rows[0].age_groups,
       images: req.body.images ?? existingListing.rows[0].images,
-      locations:
-        req.body.locations ?? existingListing.rows[0].string_outlet_schedules,
     };
 
     // Update listing
@@ -341,9 +339,8 @@ router.patch("/:id", async (req, res) => {
         description = $4,
         age_groups = $5,
         images = $6,
-        string_outlet_schedules = $7,
         last_updated_on = NOW()
-      WHERE listing_id = $8 RETURNING *`,
+      WHERE listing_id = $7 RETURNING *`,
       [
         updatedData.title_name,
         updatedData.price,
@@ -351,7 +348,6 @@ router.patch("/:id", async (req, res) => {
         updatedData.description,
         updatedData.age_groups,
         updatedData.images,
-        updatedData.locations,
         id,
       ]
     );
