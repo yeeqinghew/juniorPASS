@@ -106,6 +106,7 @@ router.put("/:id", async (req, res) => {
       contact_number,
       website,
       outlets,
+      listing_id,
     } = req.body;
 
     const updatedPartner = await pool.query(
@@ -121,7 +122,7 @@ router.put("/:id", async (req, res) => {
     );
     await client.del(`/partners/${id}`);
 
-    // update outlets (UPDATE, ADD New, DELETE removed)
+    // Get existing outlets tied to this partner
     const existingOutlets = await pool.query(
       `SELECT * FROM outlets WHERE partner_id = $1`,
       [id]
@@ -134,31 +135,61 @@ router.put("/:id", async (req, res) => {
       outlets.map((o) => o.outlet_id).filter((id) => id)
     );
 
+    // Update existing outlets
     const updateQueries = outlets
-      .filter((outlet) => existingOutletIds.has(outlet.id))
-      .map(({ id, address, nearest_mrt }) =>
+      .filter((outlet) => existingOutletIds.has(outlet.outlet_id))
+      .map(({ outlet_id, address, nearest_mrt }) =>
         pool.query(
-          `UPDATE outlets SET outlet_address = $1, nearest_mrt = $2 WHERE outlet_id = $3`,
-          [address, nearest_mrt, id]
+          `UPDATE outlets SET address = $1, nearest_mrt = $2 WHERE outlet_id = $3`,
+          [address, nearest_mrt, outlet_id]
         )
       );
 
-    const insertQueries = outlets
-      .filter((outlet) => !outlet.id) // new outlets
-      .map(({ address, nearest_mrt }) =>
-        pool.query(
-          `INSERT INTO outlets (partner_id, address, nearest_mrt) VALUES ($1, $2, $3)`,
+    // Insert new outlets
+    const insertOutletQueries = outlets
+      .filter((outlet) => !outlet.outlet_id) // new outlets
+      .map(async ({ address, nearest_mrt }) => {
+        const result = await pool.query(
+          `INSERT INTO outlets (partner_id, address, nearest_mrt) VALUES ($1, $2, $3) RETURNING outlet_id`,
           [id, address, nearest_mrt]
-        )
-      );
+        );
+        return result.rows[0].outlet_id; // Get newly inserted outlet_id
+      });
 
+    // Wait for new outlets to be inserted
+    const newOutletIdsArray = await Promise.all(insertOutletQueries);
+
+    // Delete removed outlets
     const deleteQueries = [...existingOutletIds]
-      .filter((id) => !newOutletIds.has(id))
-      .map((id) =>
-        pool.query(`DELETE FROM outlets WHERE outlet_id = $1`, [id])
+      .filter((outlet_id) => !newOutletIds.has(outlet_id))
+      .map((outlet_id) =>
+        pool.query(`DELETE FROM outlets WHERE outlet_id = $1`, [outlet_id])
       );
 
-    await Promise.all([...updateQueries, ...insertQueries, ...deleteQueries]);
+    await Promise.all([...updateQueries, ...deleteQueries]);
+
+    // Update listing_outlets table
+    const allOutletIds = [...newOutletIdsArray, ...newOutletIds]; // Combine new and existing outlet IDs
+
+    // Remove old outlet-listing links
+    await pool.query(
+      `DELETE FROM listing_outlets WHERE listing_id = $1 AND outlet_id NOT IN (${allOutletIds
+        .map((_, i) => `$${i + 2}`)
+        .join(",")})`,
+      [listing_id, ...allOutletIds]
+    );
+
+    // Insert new outlet-listing links if they don't exist
+    const insertListingOutletQueries = allOutletIds.map((outlet_id) =>
+      pool.query(
+        `INSERT INTO listing_outlets (listing_id, outlet_id)
+        VALUES ($1, $2) 
+        ON CONFLICT (listing_id, outlet_id) DO NOTHING`,
+        [listing_id, outlet_id]
+      )
+    );
+
+    await Promise.all(insertListingOutletQueries);
 
     return res.status(200).json({
       message: "Information has been updated successfully!",

@@ -124,10 +124,15 @@ CREATE TABLE listings (
 CREATE TABLE outlets (
     outlet_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     partner_id uuid REFERENCES partners(partner_id) ON DELETE CASCADE,
-    listing_id uuid REFERENCES listings(listing_id) ON DELETE CASCADE,
     address VARCHAR(1000),
     nearest_mrt VARCHAR(200),
     created_on TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE listingOutlets (
+    listing_id uuid REFERENCES listings(listing_id) ON DELETE CASCADE,
+    outlet_id uuid REFERENCES outlets(outlet_id) ON DELETE CASCADE,
+    PRIMARY KEY (listing_id, outlet_id)
 );
 
 CREATE TABLE schedules (
