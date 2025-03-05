@@ -47,11 +47,17 @@ const Register = () => {
 
   const onRegister = async (values) => {
     try {
+      const encodePhoneNumber = (phoneNumber) => {
+        return btoa(phoneNumber); // base64 encode
+      };
+      const encodedPhoneNumber = encodePhoneNumber(values.phoneNumber);
+
       const encryptedPassword = CryptoJS.SHA256(values.password).toString(
         CryptoJS.enc.Hex
       );
       const registrationData = {
         ...values,
+        phoneNumber: encodedPhoneNumber,
         password: encryptedPassword,
       };
       const response = await fetch(`${baseURL}/auth/register`, {
