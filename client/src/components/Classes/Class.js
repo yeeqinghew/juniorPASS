@@ -73,39 +73,36 @@ const Class = () => {
   };
   // Function to generate available time slots
   const generateAvailableTimeSlots = () => {
-    if (!listing || !listing.outlets) return [];
+    if (!listing || !listing?.schedule_info) return [];
 
     const selectedDay = dayjs(selectedDate).format("dddd");
-    return listing?.outlets.reduce((acc, curr) => {
-      curr.schedules.forEach((schedule) => {
-        const day = schedule.day;
-        const frequency = schedule.frequency;
-        const timeslots = schedule.timeslot;
-
-        if (frequency === "Daily") {
-          if (dayjs(selectedDate).isValid()) {
-            acc.push({ ...formatTimeslot(timeslots), location: curr });
-          }
-        } else if (frequency === "Weekly") {
-          if (selectedDay === day) {
-            acc.push({ ...formatTimeslot(timeslots), location: curr });
-          }
-        } else if (frequency === "Biweekly") {
-          const startDate = dayjs(listing.long_term_start_date);
-          const weeksDifference = dayjs(selectedDate).diff(startDate, "week");
-          if (weeksDifference % 2 === 0 && selectedDay === day) {
-            acc.push({ ...formatTimeslot(timeslots), location: curr });
-          }
-        } else if (frequency === "Monthly") {
-          const startDate = dayjs(listing.long_term_start_date);
-          if (
-            dayjs(selectedDate).date() === startDate.date() &&
-            selectedDay === day
-          ) {
-            acc.push({ ...formatTimeslot(timeslots), location: curr });
-          }
+    console.log(listing?.schedule_info);
+    return listing?.schedule_info.reduce((acc, curr) => {
+      console.log("curr", curr);
+      const { frequency, day, timeslot } = curr;
+      if (frequency === "Daily") {
+        if (dayjs(selectedDate).isValid()) {
+          acc.push({ ...formatTimeslot(timeslot), location: curr });
         }
-      });
+      } else if (frequency === "Weekly") {
+        if (selectedDay === day) {
+          acc.push({ ...formatTimeslot(timeslot), location: curr });
+        }
+      } else if (frequency === "Biweekly") {
+        const startDate = dayjs(listing.long_term_start_date);
+        const weeksDifference = dayjs(selectedDate).diff(startDate, "week");
+        if (weeksDifference % 2 === 0 && selectedDay === day) {
+          acc.push({ ...formatTimeslot(timeslot), location: curr });
+        }
+      } else if (frequency === "Monthly") {
+        const startDate = dayjs(listing.long_term_start_date);
+        if (
+          dayjs(selectedDate).date() === startDate.date() &&
+          selectedDay === day
+        ) {
+          acc.push({ ...formatTimeslot(timeslot), location: curr });
+        }
+      }
 
       return acc;
     }, []);
@@ -185,6 +182,8 @@ const Class = () => {
     getChildren();
   }, [isBuyNowModalOpen]);
 
+  console.log("listing", listing);
+
   if (loading) {
     return <Spinner />;
   }
@@ -226,12 +225,12 @@ const Class = () => {
         <Space direction="vertical" size="large" style={{ flex: 1 }}>
           <Title level={4}>{listing?.listing_title}</Title>
           <Space direction="horizontal">
-            {listing?.package_types.map((type, index) => (
+            {/* {listing?.package_types.map((type, index) => (
               <Tag key={`package-type-${index}`}># {type}</Tag>
-            ))}
-            {listing?.partner_info?.categories.map((category, index) => (
+            ))} */}
+            {/* {listing?.partner_info?.categories.map((category, index) => (
               <Tag key={`category-${index}`}>{category}</Tag>
-            ))}
+            ))} */}
           </Space>
 
           <Title level={5} style={{ marginTop: 0 }}>
@@ -239,11 +238,11 @@ const Class = () => {
           </Title>
           <Paragraph>{listing?.listing_description}</Paragraph>
 
-          {listing?.age_groups.map((age, index) => (
+          {/* {listing?.age_groups.map((age, index) => (
             <Text key={`age-group-${index}`}>
               Suitable for kids aged from {age.min_age}
             </Text>
-          ))}
+          ))} */}
 
           <Divider />
           <Title level={5} style={{ marginTop: 0 }}>
@@ -288,12 +287,12 @@ const Class = () => {
                   </Button>,
                 ]}
               >
-                <List.Item.Meta
+                {/* <List.Item.Meta
                   title={`${item.timeRange}    ${item.location.nearest_mrt}`}
                   description={`${item.duration}    ${
                     JSON.parse(item.location.address).SEARCHVAL
                   }`}
-                />
+                /> */}
               </List.Item>
             )}
           />

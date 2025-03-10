@@ -49,7 +49,6 @@ const Classes = () => {
 
   const getListings = async () => {
     try {
-      // TODO: get ONLY active listings
       const response = await fetch(`${baseURL}/listings`, {
         method: "GET",
       });
@@ -100,10 +99,11 @@ const Classes = () => {
 
   const pins = useMemo(() => {
     return listings.map((listing) => {
+      console.log(listing);
       const color = "#98BDD2";
 
-      return listing?.outlets.map((outlet, index) => {
-        const parsedAddress = JSON.parse(outlet?.address);
+      return listing?.schedule_info.map((outlet, index) => {
+        const parsedAddress = JSON.parse(outlet?.outlet_address);
         return (
           <Marker
             key={`${listing?.listing_id}-${index}`}
@@ -407,7 +407,7 @@ const Classes = () => {
                               WebkitBoxOrient: "vertical",
                             }}
                           >
-                            {listing?.listing_description}
+                            {listing?.description}
                           </div>
 
                           <Space>
@@ -456,17 +456,17 @@ const Classes = () => {
 
               {/* Display popups for popupInfo */}
               {popupInfo &&
-                popupInfo.outlets.map((outlet, index) => (
+                popupInfo?.schedule_info.map((schedule, index) => (
                   <Popup
-                    key={`${popupInfo.listing_id}-${index}`}
-                    longitude={JSON.parse(outlet.address).LONGITUDE}
-                    latitude={JSON.parse(outlet.address).LATITUDE}
+                    key={`${popupInfo?.listing_id}-${index}`}
+                    longitude={JSON.parse(schedule?.outlet_address).LONGITUDE}
+                    latitude={JSON.parse(schedule?.outlet_address).LATITUDE}
                     onClose={() => setPopupInfo(null)}
                   >
                     <Space direction="vertical">
                       {/* <a target="_new" href={popupInfo.website}> */}
                       {popupInfo?.listing_title}
-                      {JSON.parse(outlet.address).SEARCHVAL}
+                      {JSON.parse(schedule?.outlet_address).SEARCHVAL}
                       {/* </a> */}
                       <img width="100%" src={popupInfo.images[0]} />
                     </Space>

@@ -58,6 +58,7 @@ router.post("", authorization, async (req, res) => {
 
     const listing_id = listing.rows[0].listing_id;
 
+    // Insert into listingOutlets
     const schedulePromises = [];
 
     for (let outlet of outlets) {
@@ -66,8 +67,7 @@ router.post("", authorization, async (req, res) => {
       // Insert into listingOutlets
       const listingOutlet = await pool.query(
         `
-        INSERT INTO listingOutlets (listing_id, outlet_id) 
-        VALUES($1, $2) RETURNING *`,
+        INSERT INTO listingOutlets (listing_id, outlet_id) VALUES($1, $2) RETURNING *`,
         [listing_id, outlet_id]
       );
       const listing_outlet_id = listingOutlet.rows[0].listing_outlet_id;
@@ -105,11 +105,37 @@ router.post("", authorization, async (req, res) => {
 router.get("", cacheMiddleware, async (req, res) => {
   try {
     const listings = await pool.query(
-      `SELECT * FROM listings
-        GROUP BY 
-          listing_id
-        ORDER BY 
-          created_on DESC;
+      ` SELECT 
+        l.*,
+        json_build_object(
+          'partner_id', p.partner_id,
+          'partner_name', p.partner_name,
+          'email', p.email,
+          'categories', p.categories,
+          'contact_number', p.contact_number,
+          'rating', p.rating,
+          'picture', p.picture,
+          'website', p.website
+        ) AS partner_info,
+         jsonb_agg(
+          jsonb_build_object(
+            'schedule_id', s.schedule_id,
+            'day', s.day,
+            'timeslot', s.timeslot,
+            'frequency', s.frequency,
+            'outlet_id', o.outlet_id,
+            'outlet_address', o.address,
+            'nearest_mrt', o.nearest_mrt
+          )
+        ) AS schedule_info
+      FROM listings l
+      JOIN partners p ON p.partner_id = l.partner_id
+      LEFT JOIN listingOutlets lo ON lo.listing_id = l.listing_id
+      LEFT JOIN outlets o ON o.outlet_id = lo.outlet_id
+      LEFT JOIN schedules s ON s.listing_outlet_id = lo.listing_outlet_id
+      WHERE l.active = true
+      GROUP BY l.listing_id, p.partner_id
+      ORDER BY l.created_on DESC;
       `
     );
     return res.status(200).json(listings.rows);
@@ -174,60 +200,10 @@ router.get("/partner/:partnerId", async (req, res) => {
   try {
     const listings = await pool.query(
       `
-      SELECT 
-        l.listing_id,
-        l.listing_title,
-        l.description AS listing_description,
-        l.price,
-        l.credit,
-        array_to_json(l.package_types) AS package_types,
-        array_to_json(l.age_groups) AS age_groups,
-        l.images,
-        l.rating AS listing_rating,
-        l.created_on AS listing_created_on,
-        l.active,
-        json_build_object(
-          'partner_id', p.partner_id,
-          'partner_name', p.partner_name,
-          'email', p.email,
-          'categories', p.categories,
-          'contact_number', p.contact_number,
-          'rating', p.rating,
-          'picture', p.picture,
-          'website', p.website
-        ) AS partner_info,
-        COALESCE(
-            json_agg(
-                    DISTINCT jsonb_build_object(
-                      'outlet_id', o.outlet_id,
-                      'address', o.address,
-                      'nearest_mrt', o.nearest_mrt,
-                      'created_on', o.created_on,
-                      'schedules', os.schedules
-                )
-            ) FILTER (WHERE o.outlet_id IS NOT NULL),
-            '[]'::json
-        ) AS outlets
-      FROM listings l
-      LEFT JOIN partners p ON p.partner_id = l.partner_id
-      LEFT JOIN outlets o ON o.listing_id = l.listing_id
-      LEFT JOIN LATERAL (
-          SELECT 
-              json_agg(
-                  json_build_object(
-                      'schedule_id', s.schedule_id,
-                      'day', s.day,
-                      'timeslot', s.timeslot,
-                      'frequency', s.frequency,
-                      'created_on', s.created_on
-                  )
-              ) AS schedules
-          FROM schedules s
-          WHERE s.outlet_id = o.outlet_id
-      ) os ON true
+      SELECT * FROM listings l
       WHERE l.partner_id = $1
-      GROUP BY l.listing_id, p.partner_id
-      ORDER BY l.created_on DESC;`,
+      ORDER BY 
+          l.created_on DESC;`,
       [partnerId]
     );
 
