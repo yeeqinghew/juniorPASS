@@ -159,26 +159,27 @@ const Classes = () => {
     return listings.filter((listing) => {
       // Check if the listing matches the selected categories
       const matchesCategory =
-        selectedCategories.length === 0 || // If no categories are selected, include all
+        selectedCategories.length === 0 ||
         listing?.partner_info?.categories.some((category) =>
           selectedCategories.includes(category)
         );
 
+      // Convert age_groups and package_types to arrays
+      const ageGroups = listing.age_groups.replace(/[{}]/g, "").split(",");
+      const packageTypes = listing.package_types
+        .replace(/[{}]/g, "")
+        .split(",");
+
       // Check if the listing matches the selected age groups
       const matchesAgeGroup =
-        selectedAgeGroups.length === 0 || // If no age groups are selected, include all
-        listing.age_groups.some((ageGroup) =>
-          selectedAgeGroups.includes(ageGroup)
-        );
+        selectedAgeGroups.length === 0 ||
+        ageGroups.some((ageGroup) => selectedAgeGroups.includes(ageGroup));
 
       // Check if the listing matches the selected package types
       const matchesPackageType =
-        selectedPackageTypes.length === 0 || // If no package types are selected, include all
-        listing.package_types.some((type) =>
-          selectedPackageTypes.includes(type)
-        );
+        selectedPackageTypes.length === 0 ||
+        packageTypes.some((type) => selectedPackageTypes.includes(type));
 
-      // Return only listings that match all filters
       return matchesCategory && matchesAgeGroup && matchesPackageType;
     });
   };
