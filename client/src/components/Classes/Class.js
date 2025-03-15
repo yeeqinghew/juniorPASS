@@ -248,11 +248,19 @@ const Class = () => {
           <Title level={5} style={{ marginTop: 0 }}>
             Schedule
           </Title>
-          <div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              width: "100%",
+              maxWidth: "400px",
+            }}
+          >
             <Button
               onClick={handlePreviousDay}
               disabled={isToday}
-              style={{ border: "none" }}
+              style={{ border: "none", flexShrink: 0 }}
             >
               <LeftOutlined />
             </Button>
@@ -261,13 +269,21 @@ const Class = () => {
               format={dateFormat}
               onChange={handleDateChange}
               allowClear={false}
-              style={{ border: "none", width: "88%" }}
+              style={{
+                border: "none",
+                width: "100%",
+                maxWidth: "200px",
+                flexShrink: 0,
+              }}
               open={false}
               inputReadOnly
               suffixIcon={null}
               className="custom-date-picker"
             />
-            <Button onClick={handleNextDay} style={{ border: "none" }}>
+            <Button
+              onClick={handleNextDay}
+              style={{ border: "none", flexShrink: 0 }}
+            >
               <RightOutlined />
             </Button>
           </div>
@@ -287,12 +303,10 @@ const Class = () => {
                   </Button>,
                 ]}
               >
-                {/* <List.Item.Meta
+                <List.Item.Meta
                   title={`${item.timeRange}    ${item.location.nearest_mrt}`}
-                  description={`${item.duration}    ${
-                    JSON.parse(item.location.address).SEARCHVAL
-                  }`}
-                /> */}
+                  description={`${item.duration}`}
+                />
               </List.Item>
             )}
           />

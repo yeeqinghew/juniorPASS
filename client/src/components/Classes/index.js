@@ -418,7 +418,10 @@ const Classes = () => {
                               height={24}
                               preview={false}
                             />
-                            {listing?.age_groups}
+                            {listing?.age_groups
+                              .replace(/[{}]/g, "")
+                              .split(",")
+                              .join(", ")}
                           </Space>
 
                           {listing?.partner_info?.rating !== 0 && (
