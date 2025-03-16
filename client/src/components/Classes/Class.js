@@ -200,61 +200,66 @@ const Class = () => {
   }
 
   return (
-    <Row gutter={16} style={{ width: "100%", padding: "0 150px" }}>
+    <Row gutter={16} style={{ width: "100%", padding: "0 200px" }}>
       <Col span={16}>
-        <Carousel autoplay arrows>
+        <Carousel autoplay arrows dots>
           {listing?.images.map((imgUrl, index) => (
-            <div key={index}>
+            <div key={index} style={{ position: "relative" }}>
               <Image
                 alt={`carousel-${index}`}
                 src={imgUrl}
                 preview={false}
                 style={{
                   margin: 0,
-                  // maxHeight: "200px",
-                  // width: "100%",
-                  // objectFit: "cover",
-                  background: "#364d79",
+                  width: "100%",
+                  maxHeight: "300px",
+                  objectFit: "cover",
+                  borderRadius: "10px",
+                  boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
                 }}
               />
             </div>
           ))}
         </Carousel>
-        {/* Description */}
 
+        {/* Description */}
         <Space direction="vertical" size="large" style={{ flex: 1 }}>
           <Title level={4}>{listing?.listing_title}</Title>
+
           <Space direction="horizontal">
-            {/* {listing?.package_types.map((type, index) => (
-              <Tag key={`package-type-${index}`}># {type}</Tag>
-            ))} */}
-            {/* {listing?.partner_info?.categories.map((category, index) => (
+            {/* Package Types */}
+            {listing?.package_types &&
+              listing.package_types
+                .replace(/[{}]/g, "")
+                .split(",")
+                .map((type, index) => (
+                  <Tag key={`package-type-${index}`}># {type.trim()}</Tag>
+                ))}
+
+            {/* Categories */}
+            {listing?.partner_info?.categories?.map((category, index) => (
               <Tag key={`category-${index}`}>{category}</Tag>
-            ))} */}
+            ))}
           </Space>
 
           <Title level={5} style={{ marginTop: 0 }}>
             $ {listing?.credit}
           </Title>
-          <Paragraph>{listing?.listing_description}</Paragraph>
 
-          {/* {listing?.age_groups.map((age, index) => (
-            <Text key={`age-group-${index}`}>
-              Suitable for kids aged from {age.min_age}
-            </Text>
-          ))} */}
+          <Paragraph>{listing?.description}</Paragraph>
 
           <Divider />
           <Title level={5} style={{ marginTop: 0 }}>
             Schedule
           </Title>
-          <div
+          {/* Date Navigation */}
+          <Space
             style={{
               display: "flex",
               alignItems: "center",
               gap: "8px",
               width: "100%",
-              maxWidth: "400px",
+              justifyContent: "space-between",
             }}
           >
             <Button
@@ -272,8 +277,8 @@ const Class = () => {
               style={{
                 border: "none",
                 width: "100%",
+                flexGrow: 1, // Ensures it expands
                 maxWidth: "200px",
-                flexShrink: 0,
               }}
               open={false}
               inputReadOnly
@@ -286,8 +291,9 @@ const Class = () => {
             >
               <RightOutlined />
             </Button>
-          </div>
+          </Space>
 
+          {/* Available Classes List */}
           <List
             itemLayout="horizontal"
             dataSource={availableTimeSlots}
@@ -296,7 +302,9 @@ const Class = () => {
             }}
             renderItem={(item) => (
               <List.Item
-                style={{ width: "300" }}
+                style={{
+                  width: "100%",
+                }}
                 actions={[
                   <Button type="primary" onClick={() => handleBookNow(item)}>
                     Book now
@@ -304,7 +312,7 @@ const Class = () => {
                 ]}
               >
                 <List.Item.Meta
-                  title={`${item.timeRange}    ${item.location.nearest_mrt}`}
+                  title={`${item.timeRange} ${item.location.nearest_mrt}`}
                   description={`${item.duration}`}
                 />
               </List.Item>
