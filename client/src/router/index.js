@@ -8,6 +8,7 @@ import Classes from "../components/Classes";
 import Pricing from "../components/Pricing";
 import Login from "../components/Login";
 import Register from "../components/Register";
+import VerifyOTP from "../components/VerifyOTP";
 import { useUserContext } from "../components/UserContext";
 import Class from "../components/Classes/Class";
 import AuthenticatedRoute from "./AuthenticatedRoute";
@@ -121,6 +122,7 @@ export default () => {
               )
             }
           ></Route>
+          <Route path="/verify-otp" element={<VerifyOTP />} />
         </Route>
 
         {/*******************
