@@ -6,195 +6,84 @@ import {
   MailOutlined,
   EyeTwoTone,
   EyeInvisibleOutlined,
-  NumberOutlined,
 } from "@ant-design/icons";
 import { Button, Form, Input, Typography, Divider } from "antd";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { GoogleLogin } from "@react-oauth/google";
 import getBaseURL from "../utils/config";
-import useHandleLogin from "../hooks/useHandleLogin";
-import { useUserContext } from "./UserContext";
-import CryptoJS from "crypto-js";
 
 const { Title, Text } = Typography;
 
 const Register = () => {
   const baseURL = getBaseURL();
   const [registerForm] = Form.useForm();
-  const [otpSent, setOtpSent] = useState(false);
   const [isSendingOTP, setIsSendingOTP] = useState(false);
   const [isEmailValid, setIsEmailValid] = useState(false);
   const [isEmailDuplicate, setIsEmailDuplicate] = useState(false);
-  const [otpStep, setOtpStep] = useState("send"); // "send" or "verify"
-  const [cooldown, setCooldown] = useState(0);
-  const { from } = { from: { pathname: "/" } };
-  const { handleGoogleLogin } = useHandleLogin({ from });
-  const { setAuth } = useUserContext();
+  const navigate = useNavigate();
 
-  const startCooldown = () => {
-    let time = 60;
-    setCooldown(time);
+  const onNext = async (values) => {
+    if (!isEmailValid) {
+      toast.error("Please enter a valid email.");
+      return;
+    }
 
-    const interval = setInterval(() => {
-      time -= 1;
-      setCooldown(time);
-      if (time === 0) {
-        clearInterval(interval);
-      }
-    }, 1000);
-  };
-
-  const onRegister = async (values) => {
+    setIsSendingOTP(true);
     try {
-      const encodePhoneNumber = (phoneNumber) => {
-        return btoa(phoneNumber); // base64 encode
-      };
-      const encodedPhoneNumber = encodePhoneNumber(values.phoneNumber);
+      const email = values.email;
 
-      const encryptedPassword = CryptoJS.SHA256(values.password).toString(
-        CryptoJS.enc.Hex
-      );
-      const registrationData = {
-        ...values,
-        phoneNumber: encodedPhoneNumber,
-        password: encryptedPassword,
-      };
-      const response = await fetch(`${baseURL}/auth/register`, {
+      // Check if email is already registered
+      const checkEmailResponse = await fetch(`${baseURL}/auth/check-email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const checkEmailData = await checkEmailResponse.json();
+
+      if (!checkEmailResponse.ok || !checkEmailData.available) {
+        setIsEmailDuplicate(true);
+        setIsSendingOTP(false);
+        toast.error(
+          checkEmailData.message || "This email is already registered."
+        );
+        return;
+      }
+
+      setIsEmailDuplicate(false);
+
+      // Send OTP
+      const sendOTPResponse = await fetch(`${baseURL}/auth/send-otp`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(registrationData),
+        body: JSON.stringify({ email }),
       });
 
-      const parseRes = await response.json();
-      if (parseRes.token) {
-        localStorage.setItem("token", parseRes.token);
-        setAuth(true);
-        toast.success("Register successfully");
+      const parseRes = await sendOTPResponse.json();
+      if (sendOTPResponse.ok) {
+        toast.success(parseRes.message || "OTP sent successfully");
+        navigate("/verify-otp", { state: { email, ...values } });
       } else {
-        setAuth(false);
-        toast.error(parseRes.message);
+        throw new Error(
+          parseRes.message || "Failed to send OTP. Please try again."
+        );
       }
     } catch (error) {
-      setAuth(false);
-      console.error(error.message);
-      toast.error(error.message);
+      toast.error("Failed to send OTP. Please try again.");
+    } finally {
+      setIsSendingOTP(false);
     }
   };
 
-  const errorMessage = (error) => {
-    console.error(error);
-  };
-
-  // Handler to track phone number validation status
   const onFormValuesChange = (changedValues) => {
     if (changedValues.email) {
       const email = changedValues.email;
       const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
       setIsEmailValid(emailValid);
-
-      // Reset duplicate email state on input change
       setIsEmailDuplicate(false);
-    }
-  };
-
-  const handleSendOrVerifyOTP = async () => {
-    if (cooldown > 0) {
-      toast.error(`Please wait ${cooldown} seconds before trying again.`);
-      return;
-    }
-
-    if (otpStep === "send") {
-      // Handle sending OTP
-      if (!isEmailValid) {
-        toast.error("Please enter a valid email before requesting OTP.");
-        return;
-      }
-
-      setIsSendingOTP(true);
-      try {
-        const email = registerForm.getFieldValue("email");
-
-        // Check email availability
-        const checkEmailResponse = await fetch(`${baseURL}/auth/check-email`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
-        });
-
-        const checkEmailData = await checkEmailResponse.json();
-
-        // Handle case where the email is already registered
-        if (!checkEmailResponse.ok || !checkEmailData.available) {
-          setIsEmailDuplicate(true);
-          setIsSendingOTP(false); // Stop sending OTP when email is already taken
-          toast.error(
-            checkEmailData.message || "This email is already registered."
-          );
-          return; // Early return to stop OTP sending
-        } else {
-          setIsEmailDuplicate(false);
-        }
-
-        // Start cooldown after email is valid and available
-        startCooldown();
-
-        // Send email OTP
-        const sendOTPResponse = await fetch(`${baseURL}/auth/send-otp`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email }),
-        });
-
-        const parseRes = await sendOTPResponse.json();
-        if (sendOTPResponse.ok) {
-          setOtpSent(true);
-          setOtpStep("verify");
-          toast.success(parseRes.message || "OTP sent successfully");
-        } else {
-          throw new Error(
-            parseRes.message || "Failed to send OTP. Please try again."
-          );
-        }
-      } catch (error) {
-        console.error("Failed to send OTP. Please try again.");
-        toast.error("Failed to send OTP. Please try again.");
-        setOtpSent(false);
-      } finally {
-        setIsSendingOTP(false);
-      }
-    } else if (otpStep === "verify") {
-      // Handle verifying OTP
-      try {
-        const email = registerForm.getFieldValue("email");
-        const otp = registerForm.getFieldValue("otp");
-
-        const verifyOTPResponse = await fetch(`${baseURL}/auth/verify-otp`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, otp }),
-        });
-
-        const parseRes = await verifyOTPResponse.json();
-        if (verifyOTPResponse.ok) {
-          toast.success(parseRes.message || "OTP verified successfully");
-          setOtpSent("verified");
-        } else {
-          throw new Error(
-            parseRes.message || "Failed to verify OTP. Please try again."
-          );
-        }
-      } catch (error) {
-        console.error("Failed to verify OTP. Please try again.");
-        toast.error("Failed to verify OTP. Please try again.");
-        setOtpSent(false);
-      }
     }
   };
 
@@ -217,6 +106,7 @@ const Register = () => {
           background: "#ffffff",
           display: "flex",
           flexDirection: "column",
+          alignItems: "center",
           gap: "15px",
         }}
       >
@@ -224,46 +114,33 @@ const Register = () => {
           Register
         </Title>
         <GoogleLogin
-          onSuccess={handleGoogleLogin}
-          onError={errorMessage}
+          onSuccess={() => {}}
+          onError={() => {}}
           theme="outline"
-          width="345"
+          width="290"
         />
 
         <Divider>OR</Divider>
+
         <Form
           name="register"
           form={registerForm}
           className="register-form"
-          style={{
-            maxWidth: "100%",
-            margin: "0 auto",
-          }}
-          onFinish={onRegister}
+          style={{ maxWidth: "100%", margin: "0 auto", width: "290px" }} // width same as Google sign-in
+          onFinish={onNext}
           onValuesChange={onFormValuesChange}
         >
           <Form.Item
             name="name"
-            rules={[
-              {
-                required: true,
-                message: "Please input your name!",
-              },
-            ]}
+            rules={[{ required: true, message: "Please input your name!" }]}
           >
-            <Input
-              prefix={<UserOutlined className="site-form-item-icon" />}
-              placeholder="Name"
-              size={"large"}
-            />
+            <Input prefix={<UserOutlined />} placeholder="Name" size="large" />
           </Form.Item>
+
           <Form.Item
             name="phoneNumber"
             rules={[
-              {
-                required: true,
-                message: "Please input your phone number!",
-              },
+              { required: true, message: "Please input your phone number!" },
               {
                 pattern: /^[689]\d{7}$/,
                 message: "Phone number is in an invalid format!",
@@ -271,101 +148,38 @@ const Register = () => {
             ]}
           >
             <Input
-              prefix={<PhoneOutlined className="site-form-item-icon" />}
+              prefix={<PhoneOutlined />}
               placeholder="Phone Number"
-              size={"large"}
+              size="large"
             />
           </Form.Item>
 
           <Form.Item
             name="email"
-            rules={[
-              {
-                required: true,
-                message: "Please input your email!",
-              },
-            ]}
+            rules={[{ required: true, message: "Please input your email!" }]}
             help={isEmailDuplicate && "This email is already registered."}
             validateStatus={isEmailDuplicate ? "error" : ""}
           >
-            <div style={{ display: "flex", gap: "8px" }}>
-              <Input
-                prefix={<MailOutlined className="site-form-item-icon" />}
-                type={"email"}
-                placeholder="Email"
-                size={"large"}
-                style={{ flex: 1 }}
-                required
-              />
-              <Button
-                type="primary"
-                onClick={handleSendOrVerifyOTP}
-                disabled={
-                  !isEmailValid ||
-                  isEmailDuplicate ||
-                  cooldown > 0 ||
-                  isSendingOTP
-                }
-                loading={isSendingOTP}
-                size={"large"}
-                style={{ flex: 0.7, minWidth: "60px" }}
-              >
-                {isSendingOTP
-                  ? "Sending OTP..."
-                  : cooldown > 0
-                  ? `Resend OTP in ${cooldown}s`
-                  : "Send OTP"}
-              </Button>
-            </div>
-          </Form.Item>
-
-          <Form.Item
-            name="otp"
-            rules={[
-              {
-                required: otpStep !== "send",
-                message: "Please enter the OTP!",
-              },
-            ]}
-          >
-            <div style={{ display: "flex", gap: "8px" }}>
-              <Input
-                style={{ flex: 1 }}
-                placeholder="Enter the OTP"
-                disabled={!otpSent || otpStep === "send"}
-                size={"large"}
-                prefix={<NumberOutlined className="site-form-item-icon" />}
-              />
-              <Button
-                type="primary"
-                onClick={handleSendOrVerifyOTP}
-                disabled={!otpSent || otpStep === "send"}
-                size={"middle"}
-                style={{ flex: 0.7, minWidth: "60px" }}
-              >
-                Verify OTP
-              </Button>
-            </div>
+            <Input
+              prefix={<MailOutlined />}
+              type="email"
+              placeholder="Email"
+              size="large"
+            />
           </Form.Item>
 
           <Form.Item
             name="password"
-            rules={[
-              {
-                required: true,
-                message: "Please input your password!",
-              },
-            ]}
+            rules={[{ required: true, message: "Please input your password!" }]}
           >
             <Input.Password
-              prefix={<LockOutlined className="site-form-item-icon" />}
+              prefix={<LockOutlined />}
               type="password"
               placeholder="Password"
               size="large"
               iconRender={(visible) =>
                 visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
               }
-              required
             />
           </Form.Item>
 
@@ -373,10 +187,7 @@ const Register = () => {
             name="confirmPassword"
             dependencies={["password"]}
             rules={[
-              {
-                required: true,
-                message: "Please confirm your password!",
-              },
+              { required: true, message: "Please confirm your password!" },
               ({ getFieldValue }) => ({
                 validator(_, value) {
                   if (!value || getFieldValue("password") === value) {
@@ -390,14 +201,13 @@ const Register = () => {
             ]}
           >
             <Input.Password
-              prefix={<LockOutlined className="site-form-item-icon" />}
+              prefix={<LockOutlined />}
               type="password"
               placeholder="Confirm Password"
               size="large"
               iconRender={(visible) =>
                 visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
               }
-              required
             />
           </Form.Item>
 
@@ -405,16 +215,14 @@ const Register = () => {
             <Button
               type="primary"
               htmlType="submit"
-              className="login-form-button"
+              className="next-button"
               style={{ width: "100%" }}
+              loading={isSendingOTP}
+              disabled={isSendingOTP || isEmailDuplicate}
             >
-              Register
+              Next
             </Button>
-            <div
-              style={{
-                textAlign: "center",
-              }}
-            >
+            <div style={{ textAlign: "center" }}>
               <Text>Already have an account? </Text>
               <Link to="/login">Login</Link>
             </div>
