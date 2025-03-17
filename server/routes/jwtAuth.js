@@ -40,10 +40,15 @@ router.post("/register", validInfo, async (req, res) => {
       email,
     ]);
 
+    // decode phone number from base64
+    const decodedPhoneNumber = Buffer.from(phoneNumber, "base64").toString(
+      "utf-8"
+    );
+
     // check if phone number exists
     const phoneExist = await pool.query(
       "SELECT * FROM users WHERE phone_number = $1",
-      [phoneNumber]
+      [decodedPhoneNumber]
     );
 
     if (user.rows.length !== 0) {
@@ -65,7 +70,7 @@ router.post("/register", validInfo, async (req, res) => {
     const newUser = await pool.query(
       `INSERT INTO users(name, user_type, email, password, phone_number, method)
        VALUES($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [name, "parent", email, bcryptedPassword, phoneNumber, "email"]
+      [name, "parent", email, bcryptedPassword, decodedPhoneNumber, "email"]
     );
 
     if (newUser) {
