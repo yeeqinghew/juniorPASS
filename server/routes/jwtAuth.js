@@ -82,7 +82,7 @@ router.post("/register", validInfo, async (req, res) => {
 
     // generate jwt token
     const token = jwtGenerator(newUser.rows[0].user_id);
-    return res.status(200).json({ token });
+    return res.status(200).json({ token, newUser: true });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: error.message });
@@ -132,13 +132,20 @@ router.post("/login/google", async (req, res) => {
 
     if (existingUser.rows.length === 0) {
       // new user, register
-      const newUserResult = await pool.query(
+      const newUser = await pool.query(
         `INSERT INTO users (email, name, user_type, method, display_picture) 
         VALUES ($1, $2, $3, $4, $5) RETURNING *`,
         [email, name, "parent", "gmail", picture]
       );
-      const userId = newUserResult.rows[0].user_id;
-      const token = jwtGenerator(userId);
+
+      if (newUser) {
+        await pool.query(
+          "INSERT INTO parents (parent_id) VALUES($1) RETURNING *",
+          [newUser.rows[0].user_id]
+        );
+      }
+
+      const token = jwtGenerator(newUser.rows[0].user_id);
       return res.status(200).json({ token, newUser: true });
     }
 
