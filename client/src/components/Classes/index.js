@@ -98,8 +98,7 @@ const Classes = () => {
   };
 
   const pins = useMemo(() => {
-    return listings.map((listing) => {
-      console.log(listing);
+    return listings?.map((listing) => {
       const color = "#98BDD2";
 
       return listing?.schedule_info.map((outlet, index) => {
