@@ -63,6 +63,7 @@ const Classes = () => {
         method: "GET",
       });
       const jsonData = await response.json();
+      console.log("Fetched Listings:", JSON.stringify(jsonData, null, 2));
       setListings(jsonData);
     } catch (error) {
       console.error(error.message);
@@ -166,85 +167,71 @@ const Classes = () => {
 
   const applyFilters = (listings) => {
     return listings.filter((listing) => {
-      // Check if the listing matches the selected categories
+      // Categories
       const matchesCategory =
         selectedCategories.length === 0 ||
         listing?.partner_info?.categories.some((category) =>
           selectedCategories.includes(category)
         );
 
-      // Convert age_groups and package_types to arrays
+      // Age groups
       const ageGroups = listing.age_groups.replace(/[{}]/g, "").split(",");
-      const packageTypes = listing.package_types
-        .replace(/[{}]/g, "")
-        .split(",");
-
-      // Check if the listing matches the selected age groups
       const matchesAgeGroup =
         selectedAgeGroups.length === 0 ||
         ageGroups.some((ageGroup) => selectedAgeGroups.includes(ageGroup));
 
-      // Check if the listing matches the selected package types
+      // Package types
+      const packageTypes = listing.package_types
+        .replace(/[{}]/g, "")
+        .split(",");
       const matchesPackageType =
         selectedPackageTypes.length === 0 ||
         packageTypes.some((type) => selectedPackageTypes.includes(type));
 
-      // Filter by Day of the Week (if selected)
+      // Selected day
       const matchesSelectedDay =
         !selectedDay ||
-        listing.outlets.some((outlet) =>
-          outlet.schedules.some((schedule) => schedule.day === selectedDay)
-        );
+        (Array.isArray(listing.schedule_info) &&
+          listing.schedule_info.some(
+            (schedule) =>
+              schedule?.day?.toLowerCase() === selectedDay?.toLowerCase()
+          ));
 
-      // Filter by Specific Date & Time
+      // Specific date
       const matchesSpecificDateAndTime =
         !useSpecificDate || !selectedDateTime
           ? true
-          : listing.outlets.some((outlet) =>
-              outlet.schedules.some((schedule) => {
-                // Ensure `selectedDate` is a `dayjs` object
-                const selectedDate = dayjs(selectedDateTime);
-                if (!dayjs.isDayjs(selectedDate)) return false;
+          : listing.schedule_info?.some((schedule) => {
+              const selectedDate = dayjs(selectedDateTime);
+              const selectedDayName = selectedDate.format("dddd");
+              if (schedule.day?.toLowerCase() !== selectedDayName.toLowerCase())
+                return false;
 
-                const selectedDayName = selectedDate.format("dddd");
-                if (schedule.day !== selectedDayName) return false;
+              const [startStr, endStr] = schedule.timeslot || [];
+              if (!startStr || !endStr) return false;
 
-                // Ensure timeslot has at least 2 values (start & end)
-                if (
-                  !Array.isArray(schedule.timeslot) ||
-                  schedule.timeslot.length !== 2
-                )
-                  return false;
+              const start = selectedDate
+                .set("hour", +startStr.split(":")[0])
+                .set("minute", +startStr.split(":")[1]);
+              const end = selectedDate
+                .set("hour", +endStr.split(":")[0])
+                .set("minute", +endStr.split(":")[1]);
 
-                // Extract start and end times
-                const [startTimeStr, endTimeStr] = schedule.timeslot;
+              return selectedDate.isBetween(start, end, "minute", "[)");
+            });
 
-                const startTime = selectedDate
-                  .hour(dayjs(startTimeStr, "HH:mm").hour())
-                  .minute(dayjs(startTimeStr, "HH:mm").minute());
-
-                const endTime = selectedDate
-                  .hour(dayjs(endTimeStr, "HH:mm").hour())
-                  .minute(dayjs(endTimeStr, "HH:mm").minute());
-
-                return selectedDate.isBetween(
-                  startTime,
-                  endTime,
-                  "minute",
-                  "[)"
-                );
-              })
-            );
-
-      return useSpecificDate
+      const isMatch = useSpecificDate
         ? matchesCategory &&
-            matchesAgeGroup &&
-            matchesPackageType &&
-            matchesSpecificDateAndTime
+          matchesAgeGroup &&
+          matchesPackageType &&
+          matchesSpecificDateAndTime
         : matchesCategory &&
-            matchesAgeGroup &&
-            matchesPackageType &&
-            matchesSelectedDay;
+          matchesAgeGroup &&
+          matchesPackageType &&
+          matchesSelectedDay;
+
+      console.log("✅ FINAL MATCH:", isMatch);
+      return isMatch;
     });
   };
 
@@ -354,16 +341,10 @@ const Classes = () => {
                   {ageGroups.map((ageGroup) => (
                     <Menu.Item
                       key={ageGroup.id}
-                      onClick={() =>
-                        handleAgeGroupChange(
-                          getAgeGroupLabel(ageGroup.min_age, ageGroup.max_age)
-                        )
-                      }
+                      onClick={() => handleAgeGroupChange(ageGroup.name)}
                     >
                       <Checkbox
-                        checked={selectedAgeGroups.includes(
-                          getAgeGroupLabel(ageGroup.min_age, ageGroup.max_age)
-                        )}
+                        checked={selectedAgeGroups.includes(ageGroup.name)}
                       >
                         {getAgeGroupLabel(ageGroup.min_age, ageGroup.max_age)}
                       </Checkbox>
@@ -498,7 +479,17 @@ const Classes = () => {
           </Space>
         </Space>
         <Space direction="horizontal">
-          <Button block>
+          <Button
+            block
+            onClick={() => {
+              setSelectedCategories([]);
+              setSelectedAgeGroups([]);
+              setSelectedPackageTypes([]);
+              setSelectedDay(null);
+              setSelectedDateTime(null);
+              setUseSpecificDate(false);
+            }}
+          >
             Clear All <CloseOutlined />
           </Button>
         </Space>
@@ -506,9 +497,11 @@ const Classes = () => {
         <Space className={"listingmap-container"}>
           {(view === "list" || !isMobileOrTabletPortrait) && (
             <div className={"listing-container"}>
+              {console.log("Listings to show in List:", filterInput)}
               <List
                 itemLayout="horizontal"
-                dataSource={filterInput == null ? listings : filterInput}
+                // dataSource={filterInput == null ? listings : filterInput}
+                dataSource={Array.isArray(filterInput) ? filterInput : listings}
                 size="large"
                 pagination={{
                   position: "bottom",
