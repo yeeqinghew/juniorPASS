@@ -11,6 +11,8 @@ import {
   Dropdown,
   Checkbox,
   Menu,
+  DatePicker,
+  TimePicker,
 } from "antd";
 import {
   SearchOutlined,
@@ -30,6 +32,9 @@ import getBaseURL from "../../utils/config";
 import toast from "react-hot-toast";
 import "./index.css";
 import useWindowDimensions from "../../hooks/useWindowDimensions";
+import dayjs from "dayjs";
+import isBetween from "dayjs/plugin/isBetween";
+dayjs.extend(isBetween);
 
 const Classes = () => {
   const baseURL = getBaseURL();
@@ -42,6 +47,11 @@ const Classes = () => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedAgeGroups, setSelectedAgeGroups] = useState([]);
   const [selectedPackageTypes, setSelectedPackageTypes] = useState([]);
+  const [selectedDay, setSelectedDay] = useState(null);
+  const [selectedDateTime, setSelectedDateTime] = useState(null);
+  const [useSpecificDate, setUseSpecificDate] = useState(false);
+  const [tempDate, setTempDate] = useState(null);
+  const [tempTime, setTempTime] = useState(null);
   const [view, setView] = useState("list"); // 'list' or 'map'
   const { isMobile, isTabletPortrait } = useWindowDimensions();
   const isMobileOrTabletPortrait = isMobile || isTabletPortrait;
@@ -156,30 +166,69 @@ const Classes = () => {
 
   const applyFilters = (listings) => {
     return listings.filter((listing) => {
-      // Check if the listing matches the selected categories
+      // Categories
       const matchesCategory =
         selectedCategories.length === 0 ||
         listing?.partner_info?.categories.some((category) =>
           selectedCategories.includes(category)
         );
 
-      // Convert age_groups and package_types to arrays
+      // Age groups
       const ageGroups = listing.age_groups.replace(/[{}]/g, "").split(",");
-      const packageTypes = listing.package_types
-        .replace(/[{}]/g, "")
-        .split(",");
-
-      // Check if the listing matches the selected age groups
       const matchesAgeGroup =
         selectedAgeGroups.length === 0 ||
         ageGroups.some((ageGroup) => selectedAgeGroups.includes(ageGroup));
 
-      // Check if the listing matches the selected package types
+      // Package types
+      const packageTypes = listing.package_types
+        .replace(/[{}]/g, "")
+        .split(",");
       const matchesPackageType =
         selectedPackageTypes.length === 0 ||
         packageTypes.some((type) => selectedPackageTypes.includes(type));
 
-      return matchesCategory && matchesAgeGroup && matchesPackageType;
+      // Selected day
+      const matchesSelectedDay =
+        !selectedDay ||
+        (Array.isArray(listing.schedule_info) &&
+          listing.schedule_info.some(
+            (schedule) =>
+              schedule?.day?.toLowerCase() === selectedDay?.toLowerCase()
+          ));
+
+      // Specific date
+      const matchesSpecificDateAndTime =
+        !useSpecificDate || !selectedDateTime
+          ? true
+          : listing.schedule_info?.some((schedule) => {
+              const selectedDate = dayjs(selectedDateTime);
+              const selectedDayName = selectedDate.format("dddd");
+              if (schedule.day?.toLowerCase() !== selectedDayName.toLowerCase())
+                return false;
+
+              const [startStr, endStr] = schedule.timeslot || [];
+              if (!startStr || !endStr) return false;
+
+              const start = selectedDate
+                .set("hour", +startStr.split(":")[0])
+                .set("minute", +startStr.split(":")[1]);
+              const end = selectedDate
+                .set("hour", +endStr.split(":")[0])
+                .set("minute", +endStr.split(":")[1]);
+
+              return selectedDate.isBetween(start, end, "minute", "[)");
+            });
+
+      const isMatch = useSpecificDate
+        ? matchesCategory &&
+          matchesAgeGroup &&
+          matchesPackageType &&
+          matchesSpecificDateAndTime
+        : matchesCategory &&
+          matchesAgeGroup &&
+          matchesPackageType &&
+          matchesSelectedDay;
+      return isMatch;
     });
   };
 
@@ -203,7 +252,15 @@ const Classes = () => {
 
   useEffect(() => {
     setFilterInput(applyFilters(listings));
-  }, [listings, selectedCategories, selectedAgeGroups, selectedPackageTypes]);
+  }, [
+    listings,
+    selectedCategories,
+    selectedAgeGroups,
+    selectedPackageTypes,
+    selectedDay,
+    selectedDateTime,
+    useSpecificDate,
+  ]);
 
   const handleListHover = (listingId) => {
     // Find the listing with the matching listingId
@@ -281,16 +338,10 @@ const Classes = () => {
                   {ageGroups.map((ageGroup) => (
                     <Menu.Item
                       key={ageGroup.id}
-                      onClick={() =>
-                        handleAgeGroupChange(
-                          getAgeGroupLabel(ageGroup.min_age, ageGroup.max_age)
-                        )
-                      }
+                      onClick={() => handleAgeGroupChange(ageGroup.name)}
                     >
                       <Checkbox
-                        checked={selectedAgeGroups.includes(
-                          getAgeGroupLabel(ageGroup.min_age, ageGroup.max_age)
-                        )}
+                        checked={selectedAgeGroups.includes(ageGroup.name)}
                       >
                         {getAgeGroupLabel(ageGroup.min_age, ageGroup.max_age)}
                       </Checkbox>
@@ -330,21 +381,122 @@ const Classes = () => {
                 Package types <DownOutlined />
               </Button>
             </Dropdown>
+
+            {/* Toggle Between "Day of the Week" & "Specific Date" */}
+            <Space direction="horizontal">
+              <Button
+                type={!useSpecificDate ? "primary" : "default"}
+                onClick={() => {
+                  setUseSpecificDate(false);
+                  setSelectedDateTime(null); // Clear specific date filter if switching
+                }}
+              >
+                Filter by Day
+              </Button>
+
+              <Button
+                type={useSpecificDate ? "primary" : "default"}
+                onClick={() => {
+                  setUseSpecificDate(true);
+                  setSelectedDay(null); // Clear day filter if switching
+                }}
+              >
+                Filter by Specific Date
+              </Button>
+            </Space>
+
+            {/* Show "Select Day" only if "Filter by Day" is selected */}
+            {!useSpecificDate && (
+              <Dropdown
+                overlay={
+                  <Menu>
+                    {[
+                      "Monday",
+                      "Tuesday",
+                      "Wednesday",
+                      "Thursday",
+                      "Friday",
+                      "Saturday",
+                      "Sunday",
+                    ].map((day) => (
+                      <Menu.Item key={day} onClick={() => setSelectedDay(day)}>
+                        {day}
+                      </Menu.Item>
+                    ))}
+                  </Menu>
+                }
+              >
+                <Button>
+                  {selectedDay ? `Day: ${selectedDay}` : "Select Day"}{" "}
+                  <DownOutlined />
+                </Button>
+              </Dropdown>
+            )}
+
+            {/* Show "Select Date & Time" only if "Filter by Specific Date" is selected */}
+            {useSpecificDate && (
+              <Space direction="horizontal">
+                <DatePicker
+                  onChange={(date) => {
+                    setTempDate(date);
+                    // Update selectedDateTime immediately if time is already selected
+                    if (date && tempTime) {
+                      setSelectedDateTime(
+                        dayjs(date)
+                          .hour(tempTime.hour())
+                          .minute(tempTime.minute())
+                          .second(0)
+                      );
+                    }
+                  }}
+                  placeholder="Select Date"
+                  allowClear
+                />
+
+                <TimePicker
+                  format="HH:mm"
+                  minuteStep={30}
+                  onChange={(time) => {
+                    setTempTime(time);
+                    // Update selectedDateTime immediately if date is already selected
+                    if (tempDate && time) {
+                      setSelectedDateTime(
+                        dayjs(tempDate)
+                          .hour(time.hour())
+                          .minute(time.minute())
+                          .second(0)
+                      );
+                    }
+                  }}
+                  placeholder="Select Time"
+                  allowClear
+                />
+              </Space>
+            )}
           </Space>
         </Space>
         <Space direction="horizontal">
-          <Button block>
+          <Button
+            block
+            onClick={() => {
+              setSelectedCategories([]);
+              setSelectedAgeGroups([]);
+              setSelectedPackageTypes([]);
+              setSelectedDay(null);
+              setSelectedDateTime(null);
+              setUseSpecificDate(false);
+            }}
+          >
             Clear All <CloseOutlined />
           </Button>
         </Space>
         <Divider />
-
         <Space className={"listingmap-container"}>
           {(view === "list" || !isMobileOrTabletPortrait) && (
             <div className={"listing-container"}>
               <List
                 itemLayout="horizontal"
-                dataSource={filterInput == null ? listings : filterInput}
+                dataSource={Array.isArray(filterInput) ? filterInput : listings}
                 size="large"
                 pagination={{
                   position: "bottom",
@@ -467,10 +619,8 @@ const Classes = () => {
                     onClose={() => setPopupInfo(null)}
                   >
                     <Space direction="vertical">
-                      {/* <a target="_new" href={popupInfo.website}> */}
                       {popupInfo?.listing_title}
                       {JSON.parse(schedule?.outlet_address).SEARCHVAL}
-                      {/* </a> */}
                       <img width="100%" src={popupInfo.images[0]} />
                     </Space>
                   </Popup>
