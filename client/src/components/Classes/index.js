@@ -63,7 +63,6 @@ const Classes = () => {
         method: "GET",
       });
       const jsonData = await response.json();
-      console.log("Fetched Listings:", JSON.stringify(jsonData, null, 2));
       setListings(jsonData);
     } catch (error) {
       console.error(error.message);
@@ -229,8 +228,6 @@ const Classes = () => {
           matchesAgeGroup &&
           matchesPackageType &&
           matchesSelectedDay;
-
-      console.log("✅ FINAL MATCH:", isMatch);
       return isMatch;
     });
   };
@@ -497,10 +494,8 @@ const Classes = () => {
         <Space className={"listingmap-container"}>
           {(view === "list" || !isMobileOrTabletPortrait) && (
             <div className={"listing-container"}>
-              {console.log("Listings to show in List:", filterInput)}
               <List
                 itemLayout="horizontal"
-                // dataSource={filterInput == null ? listings : filterInput}
                 dataSource={Array.isArray(filterInput) ? filterInput : listings}
                 size="large"
                 pagination={{
@@ -624,10 +619,8 @@ const Classes = () => {
                     onClose={() => setPopupInfo(null)}
                   >
                     <Space direction="vertical">
-                      {/* <a target="_new" href={popupInfo.website}> */}
                       {popupInfo?.listing_title}
                       {JSON.parse(schedule?.outlet_address).SEARCHVAL}
-                      {/* </a> */}
                       <img width="100%" src={popupInfo.images[0]} />
                     </Space>
                   </Popup>
