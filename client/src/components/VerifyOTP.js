@@ -96,19 +96,22 @@ const VerifyOTP = () => {
       toast.success("OTP verified successfully! Registering your account...");
 
       // Step 2: Register the User
+      const encodedPhoneNumber = btoa(phoneNumber);
       const encryptedPassword = CryptoJS.SHA256(password).toString(
         CryptoJS.enc.Hex
       );
 
+      const registrationData = {
+        name,
+        phoneNumber: encodedPhoneNumber,
+        email,
+        password: encryptedPassword,
+      };
+
       const registerResponse = await fetch(`${baseURL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          phoneNumber,
-          email,
-          password: encryptedPassword,
-        }),
+        body: JSON.stringify(registrationData),
       });
 
       const registerRes = await registerResponse.json();
