@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FallOutlined, PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 import {
   Avatar,
   Button,
@@ -20,6 +20,8 @@ import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import "./Child.css";
+import rrulePlugin from "@fullcalendar/rrule";
+import { RRule } from "rrule";
 
 const { Text, Title } = Typography;
 
@@ -114,48 +116,22 @@ const Child = () => {
     return nextClassDate.toISOString().split("T")[0];
   };
 
-  const getListData = (value) => {
-    const dateString = value.format("YYYY-MM-DD");
-
-    return schedule
-      .filter((classItem) => getNextDayOfWeek(classItem.day) === dateString)
-      .map((classItem) => ({
-        title: classItem.listing_title,
-        time: `${classItem.class_time[0]} - ${classItem.class_time[1]}`,
-        location: classItem.address.ADDRESS,
-      }));
+  const calculateDuration = ([start, end]) => {
+    const [sh, sm] = start.split(":").map(Number);
+    const [eh, em] = end.split(":").map(Number);
+    const hours = eh - sh;
+    const minutes = em - sm;
+    return `${hours}:${minutes.toString().padStart(2, "0")}`;
   };
 
-  const generateWeeklyOccurrences = (dayName, time, weeks = 8) => {
-    const daysOfWeek = {
-      Sunday: 0,
-      Monday: 1,
-      Tuesday: 2,
-      Wednesday: 3,
-      Thursday: 4,
-      Friday: 5,
-      Saturday: 6,
-    };
-
-    const today = new Date();
-    const todayDayNumber = today.getDay();
-    const targetDayNumber = daysOfWeek[dayName];
-
-    let daysUntilTargetDay = targetDayNumber - todayDayNumber;
-    if (daysUntilTargetDay < 0) {
-      daysUntilTargetDay += 7; // Move to the next week's occurrence
-    }
-
-    const occurrences = [];
-    for (let i = 0; i < weeks; i++) {
-      const classDate = new Date();
-      classDate.setDate(today.getDate() + daysUntilTargetDay + i * 7);
-      const dateStr = classDate.toISOString().split("T")[0];
-
-      occurrences.push(`${dateStr}T${time}`);
-    }
-
-    return occurrences;
+  const dayMap = {
+    Sunday: RRule.SU,
+    Monday: RRule.MO,
+    Tuesday: RRule.TU,
+    Wednesday: RRule.WE,
+    Thursday: RRule.TH,
+    Friday: RRule.FR,
+    Saturday: RRule.SA,
   };
 
   useEffect(() => {
@@ -244,12 +220,6 @@ const Child = () => {
           </Space>
         )}
       </Flex>
-
-      {/* Classes section */}
-      {/* <Flex style={{ marginBottom: "24px" }}>
-        <Title level={4}>Classes</Title>
-      </Flex> */}
-
       <Flex
         style={{
           marginBottom: "24px",
@@ -277,40 +247,41 @@ const Child = () => {
       </Flex>
 
       {selectedChild && (
-        <FullCalendar
-          plugins={[timeGridPlugin, dayGridPlugin]}
-          initialView="timeGridWeek" // Shows a weekly vertical schedule
-          allDaySlot={false}
-          headerToolbar={{
-            left: "prev,next",
-            center: "title",
-            right: "timeGridWeek,dayGridMonth", // Allows switching between week & month views
-          }}
-          events={schedule.flatMap((classItem) =>
-            generateWeeklyOccurrences(
-              classItem.day,
-              classItem.class_time[0]
-            ).map((startTime) => {
-              const endTime = new Date(startTime);
-              const [startHour, startMin] = classItem.class_time[0]
-                .split(":")
-                .map(Number);
-              const [endHour, endMin] = classItem.class_time[1]
-                .split(":")
-                .map(Number);
-              endTime.setHours(endHour, endMin);
-
-              return {
-                title: `${classItem.listing_title} (S${classItem.postal_code})`,
-                start: startTime,
-                end: endTime.toISOString(),
-              };
-            })
-          )}
-          slotMinTime="08:00:00" // Customize start time (e.g., 8 AM)
-          slotMaxTime="22:00:00" // Customize end time (e.g., 10 PM)
-          height="auto"
-        />
+        <div className="calendar-wrapper">
+          <FullCalendar
+            plugins={[timeGridPlugin, dayGridPlugin, rrulePlugin]}
+            initialView="timeGridWeek"
+            allDaySlot={false}
+            headerToolbar={{
+              left: "prev,next",
+              center: "title",
+              right: "timeGridWeek,dayGridMonth",
+            }}
+            events={schedule
+              .filter((item) => item.active)
+              .map((item) => ({
+                title: `${item.listing_title} (S${item.postal_code})`,
+                rrule: {
+                  freq: RRule.WEEKLY,
+                  byweekday: [dayMap[item.day]],
+                  dtstart: `${getNextDayOfWeek(item.day)}T${
+                    item.class_time[0]
+                  }:00`,
+                },
+                duration: calculateDuration(item.class_time),
+              }))}
+            slotMinTime="08:00:00"
+            slotMaxTime="23:00:00"
+            slotDuration="00:30:00"
+            slotLabelInterval="01:00"
+            height="100%"
+            eventDidMount={(info) => {
+              const time = info.timeText;
+              const title = info.event.title;
+              info.el.setAttribute("title", `${time}\n${title}`);
+            }}
+          />
+        </div>
       )}
 
       {/* Add child modal */}

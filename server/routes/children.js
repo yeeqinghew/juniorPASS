@@ -49,21 +49,27 @@ router.get("/:child_id/schedule", async (req, res) => {
     const { child_id } = req.params;
 
     const childSchedule = await pool.query(
-      `SELECT 
-        c.child_id, 
-        c.name AS child_name,
-        l.listing_id, 
-        l.listing_title, 
-        s.day, 
-        s.timeslot AS class_time,  
-        o.address::json->>'POSTAL' AS postal_code 
+      `
+      SELECT
+        s.day,
+        s.timeslot               AS class_time,
+        l.listing_title,
+        l.active,
+        regexp_replace(
+          o.address,
+          '.*(\\d{6}).*',
+          '\\1'
+        )                       AS postal_code
       FROM transactions t
-      JOIN children c ON t.child_id = c.child_id
-      JOIN listings l ON t.listing_id = l.listing_id
-      JOIN outlets o ON l.listing_id = o.listing_id
-      JOIN schedules s ON o.outlet_id = s.outlet_id
+      JOIN children c            ON t.child_id = c.child_id
+      JOIN listings l            ON t.listing_id = l.listing_id
+      JOIN listingOutlets lo     ON lo.listing_id = l.listing_id
+      JOIN outlets o             ON lo.outlet_id = o.outlet_id
+      JOIN schedules s           ON lo.listing_outlet_id = s.listing_outlet_id
       WHERE c.child_id = $1
-      ORDER BY s.day;`,
+        AND l.active   = TRUE
+      ORDER BY s.day;
+      `,
       [child_id]
     );
 
