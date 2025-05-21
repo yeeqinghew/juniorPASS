@@ -40,10 +40,15 @@ router.post("/register", validInfo, async (req, res) => {
       email,
     ]);
 
+    // decode phone number from base64
+    const decodedPhoneNumber = Buffer.from(phoneNumber, "base64").toString(
+      "utf-8"
+    );
+
     // check if phone number exists
     const phoneExist = await pool.query(
       "SELECT * FROM users WHERE phone_number = $1",
-      [phoneNumber]
+      [decodedPhoneNumber]
     );
 
     if (user.rows.length !== 0) {
@@ -65,7 +70,7 @@ router.post("/register", validInfo, async (req, res) => {
     const newUser = await pool.query(
       `INSERT INTO users(name, user_type, email, password, phone_number, method)
        VALUES($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [name, "parent", email, bcryptedPassword, phoneNumber, "email"]
+      [name, "parent", email, bcryptedPassword, decodedPhoneNumber, "email"]
     );
 
     if (newUser) {
@@ -77,7 +82,7 @@ router.post("/register", validInfo, async (req, res) => {
 
     // generate jwt token
     const token = jwtGenerator(newUser.rows[0].user_id);
-    return res.status(200).json({ token });
+    return res.status(200).json({ token, newUser: true });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: error.message });
@@ -127,13 +132,20 @@ router.post("/login/google", async (req, res) => {
 
     if (existingUser.rows.length === 0) {
       // new user, register
-      const newUserResult = await pool.query(
+      const newUser = await pool.query(
         `INSERT INTO users (email, name, user_type, method, display_picture) 
         VALUES ($1, $2, $3, $4, $5) RETURNING *`,
         [email, name, "parent", "gmail", picture]
       );
-      const userId = newUserResult.rows[0].user_id;
-      const token = jwtGenerator(userId);
+
+      if (newUser) {
+        await pool.query(
+          "INSERT INTO parents (parent_id) VALUES($1) RETURNING *",
+          [newUser.rows[0].user_id]
+        );
+      }
+
+      const token = jwtGenerator(newUser.rows[0].user_id);
       return res.status(200).json({ token, newUser: true });
     }
 
