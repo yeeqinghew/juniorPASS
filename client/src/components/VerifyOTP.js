@@ -9,49 +9,95 @@ import CryptoJS from "crypto-js";
 
 const { Title } = Typography;
 
+const MAX_OTP_ATTEMPTS = 5;
+const COOLDOWN_SECONDS = 60;
+
+const getSessionOtpState = () => ({
+  attempts: Number(sessionStorage.getItem("otpAttempts")) || 0,
+  locked: sessionStorage.getItem("isOtpLocked") === "true",
+  requested: sessionStorage.getItem("hasRequestedOtp") === "true",
+});
+
+const saveOtpState = (attempts, locked) => {
+  sessionStorage.setItem("otpAttempts", attempts);
+  sessionStorage.setItem("isOtpLocked", locked.toString());
+};
+
+const clearOtpState = () => {
+  sessionStorage.removeItem("otpAttempts");
+  sessionStorage.removeItem("isOtpLocked");
+  sessionStorage.removeItem("hasRequestedOtp");
+};
+
+const setCooldownExpiry = () => {
+  const expiresAt = Date.now() + COOLDOWN_SECONDS * 1000;
+  sessionStorage.setItem("otpCooldownExpiresAt", expiresAt.toString());
+};
+
+const getCooldownTimeLeft = () => {
+  const expiresAt = Number(sessionStorage.getItem("otpCooldownExpiresAt") || 0);
+  return Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
+};
+
 const VerifyOTP = () => {
   const baseURL = getBaseURL();
   const [otpForm] = Form.useForm();
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [isResending, setIsResending] = useState(false);
-  const [cooldown, setCooldown] = useState(60);
   const navigate = useNavigate();
   const location = useLocation();
   const { setAuth } = useUserContext();
 
-  // Retrieve user details from Register page
+  // User Data
   const userData = location.state || {};
-  const { name, phoneNumber, email, password } = userData; // Extract user data
+  const { name, phoneNumber, email, password } = userData;
 
+  // OTP State
+  const [cooldown, setCooldown] = useState(() => getCooldownTimeLeft());
+  const [otpAttempts, setOtpAttempts] = useState(
+    () => getSessionOtpState().attempts
+  );
+  const [isOtpLocked, setIsOtpLocked] = useState(
+    () => getSessionOtpState().locked
+  );
+  const [hasRequestedOtp, setHasRequestedOtp] = useState(
+    () => getSessionOtpState().requested
+  );
+
+  // UI State
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+
+  // Check whether email/password exists
   useEffect(() => {
     if (!email || !password) {
       toast.error("No user data found, please register again.");
       navigate("/register");
-    } else {
-      startCooldown(); // Start cooldown on page load
     }
   }, [email, password, navigate]);
 
-  // Start OTP cooldown timer
-  const startCooldown = () => {
-    let time = 60;
-    setCooldown(time);
-    const interval = setInterval(() => {
-      time -= 1;
-      setCooldown(time);
-      if (time === 0) {
-        clearInterval(interval);
-      }
-    }, 1000);
-  };
-
-  // Resend OTP
-  const onResendOTP = async () => {
+  // Countdown Timer
+  useEffect(() => {
     if (cooldown > 0) {
-      toast.error(`Please wait ${cooldown} seconds before resending OTP.`);
-      return;
-    }
+      const interval = setInterval(() => {
+        const timeLeft = getCooldownTimeLeft();
+        setCooldown(timeLeft);
+      }, 1000);
 
+      return () => clearInterval(interval);
+    }
+  }, [cooldown]);
+
+  // Auto-unlock after cooldown
+  useEffect(() => {
+    if (cooldown <= 0 && otpAttempts >= MAX_OTP_ATTEMPTS) {
+      clearOtpState();
+      setOtpAttempts(0);
+      setIsOtpLocked(false);
+      setHasRequestedOtp(false);
+    }
+  }, [cooldown, otpAttempts]);
+
+  // Send OTP Handler
+  const sendOtp = async () => {
     setIsResending(true);
     try {
       const response = await fetch(`${baseURL}/auth/send-otp`, {
@@ -62,25 +108,47 @@ const VerifyOTP = () => {
 
       const parseRes = await response.json();
       if (response.ok) {
-        toast.success(parseRes.message || "OTP resent successfully!");
+        toast.success(parseRes.message || "OTP sent successfully!");
         startCooldown();
+        clearOtpState();
+
+        setOtpAttempts(0);
+        setIsOtpLocked(false);
+
+        sessionStorage.setItem("hasRequestedOtp", "true");
+        setHasRequestedOtp(true);
       } else {
-        throw new Error(parseRes.message || "Failed to resend OTP.");
+        throw new Error(parseRes.message || "Failed to send OTP.");
       }
     } catch (error) {
-      toast.error("Failed to resend OTP. Please try again.");
+      toast.error("Failed to send OTP. Please try again.");
     } finally {
       setIsResending(false);
     }
   };
 
-  // Verify OTP & Register User
+  const startCooldown = () => {
+    setCooldownExpiry();
+    setCooldown(getCooldownTimeLeft());
+  };
+
+  // Verify OTP Handler
   const onVerify = async (values) => {
+    if (isOtpLocked) {
+      toast.error(
+        "Verification failed. Please click Resend OTP and try again.",
+        {
+          autoClose: 8000,
+        }
+      );
+      return;
+    }
+
     setIsVerifying(true);
+
     try {
       const otp = values.otp;
 
-      // Step 1: Verify OTP
       const verifyResponse = await fetch(`${baseURL}/auth/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -90,12 +158,25 @@ const VerifyOTP = () => {
       const verifyRes = await verifyResponse.json();
 
       if (!verifyResponse.ok) {
-        throw new Error(verifyRes.message || "Failed to verify OTP.");
+        const attempts = otpAttempts + 1;
+        const locked = attempts >= MAX_OTP_ATTEMPTS;
+
+        setOtpAttempts(attempts);
+        setIsOtpLocked(locked);
+        saveOtpState(attempts, locked);
+
+        if (locked) {
+          toast.error(
+            "Verification failed. Please click Resend OTP and try again."
+          );
+        } else {
+          toast.error(verifyRes.message || "Enter a valid verification code.", {
+            autoClose: 8000,
+          });
+        }
+        return;
       }
 
-      toast.success("OTP verified successfully! Registering your account...");
-
-      // Step 2: Register the User
       const encodedPhoneNumber = btoa(phoneNumber);
       const encryptedPassword = CryptoJS.SHA256(password).toString(
         CryptoJS.enc.Hex
@@ -117,16 +198,15 @@ const VerifyOTP = () => {
       const registerRes = await registerResponse.json();
 
       if (!registerResponse.ok || !registerRes.token) {
-        throw new Error(registerRes.message || "Failed to register user.");
+        toast.error(registerRes.message || "Failed to register user.");
+        return;
       }
 
-      // Step 3: Store token & log in the user
       localStorage.setItem("token", registerRes.token);
-      setAuth(true); // Update authentication state
-
+      setAuth(true);
+      clearOtpState();
+      sessionStorage.removeItem("otpCooldownExpiresAt");
       toast.success("Registration successful! Redirecting...");
-
-      // Step 4: Redirect to dashboard
       navigate("/login");
     } catch (error) {
       toast.error(error.message || "An error occurred.");
@@ -159,7 +239,6 @@ const VerifyOTP = () => {
           position: "relative",
         }}
       >
-        {/* Back Button */}
         <Button
           type="text"
           icon={<ArrowLeftOutlined />}
@@ -201,16 +280,19 @@ const VerifyOTP = () => {
             />
           </Form.Item>
 
-          {/* Resend OTP Button (same style as Verify, starts disabled) */}
           <Form.Item>
             <Button
               type="primary"
-              onClick={onResendOTP}
+              onClick={sendOtp}
               disabled={cooldown > 0 || isResending}
               loading={isResending}
               style={{ width: "100%" }}
             >
-              {cooldown > 0 ? `Resend OTP in ${cooldown}s` : "Resend OTP"}
+              {cooldown > 0
+                ? `Resend OTP in ${cooldown}s`
+                : hasRequestedOtp
+                ? "Resend OTP"
+                : "Send OTP"}
             </Button>
           </Form.Item>
 
@@ -221,7 +303,7 @@ const VerifyOTP = () => {
               className="verify-button"
               style={{ width: "100%" }}
               loading={isVerifying}
-              disabled={isVerifying}
+              disabled={isVerifying || isOtpLocked || !hasRequestedOtp}
             >
               Verify & Register
             </Button>

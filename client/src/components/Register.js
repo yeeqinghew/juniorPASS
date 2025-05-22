@@ -18,11 +18,14 @@ const { Title, Text } = Typography;
 const Register = () => {
   const baseURL = getBaseURL();
   const [registerForm] = Form.useForm();
+  const navigate = useNavigate();
+
+  // UI State
   const [isSendingOTP, setIsSendingOTP] = useState(false);
   const [isEmailValid, setIsEmailValid] = useState(false);
   const [isEmailDuplicate, setIsEmailDuplicate] = useState(false);
-  const navigate = useNavigate();
 
+  // Handle Form Submission
   const onNext = async (values) => {
     if (!isEmailValid) {
       toast.error("Please enter a valid email.");
@@ -33,7 +36,7 @@ const Register = () => {
     try {
       const email = values.email;
 
-      // Check if email is already registered
+      // API: Check if email is already registered
       const checkEmailResponse = await fetch(`${baseURL}/auth/check-email`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -53,31 +56,16 @@ const Register = () => {
 
       setIsEmailDuplicate(false);
 
-      // Send OTP
-      const sendOTPResponse = await fetch(`${baseURL}/auth/send-otp`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      const parseRes = await sendOTPResponse.json();
-      if (sendOTPResponse.ok) {
-        toast.success(parseRes.message || "OTP sent successfully");
-        navigate("/verify-otp", { state: { email, ...values } });
-      } else {
-        throw new Error(
-          parseRes.message || "Failed to send OTP. Please try again."
-        );
-      }
+      // Navigate to OTP Screen with form values
+      navigate("/verify-otp", { state: { email, ...values } });
     } catch (error) {
-      toast.error("Failed to send OTP. Please try again.");
+      toast.error("Failed to verify email. Please try again.");
     } finally {
       setIsSendingOTP(false);
     }
   };
 
+  // Validate email format on change
   const onFormValuesChange = (changedValues) => {
     if (changedValues.email) {
       const email = changedValues.email;
@@ -126,7 +114,7 @@ const Register = () => {
           name="register"
           form={registerForm}
           className="register-form"
-          style={{ maxWidth: "100%", margin: "0 auto", width: "290px" }} // width same as Google sign-in
+          style={{ maxWidth: "100%", margin: "0 auto", width: "290px" }} // Width set to be same as Google sign-in
           onFinish={onNext}
           onValuesChange={onFormValuesChange}
         >
