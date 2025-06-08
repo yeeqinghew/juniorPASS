@@ -293,14 +293,12 @@ router.post("/send-otp", async (req, res) => {
 
 router.post("/verify-otp", async (req, res) => {
   const { email, otp } = req.body;
-  console.log(email, otp);
 
   try {
     const otpResult = await pool.query(
       `SELECT * FROM otpRequests WHERE email = $1 AND otp = $2 AND expires_at > NOW() AND is_verified = false`,
       [email, otp]
     );
-    console.log(otpResult);
     if (otpResult.rows.length === 0)
       return res.status(400).json({ message: "Invalid or expired OTP" });
 

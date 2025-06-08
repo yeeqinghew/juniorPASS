@@ -170,10 +170,8 @@ const Register = () => {
     } else if (otpStep === "verify") {
       // Handle verifying OTP
       try {
-        console.log("Form values: ", registerForm.getFieldsValue());
         const email = registerForm.getFieldValue("email");
         const otp = registerForm.getFieldValue("otp");
-        console.log({ email, otp });
 
         const verifyOTPResponse = await fetch(`${baseURL}/auth/verify-otp`, {
           method: "POST",

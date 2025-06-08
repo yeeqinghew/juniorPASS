@@ -71,14 +71,16 @@ const Class = () => {
       duration: `${duration} mins`,
     };
   };
+
   // Function to generate available time slots
   const generateAvailableTimeSlots = () => {
     if (!listing || !listing?.schedule_info) return [];
 
     const selectedDay = dayjs(selectedDate).format("dddd");
-    console.log(listing?.schedule_info);
+    const startDate =
+      dayjs(listing?.long_term_start_date) ||
+      dayjs(listing?.short_term_start_date);
     return listing?.schedule_info.reduce((acc, curr) => {
-      console.log("curr", curr);
       const { frequency, day, timeslot } = curr;
       if (frequency === "Daily") {
         if (dayjs(selectedDate).isValid()) {
@@ -89,16 +91,22 @@ const Class = () => {
           acc.push({ ...formatTimeslot(timeslot), location: curr });
         }
       } else if (frequency === "Biweekly") {
-        const startDate = dayjs(listing.long_term_start_date);
         const weeksDifference = dayjs(selectedDate).diff(startDate, "week");
-        if (weeksDifference % 2 === 0 && selectedDay === day) {
+        if (
+          weeksDifference >= 0 &&
+          weeksDifference % 2 === 0 &&
+          selectedDay === day
+        ) {
           acc.push({ ...formatTimeslot(timeslot), location: curr });
         }
       } else if (frequency === "Monthly") {
-        const startDate = dayjs(listing.long_term_start_date);
+        const selected = dayjs(selectedDate);
+        const monthsDiff = selected.diff(startDate, "month");
+
         if (
-          dayjs(selectedDate).date() === startDate.date() &&
-          selectedDay === day
+          monthsDiff >= 0 &&
+          monthsDiff % 1 === 0 &&
+          selected.date() === Math.min(startDate.date(), selected.daysInMonth()) // handle month that does not have the day (e.g. 31st February)
         ) {
           acc.push({ ...formatTimeslot(timeslot), location: curr });
         }
@@ -181,8 +189,6 @@ const Class = () => {
     // fetch all children by the specific user
     getChildren();
   }, [isBuyNowModalOpen]);
-
-  console.log("listing", listing);
 
   if (loading) {
     return <Spinner />;
