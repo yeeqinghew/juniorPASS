@@ -202,6 +202,48 @@ router.post("/partnerForm", validInfo, async (req, res) => {
   }
 });
 
+router.post("/check-email", async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const result = await pool.query(
+      `SELECT partner_id FROM partners WHERE LOWER(email) = LOWER($1)`,
+      [email.trim()]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "Email not registered." });
+    }
+
+    return res.status(200).json({ message: "Email valid." });
+  } catch (err) {
+    console.error("Error checking partner email:", err);
+    return res.status(500).json({ error: "Server error." });
+  }
+});
+
+router.post("/reset-password", async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  try {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    const result = await pool.query(
+      `UPDATE partners SET password = $1 WHERE LOWER(email) = LOWER($2) RETURNING partner_id`,
+      [hashedPassword, email.trim()]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "Partner not found." });
+    }
+
+    return res.status(200).json({ message: "Password reset successful." });
+  } catch (err) {
+    console.error("Error resetting partner password:", err);
+    return res.status(500).json({ message: "Failed to reset password." });
+  }
+});
+
 const getPartnerByPartnerId = async (partnerId) => {
   try {
     const partner = await pool.query(
