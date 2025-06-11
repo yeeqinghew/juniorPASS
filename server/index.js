@@ -24,6 +24,7 @@ app.use("/partners", require("./routes/partners"));
 app.use("/listings", require("./routes/listings"));
 app.use("/misc", require("./routes/misc"));
 app.use("/children", require("./routes/children"));
+app.use("/notifications", require("./routes/notifications"));
 
 // Catch-all route to serve React app for any non-API route
 app.get("*", (req, res) => {
