@@ -34,6 +34,8 @@ import "./index.css";
 import useWindowDimensions from "../../hooks/useWindowDimensions";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
+import { WEEKDAYS } from "../../constants.js";
+import { applyTimeToDate } from "../../utils/timeHelpers.js";
 dayjs.extend(isBetween);
 
 const Classes = () => {
@@ -209,12 +211,11 @@ const Classes = () => {
               const [startStr, endStr] = schedule.timeslot || [];
               if (!startStr || !endStr) return false;
 
-              const start = selectedDate
-                .set("hour", +startStr.split(":")[0])
-                .set("minute", +startStr.split(":")[1]);
-              const end = selectedDate
-                .set("hour", +endStr.split(":")[0])
-                .set("minute", +endStr.split(":")[1]);
+              const { start, end } = applyTimeToDate(
+                selectedDate,
+                startStr,
+                endStr
+              );
 
               return selectedDate.isBetween(start, end, "minute", "[)");
             });
@@ -410,15 +411,7 @@ const Classes = () => {
               <Dropdown
                 overlay={
                   <Menu>
-                    {[
-                      "Monday",
-                      "Tuesday",
-                      "Wednesday",
-                      "Thursday",
-                      "Friday",
-                      "Saturday",
-                      "Sunday",
-                    ].map((day) => (
+                    {WEEKDAYS.map((day) => (
                       <Menu.Item key={day} onClick={() => setSelectedDay(day)}>
                         {day}
                       </Menu.Item>
