@@ -4,40 +4,19 @@ import { Button, Form, Input, Typography, Divider } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import getBaseURL from "../utils/config";
+import {
+  getSessionOtpState,
+  saveOtpState,
+  clearOtpState,
+  setCooldownExpiry,
+  getCooldownTimeLeft,
+  MAX_OTP_ATTEMPTS,
+  SESSION_KEYS,
+} from "../utils/otpSessionUtils";
 import { useUserContext } from "./UserContext";
 import CryptoJS from "crypto-js";
 
 const { Title } = Typography;
-
-const MAX_OTP_ATTEMPTS = 5;
-const COOLDOWN_SECONDS = 60;
-
-const getSessionOtpState = () => ({
-  attempts: Number(sessionStorage.getItem("otpAttempts")) || 0,
-  locked: sessionStorage.getItem("isOtpLocked") === "true",
-  requested: sessionStorage.getItem("hasRequestedOtp") === "true",
-});
-
-const saveOtpState = (attempts, locked) => {
-  sessionStorage.setItem("otpAttempts", attempts);
-  sessionStorage.setItem("isOtpLocked", locked.toString());
-};
-
-const clearOtpState = () => {
-  sessionStorage.removeItem("otpAttempts");
-  sessionStorage.removeItem("isOtpLocked");
-  sessionStorage.removeItem("hasRequestedOtp");
-};
-
-const setCooldownExpiry = () => {
-  const expiresAt = Date.now() + COOLDOWN_SECONDS * 1000;
-  sessionStorage.setItem("otpCooldownExpiresAt", expiresAt.toString());
-};
-
-const getCooldownTimeLeft = () => {
-  const expiresAt = Number(sessionStorage.getItem("otpCooldownExpiresAt") || 0);
-  return Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000));
-};
 
 const VerifyOTP = () => {
   const baseURL = getBaseURL();
@@ -78,8 +57,7 @@ const VerifyOTP = () => {
   useEffect(() => {
     if (cooldown > 0) {
       const interval = setInterval(() => {
-        const timeLeft = getCooldownTimeLeft();
-        setCooldown(timeLeft);
+        setCooldown(getCooldownTimeLeft());
       }, 1000);
 
       return () => clearInterval(interval);
@@ -109,13 +87,13 @@ const VerifyOTP = () => {
       const parseRes = await response.json();
       if (response.ok) {
         toast.success(parseRes.message || "OTP sent successfully!");
-        startCooldown();
-        clearOtpState();
+        setCooldownExpiry();
+        setCooldown(getCooldownTimeLeft());
 
         setOtpAttempts(0);
         setIsOtpLocked(false);
 
-        sessionStorage.setItem("hasRequestedOtp", "true");
+        sessionStorage.setItem(SESSION_KEYS.requested, "true");
         setHasRequestedOtp(true);
       } else {
         throw new Error(parseRes.message || "Failed to send OTP.");
@@ -125,11 +103,6 @@ const VerifyOTP = () => {
     } finally {
       setIsResending(false);
     }
-  };
-
-  const startCooldown = () => {
-    setCooldownExpiry();
-    setCooldown(getCooldownTimeLeft());
   };
 
   // Verify OTP Handler
@@ -161,19 +134,21 @@ const VerifyOTP = () => {
         const attempts = otpAttempts + 1;
         const locked = attempts >= MAX_OTP_ATTEMPTS;
 
-        setOtpAttempts(attempts);
-        setIsOtpLocked(locked);
-        saveOtpState(attempts, locked);
+        setOtpAttempts((prev) => {
+          const newAttempts = prev + 1;
+          const locked = newAttempts >= MAX_OTP_ATTEMPTS;
+          setIsOtpLocked(locked);
+          saveOtpState(newAttempts, locked);
+          return newAttempts;
+        });
 
-        if (locked) {
-          toast.error(
-            "Verification failed. Please click Resend OTP and try again."
-          );
-        } else {
-          toast.error(verifyRes.message || "Enter a valid verification code.", {
-            autoClose: 8000,
-          });
-        }
+        toast.error(
+          locked
+            ? "Verification failed. Please click Resend OTP and try again."
+            : verifyRes.message || "Enter a valid verification code.",
+          { autoClose: 8000 }
+        );
+
         return;
       }
 
@@ -205,8 +180,8 @@ const VerifyOTP = () => {
       localStorage.setItem("token", registerRes.token);
       setAuth(true);
       clearOtpState();
-      sessionStorage.removeItem("otpCooldownExpiresAt");
       toast.success("Registration successful! Redirecting...");
+      otpForm.resetFields();
       navigate("/login");
     } catch (error) {
       toast.error(error.message || "An error occurred.");
