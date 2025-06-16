@@ -1,0 +1,52 @@
+/* Unified event styling for both timeGrid and dayGrid views */
+.fc-event,
+.fc-daygrid-event {
+  background-color: #ed8294 !important;
+  border: none !important;
+  color: white !important;
+  border-radius: 6px;
+  padding: 2px;
+}
+
+/* Remove bold from event title in Month view */
+.fc-event-title {
+  font-weight: normal !important;
+  color: white;
+}
+
+/* FullCalendar toolbar buttons */
+.fc .fc-button {
+  background-color: #ed8294 !important;
+  border-color: #ed8294 !important;
+  color: #fff !important;
+  font-weight: normal;
+  text-transform: capitalize;
+}
+
+.fc .fc-button:hover {
+  background-color: #d46b7e !important;
+  border-color: #d46b7e !important;
+}
+
+.fc .fc-button.fc-button-active {
+  background-color: #d46b7e !important;
+  border-color: #d46b7e !important;
+  color: white !important;
+}
+
+/* Toolbar title (e.g., "May 2025") */
+.fc .fc-toolbar-title {
+  color: #000 !important;
+  font-weight: normal;
+}
+
+/* Adjust slot height in timeGrid (week view) */
+.fc-timegrid-slot {
+  height: 45px !important;
+}
+
+/* Calendar container layout */
+.calendar-wrapper {
+  height: calc(100vh - 130px);
+  overflow: hidden;
+}
