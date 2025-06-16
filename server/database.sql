@@ -237,3 +237,25 @@ CREATE TABLE otpRequests (
     is_verified BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT NOW()
 );
+
+CREATE TABLE notifications (
+    id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+
+    parent_id uuid REFERENCES parents(parent_id) ON DELETE SET NULL,
+    listing_id uuid REFERENCES listings(listing_id) ON DELETE SET NULL,
+    partner_id uuid REFERENCES partners(partner_id) ON DELETE SET NULL, 
+    child_id uuid REFERENCES children(child_id) ON DELETE SET NULL,
+
+    parent_name VARCHAR(100),
+    parent_user_id uuid,        
+    listing_title VARCHAR(1000),     
+    child_name VARCHAR(100),         
+    child_age BIGINT,                
+    child_gender genders,            
+
+    read BOOLEAN DEFAULT false,
+    created_on TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_notifications_partner_created_on
+ON notifications (partner_id, created_on DESC);
