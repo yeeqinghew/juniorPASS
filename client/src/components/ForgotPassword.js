@@ -67,7 +67,7 @@ const ForgotPassword = () => {
           <Text>
             If you did not receive the email, please check your spam folder or{" "}
             <Link
-              to="/contact-us"
+              to="mailto:admin@juniorpass.sg"
               style={{ color: "#98BDD2", fontWeight: "bold" }}
             >
               contact us

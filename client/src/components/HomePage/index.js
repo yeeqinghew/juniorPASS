@@ -447,6 +447,9 @@ function HomePage() {
                         booking process, and credit system.
                       </Text>
                     </Row>
+                    <Row>
+                      <Link to="/faq">View more FAQs</Link>
+                    </Row>
                   </Col>
 
                   {/* FAQ Collapse Column */}

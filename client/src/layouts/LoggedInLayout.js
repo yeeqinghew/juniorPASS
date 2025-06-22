@@ -144,7 +144,6 @@ const LoggedInLayout = () => {
 
             <Flex vertical gap="large" style={{ width: "20%" }}>
               <Title level={5}>SUPPORT</Title>
-              <Link to="/contact-us">Contact Us</Link>
               <Link to="/faq">FAQs</Link>
             </Flex>
 
