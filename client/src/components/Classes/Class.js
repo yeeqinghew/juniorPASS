@@ -14,8 +14,6 @@ import {
   Col,
   Divider,
   List,
-  Modal,
-  Select,
 } from "antd";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
@@ -26,7 +24,6 @@ import {
   ShopOutlined,
   PhoneOutlined,
 } from "@ant-design/icons";
-import Map, { Marker } from "react-map-gl";
 import { useUserContext } from "../UserContext";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
@@ -34,6 +31,7 @@ import getBaseURL from "../../utils/config";
 import Spinner from "../../utils/Spinner";
 import toast from "react-hot-toast";
 import "./Class.css";
+import BuyNow from "./BuyNow";
 
 const { Title, Text, Paragraph } = Typography;
 const { Meta } = Card;
@@ -47,6 +45,7 @@ const Class = () => {
   const [listing, setListing] = useState(null);
   const [isBuyNowModalOpen, setIsBuyNowModalOpen] = useState(false);
   const [selected, setSelected] = useState(null);
+  console.log("************** Selcted", selected);
   const [children, setChildren] = useState([]);
 
   const { state } = useLocation();
@@ -56,10 +55,6 @@ const Class = () => {
   const dateFormat = "ddd, D MMM YYYY";
   const navigate = useNavigate();
   const baseURL = getBaseURL();
-
-  const handleCancel = () => {
-    setIsBuyNowModalOpen(false);
-  };
 
   const formatTimeslot = (timeslot) => {
     const startTime = dayjs(timeslot[0], "HH:mm");
@@ -159,36 +154,41 @@ const Class = () => {
     const previousDay = dayjs(selectedDate).subtract(1, "day").toDate();
     setSelectedDate(previousDay);
   };
+  const handleBookNow = async (item) => {
+    if (!listing || !item) {
+      toast.error(
+        "Class information is not available. Please try again later."
+      );
+      return;
+    }
 
-  const handleBookNow = (item) => {
-    if (user) {
-      setIsBuyNowModalOpen(true);
-      setSelected(item);
-    } else {
-      // Navigate to login page with state to remember the class after login
-      navigate("/login", { state: { from: `/class/${classId}` } });
+    if (!user) {
       toast.error("Please login to book the class");
+      navigate("/login", { state: { from: `/class/${classId}` } });
+      return;
     }
-  };
 
-  const getChildren = async () => {
+    if (user.credit < listing.credit) {
+      toast.error("Insufficient credits to book this class.");
+      return;
+    }
+
     try {
-      const response = await fetch(`${baseURL}/children/${user?.user_id}`, {
-        method: "GET",
-      });
-      const parseRes = await response.json();
-      setChildren(parseRes);
+      const response = await fetch(`${baseURL}/children/${user.user_id}`);
+      const childrenData = await response.json();
+
+      if (!Array.isArray(childrenData) || childrenData.length === 0) {
+        toast.error("No child profile found. Please add one before booking.");
+        return;
+      }
+
+      setChildren(childrenData);
+      setSelected(item);
+      setIsBuyNowModalOpen(true);
     } catch (error) {
-      toast.error(error.message);
+      toast.error("Something went wrong. Please try again.");
     }
   };
-
-  useEffect(() => {
-    if (!isBuyNowModalOpen) return;
-
-    // fetch all children by the specific user
-    getChildren();
-  }, [isBuyNowModalOpen]);
 
   if (loading) {
     return <Spinner />;
@@ -373,78 +373,13 @@ const Class = () => {
           </Card>
         </Affix>
       </Col>
-      <Modal
-        title={"Buy now"}
-        open={isBuyNowModalOpen}
-        onCancel={handleCancel}
-        centered
-        style={{
-          borderRadius: "18px",
-        }}
-      >
-        <Space direction="vertical">
-          <Text>$ {user?.credit}</Text>
-          {/* Select child */}
-          {/* TODO: need to check the age limit before they can confirm */}
-          <Select
-            placeholder="Select the child"
-            style={{ width: "100%", marginBottom: "1rem" }}
-          >
-            {children.map((child) => (
-              <Select.Option key={child?.child_id} value={child?.child_id}>
-                {child.name}
-              </Select.Option>
-            ))}
-          </Select>
-          {/* TODO: Select Package Type */}
-
-          <Map
-            className={"map"}
-            mapStyle="mapbox://styles/mapbox/streets-v8"
-            mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
-            initialViewState={{
-              longitude:
-                selected && JSON.parse(selected?.location?.address)?.LONGITUDE,
-              latitude:
-                selected && JSON.parse(selected?.location?.address)?.LATITUDE,
-              zoom: 15,
-            }}
-            style={{
-              width: "100%",
-              height: "200px",
-            }}
-            mapLib={import("mapbox-gl")}
-            scrollZoom={false}
-          >
-            <Marker
-              longitude={
-                selected && JSON.parse(selected?.location?.address)?.LONGITUDE
-              }
-              latitude={
-                selected && JSON.parse(selected?.location?.address)?.LATITUDE
-              }
-              anchor="top"
-            ></Marker>
-          </Map>
-          {/* Info about the class */}
-          <Space direction="horizontal">
-            <Text>Location:</Text>
-            <Text>
-              {selected && JSON.parse(selected?.location?.address)?.SEARCHVAL}
-            </Text>
-          </Space>
-          <Space direction="">
-            <Text>Timeslot:</Text>
-            <Text> {selected?.timeRange}</Text>
-          </Space>
-          <Space direction="horizontal">
-            <Text>Duration:</Text>
-            <Text> {selected?.duration}</Text>
-          </Space>
-        </Space>
-
-        {/* TODO: Memo for partner to know */}
-      </Modal>
+      <BuyNow
+        isBuyNowModalOpen={isBuyNowModalOpen}
+        setIsBuyNowModalOpen={setIsBuyNowModalOpen}
+        selected={selected}
+        user={user}
+        children={children}
+      />
     </Row>
   );
 };

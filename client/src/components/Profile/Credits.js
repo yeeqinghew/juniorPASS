@@ -1,17 +1,12 @@
 import React, { useState } from "react";
-import {
-  Button,
-  Divider,
-  Form,
-  Image,
-  Input,
-  Modal,
-  Space,
-  Typography,
-} from "antd";
+import { Button, Divider, Form, Input, Modal, Space, Typography } from "antd";
+import { createFromIconfontCN } from "@ant-design/icons";
 import { useUserContext } from "../UserContext";
 
 const { Text, Title } = Typography;
+const IconFont = createFromIconfontCN({
+  scriptUrl: ["//at.alicdn.com/t/c/font_4957401_wsnyu01fcm.js"],
+});
 
 const Credits = () => {
   const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
@@ -31,15 +26,16 @@ const Credits = () => {
       <Space direction="vertical">
         <Title level={2}>Store Credit Available</Title>
         <Space direction="horizontal">
-          <Image
-            src={require("../../images/credit.png")}
+          <div
             style={{
-              height: "24px",
-              width: "24px",
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
             }}
-            preview={false}
-          ></Image>
-          <Text>{user?.credit}</Text>
+          >
+            <IconFont type="icon-money" />
+            <Text style={{ lineHeight: "normal" }}>{user?.credit}</Text>
+          </div>
         </Space>
 
         <Button type={"primary"} onClick={handleTopUp}>

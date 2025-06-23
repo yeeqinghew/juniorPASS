@@ -16,7 +16,7 @@ import {
   FacebookFilled,
   LinkedinFilled,
   InstagramOutlined,
-  LogoutOutlined,
+  createFromIconfontCN,
 } from "@ant-design/icons";
 import toast, { Toaster } from "react-hot-toast";
 import "./Layout.css";
@@ -25,6 +25,9 @@ import { useUserContext } from "../components/UserContext";
 
 const { Header, Content, Footer } = Layout;
 const { Text, Title } = Typography;
+const IconFont = createFromIconfontCN({
+  scriptUrl: ["//at.alicdn.com/t/c/font_4957401_wsnyu01fcm.js"],
+});
 
 const LoggedInLayout = () => {
   const { user, isAuthenticated, setAuth, setLoading } = useUserContext();
@@ -65,48 +68,71 @@ const LoggedInLayout = () => {
         </Link>
 
         <div style={{ width: "48px" }}></div>
+
         <Menu
           mode="horizontal"
-          style={{ flex: 1, minWidth: 0, display: "block" }}
+          style={{
+            flex: 1,
+            minWidth: 0,
+            display: "flex",
+            justifyContent: "flex-end",
+            background: "transparent",
+            borderBottom: "none",
+          }}
         >
           {isAuthenticated ? (
             <>
-              <Menu.Item key="logout" style={{ float: "right" }}>
-                <LogoutOutlined onClick={handleLogout} />
-              </Menu.Item>
-
-              <Menu.Item
-                key="notification"
-                style={{ float: "right" }}
-                onClick={() => {
-                  // TODO: Popover antd to show a list of notifcations
-                }}
-              >
-                {/* TODO: <Badge> */}
-                <i className="fa fa-bell-o"></i>
-              </Menu.Item>
+              {/* TODO: fix this redirecting  */}
               <Menu.Item
                 key="credit"
-                style={{
-                  float: "right",
-                }}
-                onClick={() => {
+                onClick={() =>
                   navigate("/profile", {
                     state: "credit",
-                  });
-                }}
+                  })
+                }
               >
-                <Image
-                  src={require("../images/credit.png")}
-                  width={24}
-                  height={24}
-                  preview={false}
-                />
-                <Text>{user?.credit}</Text>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                  }}
+                >
+                  <IconFont type="icon-money" />
+                  <Text style={{ lineHeight: "normal" }}>{user?.credit}</Text>
+                </div>
+              </Menu.Item>
+
+              <Menu.Item key="notification">
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                  onClick={() => {
+                    // TODO: Popover antd to show a list of notifcations
+                  }}
+                >
+                  <IconFont type="icon-notification" />
+                </div>
+              </Menu.Item>
+
+              <Menu.Item key="logout">
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                  onClick={handleLogout}
+                >
+                  <IconFont type="icon-signout-1" />
+                </div>
               </Menu.Item>
             </>
           ) : (
-            <Menu.Item key="login" style={{ float: "right" }}>
+            <Menu.Item key="login">
               <Link to="/login">Login</Link>
             </Menu.Item>
           )}
