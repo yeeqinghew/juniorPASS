@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Button, Divider, Form, Input, Modal, Space, Typography } from "antd";
+import { Button, Divider, Space, Typography } from "antd";
 import { createFromIconfontCN } from "@ant-design/icons";
 import { useUserContext } from "../UserContext";
+import TopupModal from "./TopupModal";
 
 const { Text, Title } = Typography;
 const IconFont = createFromIconfontCN({
@@ -10,15 +11,10 @@ const IconFont = createFromIconfontCN({
 
 const Credits = () => {
   const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
-  const [topUpForm] = Form.useForm();
   const { user } = useUserContext();
 
   const handleTopUp = () => {
     setIsTopUpModalOpen(true);
-  };
-
-  const handleCancel = () => {
-    setIsTopUpModalOpen(false);
   };
 
   return (
@@ -58,33 +54,10 @@ const Credits = () => {
         {/* TODO: Get transaction history */}
       </div>
 
-      <Modal
-        title={"Top up"}
-        open={isTopUpModalOpen}
-        onCancel={handleCancel}
-        centered
-        style={{
-          borderRadius: "18px",
-        }}
-        footer={
-          <Button
-            form="topUpForm"
-            key="submit"
-            htmlType="submit"
-            // onClick={handleAddChild}
-          >
-            Next
-          </Button>
-        }
-      >
-        {/* TODO: top up packages */}
-        {/* TODO: top up custom amount */}
-        <Form form={topUpForm} autoComplete="off" layout="vertical">
-          <Form.Item name="amount" label="Top up amount">
-            <Input placeholder="Custom amount (e.g. 10, 20)" />
-          </Form.Item>
-        </Form>
-      </Modal>
+      <TopupModal
+        isTopUpModalOpen={isTopUpModalOpen}
+        setIsTopUpModalOpen={setIsTopUpModalOpen}
+      />
     </>
   );
 };

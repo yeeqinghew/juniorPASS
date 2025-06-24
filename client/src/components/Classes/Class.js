@@ -45,7 +45,6 @@ const Class = () => {
   const [listing, setListing] = useState(null);
   const [isBuyNowModalOpen, setIsBuyNowModalOpen] = useState(false);
   const [selected, setSelected] = useState(null);
-  console.log("************** Selcted", selected);
   const [children, setChildren] = useState([]);
 
   const { state } = useLocation();

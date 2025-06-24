@@ -12,7 +12,6 @@ import VerifyOTP from "../components/VerifyOTP";
 import { useUserContext } from "../components/UserContext";
 import Class from "../components/Classes/Class";
 import AuthenticatedRoute from "./AuthenticatedRoute";
-import NotFound from "../utils/404";
 import { confirmAlert } from "react-confirm-alert"; // Import
 import toast from "react-hot-toast";
 import ContactUs from "../components/ContactUs";
