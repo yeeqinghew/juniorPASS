@@ -43,6 +43,7 @@ CREATE TYPE categories AS ENUM('Sports', 'Music');
 CREATE TYPE package_types AS ENUM('pay-as-you-go', 'short-term', 'long-term');
 CREATE TYPE transaction_types AS ENUM('CREDIT', 'DEBIT');
 CREATE TYPE age_groups AS ENUM ('infant', 'toddler', 'preschooler', 'above-7');
+CREATE TYPE payment_status AS ENUM ('PENDING', 'COMPLETED', 'FAILED');
 
 CREATE TABLE users (
     user_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -144,6 +145,18 @@ CREATE TABLE schedules (
     frequency TEXT CHECK (frequency IN ('Biweekly', 'Weekly', 'Monthly', 'Yearly')),
     created_on TIMESTAMP DEFAULT NOW()
 );
+
+CREATE TABLE payment_requests (
+    request_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
+    amount INTEGER NOT NULL,
+    reference_number VARCHAR(255) NOT NULL,
+    hitpay_payment_id VARCHAR(255) NOT NULL,
+    status payment_status DEFAULT 'PENDING',
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP,
+    webhook_received BOOLEAN DEFAULT FALSE
+)
 
 CREATE TABLE transactions (
     transaction_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
