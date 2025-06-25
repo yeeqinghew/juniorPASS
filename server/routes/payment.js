@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
+const fetch = require("node-fetch"); // <-- Required for Node.js <18
 const pool = require("../db");
 const { v4: uuidv4 } = require("uuid");
-const fetch = require("node-fetch"); // <-- Required for Node.js <18
 
 router.post("/init", async (req, res) => {
   // sandbox env
