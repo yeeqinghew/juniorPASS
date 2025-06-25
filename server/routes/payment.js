@@ -2,11 +2,12 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../db");
 const { v4: uuidv4 } = require("uuid");
+const fetch = require("node-fetch"); // <-- Required for Node.js <18
 
-router.get("/init", async (req, res) => {
+router.post("/init", async (req, res) => {
   // sandbox env
   const { amount, user } = req.body;
-  const { email, name } = user;
+  const { user_id, email, name } = user;
 
   const ref_num = uuidv4(); // Generate a unique reference number
   const resp = await fetch(
@@ -79,7 +80,7 @@ router.post("/webhook", async (req, res) => {
     const { id: hitpayPaymentId, reference_number, status } = event;
 
     const result = await pool.query(
-      `UPATE payment_requests 
+      `UPDATE payment_requests 
     SET status = $1, webhook_received = true, updated_at = NOW()
     WHERE hitpay_payment_id = $2 AND reference_number = $3
     RETURNING user_id, amount`,
