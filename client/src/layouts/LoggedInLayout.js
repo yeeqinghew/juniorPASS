@@ -258,7 +258,7 @@ const LoggedInLayout = () => {
     >
       <Layout
         style={{
-          height: "100vh",
+          minHeight: "100vh",
         }}
       >
         <HeaderConfig />

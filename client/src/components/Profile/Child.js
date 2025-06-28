@@ -16,6 +16,12 @@ import { useUserContext } from "../UserContext";
 import toast from "react-hot-toast";
 import _ from "lodash";
 import getBaseURL from "../../utils/config";
+import FullCalendar from "@fullcalendar/react";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import "./Child.css";
+import rrulePlugin from "@fullcalendar/rrule";
+import { RRule } from "rrule";
 
 const { Text, Title } = Typography;
 
@@ -27,6 +33,8 @@ const Child = () => {
   const [addChildForm] = Form.useForm();
   const [editChildForm] = Form.useForm();
   const { user } = useUserContext();
+  const [selectedChild, setSelectedChild] = useState(null);
+  const [schedule, setSchedule] = useState([]);
 
   const handleCancel = () => {
     setIsAddChildModalOpen(false);
@@ -72,9 +80,69 @@ const Child = () => {
     }
   };
 
+  const fetchChildSchedule = async (childId) => {
+    try {
+      const response = await fetch(`${baseURL}/children/${childId}/schedule`);
+      const data = await response.json();
+      setSchedule(data);
+    } catch (error) {
+      console.error("Error fetching schedule:", error);
+    }
+  };
+
+  const getNextDayOfWeek = (dayName) => {
+    const daysOfWeek = {
+      Sunday: 0,
+      Monday: 1,
+      Tuesday: 2,
+      Wednesday: 3,
+      Thursday: 4,
+      Friday: 5,
+      Saturday: 6,
+    };
+
+    const today = new Date();
+    const todayDayNumber = today.getDay();
+    const targetDayNumber = daysOfWeek[dayName];
+
+    let daysUntilNextTargetDay = targetDayNumber - todayDayNumber;
+    if (daysUntilNextTargetDay < 0) {
+      daysUntilNextTargetDay += 7;
+    }
+
+    const nextClassDate = new Date();
+    nextClassDate.setDate(today.getDate() + daysUntilNextTargetDay);
+
+    return nextClassDate.toISOString().split("T")[0];
+  };
+
+  const calculateDuration = ([start, end]) => {
+    const [sh, sm] = start.split(":").map(Number);
+    const [eh, em] = end.split(":").map(Number);
+    const hours = eh - sh;
+    const minutes = em - sm;
+    return `${hours}:${minutes.toString().padStart(2, "0")}`;
+  };
+
+  const dayMap = {
+    Sunday: RRule.SU,
+    Monday: RRule.MO,
+    Tuesday: RRule.TU,
+    Wednesday: RRule.WE,
+    Thursday: RRule.TH,
+    Friday: RRule.FR,
+    Saturday: RRule.SA,
+  };
+
   useEffect(() => {
     if (user) getChildren();
   }, [user?.user_id]);
+
+  useEffect(() => {
+    if (selectedChild) {
+      fetchChildSchedule(selectedChild);
+    }
+  }, [selectedChild]);
 
   return (
     <>
@@ -152,11 +220,69 @@ const Child = () => {
           </Space>
         )}
       </Flex>
-
-      {/* Classes section */}
-      <Flex style={{ marginBottom: "24px" }}>
+      <Flex
+        style={{
+          marginBottom: "24px",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <Title level={4}>Classes</Title>
+
+        {/* Child selection dropdown (aligned to right) */}
+        <Select
+          style={{ width: 200 }}
+          onChange={(childId) => {
+            setSelectedChild(childId);
+            fetchChildSchedule(childId);
+          }}
+          placeholder="Select Child"
+        >
+          {children.map((child) => (
+            <Select.Option key={child.child_id} value={child.child_id}>
+              {child.name}
+            </Select.Option>
+          ))}
+        </Select>
       </Flex>
+
+      {selectedChild && (
+        <div className="calendar-wrapper">
+          <FullCalendar
+            plugins={[timeGridPlugin, dayGridPlugin, rrulePlugin]}
+            initialView="timeGridWeek"
+            allDaySlot={false}
+            headerToolbar={{
+              left: "prev,next",
+              center: "title",
+              right: "timeGridWeek,dayGridMonth",
+            }}
+            events={schedule
+              .filter((item) => item.active)
+              .map((item) => ({
+                title: `${item.listing_title} (S${item.postal_code})`,
+                rrule: {
+                  freq: RRule.WEEKLY,
+                  byweekday: [dayMap[item.day]],
+                  dtstart: `${getNextDayOfWeek(item.day)}T${
+                    item.class_time[0]
+                  }:00`,
+                },
+                duration: calculateDuration(item.class_time),
+              }))}
+            slotMinTime="08:00:00"
+            slotMaxTime="23:00:00"
+            slotDuration="00:30:00"
+            slotLabelInterval="01:00"
+            height="100%"
+            eventDidMount={(info) => {
+              const time = info.timeText;
+              const title = info.event.title;
+              info.el.setAttribute("title", `${time}\n${title}`);
+            }}
+          />
+        </div>
+      )}
 
       {/* Add child modal */}
       <Modal
