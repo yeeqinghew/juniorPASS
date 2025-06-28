@@ -156,7 +156,7 @@ CREATE TABLE payment_requests (
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP,
     webhook_received BOOLEAN DEFAULT FALSE
-)
+);
 
 CREATE TABLE transactions (
     transaction_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),

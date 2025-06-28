@@ -1,11 +1,12 @@
 const express = require("express");
 const path = require("path"); // Import path module
-const app = express();
 const cors = require("cors");
 const client = require("./utils/redisClient"); // Import the Redis client
+const app = express();
 
 // middleware
 app.use(cors());
+app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(express.json());
 
 // Cache-Control middleware - to instruct browsers and intermediate cache (CDNs) on how cache the response

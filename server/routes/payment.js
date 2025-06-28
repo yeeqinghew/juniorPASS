@@ -4,12 +4,35 @@ const fetch = require("node-fetch"); // <-- Required for Node.js <18
 const pool = require("../db");
 const { v4: uuidv4 } = require("uuid");
 
+function formatSGDateTime(date) {
+  // Convert to Singapore time (GMT+8)
+  const sgOffset = 8 * 60; // in minutes
+  const localOffset = date.getTimezoneOffset(); // in minutes
+  const diff = sgOffset + localOffset;
+
+  const sgTime = new Date(date.getTime() + diff * 60 * 1000);
+
+  const pad = (n) => n.toString().padStart(2, "0");
+
+  const year = sgTime.getFullYear();
+  const month = pad(sgTime.getMonth() + 1);
+  const day = pad(sgTime.getDate());
+  const hours = pad(sgTime.getHours());
+  const minutes = pad(sgTime.getMinutes());
+  const seconds = pad(sgTime.getSeconds());
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
 router.post("/init", async (req, res) => {
   // sandbox env
   const { amount, user } = req.body;
   const { user_id, email, name } = user;
 
   const ref_num = uuidv4(); // Generate a unique reference number
+  // Generate expiry 10 minutes from now
+  const expiryDate = formatSGDateTime(new Date(Date.now() + 10 * 60 * 1000));
+
   const resp = await fetch(
     "https://api.sandbox.hit-pay.com/v1/payment-requests",
     {
@@ -22,14 +45,13 @@ router.post("/init", async (req, res) => {
         amount,
         currency: "SGD",
         email,
-        name,
         purpose: "",
-        description: "Top up store credit",
-        paymentMethods: ["paynow_online", "card"],
+        name,
         reference_number: ref_num, // TODO: generate unique reference number
+        description: "Top up store credit",
         redirect_url: "", // Not redirecting to any URL after payment due to Drop-In UI
-        webhook_url: "http://localhost:5000/payment/webhook", // TODO
-        expiry_date: new Date(Date.now() + 10 * 60 * 1000).toISOString(), // 10 minutes expiry
+        webhook: "https://dd19-119-74-36-169.ngrok-free.app/payment/webhook", // TODO
+        expiry_date: expiryDate, // 10 minutes expiry
       }),
     }
   );
@@ -67,11 +89,10 @@ router.post("/init", async (req, res) => {
   );
 
   res.status(200).json({
+    id: response.id,
     url: response.url,
     reference_number,
   });
-  // TODO: return the url to the client for init
-  // TODO: return the id to the client for paymentRequest, amount, method for toggle
 });
 
 router.post("/webhook", async (req, res) => {
@@ -81,9 +102,10 @@ router.post("/webhook", async (req, res) => {
 
     const result = await pool.query(
       `UPDATE payment_requests 
-    SET status = $1, webhook_received = true, updated_at = NOW()
-    WHERE hitpay_payment_id = $2 AND reference_number = $3
-    RETURNING user_id, amount`,
+      SET status = $1, webhook_received = true, updated_at = NOW()
+      WHERE hitpay_payment_id = $2 AND reference_number = $3
+      RETURNING user_id, amount
+      `,
       [status.toUpperCase(), hitpayPaymentId, reference_number]
     );
 
@@ -92,8 +114,8 @@ router.post("/webhook", async (req, res) => {
 
       await pool.query(
         `UPDATE users 
-      SET store_credit = credit + $1
-      WHERE user_id = $2`,
+        SET credit = credit + $1
+        WHERE user_id = $2`,
         [amount, user_id]
       );
     }
