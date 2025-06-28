@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const fetch = require("node-fetch"); // <-- Required for Node.js <18
+const fetch = require("node-fetch");
 const pool = require("../db");
 const { v4: uuidv4 } = require("uuid");
 
@@ -98,7 +98,16 @@ router.post("/init", async (req, res) => {
 router.post("/webhook", async (req, res) => {
   try {
     const event = req.body;
-    const { id: hitpayPaymentId, reference_number, status } = event;
+    const {
+      payment_id,
+      payment_request_id: hitpayPaymentId,
+      phone,
+      amount,
+      currency,
+      reference_number,
+      status,
+      hmac,
+    } = event;
 
     const result = await pool.query(
       `UPDATE payment_requests 
@@ -117,6 +126,10 @@ router.post("/webhook", async (req, res) => {
         SET credit = credit + $1
         WHERE user_id = $2`,
         [amount, user_id]
+      );
+    } else {
+      console.error(
+        "No matching payment request found or status is not completed."
       );
     }
 
