@@ -76,6 +76,7 @@ export const UserProvider = ({ children }) => {
         setAuth,
         setLoading,
         setUser,
+        refreshUser: getUserInfo,
       }}
     >
       {children}

@@ -1,20 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { Button, Form, Input, Modal } from "antd";
+import { Button, Form, Image, Input, Modal, Spin } from "antd";
 import toast from "react-hot-toast";
 import getBaseURL from "../../utils/config";
 import { useUserContext } from "../UserContext";
+import { useRef } from "react";
 
 const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [modalStep, setModalStep] = useState("form"); // form | loading | success | error
   const [topUpForm] = Form.useForm();
   const [selectedAmount, setSelectedAmount] = useState(null);
   const baseURL = getBaseURL();
-  const { user } = useUserContext();
+  const { user, refreshUser } = useUserContext();
+  const isPollingRef = useRef(false);
 
   const handleCancel = () => {
     setIsTopUpModalOpen(false);
     setSelectedAmount(null);
     topUpForm.resetFields();
+    setModalStep("form"); // Reset to initial state
   };
 
   useEffect(() => {
@@ -33,6 +37,7 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen }) => {
   const pollPaymentStatus = (reference_number) => {
     let attempts = 0;
     const maxAttempts = 24; // 2 minutes polling
+
     const interval = setInterval(async () => {
       attempts++;
       try {
@@ -44,20 +49,38 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen }) => {
 
         if (data.status === "COMPLETED") {
           clearInterval(interval);
-          toast.success("Top-up successful!");
-          handleCancel();
+          isPollingRef.current = false;
+          await refreshUser(); // Refresh user data to update credit
+          setModalStep("success");
+          return;
         } else if (data.status === "FAILED") {
           clearInterval(interval);
-          toast.error("Top-up failed.");
-          handleCancel();
-        } else if (attempts >= maxAttempts) {
+          isPollingRef.current = false;
+          setModalStep("error");
+        }
+
+        //❗Fallback: Call HitPay directly
+        if (attempts >= maxAttempts) {
+          const response = await fetch(
+            `${baseURL}/payment/verify/${reference_number}`
+          );
+          const data = await response.json();
+
           clearInterval(interval);
-          toast("No response from payment gateway. Please check later.");
-          handleCancel();
+          if (data.status === "COMPLETED") {
+            await refreshUser();
+            setModalStep("success");
+          } else {
+            toast.error(
+              "No confirmation received from HitPay. Please contact us"
+            );
+            setModalStep("error");
+          }
         }
       } catch (error) {
         clearInterval(interval);
         toast.error("Failed to check payment status. Please try again later.");
+        setModalStep("error");
       }
     }, 5000); // Poll every 5 seconds
   };
@@ -93,9 +116,13 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen }) => {
           },
           {
             onClose: () => {
-              toast.error("You have cancelled the top-up.");
+              if (!isPollingRef.current) {
+                toast.error("You have cancelled the top-up.");
+              }
             },
             onSuccess: () => {
+              isPollingRef.current = true;
+              setModalStep("loading");
               toast.success("Waiting for payment confirmation...");
               pollPaymentStatus(reference_number);
             },
@@ -120,31 +147,70 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen }) => {
   return (
     <>
       <Modal
-        title="Top up"
+        title={modalStep === "form" ? "Top up" : ""}
         open={isTopUpModalOpen}
         onCancel={handleCancel}
         style={{
           borderRadius: "18px",
         }}
         footer={
-          <Button type="primary" loading={isLoading} onClick={onHandleTopUp}>
-            Proceed to Payment
-          </Button>
+          modalStep === "form" ? (
+            <Button type="primary" loading={isLoading} onClick={onHandleTopUp}>
+              Proceed to Payment
+            </Button>
+          ) : null
         }
+        maskClosable={false}
+        closable={modalStep !== "loading"} // prevent user from closing while loading
         centered
       >
         {/* TODO: top up packages */}
         {/* TODO: top up custom amount */}
-        <Form form={topUpForm} autoComplete="off" layout="vertical">
-          <Form.Item name="amount" label="Or enter custom amount">
-            <Input
-              placeholder="e.g. 30"
-              onChange={() => setSelectedAmount(null)}
-              type="number"
-              min={1}
+        {modalStep === "form" && (
+          <Form form={topUpForm} autoComplete="off" layout="vertical">
+            <Form.Item name="amount" label="Or enter custom amount">
+              <Input
+                placeholder="e.g. 30"
+                onChange={() => setSelectedAmount(null)}
+                type="number"
+                min={1}
+              />
+            </Form.Item>
+          </Form>
+        )}
+
+        {modalStep === "loading" && (
+          <div style={{ textAlign: "center" }}>
+            <Spin />
+            <p>Please wait while we process your payment...</p>
+          </div>
+        )}
+
+        {modalStep === "success" && (
+          <div style={{ textAlign: "center", padding: "24px" }}>
+            <Image
+              src={require("../../images/success.gif")}
+              alt="Success"
+              style={{ width: "100px", marginBottom: "20px" }}
+              preview={false}
             />
-          </Form.Item>
-        </Form>
+            <h3>Top-up Successful!</h3>
+            <p>Your credit has been updated.</p>
+          </div>
+        )}
+
+        {modalStep === "error" && (
+          <div style={{ textAlign: "center", padding: "24px" }}>
+            <Image
+              src={require("../../images/error.gif")}
+              alt="Error"
+              style={{ width: "100px", marginBottom: "20px" }}
+              preview={false}
+            />
+            <h3>Payment Failed</h3>
+            <p>We couldn't confirm the top-up. Please try again later.</p>
+          </div>
+        )}
       </Modal>
     </>
   );
