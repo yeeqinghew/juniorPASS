@@ -3,6 +3,8 @@ const router = express.Router();
 const fetch = require("node-fetch");
 const pool = require("../db");
 const { v4: uuidv4 } = require("uuid");
+const crypto = require("crypto");
+const querystring = require("querystring");
 
 function formatSGDateTime(date) {
   // Convert to Singapore time (GMT+8)
@@ -24,6 +26,7 @@ function formatSGDateTime(date) {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
+// initiates payment and stores it.
 router.post("/init", async (req, res) => {
   // sandbox env
   const { amount, user } = req.body;
@@ -95,55 +98,84 @@ router.post("/init", async (req, res) => {
   });
 });
 
+// updates payment and credit if successful.
 router.post("/webhook", async (req, res) => {
-  try {
-    const event = req.body;
-    const {
-      payment_id,
-      payment_request_id: hitpayPaymentId,
-      phone,
-      amount,
-      currency,
-      reference_number,
-      status,
-      hmac,
-    } = event;
+  const secret = process.env.hitPaySandboxSecretKey;
 
+  const rawBody = req.body;
+
+  // Parse the body to extract parameters
+  const parsed = querystring.parse(rawBody.toString("utf8"));
+  const receivedHmac = parsed.hmac;
+
+  if (!receivedHmac) {
+    console.error("❌ No HMAC received");
+    return res.status(400).send("Bad Request - No HMAC");
+  }
+
+  // Step 1: Remove the hmac parameter
+  const { hmac, ...dataWithoutHmac } = parsed;
+
+  // Step 2: Sort keys alphabetically
+  const sortedKeys = Object.keys(dataWithoutHmac).sort();
+
+  // Step 3: Concatenate keys and values WITHOUT "&" and "=" separators
+  let concatenatedString = "";
+  for (const key of sortedKeys) {
+    concatenatedString += key + dataWithoutHmac[key];
+  }
+
+  // Step 4: Calculate HMAC using the concatenated string
+  const calculatedHmac = crypto
+    .createHmac("sha256", secret)
+    .update(concatenatedString)
+    .digest("hex");
+
+  if (calculatedHmac !== receivedHmac) {
+    console.error("❌ Invalid HMAC!");
+    console.error("String used for HMAC calculation:", concatenatedString);
+    return res.status(401).send("Unauthorized");
+  }
+
+  // Respond first before processing
+  res.status(200).send("OK");
+
+  // Process the webhook data
+  const { payment_id, reference_number, amount, status } = parsed;
+  try {
     if (status === "completed") {
-      const result = await pool.query(
-        `SELECT user_id, amount FROM payment_requests
-         WHERE hitpay_payment_id = $1 AND reference_number = $2`,
-        [hitpayPaymentId, reference_number]
+      // Get user_id from the database using reference_number
+      const paymentResult = await pool.query(
+        `SELECT user_id FROM payment_requests WHERE reference_number = $1`,
+        [reference_number]
       );
 
-      if (result.rowCount === 0) {
-        console.error("No matching payment request found");
+      if (paymentResult.rowCount === 0) {
+        console.error(
+          `❌ Payment request not found for reference: ${reference_number}`
+        );
         return res.status(404).send("Payment request not found");
       }
 
-      const { user_id, amount } = result.rows[0];
+      const { user_id } = paymentResult.rows[0];
+
       await markPaymentCompleted({
-        hitpayPaymentId,
+        hitpayPaymentId: payment_id,
         reference_number,
-        amount,
+        amount: parseFloat(amount),
         user_id,
       });
-    } else {
-      await pool.query(
-        `UPDATE payment_requests 
-         SET status = $1, webhook_received = true, updated_at = NOW()
-         WHERE hitpay_payment_id = $2 AND reference_number = $3`,
-        [status.toUpperCase(), hitpayPaymentId, reference_number]
-      );
-    }
 
-    res.status(200).send("OK");
+      console.log(`✅ Payment ${payment_id} marked as completed`);
+    } else {
+      console.log(`ℹ️ Payment ${payment_id} status: ${status}`);
+    }
   } catch (error) {
-    console.error("Webhook error:", error);
-    res.status(500).send("Internal Server Error");
+    console.error("❌ Error processing webhook:", error);
   }
 });
 
+// polls for frontend status checking.
 router.get("/status/:reference_number", async (req, res) => {
   const { reference_number } = req.params;
 
@@ -166,12 +198,25 @@ router.get("/status/:reference_number", async (req, res) => {
   }
 });
 
+// fallback when webhook fails (manual confirmation).
 router.get("/verify/:reference_number", async (req, res) => {
   const { reference_number } = req.params;
   try {
+    // Get payment request ID from DB
+    const result = await pool.query(
+      `SELECT user_id, hitpay_payment_id, amount FROM payment_requests 
+       WHERE reference_number = $1`,
+      [reference_number]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Payment request not found" });
+    }
+
+    const { user_id, hitpay_payment_id, amount } = result.rows[0];
     // Fallback: Fetch from HitPay directly
     const response = await fetch(
-      `https://api.sandbox.hit-pay.com/v1/payment-requests/${reference_number}`,
+      `https://api.sandbox.hit-pay.com/v1/payment-requests/${hitpay_payment_id}`,
       {
         method: "GET",
         headers: {
@@ -182,27 +227,19 @@ router.get("/verify/:reference_number", async (req, res) => {
 
     const data = await response.json();
 
-    if (data.status === "COMPLETED") {
-      // Get user ID
-      const result = await pool.query(
-        `SELECT user_id, amount FROM payment_requests
-        WHERE reference_number = $1`,
-        [reference_number]
-      );
-
-      if (result.rowCount === 0) {
-        return res.status(404).json({ error: "Payment request not found" });
-      }
-
-      const { user_id, amount } = result.rows[0];
+    if (data.status === "completed") {
       await markPaymentCompleted({
         hitpayPaymentId: data.id,
         reference_number,
         amount,
         user_id,
       });
-      res.status(200).json({ status: "COMPLETED" });
+      return res.status(200).json({ status: "COMPLETED" });
     }
+
+    return res.status(200).json({
+      status: data.status,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).send("Error verifying payment");
@@ -215,6 +252,17 @@ async function markPaymentCompleted({
   amount,
   user_id,
 }) {
+  const existing = await pool.query(
+    `SELECT status FROM payment_requests 
+     WHERE hitpay_payment_id = $1 AND reference_number = $2`,
+    [hitpayPaymentId, reference_number]
+  );
+
+  if (existing.rows[0]?.status === "COMPLETED") {
+    console.log("Payment already marked as completed.");
+    return;
+  }
+
   await pool.query(
     `UPDATE payment_requests 
      SET status = $1, webhook_received = true, updated_at = NOW()

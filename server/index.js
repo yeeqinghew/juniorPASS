@@ -6,6 +6,17 @@ const app = express();
 
 // middleware
 app.use(cors());
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, "../client/build")));
+
+// CRITICAL: Handle webhook route BEFORE general body parsing middleware
+// This must come before express.json() and express.urlencoded()
+app.use(
+  "/payment/webhook",
+  express.raw({ type: "application/x-www-form-urlencoded" })
+);
+
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(express.json());
 
@@ -14,9 +25,6 @@ app.use((req, res, next) => {
   res.set("Cache-Control", "public, max-age=3600"); // Cache for 1 hour
   next();
 });
-
-// Serve static files from the React app
-app.use(express.static(path.join(__dirname, "../client/build")));
 
 // ROUTES
 app.use("/auth", require("./routes/jwtAuth"));

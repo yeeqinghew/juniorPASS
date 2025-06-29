@@ -36,7 +36,7 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen }) => {
 
   const pollPaymentStatus = (reference_number) => {
     let attempts = 0;
-    const maxAttempts = 24; // 2 minutes polling
+    const maxAttempts = 12; // 1 minute polling
 
     const interval = setInterval(async () => {
       attempts++;
