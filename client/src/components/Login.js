@@ -18,7 +18,7 @@ const { Title, Text } = Typography;
 const Login = () => {
   const baseURL = getBaseURL();
   const location = useLocation();
-  const { from } = location.state || { from: { pathname: "/" } };
+  const from = location.state?.from || "/";
   const { handleResponse, handleGoogleLogin } = useHandleLogin({
     from,
   });

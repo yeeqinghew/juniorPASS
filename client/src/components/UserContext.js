@@ -1,82 +1,127 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
+import { jwtDecode } from "jwt-decode";
 import getBaseURL from "../utils/config";
 import toast from "react-hot-toast";
 
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
-  const baseURL = getBaseURL();
-  const [user, setUser] = useState();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const token = localStorage.getItem("token");
+  const baseURL = getBaseURL();
 
-  const setAuth = (boolean) => {
-    setIsAuthenticated(boolean);
-  };
+  const setAuth = useCallback((status, userData = null) => {
+    setIsAuthenticated(status);
+    setUser(userData);
+  }, []);
 
-  const getUserInfo = async () => {
-    try {
-      const response = await fetch(`${baseURL}/auth/`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  const fetchUserDataAndAuth = useCallback(
+    async (token) => {
+      try {
+        setLoading(true);
+        const profileResponse = await fetch(`${baseURL}/auth/`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-      const parseRes = await response.json();
-      setUser({ ...parseRes, token });
-    } catch (err) {
-      console.error("ERROR in /auth/: No user", err.message);
-    }
-  };
-
-  const isAuth = async () => {
-    try {
-      const response = await fetch(`${baseURL}/auth/is-verify`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const parseRes = await response.json();
-      if (response.status === 200 && parseRes === true) {
-        setAuth(true);
-        await getUserInfo();
-      } else {
-        toast.error(parseRes.error);
-        localStorage.clear();
+        if (profileResponse.ok) {
+          const userData = await profileResponse.json();
+          setAuth(true, userData);
+        } else {
+          console.error(
+            "Failed to fetch user profile, token might be invalid or session expired."
+          );
+          localStorage.removeItem("token");
+          setAuth(false);
+          toast.error(
+            "Your session has expired or is invalid. Please log in again."
+          );
+        }
+      } catch (error) {
+        console.error("Error in fetchUserDataAndAuth:", error);
+        localStorage.removeItem("token");
         setAuth(false);
+        toast.error(
+          "An error occurred while authenticating. Please try again."
+        );
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("ERROR in /auth/is-verify: ", error);
-      setAuth(false);
-      localStorage.clear();
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [baseURL, setAuth]
+  );
 
-  useEffect(() => {
+  // NEW: Function to explicitly re-evaluate authentication status
+  const reauthenticate = useCallback(async () => {
+    setLoading(true); // Start loading when reauthenticating
+    const token = localStorage.getItem("token"); // Read the token fresh
+
     if (!token) {
-      setLoading(false); // If no token, stop loading immediately
+      setAuth(false);
+      setLoading(false);
       return;
     }
 
-    isAuth();
-  }, []);
+    try {
+      const decodedToken = jwtDecode(token);
+      if (decodedToken.exp * 1000 < Date.now()) {
+        console.log("Token expired during reauthentication.");
+        localStorage.removeItem("token");
+        setAuth(false);
+        toast.error("Your session has expired. Please log in again.");
+      } else {
+        await fetchUserDataAndAuth(token); // Fetch user data if token is valid
+      }
+    } catch (error) {
+      console.error(
+        "Invalid token or decoding error during reauthentication:",
+        error
+      );
+      localStorage.removeItem("token");
+      setAuth(false);
+      toast.error("Invalid session. Please log in again.");
+    } finally {
+      setLoading(false); // Ensure loading is off after attempt
+    }
+  }, [setAuth, fetchUserDataAndAuth]);
+
+  useEffect(() => {
+    // Initial check when the component mounts
+    reauthenticate(); // Use the new reauthenticate function here
+
+    // Add an event listener for storage changes (for cross-tab/window sync)
+    const handleStorageChange = (event) => {
+      if (event.key === "token") {
+        reauthenticate(); // Re-check authentication status if token in localStorage changes
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, [reauthenticate]); // Depend on reauthenticate
 
   return (
     <UserContext.Provider
       value={{
-        user,
         isAuthenticated,
+        user,
         loading,
         setAuth,
         setLoading,
-        setUser,
-        refreshUser: getUserInfo,
+        reauthenticate,
       }}
     >
       {children}
@@ -85,5 +130,9 @@ export const UserProvider = ({ children }) => {
 };
 
 export const useUserContext = () => {
-  return useContext(UserContext);
+  const context = useContext(UserContext);
+  if (!context) {
+    throw new Error("useUserContext must be used within a UserProvider");
+  }
+  return context;
 };

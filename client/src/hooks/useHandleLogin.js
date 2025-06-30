@@ -6,9 +6,9 @@ import { useUserContext } from "../components/UserContext";
 const useHandleLogin = ({ from }) => {
   const baseURL = getBaseURL();
   const navigate = useNavigate();
-  const { setAuth } = useUserContext();
+  const { reauthenticate, setAuth } = useUserContext();
 
-  const handleResponse = async (response, navigatePath) => {
+  const handleResponse = async (response, originalNavigatePath) => {
     try {
       const parseRes = await response.json();
 
@@ -20,9 +20,26 @@ const useHandleLogin = ({ from }) => {
           duration: 4000,
         });
 
+        await reauthenticate();
+
+        let finalNavigatePath = originalNavigatePath || "/profile"; // Default to /profile if 'from' is null/undefined
+        console.log("Final navigate path:", finalNavigatePath);
+        const ignoredPathsForRedirect = [
+          "/", // Homepage
+          "/pricing",
+          "/faq",
+          "/about-us",
+          "/partner-contact",
+        ];
+
+        // If the user came from an ignored page, redirect them to /profile
+        if (ignoredPathsForRedirect.includes(finalNavigatePath)) {
+          finalNavigatePath = "/profile";
+        }
+
         // Delay the navigation to allow the toast to stay visible
         setTimeout(() => {
-          navigate(navigatePath);
+          navigate(finalNavigatePath);
         }, 4000); // Wait for the toast to finish before navigating
       } else {
         setAuth(false);
