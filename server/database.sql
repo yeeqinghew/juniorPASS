@@ -214,6 +214,14 @@ INSERT INTO ageGroups (name, min_age, max_age)
     ('preschooler', 3, 6),
     ('above-7', 7, null);
 
+CREATE TABLE partnerPasswordResets (
+    reset_id SERIAL PRIMARY KEY,
+    partner_id UUID REFERENCES partners(partner_id) ON DELETE CASCADE,
+    token VARCHAR(255) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
 -- ADMIN PORTAL
 CREATE TABLE admins (
     admin_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),

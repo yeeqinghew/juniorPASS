@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../db");
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 const jwtGenerator = require("../utils/jwtGenerator");
 const authorization = require("../middleware/authorization");
 const etagMiddleware = require("../middleware/etagMiddleware");
@@ -9,6 +10,9 @@ const cacheMiddleware = require("../middleware/cacheMiddleware");
 const client = require("../utils/redisClient");
 const validInfo = require("../middleware/validInfo");
 const sendEmail = require("../utils/emailSender");
+const {
+  resetPasswordHtmlTemplate,
+} = require("../utils/resetPasswordHtmlTemplate");
 
 router.use(etagMiddleware);
 
@@ -199,6 +203,96 @@ router.post("/partnerForm", validInfo, async (req, res) => {
   } catch (error) {
     console.error("ERROR in /misc/contactUs", error.message);
     res.status(500).json({ error: error.message });
+  }
+});
+
+router.post("/check-email", async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const result = await pool.query(
+      `SELECT partner_id FROM partners WHERE LOWER(email) = LOWER($1)`,
+      [email.trim()]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "Email not registered." });
+    }
+
+    return res.status(200).json({ message: "Email valid." });
+  } catch (err) {
+    console.error("Error checking partner email:", err);
+    return res.status(500).json({ error: "Server error." });
+  }
+});
+
+router.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
+  try {
+    const partnerRes = await pool.query(
+      `SELECT partner_id FROM partners WHERE LOWER(email) = LOWER($1)`,
+      [email.trim()]
+    );
+    if (partnerRes.rowCount === 0) {
+      return res.status(200).json({ message: "Password reset email sent." });
+    }
+    const partner_id = partnerRes.rows[0].partner_id;
+    const token = crypto.randomBytes(32).toString("hex");
+    const hashedToken = await bcrypt.hash(token, 10);
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
+    await pool.query(
+      `INSERT INTO partnerPasswordResets (partner_id, token, expires_at) VALUES ($1, $2, $3)`,
+      [partner_id, hashedToken, expiresAt]
+    );
+
+    const baseUrl = process.env.PARTNER_WEB_BASE_URL || "http://localhost:3000";
+    const resetURL = `${baseUrl}/reset-password?token=${hashedToken}`;
+    const emailContent = resetPasswordHtmlTemplate(resetURL);
+
+    await sendEmail(email, "Password Reset Request", emailContent);
+    res.status(200).json({ message: "Password reset email sent." });
+  } catch (err) {
+    console.error("Error in /partners/forgot-password", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+router.post("/reset-password", async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    const resetResult = await pool.query(
+      `SELECT partner_id, expires_at FROM partnerPasswordResets WHERE token = $1`,
+      [token]
+    );
+
+    if (resetResult.rows.length === 0)
+      return res.status(400).json({ message: "Invalid or expired token" });
+
+    const { partner_id, expires_at } = resetResult.rows[0];
+
+    if (new Date() > new Date(expires_at)) {
+      return res.status(400).json({ message: "Token expired" });
+    }
+
+    const saltRound = 10;
+    const bcryptedPassword = bcrypt.hashSync(newPassword, saltRound);
+
+    await pool.query(
+      `UPDATE partners SET password = $1 WHERE partner_id = $2`,
+      [bcryptedPassword, partner_id]
+    );
+
+    await pool.query(
+      `DELETE FROM partnerPasswordResets WHERE partner_id = $1`,
+      [partner_id]
+    );
+
+    res.status(200).json({ message: "Password updated successfully" });
+  } catch (err) {
+    console.error("Error in reset-password route:", err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
