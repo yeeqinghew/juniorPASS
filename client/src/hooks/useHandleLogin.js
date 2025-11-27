@@ -14,7 +14,6 @@ const useHandleLogin = ({ from }) => {
 
       if (response.ok && parseRes.token) {
         localStorage.setItem("token", parseRes.token);
-        setAuth(true);
 
         toast.success("Login successfully", {
           duration: 4000,

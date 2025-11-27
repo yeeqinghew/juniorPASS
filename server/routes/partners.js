@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../db");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwtGenerator = require("../utils/jwtGenerator");
 const authorization = require("../middleware/authorization");
 const etagMiddleware = require("../middleware/etagMiddleware");
@@ -39,7 +39,7 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ message: "Invalid Credential" });
     }
 
-    const validPassword = await bcrypt.compare(
+    const validPassword = bcrypt.compareSync(
       password,
       partner.rows[0].password
     );
@@ -253,5 +253,144 @@ const getReviwesByPartnerId = async (partnerId) => {
     throw error;
   }
 };
+
+/**
+ * Partner Dashboard: Overview metrics.
+ * Returns credit balance, counts of listings and bookings, and unread notifications count.
+ */
+router.get("/dashboard/overview", authorization, async (req, res) => {
+  const partnerId = req.user;
+  try {
+    const [creditRes, listingsCountRes, bookingsCountRes, unreadNotifRes] =
+      await Promise.all([
+        pool.query("SELECT COALESCE(credit, 0) AS credit FROM partners WHERE partner_id = $1", [partnerId]),
+        pool.query("SELECT COUNT(*) AS c FROM listings WHERE partner_id = $1", [partnerId]),
+        pool.query(
+          `SELECT COUNT(*) AS c
+           FROM bookings b
+           JOIN listings l ON l.listing_id = b.listing_id
+           WHERE l.partner_id = $1`,
+          [partnerId]
+        ),
+        pool.query(
+          `SELECT COUNT(*) AS c
+           FROM notifications
+           WHERE recipient_type = 'partner' AND recipient_id = $1 AND is_read = false`,
+          [partnerId]
+        ),
+      ]);
+
+    return res.status(200).json({
+      credit: parseInt(creditRes.rows[0]?.credit || 0, 10),
+      listings: parseInt(listingsCountRes.rows[0]?.c || 0, 10),
+      bookings: parseInt(bookingsCountRes.rows[0]?.c || 0, 10),
+      unread_notifications: parseInt(unreadNotifRes.rows[0]?.c || 0, 10),
+    });
+  } catch (error) {
+    console.error("ERROR in GET /partners/dashboard/overview", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * Partner Dashboard: Bookings stream with pagination.
+ * Query: ?page=1&limit=10
+ */
+router.get("/dashboard/bookings", authorization, async (req, res) => {
+  const partnerId = req.user;
+  const page = Math.max(parseInt(req.query.page || "1", 10), 1);
+  const limit = Math.max(parseInt(req.query.limit || "10", 10), 1);
+  const offset = (page - 1) * limit;
+
+  try {
+    const [list, count] = await Promise.all([
+      pool.query(
+        `SELECT b.*, l.listing_title
+         FROM bookings b
+         JOIN listings l ON l.listing_id = b.listing_id
+         WHERE l.partner_id = $1
+         ORDER BY b.created_on DESC
+         LIMIT $2 OFFSET $3`,
+        [partnerId, limit, offset]
+      ),
+      pool.query(
+        `SELECT COUNT(*) AS total
+         FROM bookings b
+         JOIN listings l ON l.listing_id = b.listing_id
+         WHERE l.partner_id = $1`,
+        [partnerId]
+      ),
+    ]);
+
+    return res.status(200).json({
+      page,
+      limit,
+      total: parseInt(count.rows[0]?.total || 0, 10),
+      data: list.rows,
+    });
+  } catch (error) {
+    console.error("ERROR in GET /partners/dashboard/bookings", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * Partner Dashboard: Export bookings CSV.
+ * Optional Query: ?from=YYYY-MM-DD&to=YYYY-MM-DD
+ */
+router.get("/dashboard/bookings/export", authorization, async (req, res) => {
+  const partnerId = req.user;
+  const { from, to } = req.query;
+
+  try {
+    const clauses = ["l.partner_id = $1"];
+    const params = [partnerId];
+    let idx = 2;
+
+    if (from) {
+      clauses.push(`b.created_on >= $${idx++}`);
+      params.push(new Date(from));
+    }
+    if (to) {
+      clauses.push(`b.created_on <= $${idx++}`);
+      params.push(new Date(to));
+    }
+
+    const whereSQL = "WHERE " + clauses.join(" AND ");
+
+    const result = await pool.query(
+      `
+      SELECT b.booking_id, b.user_id, b.listing_id, l.listing_title, b.start_date, b.end_date, b.created_on
+      FROM bookings b
+      JOIN listings l ON l.listing_id = b.listing_id
+      ${whereSQL}
+      ORDER BY b.created_on DESC
+      `,
+      params
+    );
+
+    // Build CSV
+    const headers = ["booking_id", "user_id", "listing_id", "listing_title", "start_date", "end_date", "created_on"];
+    const rows = result.rows.map((r) =>
+      [
+        r.booking_id,
+        r.user_id,
+        r.listing_id,
+        (r.listing_title || "").replaceAll('"', '""'),
+        r.start_date?.toISOString?.() || r.start_date,
+        r.end_date?.toISOString?.() || r.end_date,
+        r.created_on?.toISOString?.() || r.created_on,
+      ].map((v) => (v === null || typeof v === "undefined" ? "" : `"${String(v)}"`)).join(",")
+    );
+    const csv = [headers.join(","), ...rows].join("\n");
+
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", "attachment; filename=\"bookings.csv\"");
+    return res.status(200).send(csv);
+  } catch (error) {
+    console.error("ERROR in GET /partners/dashboard/bookings/export", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
 
 module.exports = router;

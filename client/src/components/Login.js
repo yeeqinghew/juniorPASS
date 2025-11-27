@@ -4,14 +4,18 @@ import {
   MailOutlined,
   EyeTwoTone,
   EyeInvisibleOutlined,
+  UserOutlined,
+  SafetyOutlined,
+  ArrowRightOutlined,
 } from "@ant-design/icons";
-import { Button, Divider, Form, Input, Typography } from "antd";
+import { Button, Divider, Form, Input, Typography, Card } from "antd";
 import { GoogleLogin } from "@react-oauth/google";
 import { Link, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import getBaseURL from "../utils/config";
 import useHandleLogin from "../hooks/useHandleLogin";
 import CryptoJS from "crypto-js";
+import "../Login.css";
 
 const { Title, Text } = Typography;
 
@@ -51,110 +55,134 @@ const Login = () => {
   };
 
   return (
-    <section
-      style={{
-        padding: "0 140px",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <div
-        style={{
-          padding: "30px 40px",
-          borderRadius: "10px",
-          maxWidth: "600px",
-          margin: "50px auto",
-          boxShadow: "0 6px 20px rgba(0, 0, 0, 0.1)",
-          background: "#ffffff",
-          display: "flex",
-          flexDirection: "column",
-          gap: "15px",
-        }}
-      >
-        <Title
-          level={3}
-          style={{
-            textAlign: "center",
-          }}
-        >
-          Welcome back
-        </Title>
-        <GoogleLogin
-          onSuccess={handleGoogleLogin}
-          onError={errorMessage}
-          theme="outline"
-          width="290"
-        />
-        <Divider>OR</Divider>
-        <Form
-          name="normal_login"
-          className="login-form"
-          initialValues={{
-            remember: true,
-          }}
-          onFinish={handleLogin}
-        >
-          <Form.Item
-            name="email"
-            rules={[
-              {
-                required: true,
-                message: "Please input your email!",
-              },
-            ]}
-          >
-            <Input
-              prefix={<MailOutlined className="site-form-item-icon" />}
-              placeholder="email"
-              type={"email"}
-              size={"large"}
-              required
+    <section className="login-page">
+      <div className="login-container">
+        <Card className="login-card" bordered={false}>
+          {/* Header Section */}
+          <div className="login-header">
+            <div className="login-icon-wrapper">
+              <UserOutlined className="login-icon" />
+            </div>
+            <Title level={2} className="login-title">
+              Welcome Back
+            </Title>
+            <Text className="login-subtitle">
+              Sign in to access your JuniorPASS account
+            </Text>
+          </div>
+
+          {/* Google Login */}
+          <div className="google-login-wrapper">
+            <GoogleLogin
+              onSuccess={handleGoogleLogin}
+              onError={errorMessage}
+              theme="outline"
+              size="large"
+              width="100%"
+              text="signin_with"
             />
-          </Form.Item>
-          <Form.Item
-            name="password"
-            rules={[
-              {
-                required: true,
-                message: "Please input your Password!",
-              },
-            ]}
+          </div>
+
+          <Divider className="login-divider">
+            <Text className="divider-text">or continue with email</Text>
+          </Divider>
+
+          {/* Login Form */}
+          <Form
+            name="normal_login"
+            className="login-form"
+            initialValues={{
+              remember: true,
+            }}
+            onFinish={handleLogin}
+            layout="vertical"
           >
-            <Input.Password
-              prefix={<LockOutlined className="site-form-item-icon" />}
-              type="password"
-              placeholder="password"
-              size={"large"}
-              iconRender={(visible) =>
-                visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-              }
-              required
-            />
-          </Form.Item>
-          <Form.Item style={{ textAlign: "center" }}>
-            <a className="login-form-forgot" href="/forgot-password">
-              Forgot password
-            </a>
-          </Form.Item>
-          <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              className="login-form-button"
-              style={{ width: "100%" }}
+            <Form.Item
+              name="email"
+              label={<Text strong>Email Address</Text>}
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter your email address",
+                },
+                {
+                  type: "email",
+                  message: "Please enter a valid email address",
+                },
+              ]}
             >
-              Log in
-            </Button>
-          </Form.Item>
-        </Form>
-        <div style={{ textAlign: "center" }}>
-          Or <Link to="/register">register now!</Link>
-          <Divider></Divider>
-          <Link to="https://www.portal.juniorpass.sg">
-            <Text>Partner Login</Text>
-          </Link>
-        </div>
+              <Input
+                prefix={<MailOutlined className="input-icon" />}
+                type="email"
+                size="large"
+                className="login-input"
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="password"
+              label={<Text strong>Password</Text>}
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter your password",
+                },
+              ]}
+            >
+              <Input.Password
+                prefix={<LockOutlined className="input-icon" />}
+                type="password"
+                size="large"
+                className="login-input"
+                iconRender={(visible) =>
+                  visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                }
+              />
+            </Form.Item>
+
+            <Form.Item className="forgot-password-wrapper">
+              <Link to="/forgot-password" className="forgot-password-link">
+                <SafetyOutlined /> Forgot password?
+              </Link>
+            </Form.Item>
+
+            <Form.Item className="submit-button-wrapper">
+              <Button
+                type="primary"
+                htmlType="submit"
+                size="large"
+                className="login-submit-btn"
+                icon={<ArrowRightOutlined />}
+              >
+                Sign In
+              </Button>
+            </Form.Item>
+          </Form>
+
+          {/* Footer Links */}
+          <div className="login-footer">
+            <Divider className="footer-divider" />
+            <div className="footer-links">
+              <Text className="footer-text">
+                Don't have an account?{" "}
+                <Link to="/register" className="register-link">
+                  Create Account
+                </Link>
+              </Text>
+            </div>
+            <div className="partner-login-wrapper">
+              <Text className="partner-text">Are you a partner? </Text>
+              <Link
+                to="https://www.portal.juniorpass.sg"
+                className="partner-link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Partner Login →
+              </Link>
+            </div>
+          </div>
+        </Card>
       </div>
     </section>
   );

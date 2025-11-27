@@ -5,7 +5,24 @@ const client = require("./utils/redisClient"); // Import the Redis client
 const app = express();
 
 // middleware
-app.use(cors());
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow non-browser requests (no Origin header) and whitelisted origins
+      if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, "../client/build")));
@@ -34,6 +51,8 @@ app.use("/listings", require("./routes/listings"));
 app.use("/misc", require("./routes/misc"));
 app.use("/children", require("./routes/children"));
 app.use("/payment", require("./routes/payment"));
+app.use("/bookings", require("./routes/bookings"));
+app.use("/notifications", require("./routes/notifications"));
 
 // Catch-all route to serve React app for any non-API route
 app.get("*", (req, res) => {

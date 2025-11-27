@@ -25,6 +25,11 @@ router.post("", authorization, async (req, res) => {
       long_term_start_date,
       outlets,
     } = req.body;
+        
+    if (credit < 0) {
+      return res.status(400).json({ error: 'Credit cost must be non-negative' });
+    }
+    const partnerIdFromToken = req.user;
 
     // insert listing
     const listing = await pool.query(
@@ -42,7 +47,7 @@ router.post("", authorization, async (req, res) => {
         active
       ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
       [
-        partner_id,
+        partnerIdFromToken,
         title,
         credit,
         package_types,
@@ -90,6 +95,19 @@ router.post("", authorization, async (req, res) => {
 
     // Invalidate cache
     await client.del("/listings");
+
+    // Admin notifications: new listing created
+    try {
+      await pool.query(
+        `INSERT INTO notifications (recipient_type, recipient_id, type, title, message, data)
+         SELECT 'admin', admin_id, 'new_listing', 'New listing created', 'A new listing has been created.',
+                jsonb_build_object('listing_id', $1, 'partner_id', $2, 'title', $3)
+         FROM admins`,
+        [listing_id, partnerIdFromToken, title]
+      );
+    } catch (notifyErr) {
+      console.error("Failed to insert admin notification (new listing):", notifyErr.message);
+    }
 
     res.status(201).json({
       message: "Listing has been created!",
@@ -215,7 +233,7 @@ router.get("/partner/:partnerId", async (req, res) => {
 });
 
 // edit listing
-router.patch("/:id", async (req, res) => {
+router.patch("/:id", authorization, async (req, res) => {
   const id = req.params.id;
   try {
     // Fetch the existing listing
@@ -226,6 +244,11 @@ router.patch("/:id", async (req, res) => {
 
     if (existingListing.rows.length === 0) {
       return res.status(404).json({ error: "Listing not found" });
+    }
+
+    // Authorize partner ownership
+    if (existingListing.rows[0].partner_id !== req.user) {
+      return res.status(403).json({ error: "Not authorized to modify this listing" });
     }
 
     // Merge existing data with new data (partial update)
@@ -326,6 +349,228 @@ router.patch("/:listing_id/status", async (req, res) => {
       `ERROR in /listings/${listing_id}/status PATCH`,
       error.message
     );
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * Partner: Edit schedules (timeslots) for a listing
+ * Replaces schedules for provided outlets atomically. Validates partner ownership.
+ * Payload:
+ * {
+ *   "outlets": [
+ *     {
+ *       "outlet_id": "uuid",
+ *       "schedules": [
+ *         { "day": "Monday", "timeslot": ["12:00", "13:00"], "frequency": "Weekly" },
+ *         ...
+ *       ]
+ *     }
+ *   ]
+ * }
+ */
+router.patch("/:id/schedules", authorization, async (req, res) => {
+  const listing_id = req.params.id;
+  const { outlets } = req.body;
+
+  try {
+    // Validate input
+    if (!Array.isArray(outlets) || outlets.length === 0) {
+      return res.status(400).json({ error: "No outlets/schedules provided" });
+    }
+
+    // Validate partner owns the listing
+    const listingOwner = await pool.query(
+      "SELECT partner_id FROM listings WHERE listing_id = $1",
+      [listing_id]
+    );
+    if (listingOwner.rowCount === 0) {
+      return res.status(404).json({ error: "Listing not found" });
+    }
+    if (listingOwner.rows[0].partner_id !== req.user) {
+      return res.status(403).json({ error: "Not authorized to modify this listing" });
+    }
+
+    const tx = await pool.connect();
+    try {
+      await tx.query("BEGIN");
+
+      for (const outlet of outlets) {
+        const { outlet_id, schedules } = outlet;
+        if (!outlet_id || !Array.isArray(schedules)) {
+          await tx.query("ROLLBACK");
+          return res.status(400).json({ error: "Invalid outlet payload" });
+        }
+
+        // Ensure listingOutlets mapping exists, else create
+        const loResult = await tx.query(
+          `SELECT listing_outlet_id FROM listingOutlets WHERE listing_id = $1 AND outlet_id = $2`,
+          [listing_id, outlet_id]
+        );
+        let listing_outlet_id;
+        if (loResult.rowCount === 0) {
+          const insertLO = await tx.query(
+            `INSERT INTO listingOutlets (listing_id, outlet_id) VALUES ($1, $2) RETURNING listing_outlet_id`,
+            [listing_id, outlet_id]
+          );
+          listing_outlet_id = insertLO.rows[0].listing_outlet_id;
+        } else {
+          listing_outlet_id = loResult.rows[0].listing_outlet_id;
+        }
+
+        // Replace schedules for this listing_outlet
+        await tx.query(
+          `DELETE FROM schedules WHERE listing_outlet_id = $1`,
+          [listing_outlet_id]
+        );
+
+        // Insert new schedules
+        for (const sch of schedules) {
+          const { day, timeslot, frequency } = sch;
+          if (
+            !day ||
+            !Array.isArray(timeslot) ||
+            timeslot.length === 0 ||
+            !frequency
+          ) {
+            await tx.query("ROLLBACK");
+            return res.status(400).json({ error: "Invalid schedule payload" });
+          }
+          await tx.query(
+            `INSERT INTO schedules (listing_outlet_id, day, timeslot, frequency)
+             VALUES ($1, $2, $3, $4)`,
+            [listing_outlet_id, day, timeslot, frequency]
+          );
+        }
+      }
+
+      // Invalidate caches
+      await client.del(`/listings/${listing_id}`);
+      await client.del("/listings");
+
+      await tx.query("COMMIT");
+
+      // Notify users with upcoming bookings for this listing about schedule changes
+      try {
+        const bookedUsers = await pool.query(
+          `SELECT DISTINCT user_id
+           FROM bookings
+           WHERE listing_id = $1
+             AND start_date >= NOW()`,
+          [listing_id]
+        );
+
+        const notifications = bookedUsers.rows.map((row) =>
+          pool.query(
+            `INSERT INTO notifications (recipient_type, recipient_id, type, title, message, data)
+             VALUES ($1, $2, $3, $4, $5, $6)`,
+            [
+              "user",
+              row.user_id,
+              "schedule_update",
+              "Class schedule updated",
+              "A class you booked has updated its schedule.",
+              JSON.stringify({ listing_id }),
+            ]
+          )
+        );
+        await Promise.all(notifications);
+      } catch (notifyErr) {
+        console.error("Failed to insert user notifications (schedule update):", notifyErr.message);
+      }
+
+      return res.status(200).json({ message: "Schedules updated successfully" });
+    } catch (e) {
+      await tx.query("ROLLBACK");
+      console.error(`ERROR in /listings/${listing_id}/schedules PATCH`, e.message);
+      return res.status(500).json({ error: e.message });
+    } finally {
+      tx.release();
+    }
+  } catch (error) {
+    console.error(`ERROR in /listings/${listing_id}/schedules PATCH`, error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * Listings search with pagination and filters.
+ * Query params:
+ *   page (default 1), limit (default 10), category, age_group, partner_id
+ */
+router.get("/search", async (req, res) => {
+  const page = Math.max(parseInt(req.query.page || "1", 10), 1);
+  const limit = Math.max(parseInt(req.query.limit || "10", 10), 1);
+  const offset = (page - 1) * limit;
+  const { category, age_group, partner_id } = req.query;
+
+  try {
+    // Build dynamic WHERE clauses
+    const whereClauses = ["l.active = true"];
+    const params = [];
+    let idx = 1;
+
+    if (partner_id) {
+      whereClauses.push(`l.partner_id = $${idx++}`);
+      params.push(partner_id);
+    }
+    if (category) {
+      // partners.categories is an array of enum; check if category is present
+      whereClauses.push(`$${idx} = ANY(p.categories)`);
+      params.push(category);
+      idx++;
+    }
+    if (age_group) {
+      // listings.age_groups is an array; check membership
+      whereClauses.push(`$${idx} = ANY(l.age_groups)`);
+      params.push(age_group);
+      idx++;
+    }
+
+    const whereSQL = whereClauses.length ? "WHERE " + whereClauses.join(" AND ") : "";
+
+    const listings = await pool.query(
+      `
+      SELECT 
+        l.*,
+        json_build_object(
+          'partner_id', p.partner_id,
+          'partner_name', p.partner_name,
+          'email', p.email,
+          'categories', p.categories,
+          'contact_number', p.contact_number,
+          'rating', p.rating,
+          'picture', p.picture,
+          'website', p.website
+        ) AS partner_info
+      FROM listings l
+      JOIN partners p ON p.partner_id = l.partner_id
+      ${whereSQL}
+      ORDER BY l.created_on DESC
+      LIMIT $${idx} OFFSET $${idx + 1}
+      `,
+      [...params, limit, offset]
+    );
+
+    // Simple total count for pagination
+    const countResult = await pool.query(
+      `
+      SELECT COUNT(*) AS total
+      FROM listings l
+      JOIN partners p ON p.partner_id = l.partner_id
+      ${whereSQL}
+      `,
+      params
+    );
+
+    return res.status(200).json({
+      page,
+      limit,
+      total: parseInt(countResult.rows[0].total, 10),
+      data: listings.rows,
+    });
+  } catch (error) {
+    console.error("ERROR in /listings/search GET", error.message);
     res.status(500).json({ error: error.message });
   }
 });

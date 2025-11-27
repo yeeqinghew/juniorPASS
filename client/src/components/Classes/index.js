@@ -114,7 +114,15 @@ const Classes = () => {
       const color = "#98BDD2";
 
       return listing?.schedule_info.map((outlet, index) => {
-        const parsedAddress = JSON.parse(outlet?.outlet_address);
+        let parsedAddress = {};
+        try {
+          parsedAddress = JSON.parse(outlet?.outlet_address || "{}");
+        } catch (e) {
+          parsedAddress = {};
+        }
+        if (!parsedAddress.LONGITUDE || !parsedAddress.LATITUDE) {
+          return null;
+        }
         return (
           <Marker
             key={`${listing?.listing_id}-${index}`}
@@ -494,7 +502,7 @@ const Classes = () => {
                 pagination={{
                   position: "bottom",
                   align: "end",
-                  pageSize: "10.5",
+                  pageSize: 10,
                 }}
                 locale={{
                   emptyText: "No data available. Please check back later!",
@@ -520,8 +528,11 @@ const Classes = () => {
                       }}
                       avatar={
                         <Image
-                          src={listing?.images[0]}
+                          src={listing?.images?.[0]}
+                          alt={`Listing ${listing?.listing_title || ""}`}
                           width={240}
+                          height={160}
+                          style={{ objectFit: "cover" }}
                           preview={false}
                         />
                       }

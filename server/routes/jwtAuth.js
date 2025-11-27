@@ -1,13 +1,53 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../db");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const jwtGenerator = require("../utils/jwtGenerator");
 const validInfo = require("../middleware/validInfo");
 const authorization = require("../middleware/authorization");
 const etagMiddleware = require("../middleware/etagMiddleware");
 const cacheMiddleware = require("../middleware/cacheMiddleware");
+const jwt = require("jsonwebtoken");
+const redisClient = require("../utils/redisClient");
+const rateLimit = require("express-rate-limit");
+
+// Rate limiters for sensitive auth endpoints
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // max 20 login attempts per window
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const otpLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const forgotPasswordLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const resetPasswordLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 const { OAuth2Client } = require("google-auth-library");
 const sendEmail = require("../utils/emailSender");
 const {
@@ -16,6 +56,14 @@ const {
 const { otpHtmlTemplate } = require("../utils/otpHtmlTemplate");
 const client = new OAuth2Client(process.env.googleClientID);
 
+// function isStrongPassword(pw) {
+//   if (typeof pw !== "string") return false;
+//   const lengthOK = pw.length >= 8;
+//   const lower = /[a-z]/.test(pw);
+//   const upper = /[A-Z]/.test(pw);
+//   const digit = /[0-9]/.test(pw);
+//   return lengthOK && lower && upper && digit;
+// }
 router.use(etagMiddleware);
 
 router.get("/", authorization, async (req, res) => {
@@ -31,8 +79,13 @@ router.get("/", authorization, async (req, res) => {
   }
 });
 
-router.post("/register", validInfo, async (req, res) => {
+router.post("/register", registerLimiter, validInfo, async (req, res) => {
   const { name, phoneNumber, email, password } = req.body;
+  if (!isStrongPassword(password)) {
+    return res
+      .status(400)
+      .json({ message: "Password does not meet complexity requirements" });
+  }
 
   try {
     // check if user exists
@@ -82,6 +135,23 @@ router.post("/register", validInfo, async (req, res) => {
 
     // generate jwt token
     const token = jwtGenerator(newUser.rows[0].user_id);
+
+    // Admin notifications: new user registration
+    try {
+      await pool.query(
+        `INSERT INTO notifications (recipient_type, recipient_id, type, title, message, data)
+         SELECT 'admin', admin_id, 'user_registration', 'New user registered', 'A new user has signed up.',
+                jsonb_build_object('user_id', $1, 'email', $2)
+         FROM admins`,
+        [newUser.rows[0].user_id, email]
+      );
+    } catch (notifyErr) {
+      console.error(
+        "Failed to insert admin notification (registration):",
+        notifyErr.message
+      );
+    }
+
     return res.status(200).json({ token, newUser: true });
   } catch (error) {
     console.error(error.message);
@@ -89,7 +159,7 @@ router.post("/register", validInfo, async (req, res) => {
   }
 });
 
-router.post("/login", validInfo, async (req, res) => {
+router.post("/login", loginLimiter, validInfo, async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -101,7 +171,7 @@ router.post("/login", validInfo, async (req, res) => {
       return res.status(401).json("Invalid Credential");
     }
 
-    const validPassword = await bcrypt.compare(password, user.rows[0].password);
+    const validPassword = bcrypt.compareSync(password, user.rows[0].password);
     if (!validPassword) {
       return res.status(401).json("Password or Email is incorrect");
     }
@@ -123,7 +193,21 @@ router.post("/login/google", async (req, res) => {
       audience: process.env.googleClientID,
     });
     const payload = ticket.getPayload();
-    const { email, name, picture, email_verified } = payload;
+    const { email, name, picture, email_verified, iss, aud } = payload;
+
+    // Strict Google token checks
+    if (email_verified !== true) {
+      return res.status(400).json({ message: "Google email not verified" });
+    }
+    if (
+      iss !== "https://accounts.google.com" &&
+      iss !== "accounts.google.com"
+    ) {
+      return res.status(400).json({ message: "Invalid Google token issuer" });
+    }
+    if (aud !== process.env.googleClientID) {
+      return res.status(400).json({ message: "Invalid Google token audience" });
+    }
 
     const existingUser = await pool.query(
       `SELECT * FROM users WHERE email = $1`,
@@ -158,7 +242,7 @@ router.post("/login/google", async (req, res) => {
   }
 });
 
-router.post("/forgot-password", async (req, res) => {
+router.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
   const { email } = req.body;
 
   try {
@@ -168,8 +252,8 @@ router.post("/forgot-password", async (req, res) => {
     );
 
     if (userResult.rowCount === 0)
-      return res.status(404).json({
-        message: "User not found in the database",
+      return res.status(200).json({
+        message: "If that account exists, we've sent a reset email",
       });
 
     const userId = userResult.rows[0].user_id;
@@ -180,13 +264,12 @@ router.post("/forgot-password", async (req, res) => {
     ]);
 
     if (user && user.rows[0].method === "gmail")
-      return res.status(400).json({
-        message:
-          "Password reset is not available for Gmail users. Please login using Gmail.",
+      return res.status(200).json({
+        message: "If that account exists, we've sent a reset email",
       });
 
     const token = crypto.randomBytes(32).toString("hex");
-    const hashedToken = await bcrypt.hash(token, 10);
+    const hashedToken = bcrypt.hashSync(token, 10);
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
     await pool.query(
@@ -205,8 +288,11 @@ router.post("/forgot-password", async (req, res) => {
   }
 });
 
-router.post("/reset-password", async (req, res) => {
+router.post("/reset-password", resetPasswordLimiter, async (req, res) => {
   const { token, newPassword } = req.body;
+  // if (!isStrongPassword(newPassword)) {
+  //   return res.status(400).json({ message: "Password does not meet complexity requirements" });
+  // }
 
   try {
     const resetResult = await pool.query(
@@ -268,7 +354,7 @@ router.post("/check-email", async (req, res) => {
   }
 });
 
-router.post("/send-otp", async (req, res) => {
+router.post("/send-otp", otpLimiter, async (req, res) => {
   const { email } = req.body;
 
   try {
@@ -294,19 +380,55 @@ router.post("/send-otp", async (req, res) => {
 router.post("/verify-otp", async (req, res) => {
   const { email, otp } = req.body;
 
+  // Throttle brute-force attempts per email using Redis
+  try {
+    const attemptsKey = `otpAttempts:${email}`;
+    const currentAttempts = await new Promise((resolve) => {
+      redisClient.get(attemptsKey, (err, data) =>
+        resolve(parseInt(data || "0", 10))
+      );
+    });
+    if (currentAttempts >= 5) {
+      return res
+        .status(429)
+        .json({ message: "Too many attempts. Please try again later." });
+    }
+  } catch (e) {
+    console.error("OTP attempts check failed:", e);
+  }
+
   try {
     const otpResult = await pool.query(
       `SELECT * FROM otpRequests WHERE email = $1 AND otp = $2 AND expires_at > NOW() AND is_verified = false`,
       [email, otp]
     );
-    if (otpResult.rows.length === 0)
+    if (otpResult.rows.length === 0) {
+      // increment attempts with TTL 15 minutes
+      const attemptsKey = `otpAttempts:${email}`;
+      try {
+        redisClient
+          .multi()
+          .incr(attemptsKey)
+          .expire(attemptsKey, 15 * 60)
+          .exec(() => {});
+      } catch (e) {
+        console.error("Failed to increment OTP attempts:", e);
+      }
       return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
 
     // mark OTP as verified
     await pool.query(
       `UPDATE otpRequests SET is_verified = true WHERE email = $1 AND otp = $2`,
       [email, otp]
     );
+
+    // Clear attempts on success
+    try {
+      redisClient.del(`otpAttempts:${email}`, () => {});
+    } catch (e) {
+      console.error("Failed to clear OTP attempts:", e);
+    }
 
     return res.status(200).json({ message: "OTP verified successfully" });
   } catch (err) {
@@ -331,6 +453,47 @@ router.get("/getAllUsers", cacheMiddleware, async (req, res) => {
   } catch (error) {
     console.error(err.message);
     res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * Logout: blacklist the current JWT so it cannot be used again.
+ * Uses Redis with TTL equal to the remaining token lifetime.
+ */
+router.post("/logout", authorization, async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(400).json({ error: "Authorization header missing" });
+    }
+    const parts = authHeader.split(" ");
+    if (parts.length !== 2 || parts[0] !== "Bearer") {
+      return res.status(400).json({ error: "Invalid authorization header" });
+    }
+    const token = parts[1];
+
+    // Decode token to get expiry (exp in seconds since epoch)
+    const decoded = jwt.decode(token);
+    let ttlSeconds = 0;
+    const nowSec = Math.floor(Date.now() / 1000);
+    if (decoded && decoded.exp) {
+      ttlSeconds = Math.max(decoded.exp - nowSec, 0);
+    } else {
+      // Fallback to default TTL (matches jwtGenerator "2h")
+      ttlSeconds = 2 * 60 * 60;
+    }
+
+    // Store blacklist entry in Redis
+    redisClient.setex(`blacklist:${token}`, ttlSeconds, "1", (err) => {
+      if (err) {
+        console.error("Redis error during logout:", err);
+        return res.status(500).json({ error: "Server error" });
+      }
+      return res.status(200).json({ message: "Logged out successfully" });
+    });
+  } catch (error) {
+    console.error("Error in /auth/logout:", error);
+    return res.status(500).json({ error: "Server error" });
   }
 });
 

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Collapse, Typography, Button, Space } from "antd";
+import { Collapse, Typography } from "antd";
+import { PlusOutlined, MinusOutlined } from "@ant-design/icons";
 import faq from "../../data/faq.json";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 const FAQ = () => {
   const [faqList, setFaqList] = useState([]);
@@ -11,23 +12,45 @@ const FAQ = () => {
     setFaqList(() =>
       faq.map((item, index) => ({
         key: index,
-        label: item.question,
-        children: <>{item.answer}</>,
+        label: (
+          <Text style={{ 
+            fontSize: "16px", 
+            fontWeight: "600",
+            color: "#333"
+          }}>
+            {item.question}
+          </Text>
+        ),
+        children: (
+          <Text style={{ 
+            fontSize: "15px", 
+            lineHeight: "1.7",
+            color: "#555",
+            display: "block"
+          }}>
+            {item.answer}
+          </Text>
+        ),
       }))
     );
   }, []);
 
   return (
-    <Space direction="vertical" style={{ width: "100%", alignItems: "center" }}>
-      <Collapse
-        items={faqList}
-        style={{
-          width: "100%",
-          maxWidth: "600px",
-        }}
-        ghost
-      />
-    </Space>
+    <Collapse
+      items={faqList}
+      expandIcon={({ isActive }) => 
+        isActive ? 
+          <MinusOutlined style={{ fontSize: "16px", color: "#98BDD2" }} /> : 
+          <PlusOutlined style={{ fontSize: "16px", color: "#98BDD2" }} />
+      }
+      style={{
+        width: "100%",
+        background: "transparent",
+        border: "none",
+      }}
+      expandIconPosition="end"
+      className="faq-collapse"
+    />
   );
 };
 

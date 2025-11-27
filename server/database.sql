@@ -79,6 +79,7 @@ CREATE TABLE partners (
     description VARCHAR(1000),
     website VARCHAR(1000),
     rating BIGINT DEFAULT 0,
+    credit INTEGER DEFAULT 0,
     picture VARCHAR(1000),
     address VARCHAR(1000) NOT NULL,
     region VARCHAR(50) NOT NULL, 
@@ -250,3 +251,33 @@ CREATE TABLE otpRequests (
     is_verified BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT NOW()
 );
+
+-- BOOKINGS: stores user bookings for listings
+CREATE TABLE bookings (
+    booking_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    listing_id uuid REFERENCES listings(listing_id) ON DELETE CASCADE,
+    user_id uuid REFERENCES users(user_id) ON DELETE CASCADE,
+    start_date TIMESTAMP NOT NULL,
+    end_date TIMESTAMP NOT NULL,
+    created_on TIMESTAMP DEFAULT NOW()
+);
+
+-- Helpful index for overlap checks by user and date range
+CREATE INDEX idx_bookings_user_date ON bookings (user_id, start_date, end_date);
+
+-- NOTIFICATIONS: generic notification system for users, partners, and admins
+CREATE TABLE notifications (
+    notification_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    recipient_type TEXT CHECK (recipient_type IN ('user','partner','admin')) NOT NULL,
+    recipient_id uuid NOT NULL,
+    type TEXT NOT NULL,                           -- e.g. 'booking', 'listing_update', 'user_registration'
+    title VARCHAR(255) NOT NULL,
+    message VARCHAR(2000),
+    data JSONB,                                   -- extra payload e.g. { listing_id, start_date, end_date, credit }
+    is_read BOOLEAN DEFAULT FALSE,
+    created_on TIMESTAMP DEFAULT NOW()
+);
+
+-- Helpful indexes to fetch notifications by recipient
+CREATE INDEX idx_notifications_recipient ON notifications (recipient_type, recipient_id);
+CREATE INDEX idx_notifications_created ON notifications (created_on);

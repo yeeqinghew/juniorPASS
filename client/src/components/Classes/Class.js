@@ -173,7 +173,18 @@ const Class = () => {
     }
 
     try {
-      const response = await fetch(`${baseURL}/children/${user.user_id}`);
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${baseURL}/children/${user.user_id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      });
+      if (response.status === 401 || response.status === 403) {
+        toast.error("Please login again to access your children profiles.");
+        navigate(`/login`, { state: { from: `/class/${classId}` } });
+        return;
+      }
       const childrenData = await response.json();
 
       if (!Array.isArray(childrenData) || childrenData.length === 0) {
@@ -248,7 +259,7 @@ const Class = () => {
           </Space>
 
           <Title level={5} style={{ marginTop: 0 }}>
-            $ {listing?.credit}
+            Credits: {listing?.credit}
           </Title>
 
           <Paragraph>{listing?.description}</Paragraph>

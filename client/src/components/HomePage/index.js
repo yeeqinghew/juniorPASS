@@ -18,6 +18,8 @@ import { Grid } from "@splidejs/splide-extension-grid";
 import "@splidejs/react-splide/dist/css/splide.min.css";
 import "@splidejs/react-splide/dist/css/splide-core.min.css";
 import "@splidejs/react-splide/dist/css/themes/splide-default.min.css";
+import AOS from "aos";
+import "aos/dist/aos.css";
 import Footer from "../../layouts/Footer";
 import FAQ from "../FAQ";
 import {
@@ -151,6 +153,14 @@ function HomePage() {
   ];
 
   useEffect(() => {
+    // Initialize AOS
+    AOS.init({
+      duration: 800,
+      once: true,
+      offset: 100,
+      easing: 'ease-out-cubic',
+    });
+
     const handleScroll = () => {
       if (isMobile) {
         let threshold = 300;
@@ -164,7 +174,7 @@ function HomePage() {
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, []);
+  }, [isMobile]);
 
   return (
     <ConfigProvider
@@ -314,6 +324,7 @@ function HomePage() {
               <Image
                 className="video-src"
                 src={require("../../videos/homepage-webp.webp")}
+                alt="Kids learning and playing"
                 preview={false}
               />
               {/* Overlay Content */}
@@ -335,32 +346,54 @@ function HomePage() {
                 </div>
               </div>
               <div className="headline-cta">
-                <Button type="primary" className="headline-button" size="large">
-                  Try for free!
-                </Button>
-                <Button className="headline-button" size="large">
-                  About Us
-                </Button>
+                <Link to="/register">
+                  <Button type="primary" className="headline-button" size="large">
+                    Try for free!
+                  </Button>
+                </Link>
+                <Link to="/about-us">
+                  <Button className="headline-button" size="large">
+                    About Us
+                  </Button>
+                </Link>
               </div>
             </div>
 
             {/* partners */}
             <div className={"partner-div"}>
-              <Title level={1} className="title partner-title">
-                Our partners
-              </Title>
+              <div className="partner-header" data-aos="fade-up">
+                <Title level={1} className="title partner-title">
+                  Trusted by Leading Educators
+                </Title>
+                <Text className="partner-subtitle">
+                  We partner with Singapore's best enrichment providers to bring quality learning experiences to your children
+                </Text>
+              </div>
               <Splide
                 extensions={{ Grid }}
                 options={{
                   pagination: false,
-                  perPage: isDesktop || isTabletLandscape ? 4 : 3,
-                  perMove: 1,
-                  autoplay: true,
                   type: "loop",
-                  cover: true,
-                  autoScroll: { speed: 2 },
+                  perPage: 4,
+                  perMove: 1,
+                  gap: "24px",
                   arrows: true,
-                  rewind: false,
+                  autoplay: true,
+                  interval: 3000,
+                  breakpoints: {
+                    1200: {
+                      perPage: 3,
+                      gap: "20px",
+                    },
+                    900: {
+                      perPage: 2,
+                      gap: "16px",
+                    },
+                    600: {
+                      perPage: 2,
+                      gap: "12px",
+                    },
+                  },
                 }}
               >
                 {imageList.map((image, index) => (
@@ -375,7 +408,7 @@ function HomePage() {
                     >
                       <Image
                         src={image}
-                        alt={`partner-${index}`}
+                        alt={`Partner logo ${index + 1}`}
                         preview={false}
                       />
                     </Card>
@@ -386,29 +419,32 @@ function HomePage() {
 
             <div className="join-us-div">
               {/* Title and Subtitle */}
-              <div style={{ textAlign: "center", marginBottom: "40px" }}>
+              <div className="join-us-header" data-aos="fade-up">
                 <Title level={1} className="title join-us-title">
-                  Join us —
+                  Getting Started is Easy
                 </Title>
-                <Text className={"join-us-subtitle"}>
-                  Here’s what you need to do.
+                <Text className="join-us-subtitle">
+                  Three simple steps to unlock amazing learning experiences for your child
                 </Text>
               </div>
 
               {/* Cards Section */}
               <Row
-                gutter={[16, 16]} // Responsive gutter
+                gutter={[32, 32]}
                 justify="center"
+                className="join-us-cards-row"
               >
                 {cardsData.map((card, index) => (
                   <Col
-                    xs={24} // Full-width on mobile
-                    sm={24} // Full-width on tablet portrait
-                    md={24} // 1/3 width on tablet landscape (3 items per row)
-                    lg={8} // 1/3 width on desktop (3 items per row)
+                    xs={24}
+                    sm={24}
+                    md={8}
+                    lg={8}
                     key={index}
+                    data-aos="fade-up"
+                    data-aos-delay={index * 150}
                   >
-                    {/* Center InfoCard within column */}
+                    <div className="step-number">{index + 1}</div>
                     <InfoCard
                       icon={card.icon}
                       title={card.title}
@@ -421,39 +457,42 @@ function HomePage() {
                 ))}
               </Row>
 
-              {/* Divider */}
-              <Divider />
-
-              {/* Additional Text Below */}
-              <div style={{ textAlign: "center", marginTop: "20px" }}>
-                <Text></Text>
+              {/* CTA Button */}
+              <div className="join-us-cta" data-aos="fade-up" data-aos-delay="500">
+                <Link to="/register">
+                  <Button type="primary" size="large" className="join-us-button">
+                    Start Your Journey Today
+                  </Button>
+                </Link>
               </div>
             </div>
 
             {/* FAQs */}
             <div className="faq-div">
               <div className="faq-inner-div">
-                <Row gutter={16}>
+                <Row gutter={[32, 32]} align="top">
                   {/* Title Column */}
-                  <Col xs={24} sm={24} md={6} lg={6}>
-                    <Row>
+                  <Col xs={24} sm={24} md={8} lg={7} data-aos="fade-right">
+                    <div className="faq-header-section">
                       <Title className="title faq-title" level={1}>
-                        Frequently Asked Questions
+                        Got Questions?
                       </Title>
-                    </Row>
-                    <Row>
                       <Text className="faq-subtitle">
                         Find answers to common questions about our services,
                         booking process, and credit system.
                       </Text>
-                    </Row>
-                    <Row>
-                      <Link to="/faq">View more FAQs</Link>
-                    </Row>
+                      <div className="faq-cta">
+                        <Link to="/faq">
+                          <Button type="primary" className="faq-view-more-btn">
+                            View All FAQs →
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
                   </Col>
 
                   {/* FAQ Collapse Column */}
-                  <Col xs={24} sm={24} md={18} lg={18}>
+                  <Col xs={24} sm={24} md={16} lg={17} data-aos="fade-left" data-aos-delay="200">
                     <FAQ />
                   </Col>
                 </Row>

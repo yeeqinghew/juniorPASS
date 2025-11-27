@@ -3,12 +3,22 @@ const router = express.Router();
 const pool = require("../db");
 const etagMiddleware = require("../middleware/etagMiddleware");
 const cacheMiddleware = require("../middleware/cacheMiddleware");
+const authorization = require("../middleware/authorization");
 const client = require("../utils/redisClient");
 router.use(etagMiddleware);
 
 // router.post("/add-child", authorization, async (req, res) => {
-router.post("", cacheMiddleware, async (req, res) => {
-  const { name, age, gender, parent_id } = req.body;
+router.post("", authorization, async (req, res) => {
+  const { name, age, gender } = req.body;
+  const parent_id = req.user;
+
+  // Basic validation
+  if (!name || typeof age === "undefined" || !gender) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+  if (!["M", "F"].includes(gender)) {
+    return res.status(400).json({ error: "Invalid gender" });
+  }
   try {
     const newChild = await pool.query(
       `INSERT INTO children (name, age, gender, parent_id) VALUES ($1, $2, $3, $4) RETURNING *`,
@@ -20,7 +30,7 @@ router.post("", cacheMiddleware, async (req, res) => {
 
     res.status(201).json({
       message: "Child has been created!",
-      data: newChild,
+      data: newChild.rows[0],
     });
   } catch (error) {
     console.error(error.message);
@@ -28,8 +38,13 @@ router.post("", cacheMiddleware, async (req, res) => {
   }
 });
 
-router.get("/:parent_id", cacheMiddleware, async (req, res) => {
+router.get("/:parent_id", authorization, async (req, res) => {
   const parent_id = req.params.parent_id;
+
+  // Ensure requester is the owner of the children resource
+  if (req.user !== parent_id) {
+    return res.status(403).json({ error: "Forbidden" });
+  }
 
   try {
     const children = await pool.query(
@@ -40,6 +55,99 @@ router.get("/:parent_id", cacheMiddleware, async (req, res) => {
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * Update a child (name/age/gender). Only the owning parent can update.
+ */
+router.patch("/:child_id", authorization, async (req, res) => {
+  const { child_id } = req.params;
+  const parent_id = req.user;
+  const { name, age, gender } = req.body;
+
+  try {
+    // Verify child exists and is owned by requester
+    const child = await pool.query(
+      "SELECT parent_id FROM children WHERE child_id = $1",
+      [child_id]
+    );
+    if (child.rowCount === 0) {
+      return res.status(404).json({ error: "Child not found" });
+    }
+    if (child.rows[0].parent_id !== parent_id) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
+    // Basic validation
+    const updates = {
+      name,
+      age,
+      gender,
+    };
+    if (typeof updates.name === "undefined" &&
+        typeof updates.age === "undefined" &&
+        typeof updates.gender === "undefined") {
+      return res.status(400).json({ error: "No fields provided for update" });
+    }
+    if (typeof updates.gender !== "undefined" &&
+        !["M", "F"].includes(updates.gender)) {
+      return res.status(400).json({ error: "Invalid gender" });
+    }
+
+    const updated = await pool.query(
+      `UPDATE children
+       SET
+         name = COALESCE($1, name),
+         age = COALESCE($2, age),
+         gender = COALESCE($3, gender)
+       WHERE child_id = $4
+       RETURNING *`,
+      [updates.name ?? null, updates.age ?? null, updates.gender ?? null, child_id]
+    );
+
+    // Invalidate cache for this parent's children
+    await client.del(`/children/${parent_id}`);
+
+    return res.status(200).json({
+      message: "Child updated successfully",
+      data: updated.rows[0],
+    });
+  } catch (error) {
+    console.error("ERROR in PATCH /children/:child_id", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * Delete a child. Only the owning parent can delete.
+ */
+router.delete("/:child_id", authorization, async (req, res) => {
+  const { child_id } = req.params;
+  const parent_id = req.user;
+
+  try {
+    // Verify child exists and is owned by requester
+    const child = await pool.query(
+      "SELECT parent_id FROM children WHERE child_id = $1",
+      [child_id]
+    );
+    if (child.rowCount === 0) {
+      return res.status(404).json({ error: "Child not found" });
+    }
+    if (child.rows[0].parent_id !== parent_id) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
+    await pool.query("DELETE FROM children WHERE child_id = $1", [child_id]);
+
+    // Invalidate cache for this parent's children
+    await client.del(`/children/${parent_id}`);
+
+    return res.status(200).json({ message: "Child deleted successfully" });
+  } catch (error) {
+    console.error("ERROR in DELETE /children/:child_id", error.message);
+    return res.status(500).json({ error: error.message });
   }
 });
 

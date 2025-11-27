@@ -19,6 +19,7 @@ import FAQ from "../components/FAQ";
 import AboutUs from "../components/AboutUs";
 import LoggedInLayout from "../layouts/LoggedInLayout";
 import Partner from "../components/Partner";
+import getBaseURL from "../utils/config";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
@@ -28,6 +29,7 @@ import ResetPassword from "../components/ResetPassword";
 export default () => {
   const navigate = useNavigate();
   const { isAuthenticated, setLoading, setAuth } = useUserContext();
+  const baseURL = getBaseURL();
 
   const handleOnIdle = () => {
     if (isAuthenticated) {
@@ -38,7 +40,21 @@ export default () => {
         buttons: [
           {
             label: "Yes",
-            onClick: () => {
+            onClick: async () => {
+              try {
+                const token = localStorage.getItem("token");
+                if (token) {
+                  await fetch(`${baseURL}/auth/logout`, {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${token}`,
+                    },
+                  });
+                }
+              } catch (e) {
+                console.error("Logout error:", e);
+              }
               localStorage.removeItem("token");
               localStorage.clear();
               setAuth(false);
@@ -66,27 +82,7 @@ export default () => {
 
   return (
     <div className="App">
-      <script src="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js"></script>
-      <link
-        href="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css"
-        rel="stylesheet"
-      />
-      <script src="path-to-the-file/splide.min.js"></script>
-      <style>
-        @import
-        url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap')
-      </style>
-      <link
-        href="https://fonts.googleapis.com/css2?family=Ovo&display=swap"
-        rel="stylesheet"
-      />
 
-      <link
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.css"
-        rel="stylesheet"
-        type="text/css"
-      ></link>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
       <Routes>
         <Route path="/" element={<HomePage />} />
