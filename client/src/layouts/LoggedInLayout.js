@@ -256,13 +256,9 @@ const LoggedInLayout = () => {
         },
       }}
     >
-      <Layout
-        style={{
-          height: "100vh",
-        }}
-      >
+      <Layout>
         <HeaderConfig />
-        <Content style={{ padding: "0 150px" }}>
+        <Content className="layout-content" style={{ padding: "0 150px" }}>
           <div
             style={{
               margin: "16px 0",

@@ -20,10 +20,12 @@ import getBaseURL from "../../utils/config";
 const { Text, Title } = Typography;
 
 const Child = () => {
+  const token = localStorage.getItem("token"); // Read the token fresh
   const baseURL = getBaseURL();
   const [children, setChildren] = useState([]);
   const [isAddChildModalOpen, setIsAddChildModalOpen] = useState(false);
   const [isEditChildModalOpen, setIsEditChildModalOpen] = useState(false);
+  const [editingChild, setEditingChild] = useState(null);
   const [addChildForm] = Form.useForm();
   const [editChildForm] = Form.useForm();
   const { user } = useUserContext();
@@ -57,14 +59,45 @@ const Child = () => {
     }
   };
 
-  const handleEditChild = () => {};
+  const handleEditChild = async () => {
+    try {
+      const values = await editChildForm.validateFields();
+      const response = await fetch(
+        `${baseURL}/children/${editingChild.child_id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(values),
+        }
+      );
+
+      const parseRes = await response.json();
+      if (response.ok) {
+        toast.success("Child updated successfully!");
+        setIsEditChildModalOpen(false);
+        setEditingChild(null);
+        getChildren();
+      } else {
+        toast.error(parseRes.message || "Failed to update child");
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
   const getChildren = async () => {
     try {
       const response = await fetch(`${baseURL}/children/${user?.user_id}`, {
         method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       });
       const parseRes = await response.json();
+      console.log(parseRes);
       setChildren(parseRes);
     } catch (error) {
       console.error(error.message);
@@ -77,9 +110,9 @@ const Child = () => {
   }, [user?.user_id]);
 
   return (
-    <>
+    <div>
       <Title level={4}>Children</Title>
-      <Flex direction="column" gap={24} style={{ padding: "24px" }}>
+      <Flex direction="column" gap={24}>
         {/* children */}
         {_.isEmpty(children) ? (
           <Empty
@@ -111,26 +144,28 @@ const Child = () => {
             </Text>
             <Flex direction="row" gap={16} wrap="wrap">
               <Space direction="horizontal" size="large">
-                {children.map((child, index) => (
-                  <Avatar
-                    key={child.child_id}
-                    size={100}
-                    src={require(`../../images/profile/${
-                      child.gender === "F" ? "girls" : "boys"
-                    }/${child.gender === "F" ? "girl" : "boy"}${index}.png`)}
-                    onClick={() => {
-                      editChildForm.setFieldsValue({
-                        name: child.name,
-                        age: child.age,
-                        gender: child.gender,
-                      });
-                      setIsEditChildModalOpen(true);
-                    }}
-                    style={{ cursor: "pointer" }}
-                  >
-                    {child.name}
-                  </Avatar>
-                ))}
+                {children &&
+                  children.map((child, index) => (
+                    <Avatar
+                      key={child.child_id}
+                      size={100}
+                      src={require(`../../images/profile/${
+                        child.gender === "F" ? "girls" : "boys"
+                      }/${child.gender === "F" ? "girl" : "boy"}${index}.png`)}
+                      onClick={() => {
+                        setEditingChild(child);
+                        editChildForm.setFieldsValue({
+                          name: child.name,
+                          age: child.age,
+                          gender: child.gender,
+                        });
+                        setIsEditChildModalOpen(true);
+                      }}
+                      style={{ cursor: "pointer" }}
+                    >
+                      {child.name}
+                    </Avatar>
+                  ))}
 
                 {/* CTA button in toolbar */}
                 <Avatar
@@ -254,7 +289,7 @@ const Child = () => {
           </Form.Item>
         </Form>
       </Modal>
-    </>
+    </div>
   );
 };
 
