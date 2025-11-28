@@ -39,10 +39,10 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen, onSuccess }) => {
 
   // Predefined top-up packages
   const topupPackages = [
-    { amount: 20, label: "$20", bonus: 0, popular: false },
-    { amount: 50, label: "$50", bonus: 5, popular: true },
-    { amount: 100, label: "$100", bonus: 15, popular: false },
-    { amount: 200, label: "$200", bonus: 40, popular: false },
+    { amount: 20, label: "20", bonus: 0, popular: false },
+    { amount: 50, label: "50", bonus: 5, popular: true },
+    { amount: 100, label: "100", bonus: 15, popular: false },
+    { amount: 200, label: "200", bonus: 40, popular: false },
   ];
 
   const handleCancel = () => {
@@ -245,8 +245,17 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen, onSuccess }) => {
                       : "1px solid #d9d9d9",
                   borderRadius: 8,
                   position: "relative",
+                  height: "100%",
+                  cursor: "pointer",
                 }}
-                bodyStyle={{ padding: 16 }}
+                bodyStyle={{
+                  padding: 16,
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  minHeight: 100,
+                }}
                 onClick={() => selectPackage(pkg.amount)}
               >
                 {pkg.popular && (
@@ -267,24 +276,32 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen, onSuccess }) => {
                   </div>
                 )}
 
-                <Title
-                  level={4}
-                  style={{ margin: "0 0 8px 0", color: "#1890ff" }}
-                >
-                  {pkg.label}
-                </Title>
+                <div>
+                  <Title
+                    level={4}
+                    style={{ margin: "0 0 8px 0", color: "#1890ff" }}
+                  >
+                    {pkg.label}
+                  </Title>
+                </div>
 
-                {pkg.bonus > 0 && (
-                  <div>
-                    <Text type="success" style={{ fontWeight: "bold" }}>
-                      +${pkg.bonus} Bonus!
-                    </Text>
-                    <br />
+                <div style={{ minHeight: 42 }}>
+                  {pkg.bonus > 0 ? (
+                    <div>
+                      <Text type="success" style={{ fontWeight: "bold" }}>
+                        + {pkg.bonus} credits
+                      </Text>
+                      <br />
+                      <Text type="secondary" style={{ fontSize: "12px" }}>
+                        Total: {pkg.amount + pkg.bonus} credits
+                      </Text>
+                    </div>
+                  ) : (
                     <Text type="secondary" style={{ fontSize: "12px" }}>
-                      Total: ${pkg.amount + pkg.bonus}
+                      {pkg.amount} credits
                     </Text>
-                  </div>
-                )}
+                  )}
+                </div>
               </Card>
             </Col>
           ))}
