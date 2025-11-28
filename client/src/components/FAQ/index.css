@@ -1,0 +1,126 @@
+/* FAQ Page Styling */
+.faq-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px 24px;
+}
+
+.faq-title {
+    text-align: center;
+    margin-bottom: 48px;
+    color: #1e293b;
+    font-weight: 700;
+    font-size: 36px;
+}
+
+.faq-subtitle {
+    text-align: center;
+    margin-bottom: 48px;
+    color: #64748b;
+    font-size: 18px;
+    line-height: 1.6;
+}
+
+/* FAQ Collapse Styling */
+.faq-collapse {
+    background: transparent !important;
+    border: none !important;
+}
+
+.faq-collapse .ant-collapse-item {
+    margin-bottom: 16px;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.faq-collapse .ant-collapse-item:hover {
+    border-color: #98BDD2;
+    box-shadow: 0 4px 12px rgba(152, 189, 210, 0.15);
+    transform: translateY(-2px);
+}
+
+.faq-collapse .ant-collapse-item-active {
+    border-color: #98BDD2;
+    box-shadow: 0 4px 16px rgba(152, 189, 210, 0.2);
+}
+
+.faq-collapse .ant-collapse-header {
+    padding: 20px 24px !important;
+    align-items: center !important;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+.faq-collapse .ant-collapse-item-active .ant-collapse-header {
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+}
+
+.faq-collapse .ant-collapse-header:hover {
+    background: #f8fafc;
+}
+
+.faq-collapse .ant-collapse-content {
+    border-top: 1px solid #e5e7eb;
+    background: white;
+}
+
+.faq-collapse .ant-collapse-content-box {
+    padding: 24px !important;
+}
+
+/* Icon styling */
+.faq-collapse .ant-collapse-expand-icon {
+    padding-inline-end: 0 !important;
+}
+
+/* Remove default borders */
+.faq-collapse .ant-collapse-item:last-child {
+    border-radius: 12px;
+}
+
+.faq-collapse > .ant-collapse-item > .ant-collapse-header {
+    border-radius: 0;
+}
+
+.faq-collapse > .ant-collapse-item:last-child > .ant-collapse-header {
+    border-radius: 0;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 767.9px) {
+    .faq-container {
+        padding: 32px 16px;
+    }
+
+    .faq-title {
+        font-size: 28px;
+        margin-bottom: 24px;
+    }
+
+    .faq-subtitle {
+        font-size: 16px;
+        margin-bottom: 32px;
+    }
+
+    .faq-collapse .ant-collapse-header {
+        padding: 16px 20px !important;
+    }
+
+    .faq-collapse .ant-collapse-content-box {
+        padding: 20px !important;
+    }
+}
+
+@media screen and (min-width: 768px) and (max-width: 1023.9px) {
+    .faq-container {
+        padding: 40px 24px;
+    }
+
+    .faq-title {
+        font-size: 32px;
+        margin-bottom: 32px;
+    }
+}

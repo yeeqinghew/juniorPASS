@@ -1,15 +1,32 @@
 import React, { useState } from "react";
-import { Layout, Menu, ConfigProvider, Image, Drawer } from "antd";
-import { Outlet, Link } from "react-router-dom";
-import { MenuOutlined } from "@ant-design/icons";
+import {
+  Layout,
+  Menu,
+  ConfigProvider,
+  Image,
+  Drawer,
+  Typography,
+  Space,
+} from "antd";
+import { Outlet, Link, useNavigate } from "react-router-dom";
+import { MenuOutlined, createFromIconfontCN } from "@ant-design/icons";
 import "./Layout.css";
 import Footer from "./Footer";
 import { Toaster } from "react-hot-toast";
+import { useUserContext } from "../components/UserContext";
+import { googleLogout } from "@react-oauth/google";
+import toast from "react-hot-toast";
 
 const { Header, Content } = Layout;
+const { Text } = Typography;
+const IconFont = createFromIconfontCN({
+  scriptUrl: ["//at.alicdn.com/t/c/font_4957401_wsnyu01fcm.js"],
+});
 
 const OverallLayout = () => {
   const [drawerVisible, setDrawerVisible] = useState(false);
+  const { user, isAuthenticated, setAuth, setLoading } = useUserContext();
+  const navigate = useNavigate();
 
   const showDrawer = () => {
     setDrawerVisible(true);
@@ -17,6 +34,15 @@ const OverallLayout = () => {
 
   const closeDrawer = () => {
     setDrawerVisible(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setAuth(false);
+    setLoading(false);
+    googleLogout();
+    toast.success("Logout successfully");
+    navigate("/login");
   };
 
   return (
@@ -54,7 +80,7 @@ const OverallLayout = () => {
     >
       <Layout>
         <Header className="layout-header">
-          <Link to="/">
+          <Link to={"/"}>
             <Image
               className="logo-homepage"
               alt="logo"
@@ -86,7 +112,7 @@ const OverallLayout = () => {
             >
               <Menu.Item key="classes">
                 <Link to="/classes" style={{ fontWeight: "600" }}>
-                  Browse our classes
+                  Browse Classes
                 </Link>
               </Menu.Item>
               <Menu.Item key="plan">
@@ -94,24 +120,77 @@ const OverallLayout = () => {
                   Plans
                 </Link>
               </Menu.Item>
-              <Menu.Item key="login">
-                <Link to="/login" style={{ fontWeight: "600" }}>
-                  Login/Register
-                </Link>
-              </Menu.Item>
+              {isAuthenticated ? (
+                <>
+                  <Menu.Item key="profile">
+                    <Link to="/profile" style={{ fontWeight: "600" }}>
+                      Profile
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key="credit">
+                    <Link
+                      to="/profile"
+                      state="credit"
+                      style={{ fontWeight: "600" }}
+                    >
+                      Credits: {user?.credit}
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item key="logout" onClick={handleLogout}>
+                    <span style={{ fontWeight: "600" }}>Logout</span>
+                  </Menu.Item>
+                </>
+              ) : (
+                <Menu.Item key="login">
+                  <Link to="/login" style={{ fontWeight: "600" }}>
+                    Login/Register
+                  </Link>
+                </Menu.Item>
+              )}
             </Menu>
           </Drawer>
 
-          <Menu mode="horizontal">
+          <Menu mode="horizontal" className="desktop-menu">
             <Menu.Item key="classes">
-              <Link to="/classes">Browse our classes</Link>
+              <Link to="/classes">Browse Classes</Link>
             </Menu.Item>
             <Menu.Item key="plan">
               <Link to="/pricing">Plans</Link>
             </Menu.Item>
-            <Menu.Item key="login">
-              <Link to="/login">Login/Register</Link>
-            </Menu.Item>
+            {isAuthenticated ? (
+              <>
+                <Menu.Item
+                  key="credit"
+                  onClick={() => navigate("/profile", { state: "credit" })}
+                  className="credit-menu-item"
+                >
+                  <Space size={4}>
+                    <IconFont type="icon-money" style={{ fontSize: "16px" }} />
+                    <Text strong>{user?.credit} credits</Text>
+                  </Space>
+                </Menu.Item>
+                <Menu.Item key="notification" className="icon-menu-item">
+                  <IconFont
+                    type="icon-notification"
+                    style={{ fontSize: "18px" }}
+                  />
+                </Menu.Item>
+                <Menu.Item
+                  key="logout"
+                  onClick={handleLogout}
+                  className="icon-menu-item"
+                >
+                  <IconFont
+                    type="icon-signout-1"
+                    style={{ fontSize: "18px" }}
+                  />
+                </Menu.Item>
+              </>
+            ) : (
+              <Menu.Item key="login">
+                <Link to="/login">Login/Register</Link>
+              </Menu.Item>
+            )}
           </Menu>
         </Header>
         <Content className="layout-content">

@@ -1,0 +1,232 @@
+/* BuyNow Modal Styling */
+.buynow-modal .ant-modal-content {
+    border-radius: 16px;
+    overflow: visible;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+.buynow-modal .ant-modal-header {
+    background: linear-gradient(135deg, #98BDD2 0%, #7fa8c0 100%);
+    border-bottom: none;
+    padding: 24px 32px;
+}
+
+.buynow-modal .ant-modal-title {
+    color: white;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.buynow-modal .ant-modal-close {
+    top: 16px;
+    right: 16px;
+    background: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 1;
+}
+
+.buynow-modal .ant-modal-close:hover {
+    background: #ef4444;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+    transform: scale(1.1);
+}
+
+.buynow-modal .ant-modal-close-x {
+    color: #64748b;
+    font-size: 16px;
+    width: 36px;
+    height: 36px;
+    line-height: 36px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.buynow-modal .ant-modal-close:hover .ant-modal-close-x {
+    color: white;
+}
+
+.buynow-modal .ant-modal-body {
+    padding: 32px;
+    background: #fafbfc;
+}
+
+.buynow-modal .ant-modal-footer {
+    border-top: 1px solid #e5e7eb;
+    padding: 16px 32px;
+    background: white;
+}
+
+/* Credit display */
+.credit-display {
+    background: white;
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+    margin-bottom: 24px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.credit-amount {
+    color: #98BDD2;
+    font-size: 20px;
+}
+
+/* Select styling */
+.buynow-modal .ant-select {
+    margin-bottom: 24px;
+}
+
+.buynow-modal .ant-select-selector {
+    border-radius: 10px !important;
+    border: 2px solid #e5e7eb !important;
+    padding: 8px 16px !important;
+    height: auto !important;
+    transition: all 0.3s ease;
+}
+
+.buynow-modal .ant-select-selector:hover,
+.buynow-modal .ant-select-focused .ant-select-selector {
+    border-color: #98BDD2 !important;
+    box-shadow: 0 0 0 2px rgba(152, 189, 210, 0.1);
+}
+
+.buynow-modal .ant-select-selection-placeholder {
+    color: #94a3b8;
+    font-size: 15px;
+}
+
+/* Map container */
+.buynow-map-container {
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 24px 0;
+    border: 2px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Class info cards */
+.class-info-card {
+    background: white;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+}
+
+.class-info-card:hover {
+    border-color: #98BDD2;
+    box-shadow: 0 2px 8px rgba(152, 189, 210, 0.15);
+}
+
+.class-info-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.class-info-row:last-child {
+    margin-bottom: 0;
+}
+
+.class-info-label {
+    font-weight: 600;
+    color: #64748b;
+    min-width: 90px;
+    font-size: 14px;
+}
+
+.class-info-value {
+    color: #1e293b;
+    font-weight: 500;
+    font-size: 15px;
+    flex: 1;
+}
+
+/* Modal footer buttons */
+.buynow-modal .ant-btn {
+    border-radius: 10px;
+    height: 44px;
+    padding: 0 32px;
+    font-weight: 500;
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+
+.buynow-modal .ant-btn-default {
+    border: 2px solid #e5e7eb;
+}
+
+.buynow-modal .ant-btn-default:hover {
+    border-color: #98BDD2;
+    color: #98BDD2;
+}
+
+.buynow-modal .ant-btn-primary {
+    background: linear-gradient(135deg, #98BDD2 0%, #7fa8c0 100%);
+    border: none;
+    box-shadow: 0 4px 12px rgba(152, 189, 210, 0.4);
+}
+
+.buynow-modal .ant-btn-primary:hover {
+    background: linear-gradient(135deg, #7fa8c0 0%, #6a96ad 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(152, 189, 210, 0.5);
+}
+
+/* Icon styling */
+.info-icon {
+    color: #98BDD2;
+    font-size: 18px;
+}
+
+/* Responsive */
+@media screen and (max-width: 767.9px) {
+    .buynow-modal .ant-modal-header,
+    .buynow-modal .ant-modal-body,
+    .buynow-modal .ant-modal-footer {
+        padding: 20px;
+    }
+
+    .buynow-modal .ant-modal-title {
+        font-size: 18px;
+    }
+
+    .credit-display {
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    .credit-amount {
+        font-size: 18px;
+    }
+
+    .class-info-label {
+        min-width: 80px;
+        font-size: 13px;
+    }
+
+    .class-info-value {
+        font-size: 14px;
+    }
+
+    .buynow-modal .ant-btn {
+        height: 40px;
+        padding: 0 24px;
+    }
+}

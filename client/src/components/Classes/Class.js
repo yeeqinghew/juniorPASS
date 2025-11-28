@@ -216,8 +216,14 @@ const Class = () => {
   }
 
   return (
-    <Row gutter={16} style={{ width: "100%", padding: "0 200px" }}>
-      <Col span={16}>
+    <div style={{ 
+      width: "100%", 
+      minHeight: "100vh",
+      background: "linear-gradient(to bottom, #f8fafc 0%, #ffffff 100%)",
+      padding: "120px 48px 48px 48px"
+    }}>
+      <Row gutter={[32, 32]} style={{ maxWidth: "1400px", margin: "0 auto" }}>
+        <Col xs={24} sm={24} md={24} lg={16} xl={16}>
         <Carousel autoplay arrows dots>
           {listing?.images.map((imgUrl, index) => (
             <div key={index} style={{ position: "relative" }}>
@@ -339,9 +345,9 @@ const Class = () => {
         {/* Review */}
         <Divider />
         <Title level={5}>Reviews</Title>
-      </Col>
+        </Col>
 
-      <Col span={8}>
+        <Col xs={24} sm={24} md={24} lg={8} xl={8}>
         <Affix offsetTop={100}>
           <Card
             style={{
@@ -381,8 +387,9 @@ const Class = () => {
             />
             {/* TODO: Map */}
           </Card>
-        </Affix>
-      </Col>
+          </Affix>
+        </Col>
+      </Row>
       <BuyNow
         isBuyNowModalOpen={isBuyNowModalOpen}
         setIsBuyNowModalOpen={setIsBuyNowModalOpen}
@@ -390,7 +397,7 @@ const Class = () => {
         user={user}
         children={children}
       />
-    </Row>
+    </div>
   );
 };
 

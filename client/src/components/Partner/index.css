@@ -1,29 +1,226 @@
+/* Partner Page Styling */
 .partner-page {
-    padding: 20px;
+    width: 100%;
+    min-height: 100vh;
+    background: linear-gradient(to bottom, #f8fafc 0%, #ffffff 100%);
+    padding: 48px;
 }
 
 .partner-header {
     display: flex;
     align-items: center;
-    margin-bottom: 20px;
+    gap: 32px;
+    margin-bottom: 48px;
+    background: white;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.partner-header .ant-avatar {
+    border: 4px solid #e5e7eb;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .partner-info {
-    margin-left: 20px;
+    flex: 1;
+}
+
+.partner-info .ant-typography-h2 {
+    color: #1e293b;
+    font-weight: 700;
+    margin-bottom: 12px;
 }
 
 .partner-info .ant-typography {
-    margin: 0;
+    color: #64748b;
+    font-size: 16px;
+    line-height: 1.7;
 }
 
-.ant-tabs-tab {
+/* Tabs Styling */
+.partner-page .ant-tabs {
+    background: white;
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.partner-page .ant-tabs-tab {
+    font-size: 16px;
+    font-weight: 600;
+    padding: 12px 24px;
+    color: #64748b;
+    transition: all 0.3s ease;
+}
+
+.partner-page .ant-tabs-tab:hover {
+    color: #98BDD2;
+}
+
+.partner-page .ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: #98BDD2;
+}
+
+.partner-page .ant-tabs-ink-bar {
+    background: #98BDD2;
+    height: 3px;
+}
+
+/* Divider */
+.partner-page .ant-divider {
+    margin: 24px 0;
+    border-color: #e5e7eb;
+}
+
+.partner-page .ant-divider-inner-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+/* Listings Grid */
+.partner-page .ant-list-grid .ant-col {
+    margin-bottom: 24px;
+}
+
+/* Listing Cards */
+.partner-page .ant-card {
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.partner-page .ant-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+    border-color: #98BDD2;
+}
+
+.partner-page .ant-card-head {
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+    border-bottom: 1px solid #e5e7eb;
+    padding: 16px 20px;
+}
+
+.partner-page .ant-card-head-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.partner-page .ant-card-body {
+    padding: 16px;
+}
+
+.partner-page .ant-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.partner-page .ant-card .ant-typography {
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 12px;
+}
+
+.partner-page .ant-rate {
+    color: #fbbf24;
     font-size: 16px;
 }
 
-.ant-card {
-    transition: transform 0.3s;
+/* Review Cards */
+.partner-page .ant-list-item {
+    border: none;
+    padding: 0;
+    margin-bottom: 16px;
 }
 
-.ant-card:hover {
-    transform: scale(1.05);
+.review-card {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    transition: all 0.3s ease;
+}
+
+.review-card:hover {
+    border-color: #98BDD2;
+    box-shadow: 0 4px 12px rgba(152, 189, 210, 0.15);
+}
+
+.review-card .ant-rate {
+    margin-bottom: 12px;
+}
+
+.review-card .ant-typography {
+    color: #64748b;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 767.9px) {
+    .partner-page {
+        padding: 24px 16px;
+    }
+
+    .partner-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 24px;
+        gap: 20px;
+    }
+
+    .partner-info .ant-typography-h2 {
+        font-size: 24px;
+    }
+
+    .partner-page .ant-tabs {
+        padding: 16px;
+    }
+
+    .partner-page .ant-list-grid .ant-col {
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+    }
+
+    .partner-page .ant-card img {
+        height: 200px;
+    }
+}
+
+@media screen and (min-width: 768px) and (max-width: 1023.9px) {
+    .partner-page {
+        padding: 32px 24px;
+    }
+
+    .partner-header {
+        padding: 32px;
+    }
+
+    .partner-page .ant-list-grid .ant-col {
+        max-width: 50% !important;
+        flex: 0 0 50% !important;
+    }
+}
+
+@media screen and (min-width: 1024px) and (max-width: 1335.9px) {
+    .partner-page .ant-list-grid .ant-col {
+        max-width: 33.33% !important;
+        flex: 0 0 33.33% !important;
+    }
+}
+
+@media screen and (min-width: 1336px) {
+    .partner-page .ant-list-grid .ant-col {
+        max-width: 25% !important;
+        flex: 0 0 25% !important;
+    }
 }

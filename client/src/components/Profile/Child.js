@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { PlusOutlined, EditOutlined, DeleteOutlined, UserOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import {
   Avatar,
   Button,
@@ -48,8 +53,9 @@ const Child = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ ...values, parent_id: user?.user_id }),
+        body: JSON.stringify({ ...values }),
       });
 
       const parseRes = await response.json();
@@ -125,10 +131,19 @@ const Child = () => {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <Title level={4} style={{ margin: 0 }}>My Children</Title>
-        <Button 
-          type="primary" 
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 24,
+        }}
+      >
+        <Title level={4} style={{ margin: 0 }}>
+          My Children
+        </Title>
+        <Button
+          type="primary"
           icon={<PlusOutlined />}
           onClick={() => setIsAddChildModalOpen(true)}
         >
@@ -139,7 +154,7 @@ const Child = () => {
       {_.isEmpty(children) ? (
         <Card>
           <Empty
-            image={<UserOutlined style={{ fontSize: 64, color: '#d9d9d9' }} />}
+            image={<UserOutlined style={{ fontSize: 64, color: "#d9d9d9" }} />}
             imageStyle={{ height: 80, marginBottom: 16 }}
             description={
               <div>
@@ -153,8 +168,8 @@ const Child = () => {
               </div>
             }
           >
-            <Button 
-              type="primary" 
+            <Button
+              type="primary"
               size="large"
               icon={<PlusOutlined />}
               onClick={() => setIsAddChildModalOpen(true)}
@@ -169,13 +184,13 @@ const Child = () => {
             <Col xs={24} sm={12} md={8} lg={6} key={child.child_id}>
               <Card
                 hoverable
-                style={{ textAlign: 'center', borderRadius: 12 }}
+                style={{ textAlign: "center", borderRadius: 12 }}
                 bodyStyle={{ padding: 20 }}
                 actions={[
-                  <EditOutlined 
-                    key="edit" 
+                  <EditOutlined
+                    key="edit"
                     onClick={() => openEditModal(child)}
-                    style={{ fontSize: 16, color: '#1890ff' }}
+                    style={{ fontSize: 16, color: "#1890ff" }}
                   />,
                 ]}
               >
@@ -187,12 +202,12 @@ const Child = () => {
                   style={{ marginBottom: 16 }}
                 />
                 <div>
-                  <Title level={5} style={{ margin: '0 0 8px 0' }}>
+                  <Title level={5} style={{ margin: "0 0 8px 0" }}>
                     {child.name}
                   </Title>
                   <Space direction="vertical" size={4}>
-                    <Tag color={child.gender === 'F' ? 'pink' : 'blue'}>
-                      {child.gender === 'F' ? 'Girl' : 'Boy'}
+                    <Tag color={child.gender === "F" ? "pink" : "blue"}>
+                      {child.gender === "F" ? "Girl" : "Boy"}
                     </Tag>
                     <Text type="secondary">Age {child.age}</Text>
                   </Space>
@@ -206,14 +221,16 @@ const Child = () => {
       {/* Add Child Modal */}
       <Modal
         title={
-          <div style={{ textAlign: 'center', padding: '10px 0' }}>
-            <Avatar 
-              size={64} 
-              icon={<UserOutlined />} 
-              style={{ backgroundColor: '#1890ff', marginBottom: 16 }}
+          <div style={{ textAlign: "center", padding: "10px 0" }}>
+            <Avatar
+              size={64}
+              icon={<UserOutlined />}
+              style={{ backgroundColor: "#1890ff", marginBottom: 16 }}
             />
             <br />
-            <Title level={4} style={{ margin: 0 }}>Add New Child</Title>
+            <Title level={4} style={{ margin: 0 }}>
+              Add New Child
+            </Title>
             <Text type="secondary">Create a profile for your child</Text>
           </div>
         }
@@ -225,9 +242,9 @@ const Child = () => {
           <Button key="cancel" onClick={handleCancel}>
             Cancel
           </Button>,
-          <Button 
-            key="submit" 
-            type="primary" 
+          <Button
+            key="submit"
+            type="primary"
             onClick={handleAddChild}
             style={{ minWidth: 100 }}
           >
@@ -235,46 +252,36 @@ const Child = () => {
           </Button>,
         ]}
       >
-        <Form 
-          form={addChildForm} 
-          layout="vertical" 
-          style={{ marginTop: 24 }}
-        >
+        <Form form={addChildForm} layout="vertical" style={{ marginTop: 24 }}>
           <Form.Item
             name="name"
             label="Child's Name"
             rules={[
-              { required: true, message: 'Please enter child\'s name' },
-              { min: 2, message: 'Name must be at least 2 characters' }
+              { required: true, message: "Please enter child's name" },
+              { min: 2, message: "Name must be at least 2 characters" },
             ]}
           >
-            <Input 
-              placeholder="Enter your child's full name"
-              size="large"
-            />
+            <Input placeholder="Enter your child's full name" size="large" />
           </Form.Item>
-          
+
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item 
-                name="age" 
+              <Form.Item
+                name="age"
                 label="Age"
                 rules={[
-                  { required: true, message: 'Please enter age' },
-                  { pattern: /^\d+$/, message: 'Please enter a valid age' }
+                  { required: true, message: "Please enter age" },
+                  { pattern: /^\d+$/, message: "Please enter a valid age" },
                 ]}
               >
-                <Input 
-                  placeholder="Age"
-                  size="large"
-                />
+                <Input placeholder="Age" size="large" />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item 
-                name="gender" 
+              <Form.Item
+                name="gender"
                 label="Gender"
-                rules={[{ required: true, message: 'Please select gender' }]}
+                rules={[{ required: true, message: "Please select gender" }]}
               >
                 <Select
                   placeholder="Select gender"
@@ -293,17 +300,24 @@ const Child = () => {
       {/* Edit Child Modal */}
       <Modal
         title={
-          <div style={{ textAlign: 'center', padding: '10px 0' }}>
-            <Avatar 
+          <div style={{ textAlign: "center", padding: "10px 0" }}>
+            <Avatar
               size={64}
-              src={editingChild && require(`../../images/profile/${
-                editingChild.gender === "F" ? "girls" : "boys"
-              }/${editingChild.gender === "F" ? "girl" : "boy"}0.png`)}
+              src={
+                editingChild &&
+                require(`../../images/profile/${
+                  editingChild.gender === "F" ? "girls" : "boys"
+                }/${editingChild.gender === "F" ? "girl" : "boy"}0.png`)
+              }
               style={{ marginBottom: 16 }}
             />
             <br />
-            <Title level={4} style={{ margin: 0 }}>Edit Child Profile</Title>
-            <Text type="secondary">Update {editingChild?.name}'s information</Text>
+            <Title level={4} style={{ margin: 0 }}>
+              Edit Child Profile
+            </Title>
+            <Text type="secondary">
+              Update {editingChild?.name}'s information
+            </Text>
           </div>
         }
         open={isEditChildModalOpen}
@@ -314,9 +328,9 @@ const Child = () => {
           <Button key="cancel" onClick={handleCancel}>
             Cancel
           </Button>,
-          <Button 
-            key="submit" 
-            type="primary" 
+          <Button
+            key="submit"
+            type="primary"
             onClick={handleEditChild}
             style={{ minWidth: 100 }}
           >
@@ -324,46 +338,36 @@ const Child = () => {
           </Button>,
         ]}
       >
-        <Form 
-          form={editChildForm} 
-          layout="vertical"
-          style={{ marginTop: 24 }}
-        >
+        <Form form={editChildForm} layout="vertical" style={{ marginTop: 24 }}>
           <Form.Item
             name="name"
             label="Child's Name"
             rules={[
-              { required: true, message: 'Please enter child\'s name' },
-              { min: 2, message: 'Name must be at least 2 characters' }
+              { required: true, message: "Please enter child's name" },
+              { min: 2, message: "Name must be at least 2 characters" },
             ]}
           >
-            <Input 
-              placeholder="Enter your child's full name"
-              size="large"
-            />
+            <Input placeholder="Enter your child's full name" size="large" />
           </Form.Item>
-          
+
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item 
-                name="age" 
+              <Form.Item
+                name="age"
                 label="Age"
                 rules={[
-                  { required: true, message: 'Please enter age' },
-                  { pattern: /^\d+$/, message: 'Please enter a valid age' }
+                  { required: true, message: "Please enter age" },
+                  { pattern: /^\d+$/, message: "Please enter a valid age" },
                 ]}
               >
-                <Input 
-                  placeholder="Age"
-                  size="large"
-                />
+                <Input placeholder="Age" size="large" />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item 
-                name="gender" 
+              <Form.Item
+                name="gender"
                 label="Gender"
-                rules={[{ required: true, message: 'Please select gender' }]}
+                rules={[{ required: true, message: "Please select gender" }]}
               >
                 <Select
                   placeholder="Select gender"

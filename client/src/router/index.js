@@ -82,8 +82,6 @@ export default () => {
 
   return (
     <div className="App">
-
-
       <Routes>
         <Route path="/" element={<HomePage />} />
 
@@ -118,16 +116,10 @@ export default () => {
             }
           ></Route>
           <Route path="/verify-otp" element={<VerifyOTP />} />
-        </Route>
 
-        {/*******************
-         ******* User *******
-         *******************/}
-        <Route element={<LoggedInLayout />}>
           <Route element={<AuthenticatedRoute />}>
             <Route path="/profile" element={<Profile />} />
           </Route>
-          {/* <Route path="*" element={<NotFound />} /> */}
         </Route>
       </Routes>
     </div>

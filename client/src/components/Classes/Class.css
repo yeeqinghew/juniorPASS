@@ -1,3 +1,263 @@
 .custom-date-picker .ant-picker-input>input {
     text-align: center;
 }
+
+/* Carousel styling */
+.ant-carousel {
+    margin-bottom: 32px;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.ant-carousel .slick-slide img {
+    border-radius: 16px;
+}
+
+.ant-carousel .slick-dots li button {
+    background: #98BDD2;
+}
+
+.ant-carousel .slick-dots li.slick-active button {
+    background: #7fa8c0;
+}
+
+/* Class title and description */
+.ant-typography h4 {
+    color: #1e293b;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+.ant-typography h5 {
+    color: #334155;
+    font-weight: 600;
+    margin-top: 24px;
+    margin-bottom: 16px;
+}
+
+.ant-typography p {
+    color: #64748b;
+    line-height: 1.8;
+}
+
+/* Tags styling */
+.ant-col-16 .ant-tag {
+    border-radius: 12px;
+    padding: 6px 14px;
+    font-weight: 500;
+    border: none;
+    background: linear-gradient(135deg, #98BDD2 0%, #7fa8c0 100%);
+    color: white;
+    font-size: 13px;
+}
+
+/* Date picker navigation */
+.ant-space .ant-btn {
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.ant-space .ant-btn:hover:not(:disabled) {
+    border-color: #98BDD2;
+    color: #98BDD2;
+    transform: scale(1.05);
+}
+
+.custom-date-picker {
+    border-radius: 8px;
+}
+
+/* Available classes list */
+.ant-list {
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.ant-list-item {
+    border-radius: 8px;
+    padding: 16px !important;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+    border: 1px solid #f1f5f9 !important;
+}
+
+.ant-list-item:hover {
+    background: #f8fafc;
+    border-color: #98BDD2 !important;
+    transform: translateX(4px);
+}
+
+.ant-list-item-meta-title {
+    color: #1e293b;
+    font-weight: 500;
+}
+
+.ant-list-item-meta-description {
+    color: #64748b;
+}
+
+.ant-list-item .ant-btn-primary {
+    border-radius: 20px;
+    height: 40px;
+    padding: 0 24px;
+    font-weight: 500;
+    background: #98BDD2;
+    border-color: #98BDD2;
+    box-shadow: 0 2px 8px rgba(152, 189, 210, 0.3);
+    transition: all 0.3s ease;
+}
+
+.ant-list-item .ant-btn-primary:hover {
+    background: #7fa8c0;
+    border-color: #7fa8c0;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(152, 189, 210, 0.4);
+}
+
+/* Partner info card */
+.ant-card {
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    border: 1px solid #f1f5f9;
+    transition: all 0.3s ease;
+    width: 100% !important;
+    max-width: 100%;
+}
+
+.ant-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+}
+
+.ant-card-meta-avatar {
+    padding-right: 16px;
+}
+
+.ant-card-meta-title {
+    color: #1e293b;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.ant-card-meta-description {
+    color: #64748b;
+}
+
+.ant-card-meta-description .ant-space {
+    width: 100%;
+}
+
+.ant-card-meta-description .anticon {
+    color: #98BDD2;
+}
+
+/* Divider styling */
+.ant-divider {
+    margin: 32px 0;
+    border-color: #e5e7eb;
+}
+
+/* Map styling */
+.map {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    border: 2px solid #f1f5f9;
+}
+
+/* Map popup styling */
+.mapboxgl-popup-content {
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.mapboxgl-popup-close-button {
+    font-size: 20px;
+    padding: 8px;
+    color: #64748b;
+}
+
+.mapboxgl-popup-close-button:hover {
+    color: #98BDD2;
+}
+
+/* Responsive adjustments for Class detail page */
+@media screen and (max-width: 767.9px) {
+    .ant-card {
+        margin-top: 24px;
+    }
+
+    .ant-affix {
+        position: relative !important;
+    }
+
+    .ant-carousel .slick-slide img {
+        max-height: 250px !important;
+    }
+
+    .ant-space-vertical {
+        width: 100%;
+    }
+}
+
+@media screen and (min-width: 768px) and (max-width: 1023.9px) {
+    .ant-affix {
+        position: relative !important;
+    }
+}
+
+/* Clear All button styling */
+.classes .ant-space > .ant-space:last-child button {
+    border-radius: 20px;
+    height: 40px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.classes .ant-space > .ant-space:last-child button:hover {
+    border-color: #ef4444;
+    color: #ef4444;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.15);
+}
+
+/* Divider styling */
+.classes .ant-divider {
+    margin: 24px 0;
+    border-color: #e5e7eb;
+}
+
+/* Rate styling */
+.listing-container .ant-rate {
+    color: #fbbf24;
+}
+
+/* Pagination styling */
+.listing-container .ant-pagination {
+    margin-top: 16px;
+}
+
+.listing-container .ant-pagination-item {
+    border-radius: 8px;
+    border-color: #e5e7eb;
+}
+
+.listing-container .ant-pagination-item-active {
+    border-color: #98BDD2;
+    background: #98BDD2;
+}
+
+.listing-container .ant-pagination-item-active a {
+    color: white;
+}
+
+.listing-container .ant-pagination-item:hover {
+    border-color: #98BDD2;
+}
+
+.listing-container .ant-pagination-item:hover a {
+    color: #98BDD2;
+}

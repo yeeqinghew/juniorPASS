@@ -82,7 +82,14 @@ const LoggedInLayout = () => {
         >
           {isAuthenticated ? (
             <>
-              {/* TODO: fix this redirecting  */}
+              <Menu.Item key="classes">
+                <Link to="/classes">Browse Classes</Link>
+              </Menu.Item>
+              
+              <Menu.Item key="pricing">
+                <Link to="/pricing">Plans</Link>
+              </Menu.Item>
+
               <Menu.Item
                 key="credit"
                 onClick={() =>
@@ -95,11 +102,13 @@ const LoggedInLayout = () => {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: 2,
+                    gap: 4,
                   }}
                 >
                   <IconFont type="icon-money" />
-                  <Text style={{ lineHeight: "normal" }}>{user?.credit}</Text>
+                  <Text style={{ lineHeight: "normal", fontWeight: "600" }}>
+                    {user?.credit} credits
+                  </Text>
                 </div>
               </Menu.Item>
 

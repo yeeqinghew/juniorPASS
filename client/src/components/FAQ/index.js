@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { Collapse, Typography } from "antd";
 import { PlusOutlined, MinusOutlined } from "@ant-design/icons";
 import faq from "../../data/faq.json";
+import "./index.css";
 
-const { Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 
 const FAQ = () => {
   const [faqList, setFaqList] = useState([]);
@@ -36,21 +37,29 @@ const FAQ = () => {
   }, []);
 
   return (
-    <Collapse
-      items={faqList}
-      expandIcon={({ isActive }) => 
-        isActive ? 
-          <MinusOutlined style={{ fontSize: "16px", color: "#98BDD2" }} /> : 
-          <PlusOutlined style={{ fontSize: "16px", color: "#98BDD2" }} />
-      }
-      style={{
-        width: "100%",
-        background: "transparent",
-        border: "none",
-      }}
-      expandIconPosition="end"
-      className="faq-collapse"
-    />
+    <div className="faq-container">
+      <Title level={1} className="faq-title">
+        Frequently Asked Questions
+      </Title>
+      <Paragraph className="faq-subtitle">
+        Find answers to common questions about juniorPASS, our services, and how to get started
+      </Paragraph>
+      <Collapse
+        items={faqList}
+        expandIcon={({ isActive }) => 
+          isActive ? 
+            <MinusOutlined style={{ fontSize: "16px", color: "#98BDD2" }} /> : 
+            <PlusOutlined style={{ fontSize: "16px", color: "#98BDD2" }} />
+        }
+        style={{
+          width: "100%",
+          background: "transparent",
+          border: "none",
+        }}
+        expandIconPosition="end"
+        className="faq-collapse"
+      />
+    </div>
   );
 };
 
