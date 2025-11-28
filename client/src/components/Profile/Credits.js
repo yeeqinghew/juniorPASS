@@ -41,38 +41,27 @@ const Credits = () => {
   const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [filterType, setFilterType] = useState('all');
+  const [filterType, setFilterType] = useState("all");
   const [dateRange, setDateRange] = useState(null);
 
   const fetchTransactions = async () => {
     setLoading(true);
     try {
-      let url = `${baseURL}/transactions/user/${user.user_id}`;
-      const params = new URLSearchParams();
-      
-      if (filterType !== 'all') {
-        params.append('type', filterType);
-      }
-      
-      if (dateRange && dateRange[0] && dateRange[1]) {
-        params.append('start_date', dateRange[0].format('YYYY-MM-DD'));
-        params.append('end_date', dateRange[1].format('YYYY-MM-DD'));
-      }
-      
-      if (params.toString()) {
-        url += `?${params.toString()}`;
-      }
+      const token = localStorage.getItem("token");
+      const url = `${baseURL}/transactions/user`;
 
       const response = await fetch(url, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.ok) {
         const data = await response.json();
-        setTransactions(data);
+        console.log("Fetched transactions:", data);
+        setTransactions(data.transactions || []);
       } else {
         setTransactions([]);
       }
@@ -96,123 +85,133 @@ const Credits = () => {
   };
 
   const getTransactionIcon = (type) => {
-    switch (type?.toLowerCase()) {
-      case 'topup':
-      case 'purchase':
-        return <PlusOutlined style={{ color: '#52c41a' }} />;
-      case 'booking':
-      case 'payment':
-        return <MinusOutlined style={{ color: '#ff4d4f' }} />;
-      case 'refund':
-        return <GiftOutlined style={{ color: '#1890ff' }} />;
+    switch (type?.toUpperCase()) {
+      case "CREDIT":
+        return <PlusOutlined style={{ color: "#52c41a" }} />;
+      case "DEBIT":
+        return <MinusOutlined style={{ color: "#ff4d4f" }} />;
       default:
         return <CreditCardOutlined />;
     }
   };
 
   const getTransactionColor = (type) => {
-    switch (type?.toLowerCase()) {
-      case 'topup':
-      case 'purchase':
-        return 'green';
-      case 'booking':
-      case 'payment':
-        return 'red';
-      case 'refund':
-        return 'blue';
+    switch (type?.toUpperCase()) {
+      case "CREDIT":
+        return "green";
+      case "DEBIT":
+        return "red";
       default:
-        return 'default';
+        return "default";
     }
   };
 
-  const formatAmount = (amount, type) => {
-    const prefix = ['topup', 'purchase', 'refund'].includes(type?.toLowerCase()) ? '+' : '-';
-    return `${prefix}$${Math.abs(amount).toFixed(2)}`;
+  const formatAmount = (credits, type) => {
+    const prefix = type?.toUpperCase() === "CREDIT" ? "+" : "-";
+    return `${prefix}${credits}`;
   };
 
   const calculateStats = () => {
     const totalSpent = transactions
-      .filter(t => ['booking', 'payment'].includes(t.type?.toLowerCase()))
-      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-    
-    const totalTopup = transactions
-      .filter(t => ['topup', 'purchase'].includes(t.type?.toLowerCase()))
-      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-    
-    const totalRefunds = transactions
-      .filter(t => t.type?.toLowerCase() === 'refund')
-      .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+      .filter((t) => t.transaction_type === "DEBIT")
+      .reduce((sum, t) => sum + t.used_credit, 0);
 
-    return { totalSpent, totalTopup, totalRefunds };
+    const totalTopup = transactions
+      .filter((t) => t.transaction_type === "CREDIT")
+      .reduce((sum, t) => sum + t.used_credit, 0);
+
+    return { totalSpent, totalTopup, totalRefunds: 0 };
   };
 
   const stats = calculateStats();
 
-  const renderTransactionItem = (item) => (
-    <List.Item
-      key={item.transaction_id}
-      style={{
-        padding: '16px 0',
-        borderBottom: '1px solid #f0f0f0',
-      }}
-    >
-      <List.Item.Meta
-        avatar={getTransactionIcon(item.type)}
-        title={
-          <Space direction="vertical" size={4}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Text strong style={{ fontSize: '16px' }}>
-                {item.description || item.title || 'Transaction'}
-              </Text>
-              <Text 
-                strong 
-                style={{ 
-                  fontSize: '16px',
-                  color: ['topup', 'purchase', 'refund'].includes(item.type?.toLowerCase()) 
-                    ? '#52c41a' 
-                    : '#ff4d4f' 
+  const renderTransactionItem = (item) => {
+    // Parse images if they're in JSON format
+    let imageUrl = null;
+    if (item.images) {
+      try {
+        const imagesArray =
+          typeof item.images === "string"
+            ? JSON.parse(item.images)
+            : item.images;
+        imageUrl = imagesArray[0];
+      } catch (e) {
+        imageUrl = item.partner_picture;
+      }
+    } else {
+      imageUrl = item.partner_picture;
+    }
+
+    return (
+      <List.Item
+        key={item.transaction_id}
+        style={{
+          padding: "16px 0",
+          borderBottom: "1px solid #f0f0f0",
+        }}
+      >
+        <List.Item.Meta
+          avatar={getTransactionIcon(item.transaction_type)}
+          title={
+            <Space direction="vertical" size={4}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
                 }}
               >
-                {formatAmount(item.amount, item.type)}
-              </Text>
-            </div>
-            <Space size="small">
-              <Tag color={getTransactionColor(item.type)}>
-                {item.type?.toUpperCase() || 'TRANSACTION'}
-              </Tag>
-              {item.child_name && (
-                <Tag color="blue">For: {item.child_name}</Tag>
-              )}
-              {item.class_name && (
-                <Tag color="purple">{item.class_name}</Tag>
-              )}
+                <Text strong style={{ fontSize: "16px" }}>
+                  {item.listing_title || "Transaction"}
+                </Text>
+                <Text
+                  strong
+                  style={{
+                    fontSize: "16px",
+                    color:
+                      item.transaction_type === "CREDIT"
+                        ? "#52c41a"
+                        : "#ff4d4f",
+                  }}
+                >
+                  {formatAmount(item.used_credit, item.transaction_type)}
+                </Text>
+              </div>
+              <Space size="small">
+                <Tag color={getTransactionColor(item.transaction_type)}>
+                  {item.transaction_type}
+                </Tag>
+                {item.child_name && (
+                  <Tag color="blue">
+                    For: {item.child_name}, Age {item.child_age}
+                  </Tag>
+                )}
+                {item.partner_name && (
+                  <Tag color="purple">{item.partner_name}</Tag>
+                )}
+              </Space>
             </Space>
-          </Space>
-        }
-        description={
-          <Space direction="vertical" size={4}>
-            <Text type="secondary">
-              {new Date(item.created_at || item.transaction_date).toLocaleString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
-            </Text>
-            {item.payment_method && (
-              <Text type="secondary">Payment: {item.payment_method}</Text>
-            )}
-            {item.reference_id && (
-              <Text type="secondary" style={{ fontSize: '12px' }}>
-                Ref: {item.reference_id}
+          }
+          description={
+            <Space direction="vertical" size={4}>
+              <Text type="secondary">
+                {new Date(item.created_on).toLocaleString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
               </Text>
-            )}
-          </Space>
-        }
-      />
-    </List.Item>
-  );
+              <Text type="secondary" style={{ fontSize: "12px" }}>
+                ID: {item.transaction_id.substring(0, 8)}...
+              </Text>
+            </Space>
+          }
+        />
+      </List.Item>
+    );
+  };
 
   return (
     <div>
@@ -230,20 +229,29 @@ const Credits = () => {
                   gap: 8,
                 }}
               >
-                <IconFont type="icon-money" style={{ fontSize: '32px', color: '#1890ff' }} />
+                <IconFont
+                  type="icon-money"
+                  style={{ fontSize: "32px", color: "#1890ff" }}
+                />
                 <div>
-                  <Text type="secondary">Available Credit</Text>
+                  <Text type="secondary">Available Credits</Text>
                   <br />
-                  <Text style={{ fontSize: '28px', fontWeight: 'bold', color: '#1890ff' }}>
-                    ${user?.credit || 0}
+                  <Text
+                    style={{
+                      fontSize: "28px",
+                      fontWeight: "bold",
+                      color: "#1890ff",
+                    }}
+                  >
+                    {user?.credit || 0}
                   </Text>
                 </div>
               </div>
             </Space>
           </Col>
-          <Col xs={24} md={12} style={{ textAlign: 'right' }}>
-            <Button 
-              type="primary" 
+          <Col xs={24} md={12} style={{ textAlign: "right" }}>
+            <Button
+              type="primary"
               icon={<PlusOutlined />}
               size="large"
               onClick={handleTopUp}
@@ -261,31 +269,25 @@ const Credits = () => {
             <Statistic
               title="Total Spent"
               value={stats.totalSpent}
-              precision={2}
-              prefix="$"
-              valueStyle={{ color: '#ff4d4f' }}
+              valueStyle={{ color: "#ff4d4f" }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={8}>
           <Card size="small">
             <Statistic
-              title="Total Top-ups"
+              title="Total Earned"
               value={stats.totalTopup}
-              precision={2}
-              prefix="$"
-              valueStyle={{ color: '#52c41a' }}
+              valueStyle={{ color: "#52c41a" }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={8}>
           <Card size="small">
             <Statistic
-              title="Refunds"
-              value={stats.totalRefunds}
-              precision={2}
-              prefix="$"
-              valueStyle={{ color: '#1890ff' }}
+              title="Total Transactions"
+              value={transactions.length}
+              valueStyle={{ color: "#1890ff" }}
             />
           </Card>
         </Col>
@@ -302,14 +304,14 @@ const Credits = () => {
               value={filterType}
               onChange={setFilterType}
               options={[
-                { value: 'all', label: 'All' },
-                { value: 'topup', label: 'Top-ups' },
-                { value: 'booking', label: 'Bookings' },
-                { value: 'refund', label: 'Refunds' },
+                { value: "all", label: "All" },
+                { value: "topup", label: "Top-ups" },
+                { value: "booking", label: "Bookings" },
+                { value: "refund", label: "Refunds" },
               ]}
             />
             <RangePicker
-              placeholder={['Start Date', 'End Date']}
+              placeholder={["Start Date", "End Date"]}
               onChange={setDateRange}
               style={{ width: 240 }}
             />
@@ -319,7 +321,9 @@ const Credits = () => {
         <Spin spinning={loading}>
           {transactions.length === 0 ? (
             <Empty
-              image={<ShoppingOutlined style={{ fontSize: 48, color: '#ccc' }} />}
+              image={
+                <ShoppingOutlined style={{ fontSize: 48, color: "#ccc" }} />
+              }
               description="No transaction history available"
             >
               <Button type="primary" onClick={handleTopUp}>

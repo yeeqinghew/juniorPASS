@@ -158,7 +158,7 @@ function HomePage() {
       duration: 800,
       once: true,
       offset: 100,
-      easing: 'ease-out-cubic',
+      easing: "ease-out-cubic",
     });
 
     const handleScroll = () => {
@@ -347,7 +347,11 @@ function HomePage() {
               </div>
               <div className="headline-cta">
                 <Link to="/register">
-                  <Button type="primary" className="headline-button" size="large">
+                  <Button
+                    type="primary"
+                    className="headline-button"
+                    size="large"
+                  >
                     Try for free!
                   </Button>
                 </Link>
@@ -366,7 +370,8 @@ function HomePage() {
                   Trusted by Leading Educators
                 </Title>
                 <Text className="partner-subtitle">
-                  We partner with Singapore's best enrichment providers to bring quality learning experiences to your children
+                  We partner with Singapore's best enrichment providers to bring
+                  quality learning experiences to your children
                 </Text>
               </div>
               <Splide
@@ -424,7 +429,8 @@ function HomePage() {
                   Getting Started is Easy
                 </Title>
                 <Text className="join-us-subtitle">
-                  Three simple steps to unlock amazing learning experiences for your child
+                  Three simple steps to unlock amazing learning experiences for
+                  your child
                 </Text>
               </div>
 
@@ -458,9 +464,17 @@ function HomePage() {
               </Row>
 
               {/* CTA Button */}
-              <div className="join-us-cta" data-aos="fade-up" data-aos-delay="500">
+              <div
+                className="join-us-cta"
+                data-aos="fade-up"
+                data-aos-delay="500"
+              >
                 <Link to="/register">
-                  <Button type="primary" size="large" className="join-us-button">
+                  <Button
+                    type="primary"
+                    size="large"
+                    className="join-us-button"
+                  >
                     Start Your Journey Today
                   </Button>
                 </Link>
@@ -481,18 +495,18 @@ function HomePage() {
                         Find answers to common questions about our services,
                         booking process, and credit system.
                       </Text>
-                      <div className="faq-cta">
-                        <Link to="/faq">
-                          <Button type="primary" className="faq-view-more-btn">
-                            View All FAQs →
-                          </Button>
-                        </Link>
-                      </div>
                     </div>
                   </Col>
 
                   {/* FAQ Collapse Column */}
-                  <Col xs={24} sm={24} md={16} lg={17} data-aos="fade-left" data-aos-delay="200">
+                  <Col
+                    xs={24}
+                    sm={24}
+                    md={16}
+                    lg={17}
+                    data-aos="fade-left"
+                    data-aos-delay="200"
+                  >
                     <FAQ />
                   </Col>
                 </Row>

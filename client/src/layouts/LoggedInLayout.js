@@ -85,7 +85,7 @@ const LoggedInLayout = () => {
               <Menu.Item key="classes">
                 <Link to="/classes">Browse Classes</Link>
               </Menu.Item>
-              
+
               <Menu.Item key="pricing">
                 <Link to="/pricing">Plans</Link>
               </Menu.Item>
@@ -107,7 +107,7 @@ const LoggedInLayout = () => {
                 >
                   <IconFont type="icon-money" />
                   <Text style={{ lineHeight: "normal", fontWeight: "600" }}>
-                    {user?.credit} credits
+                    {user?.credit}
                   </Text>
                 </div>
               </Menu.Item>
@@ -179,7 +179,6 @@ const LoggedInLayout = () => {
 
             <Flex vertical gap="large" style={{ width: "20%" }}>
               <Title level={5}>SUPPORT</Title>
-              <Link to="/faq">FAQs</Link>
             </Flex>
 
             <Flex vertical gap="large" style={{ width: "20%" }}>

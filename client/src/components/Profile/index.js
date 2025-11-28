@@ -1,9 +1,8 @@
 import React from "react";
-import { Avatar, Tabs, Space } from "antd";
+import { Avatar, Tabs } from "antd";
 import Account from "./Account";
-import Child from "./Child";
 import Credits from "./Credits";
-import AllClasses from "./AllClasses";
+import ChildrenClasses from "./ChildrenClasses";
 import { useLocation } from "react-router-dom";
 import { useUserContext } from "../UserContext";
 import useWindowDimensions from "../../hooks/useWindowDimensions";
@@ -26,20 +25,11 @@ const Profile = () => {
       ),
     },
     {
-      label: "Children",
-      key: "child",
+      label: "Children & Classes",
+      key: "children-classes",
       children: (
         <div className="profile-tab-content">
-          <Child />
-        </div>
-      ),
-    },
-    {
-      label: "My Classes",
-      key: "classes",
-      children: (
-        <div className="profile-tab-content">
-          <AllClasses />
+          <ChildrenClasses />
         </div>
       ),
     },

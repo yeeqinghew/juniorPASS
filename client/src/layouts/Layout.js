@@ -166,7 +166,7 @@ const OverallLayout = () => {
                 >
                   <Space size={4}>
                     <IconFont type="icon-money" style={{ fontSize: "16px" }} />
-                    <Text strong>{user?.credit} credits</Text>
+                    <Text strong>{user?.credit}</Text>
                   </Space>
                 </Menu.Item>
                 <Menu.Item key="notification" className="icon-menu-item">

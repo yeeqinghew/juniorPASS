@@ -26,7 +26,6 @@ const useHandleLogin = ({ from }) => {
         const ignoredPathsForRedirect = [
           "/", // Homepage
           "/pricing",
-          "/faq",
           "/about-us",
           "/partner-contact",
         ];

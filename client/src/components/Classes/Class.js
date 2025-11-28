@@ -193,7 +193,10 @@ const Class = () => {
       }
 
       setChildren(childrenData);
-      setSelected(item);
+      setSelected({
+        ...item,
+        selectedDate: dayjs(selectedDate).format('YYYY-MM-DD')
+      });
       setIsBuyNowModalOpen(true);
     } catch (error) {
       toast.error("Something went wrong. Please try again.");
@@ -394,6 +397,7 @@ const Class = () => {
         isBuyNowModalOpen={isBuyNowModalOpen}
         setIsBuyNowModalOpen={setIsBuyNowModalOpen}
         selected={selected}
+        listing={listing}
         user={user}
         children={children}
       />

@@ -79,7 +79,7 @@ CREATE TABLE partners (
     description VARCHAR(1000),
     website VARCHAR(1000),
     rating BIGINT DEFAULT 0,
-    credit INTEGER DEFAULT 0,
+    credit INTEGER DEFAULT 0,  -- Partner's credit balance from bookings
     picture VARCHAR(1000),
     address VARCHAR(1000) NOT NULL,
     region VARCHAR(50) NOT NULL, 
@@ -87,6 +87,9 @@ CREATE TABLE partners (
     categories categories[] NOT NULL,
     created_on TIMESTAMP DEFAULT NOW()
 );
+
+-- If migrating an existing database, run this to add the credit column:
+-- ALTER TABLE partners ADD COLUMN IF NOT EXISTS credit INTEGER DEFAULT 0;
 
 INSERT INTO partners(partner_name, email, password, description, website, picture, address, region, contact_number, categories, created_on)
     VALUES
@@ -118,6 +121,7 @@ CREATE TABLE listings (
     registered_parents VARCHAR(500),
     short_term_start_date TIMESTAMP,
     long_term_start_date TIMESTAMP,
+    max_capacity INTEGER DEFAULT 1, 
     active BOOLEAN,
     created_on TIMESTAMP DEFAULT NOW(),
     last_updated_on TIMESTAMP
@@ -222,7 +226,7 @@ CREATE TABLE admins (
     password VARCHAR(200)
 );
 
-INSERT INTO admins(username, password)
+INSERT INTO admins (username, password)
     VALUES('superadmin', '$2b$10$tk2dxadGFGRMGsj3mjJr2OQ4VpsxvS7cSvajbTUbRJIchUOvYOAGO');
 
 CREATE TABLE partnerForms (

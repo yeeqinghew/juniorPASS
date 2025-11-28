@@ -13,7 +13,12 @@ import {
   message,
   Divider,
 } from "antd";
-import { EditOutlined, SaveOutlined, UserOutlined, UploadOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  SaveOutlined,
+  UserOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import { useUserContext } from "../UserContext";
 import toast from "react-hot-toast";
 import getBaseURL from "../../utils/config";
@@ -32,8 +37,8 @@ const Account = () => {
       form.setFieldsValue({
         name: user.name,
         email: user.email,
-        phone: user.phone || '',
-        address: user.address || '',
+        phone: user.phone || "",
+        address: user.address || "",
       });
     }
   }, [user, form]);
@@ -47,8 +52,8 @@ const Account = () => {
     form.setFieldsValue({
       name: user.name,
       email: user.email,
-      phone: user.phone || '',
-      address: user.address || '',
+      phone: user.phone || "",
+      address: user.address || "",
     });
   };
 
@@ -56,7 +61,7 @@ const Account = () => {
     try {
       setLoading(true);
       const values = await form.validateFields();
-      
+
       const response = await fetch(`${baseURL}/users/${user.user_id}`, {
         method: "PUT",
         headers: {
@@ -66,7 +71,7 @@ const Account = () => {
       });
 
       const parseRes = await response.json();
-      
+
       if (response.ok) {
         setUser({ ...user, ...values });
         toast.success("Profile updated successfully!");
@@ -84,9 +89,9 @@ const Account = () => {
   const handleAvatarUpload = async (info) => {
     // This would handle avatar upload
     // Implementation depends on your file upload setup
-    if (info.file.status === 'done') {
+    if (info.file.status === "done") {
       message.success(`${info.file.name} file uploaded successfully`);
-    } else if (info.file.status === 'error') {
+    } else if (info.file.status === "error") {
       message.error(`${info.file.name} file upload failed.`);
     }
   };
@@ -94,12 +99,12 @@ const Account = () => {
   return (
     <div>
       <Title level={4}>Account Information</Title>
-      
+
       <Row gutter={[24, 24]}>
         {/* Profile Picture Section */}
         <Col xs={24} md={8}>
           <Card>
-            <div style={{ textAlign: 'center' }}>
+            <div style={{ textAlign: "center" }}>
               <Avatar
                 size={120}
                 src={user?.display_picture}
@@ -114,12 +119,12 @@ const Account = () => {
                 onChange={handleAvatarUpload}
                 disabled={!isEditing}
               >
-                <Button 
-                  icon={<UploadOutlined />} 
+                <Button
+                  icon={<UploadOutlined />}
                   disabled={!isEditing}
                   size="small"
                 >
-                  {isEditing ? 'Change Photo' : 'Photo'}
+                  {isEditing ? "Change Photo" : "Photo"}
                 </Button>
               </Upload>
             </div>
@@ -133,18 +138,16 @@ const Account = () => {
             extra={
               <Space>
                 {!isEditing ? (
-                  <Button 
-                    type="primary" 
-                    icon={<EditOutlined />} 
+                  <Button
+                    type="primary"
+                    icon={<EditOutlined />}
                     onClick={handleEdit}
                   >
                     Edit Profile
                   </Button>
                 ) : (
                   <>
-                    <Button onClick={handleCancel}>
-                      Cancel
-                    </Button>
+                    <Button onClick={handleCancel}>Cancel</Button>
                     <Button
                       type="primary"
                       icon={<SaveOutlined />}
@@ -158,19 +161,18 @@ const Account = () => {
               </Space>
             }
           >
-            <Form
-              form={form}
-              layout="vertical"
-              disabled={!isEditing}
-            >
+            <Form form={form} layout="vertical" disabled={!isEditing}>
               <Row gutter={16}>
                 <Col xs={24} sm={12}>
                   <Form.Item
                     name="name"
                     label="Full Name"
                     rules={[
-                      { required: true, message: 'Please enter your full name' },
-                      { min: 2, message: 'Name must be at least 2 characters' }
+                      {
+                        required: true,
+                        message: "Please enter your full name",
+                      },
+                      { min: 2, message: "Name must be at least 2 characters" },
                     ]}
                   >
                     <Input placeholder="Enter your full name" />
@@ -181,8 +183,8 @@ const Account = () => {
                     name="email"
                     label="Email Address"
                     rules={[
-                      { required: true, message: 'Please enter your email' },
-                      { type: 'email', message: 'Please enter a valid email' }
+                      { required: true, message: "Please enter your email" },
+                      { type: "email", message: "Please enter a valid email" },
                     ]}
                   >
                     <Input placeholder="Enter your email address" />
@@ -196,17 +198,17 @@ const Account = () => {
                     name="phone"
                     label="Phone Number"
                     rules={[
-                      { pattern: /^[0-9+\-\s()]*$/, message: 'Please enter a valid phone number' }
+                      {
+                        pattern: /^[0-9+\-\s()]*$/,
+                        message: "Please enter a valid phone number",
+                      },
                     ]}
                   >
                     <Input placeholder="Enter your phone number" />
                   </Form.Item>
                 </Col>
                 <Col xs={24} sm={12}>
-                  <Form.Item
-                    name="address"
-                    label="Address"
-                  >
+                  <Form.Item name="address" label="Address">
                     <Input placeholder="Enter your address" />
                   </Form.Item>
                 </Col>
@@ -229,31 +231,33 @@ const Account = () => {
               <Col xs={24} sm={8}>
                 <Text strong>Account Status:</Text>
                 <br />
-                <Text style={{ color: '#52c41a' }}>Active</Text>
+                <Text style={{ color: "#52c41a" }}>Active</Text>
               </Col>
               <Col xs={24} sm={8}>
                 <Text strong>Member Since:</Text>
                 <br />
                 <Text type="secondary">
-                  {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
+                  {user?.created_at
+                    ? new Date(user.created_at).toLocaleDateString()
+                    : "N/A"}
                 </Text>
               </Col>
             </Row>
-            
+
             <Divider />
-            
+
             <Row gutter={16}>
               <Col xs={24} sm={12}>
                 <Text strong>Current Credit Balance:</Text>
                 <br />
-                <Text style={{ fontSize: '18px', color: '#1890ff' }}>
-                  ${user?.credit || 0}
+                <Text style={{ fontSize: "18px", color: "#1890ff" }}>
+                  {user?.credit || 0}
                 </Text>
               </Col>
               <Col xs={24} sm={12}>
                 <Text strong>Total Children Profiles:</Text>
                 <br />
-                <Text style={{ fontSize: '18px', color: '#52c41a' }}>
+                <Text style={{ fontSize: "18px", color: "#52c41a" }}>
                   {user?.children_count || 0}
                 </Text>
               </Col>
@@ -272,9 +276,7 @@ const Account = () => {
                 <br />
                 <Text type="secondary">Last changed: Never</Text>
               </div>
-              <Button type="default">
-                Change Password
-              </Button>
+              <Button type="default">Change Password</Button>
             </Space>
           </Card>
         </Col>

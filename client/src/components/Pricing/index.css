@@ -246,13 +246,13 @@
 }
 
 .popular-card .choose-plan-btn {
-    background: linear-gradient(135deg, var(--secondary-color), #389e0d);
-    box-shadow: 0 4px 12px rgba(82, 196, 26, 0.3);
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    box-shadow: 0 6px 16px rgba(152, 189, 210, 0.4);
 }
 
 .popular-card .choose-plan-btn:hover {
-    background: linear-gradient(135deg, #389e0d, var(--secondary-color));
-    box-shadow: 0 8px 20px rgba(82, 196, 26, 0.5);
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+    box-shadow: 0 10px 24px rgba(152, 189, 210, 0.6);
 }
 
 .premium-card .choose-plan-btn {
