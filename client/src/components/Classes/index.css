@@ -1,9 +1,12 @@
+/* Import global variables */
+@import '../../styles/variables.css';
+
 .classes {
     width: 100%;
-    padding: 0 48px 48px 48px;
+    padding: 0 var(--spacing-2xl) var(--spacing-2xl) var(--spacing-2xl);
     display: flex;
     justify-content: center;
-    background: linear-gradient(to bottom, #f8fafc 0%, #ffffff 100%);
+    background: linear-gradient(to bottom, #f8fafc 0%, var(--bg-white) 100%);
     min-height: 100vh;
 }
 
@@ -12,75 +15,75 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
 }
 
 .searchbar {
     margin: 0;
-    padding: 0 24px;
-    border-radius: 24px;
+    padding: 0 var(--spacing-lg);
+    border-radius: var(--radius-xl);
     height: 52px;
     flex-grow: 1;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-sm);
     border: 2px solid transparent;
-    transition: all 0.3s ease;
+    transition: var(--transition-base);
 }
 
 .searchbar:hover,
 .searchbar:focus-within {
-    border-color: #98BDD2;
-    box-shadow: 0 4px 12px rgba(152, 189, 210, 0.2);
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-primary);
 }
 
 .searchbar .ant-input {
-    font-size: 15px;
+    font-size: var(--font-size-md);
 }
 
 .filter-container {
-    margin: 0 auto 24px auto !important;
-    padding: 20px;
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    margin: 0 auto var(--spacing-lg) auto !important;
+    padding: var(--spacing-md);
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
 }
 
 .filter-container .ant-space-item button {
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     height: 40px;
-    padding: 0 20px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    border: 1px solid #e5e7eb;
+    padding: 0 var(--spacing-md);
+    font-weight: var(--font-weight-medium);
+    transition: var(--transition-base);
+    border: 1px solid var(--border-medium);
 }
 
 .filter-container .ant-space-item button:hover {
-    border-color: #98BDD2;
-    color: #98BDD2;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(152, 189, 210, 0.15);
+    box-shadow: var(--shadow-primary);
 }
 
 .filter-container .ant-btn-primary {
-    background: #98BDD2;
-    border-color: #98BDD2;
-    box-shadow: 0 2px 8px rgba(152, 189, 210, 0.3);
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-primary);
 }
 
 .filter-container .ant-btn-primary:hover {
-    background: #7fa8c0;
-    border-color: #7fa8c0;
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
 }
 
 .filter-container .ant-picker {
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     height: 40px;
-    border: 1px solid #e5e7eb;
-    transition: all 0.3s ease;
+    border: 1px solid var(--border-medium);
+    transition: var(--transition-base);
 }
 
 .filter-container .ant-picker:hover {
-    border-color: #98BDD2;
+    border-color: var(--primary-color);
 }
 
 .listingmap-container {
@@ -94,10 +97,10 @@
     max-height: 75vh;
     overflow-y: auto;
     width: calc(60vw - 48px) !important;
-    background: white;
-    border-radius: 16px;
-    padding: 16px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-md);
+    box-shadow: var(--shadow-md);
 }
 
 .listing-container::-webkit-scrollbar {
@@ -110,41 +113,41 @@
 }
 
 .listing-container::-webkit-scrollbar-thumb {
-    background: #98BDD2;
+    background: var(--primary-color);
     border-radius: 4px;
 }
 
 .listing-container::-webkit-scrollbar-thumb:hover {
-    background: #7fa8c0;
+    background: var(--primary-dark);
 }
 
 .listing-container .ant-list-item {
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 12px;
-    transition: all 0.3s ease;
-    border: 1px solid #f1f5f9;
-    background: white;
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+    transition: var(--transition-base);
+    border: 1px solid var(--border-light);
+    background: var(--bg-white);
 }
 
 .listing-container .ant-list-item:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-    border-color: #98BDD2;
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-color);
 }
 
 .listing-container .ant-list-item-meta-avatar img {
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
 }
 
 .listing-container .ant-tag {
-    border-radius: 12px;
-    padding: 4px 12px;
-    font-weight: 500;
+    border-radius: var(--radius-md);
+    padding: 4px var(--spacing-sm);
+    font-weight: var(--font-weight-medium);
     border: none;
-    background: linear-gradient(135deg, #98BDD2 0%, #7fa8c0 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    color: var(--bg-white);
 }
 
 /* mobile: 360px x 480px */

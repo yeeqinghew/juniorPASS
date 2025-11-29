@@ -1,23 +1,5 @@
-/* Global Variables for Consistency */
-:root {
-    --primary-color: #98BDD2;
-    --primary-dark: #6aa4c3;
-    --secondary-color: #52c41a;
-    --accent-gold: #d4af37;
-    --text-dark: #333;
-    --text-light: #555;
-    --text-muted: #777;
-    --card-bg: #fff;
-    --popular-bg: #f8fcff;
-    --border-color: #ddd;
-    --shadow-default: 0 4px 12px rgba(0, 0, 0, 0.08);
-    --shadow-hover: 0 12px 24px rgba(0, 0, 0, 0.15);
-    --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
-    --font-small: 12px;
-    --font-medium: 14px;
-    --font-large: 16px;
-    --font-xlarge: 24px;
-}
+/* Import global variables */
+@import '../../styles/variables.css';
 
 /* General Styling */
 .pricing-container {

@@ -1,3 +1,6 @@
+/* Import global variables */
+@import '../styles/variables.css';
+
 @import url("https://fonts.googleapis.com/css?family=Montserrat:400,400i,700");
 
 *,
@@ -26,7 +29,7 @@ h1>span {
 }
 
 h2 {
-    color: #98BDD2;
+    color: var(--primary-color);
     margin-bottom: 0.4em;
 }
 

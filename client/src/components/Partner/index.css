@@ -1,9 +1,12 @@
+/* Import global variables */
+@import '../../styles/variables.css';
+
 /* Partner Page Styling */
 .partner-page {
     width: 100%;
     min-height: 100vh;
     background: #f8f9fa;
-    padding: 120px 48px 48px 48px;
+    padding: 120px var(--spacing-2xl) var(--spacing-2xl) var(--spacing-2xl);
 }
 
 .partner-header {
@@ -55,15 +58,15 @@
 }
 
 .partner-page .ant-tabs-tab:hover {
-    color: #98BDD2;
+    color: var(--primary-color);
 }
 
 .partner-page .ant-tabs-tab-active .ant-tabs-tab-btn {
-    color: #98BDD2;
+    color: var(--primary-color);
 }
 
 .partner-page .ant-tabs-ink-bar {
-    background: #98BDD2;
+    background: var(--primary-color);
     height: 3px;
 }
 
@@ -104,8 +107,8 @@
 
 .partner-page .ant-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
-    border-color: #98BDD2;
+    box-shadow: var(--shadow-xl);
+    border-color: var(--primary-color);
 }
 
 .partner-page .ant-card-head {
@@ -160,8 +163,8 @@
 }
 
 .review-card:hover {
-    border-color: #98BDD2;
-    box-shadow: 0 4px 12px rgba(152, 189, 210, 0.15);
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-primary);
 }
 
 .review-card .ant-rate {

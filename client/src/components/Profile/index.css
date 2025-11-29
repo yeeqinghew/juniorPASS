@@ -1,3 +1,6 @@
+/* Import global variables */
+@import '../../styles/variables.css';
+
 /* Profile Page Styles */
 .profile-container {
   display: flex;
@@ -8,11 +11,11 @@
 
 .profile-tabs {
   flex: 1;
-  background: #fff;
-  border-radius: 12px;
-  margin: 24px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: var(--bg-white);
+  border-radius: var(--radius-md);
+  margin: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
   height: auto;
   overflow: visible;
 }
@@ -30,37 +33,37 @@
 }
 
 .profile-user-name {
-  font-size: 18px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 8px;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xs);
 }
 
 .profile-user-email {
-  font-size: 14px;
-  color: #666;
+  font-size: var(--font-size-base);
+  color: var(--text-muted);
 }
 
 /* Tab Styling */
 .profile-tabs .ant-tabs-tab {
-  padding: 12px 24px;
-  font-size: 15px;
-  font-weight: 500;
-  transition: all 0.3s ease;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  transition: var(--transition-base);
 }
 
 .profile-tabs .ant-tabs-tab:hover {
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 }
 
 .profile-tabs .ant-tabs-tab-active {
-  background: linear-gradient(135deg, #98BDD2, #6aa4c3);
-  border-radius: 8px;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  border-radius: var(--radius-sm);
 }
 
 .profile-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
-  color: #fff !important;
+  color: var(--bg-white) !important;
 }
 
 .profile-tabs .ant-tabs-ink-bar {
@@ -116,35 +119,35 @@
   }
 
   .profile-avatar-container {
-    padding: 24px 16px;
-    background: linear-gradient(135deg, #98BDD2, #6aa4c3);
+    padding: var(--spacing-lg) var(--spacing-md);
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
     margin-bottom: 0;
   }
 
   .profile-avatar {
-    margin-bottom: 12px;
+    margin-bottom: var(--spacing-sm);
     border: 3px solid rgba(255, 255, 255, 0.3);
   }
 
   .profile-user-name {
-    font-size: 18px;
-    color: #fff;
+    font-size: var(--font-size-xl);
+    color: var(--bg-white);
     margin-bottom: 4px;
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
   }
 
   .profile-user-email {
-    font-size: 13px;
+    font-size: var(--font-size-sm);
     color: rgba(255, 255, 255, 0.95);
   }
 
   /* Top Tabs for Mobile */
   .profile-tabs .ant-tabs-nav-wrap {
-    background: #fff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    background: var(--bg-white);
+    box-shadow: var(--shadow-sm);
     position: sticky;
     top: 60px;
-    z-index: 100;
+    z-index: var(--z-sticky);
   }
 
   .profile-tabs .ant-tabs-nav-list {
@@ -171,17 +174,17 @@
 
   .profile-tabs .ant-tabs-tab-active {
     background: transparent;
-    border-bottom: 3px solid #98BDD2;
+    border-bottom: 3px solid var(--primary-color);
     border-radius: 0;
   }
 
   .profile-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
-    color: #98BDD2 !important;
-    font-weight: 700;
+    color: var(--primary-color) !important;
+    font-weight: var(--font-weight-bold);
   }
 
   .profile-tab-content {
-    padding: 12px;
+    padding: var(--spacing-sm);
     border-radius: 0;
     height: auto;
     overflow: visible;
@@ -190,9 +193,9 @@
 
   /* Fix for all child components on mobile */
   .profile-tab-content .ant-card {
-    border-radius: 12px;
-    margin-bottom: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-sm);
+    box-shadow: var(--shadow-sm);
     display: block !important;
   }
 

@@ -1,15 +1,7 @@
+/* Import global variables */
+@import './styles/variables.css';
+
 /* Login & Register Page Styles */
-:root {
-  --primary-color: #98BDD2;
-  --primary-dark: #6aa4c3;
-  --text-dark: #333;
-  --text-light: #555;
-  --text-muted: #777;
-  --border-light: rgba(0, 0, 0, 0.1);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
-}
 
 /* Page Container */
 .login-page,
@@ -315,7 +307,7 @@
 }
 
 .strength-strong {
-  color: #52c41a;
+  color: var(--secondary-color);
 }
 
 /* Loading State */

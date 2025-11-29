@@ -24,15 +24,18 @@
     display: none;
 }
 
+/* Import global variables */
+@import '../styles/variables.css';
+
 .layout-header {
     position: fixed;
     top: 0px;
-    z-index: 999;
+    z-index: var(--z-fixed);
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: #FCFBF8;
+    background-color: var(--bg-cream);
     padding: 50px 150px;
 }
 
@@ -79,7 +82,7 @@
 }
 
 .desktop-menu .icon-menu-item:hover {
-    color: #98BDD2;
+    color: var(--primary-color);
 }
 
 /* Hamburger menu */

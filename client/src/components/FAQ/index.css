@@ -1,8 +1,11 @@
+/* Import global variables */
+@import '../../styles/variables.css';
+
 /* FAQ Page Styling */
 .faq-container {
     max-width: 900px;
     margin: 0 auto;
-    padding: 48px 24px;
+    padding: var(--spacing-2xl) var(--spacing-lg);
 }
 
 .faq-title {
@@ -37,14 +40,14 @@
 }
 
 .faq-collapse .ant-collapse-item:hover {
-    border-color: #98BDD2;
-    box-shadow: 0 4px 12px rgba(152, 189, 210, 0.15);
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-primary);
     transform: translateY(-2px);
 }
 
 .faq-collapse .ant-collapse-item-active {
-    border-color: #98BDD2;
-    box-shadow: 0 4px 16px rgba(152, 189, 210, 0.2);
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-primary-hover);
 }
 
 .faq-collapse .ant-collapse-header {
