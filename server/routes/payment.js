@@ -165,10 +165,6 @@ router.post("/webhook", async (req, res) => {
         amount: parseFloat(amount),
         user_id,
       });
-
-      console.log(`✅ Payment ${payment_id} marked as completed`);
-    } else {
-      console.log(`ℹ️ Payment ${payment_id} status: ${status}`);
     }
   } catch (error) {
     console.error("❌ Error processing webhook:", error);
@@ -259,7 +255,6 @@ async function markPaymentCompleted({
   );
 
   if (existing.rows[0]?.status === "COMPLETED") {
-    console.log("Payment already marked as completed.");
     return;
   }
 

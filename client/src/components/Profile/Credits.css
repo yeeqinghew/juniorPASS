@@ -1,0 +1,252 @@
+/* Credits Component Mobile Styles */
+
+/* Desktop defaults */
+.credits-container {
+  padding: 0;
+}
+
+/* Mobile specific styles */
+@media screen and (max-width: 767.9px) {
+  /* Main title */
+  .credits-container .ant-typography h4 {
+    font-size: 18px !important;
+    margin-bottom: 16px;
+  }
+
+  /* Credit balance card */
+  .credits-container > .ant-card:first-of-type {
+    margin-bottom: 16px !important;
+  }
+
+  .credits-container > .ant-card:first-of-type .ant-row {
+    gap: 16px;
+  }
+
+  .credits-container > .ant-card:first-of-type .ant-col-xs-24 {
+    text-align: left !important;
+  }
+
+  .credits-container > .ant-card:first-of-type .ant-col-xs-24:last-child {
+    margin-top: 16px;
+  }
+
+  /* Credit icon and amount */
+  .credits-container .anticon-icon-money {
+    font-size: 24px !important;
+  }
+
+  .credits-container > .ant-card:first-of-type .ant-typography {
+    font-size: 12px;
+  }
+
+  .credits-container > .ant-card:first-of-type .ant-typography:last-child {
+    font-size: 24px !important;
+  }
+
+  /* Top up button */
+  .credits-container .ant-btn-lg {
+    width: 100%;
+    height: 44px;
+    font-size: 15px;
+  }
+
+  /* Statistics row */
+  .credits-container .ant-row-gutter {
+    margin-bottom: 16px !important;
+  }
+
+  .credits-container .ant-statistic-title {
+    font-size: 12px !important;
+  }
+
+  .credits-container .ant-statistic-content {
+    font-size: 20px !important;
+  }
+
+  .credits-container .ant-statistic-content-suffix {
+    font-size: 12px !important;
+  }
+
+  /* Transaction history card */
+  .credits-container > .ant-card:last-of-type .ant-card-head {
+    padding: 12px 16px;
+  }
+
+  .credits-container > .ant-card:last-of-type .ant-card-head-title {
+    font-size: 16px;
+  }
+
+  /* Hide filter controls on mobile */
+  .credits-container > .ant-card:last-of-type .ant-card-extra {
+    display: none;
+  }
+
+  /* Transaction list items - vertical layout */
+  .credits-container .ant-list-item {
+    padding: 16px 12px !important;
+    display: block !important;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .credits-container .ant-list-item-meta {
+    width: 100%;
+    display: block !important;
+    margin: 0 !important;
+  }
+
+  .credits-container .ant-list-item-meta-avatar {
+    position: absolute;
+    left: 12px;
+    top: 16px;
+    margin: 0 !important;
+  }
+
+  .credits-container .ant-list-item-meta-avatar .anticon {
+    font-size: 20px;
+  }
+
+  .credits-container .ant-list-item-meta-content {
+    display: block !important;
+    padding-left: 36px;
+    width: 100% !important;
+  }
+
+  .credits-container .ant-list-item-meta-title {
+    margin-bottom: 8px !important;
+    width: 100%;
+  }
+
+  /* Transaction title and amount - stack vertically */
+  .credits-container .ant-list-item-meta-title > .ant-space {
+    width: 100%;
+    display: block !important;
+  }
+
+  .credits-container .ant-list-item-meta-title > .ant-space > div:first-child {
+    width: 100%;
+    display: block !important;
+  }
+
+  .credits-container .ant-list-item-meta-title > .ant-space > div:first-child > div {
+    display: block !important;
+  }
+
+  .credits-container .ant-list-item-meta-title .ant-typography:first-child {
+    font-size: 14px !important;
+    display: block !important;
+    margin-bottom: 6px;
+    text-align: left !important;
+  }
+
+  .credits-container .ant-list-item-meta-title .ant-typography:last-child {
+    font-size: 16px !important;
+    display: block !important;
+    text-align: left !important;
+    margin-top: 4px;
+  }
+
+  /* Transaction tags */
+  .credits-container .ant-list-item-meta-title .ant-space-item:last-child {
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .credits-container .ant-list-item-meta-title .ant-tag {
+    font-size: 10px;
+    padding: 2px 6px;
+    margin: 2px 4px 2px 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  /* Specific tag size limits */
+  .credits-container .ant-list-item-meta-title .ant-tag:first-child {
+    max-width: 80px;
+  }
+
+  .credits-container .ant-list-item-meta-title .ant-tag:not(:first-child) {
+    max-width: calc(50% - 8px);
+  }
+
+  /* Transaction description */
+  .credits-container .ant-list-item-meta-description {
+    font-size: 11px !important;
+  }
+
+  .credits-container .ant-list-item-meta-description .ant-space {
+    gap: 4px !important;
+  }
+
+  .credits-container .ant-list-item-meta-description .ant-typography {
+    font-size: 11px !important;
+  }
+
+  /* Pagination */
+  .credits-container .ant-pagination {
+    margin-top: 16px;
+    text-align: center;
+  }
+
+  .credits-container .ant-pagination-total-text,
+  .credits-container .ant-pagination-options {
+    display: none !important;
+  }
+
+  .credits-container .ant-pagination-item,
+  .credits-container .ant-pagination-prev,
+  .credits-container .ant-pagination-next {
+    min-width: 32px;
+    height: 32px;
+    line-height: 32px;
+    font-size: 14px;
+  }
+
+  .credits-container .ant-pagination-jump-prev,
+  .credits-container .ant-pagination-jump-next {
+    min-width: 32px;
+    height: 32px;
+    line-height: 32px;
+  }
+
+  /* Empty state */
+  .credits-container .ant-empty {
+    margin: 24px 0;
+  }
+
+  .credits-container .ant-empty-description {
+    font-size: 13px;
+  }
+
+  .credits-container .ant-empty .ant-btn {
+    margin-top: 12px;
+  }
+
+  /* Spin loading */
+  .credits-container .ant-spin-nested-loading {
+    min-height: 200px;
+  }
+}
+
+/* Small mobile screens */
+@media screen and (max-width: 374.9px) {
+  .credits-container .ant-statistic-content {
+    font-size: 18px !important;
+  }
+
+  .credits-container .ant-list-item-meta-title .ant-typography:first-child {
+    font-size: 13px !important;
+  }
+
+  .credits-container .ant-list-item-meta-title .ant-typography:last-child {
+    font-size: 14px !important;
+  }
+
+  .credits-container .ant-tag {
+    font-size: 10px !important;
+    padding: 1px 6px !important;
+  }
+}

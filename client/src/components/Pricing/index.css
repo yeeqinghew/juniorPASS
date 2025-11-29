@@ -78,7 +78,7 @@
     width: 100%;
     max-width: 380px;
     background-color: var(--card-bg);
-    border: 2px solid rgba(0,0,0,0.06);
+    border: 2px solid rgba(0, 0, 0, 0.06);
     border-radius: 20px;
     text-align: center;
     box-shadow: var(--shadow-card);
@@ -268,7 +268,7 @@
     text-align: left;
     margin-top: 20px;
     padding-top: 20px;
-    border-top: 1px solid rgba(0,0,0,0.08);
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .feature-item {
@@ -409,54 +409,175 @@
 /* Media Queries */
 @media screen and (max-width: 767.9px) {
     .pricing-container {
-        padding: 32px 16px 48px;
+        padding: 32px 12px 32px;
     }
 
     .pricing-header {
-        margin-bottom: 32px;
+        margin-bottom: 24px;
+    }
+
+    .section-subtitle {
+        font-size: 13px;
+        margin-bottom: 6px;
     }
 
     .section-title {
-        font-size: 28px;
+        font-size: 24px !important;
+        margin-bottom: 12px !important;
     }
 
     .section-description {
-        font-size: 14px;
+        font-size: 13px;
+        line-height: 1.5;
     }
 
     .pricing-card {
         max-width: 100%;
+        border-radius: 16px;
+    }
+
+    .pricing-card .ant-card-body {
+        padding: 24px 16px !important;
     }
 
     .popular-card {
         transform: scale(1);
+        margin: 24px 0;
     }
 
     .popular-card:hover {
-        transform: translateY(-8px) scale(1);
+        transform: translateY(-4px) scale(1);
     }
 
     .popular-label {
+        font-size: 11px;
+        padding: 6px 14px;
+        top: -12px;
+    }
+
+    .savings-ribbon {
+        top: 16px;
+        right: -3px;
+    }
+
+    .tier-icon {
+        font-size: 24px;
+    }
+
+    .card-header {
+        gap: 6px;
+        margin-bottom: 10px;
+    }
+
+    .card-title {
+        font-size: 20px !important;
+    }
+
+    .card-tagline {
         font-size: 12px;
-        padding: 6px 16px;
+        margin-bottom: 16px;
+    }
+
+    .pricing-section {
+        padding: 16px;
+        margin: 16px 0;
+    }
+
+    .card-price {
+        font-size: 28px !important;
+    }
+
+    .currency {
+        font-size: 14px;
+    }
+
+    .card-credits {
+        font-size: 14px;
+        margin-top: 6px;
+    }
+
+    .per-credit-price {
+        font-size: 12px;
+    }
+
+    .price-label {
+        font-size: 14px;
+    }
+
+    .comparison-text {
+        font-size: 11px;
+    }
+
+    .choose-plan-btn {
+        height: 42px;
+        font-size: 14px;
+        margin: 16px 0;
+    }
+
+    .plan-features {
+        margin-top: 16px;
+        padding-top: 16px;
+    }
+
+    .feature-item {
+        margin-bottom: 10px;
+        gap: 8px;
+    }
+
+    .feature-check {
+        font-size: 14px;
+    }
+
+    .feature-text {
+        font-size: 13px;
     }
 
     .benefits-section {
-        margin-top: 48px;
-        padding: 32px 16px;
+        margin-top: 32px;
+        padding: 24px 12px;
+        border-radius: 16px;
+    }
+
+    .benefits-title {
+        font-size: 18px !important;
+        margin-bottom: 24px;
     }
 
     .benefit-card {
-        padding: 20px;
+        padding: 16px;
+    }
+
+    .benefit-icon-large {
+        font-size: 28px;
+        margin-bottom: 12px;
+    }
+
+    .benefit-title {
+        font-size: 15px;
+        margin-bottom: 6px;
+    }
+
+    .benefit-description {
+        font-size: 12px;
     }
 
     .pricing-footer {
-        margin-top: 32px;
-        padding: 20px;
+        margin-top: 24px;
+        padding: 16px;
+        border-radius: 12px;
     }
 
     .footer-note {
-        font-size: 14px;
+        font-size: 12px;
+    }
+
+    /* Reduce spacing between cards on mobile */
+    .pricing-cards-row {
+        margin-bottom: 32px;
+    }
+
+    .card-container {
+        margin-bottom: 16px;
     }
 }
 

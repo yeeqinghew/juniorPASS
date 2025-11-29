@@ -27,6 +27,7 @@ import { useUserContext } from "../UserContext";
 import TopupModal from "./TopupModal";
 import toast from "react-hot-toast";
 import getBaseURL from "../../utils/config";
+import "./Credits.css";
 
 const { Text, Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -60,7 +61,6 @@ const Credits = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Fetched transactions:", data);
         setTransactions(data.transactions || []);
       } else {
         setTransactions([]);
@@ -216,7 +216,7 @@ const Credits = () => {
   };
 
   return (
-    <div>
+    <div className="credits-container">
       <Title level={4}>Credit & Transactions</Title>
 
       {/* Credit Balance Card */}
@@ -272,9 +272,9 @@ const Credits = () => {
               title="Net Spending"
               value={stats.netSpending}
               prefix={stats.netSpending >= 0 ? "-" : "+"}
-              valueStyle={{ 
+              valueStyle={{
                 color: stats.netSpending >= 0 ? "#ff4d4f" : "#52c41a",
-                fontSize: "28px"
+                fontSize: "28px",
               }}
               suffix="credits"
             />

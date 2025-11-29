@@ -22,7 +22,6 @@ const useHandleLogin = ({ from }) => {
         await reauthenticate();
 
         let finalNavigatePath = originalNavigatePath || "/profile"; // Default to /profile if 'from' is null/undefined
-        console.log("Final navigate path:", finalNavigatePath);
         const ignoredPathsForRedirect = [
           "/", // Homepage
           "/pricing",

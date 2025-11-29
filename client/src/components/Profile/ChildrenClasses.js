@@ -33,6 +33,7 @@ import { useUserContext } from "../UserContext";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import getBaseURL from "../../utils/config";
+import "./ChildrenClasses.css";
 
 const { Title, Text } = Typography;
 const { Panel } = Collapse;

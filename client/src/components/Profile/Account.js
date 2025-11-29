@@ -37,8 +37,7 @@ const Account = () => {
       form.setFieldsValue({
         name: user.name,
         email: user.email,
-        phone: user.phone || "",
-        address: user.address || "",
+        phone: user.phone_number || "",
       });
     }
   }, [user, form]);
@@ -52,8 +51,7 @@ const Account = () => {
     form.setFieldsValue({
       name: user.name,
       email: user.email,
-      phone: user.phone || "",
-      address: user.address || "",
+      phone: user.phone_number || "",
     });
   };
 
@@ -207,11 +205,6 @@ const Account = () => {
                     <Input placeholder="Enter your phone number" />
                   </Form.Item>
                 </Col>
-                <Col xs={24} sm={12}>
-                  <Form.Item name="address" label="Address">
-                    <Input placeholder="Enter your address" />
-                  </Form.Item>
-                </Col>
               </Row>
             </Form>
           </Card>
@@ -237,8 +230,8 @@ const Account = () => {
                 <Text strong>Member Since:</Text>
                 <br />
                 <Text type="secondary">
-                  {user?.created_at
-                    ? new Date(user.created_at).toLocaleDateString()
+                  {user?.created_on
+                    ? new Date(user.created_on).toLocaleDateString()
                     : "N/A"}
                 </Text>
               </Col>
