@@ -4,11 +4,11 @@ const pool = require("../db");
 const authorization = require("../middleware/authorization");
 
 router.post("/", authorization, async (req, res) => {
-  const { listing_id, start_date, end_date, child_id } = req.body;
+  const { listing_id, schedule_id, start_date, end_date, child_id } = req.body;
 
   try {
     // Validate request body
-    if (!listing_id || !start_date || !end_date) {
+    if (!listing_id || !schedule_id || !start_date || !end_date) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
@@ -43,7 +43,18 @@ router.post("/", authorization, async (req, res) => {
       }
     }
 
-    const creditCost = listing.rows[0].credit;
+    // Get schedule capacity and credit first
+    const schedule = await pool.query(
+      "SELECT slots, credit FROM schedules WHERE schedule_id = $1",
+      [schedule_id]
+    );
+
+    if (schedule.rows.length === 0) {
+      return res.status(404).json({ error: "Schedule not found" });
+    }
+
+    const maxSlots = schedule.rows[0].slots || 10;
+    const creditCost = schedule.rows[0].credit || listing.rows[0].credit || 1;
     const userCredits = user.rows[0].credit;
 
     // Check user's credit balance
@@ -67,24 +78,22 @@ router.post("/", authorization, async (req, res) => {
     if (overlappingBookings.rows.length > 0) {
       return res.status(400).json({ error: "You already have a booking at this time" });
     }
-
-    // Check if the class time slot is full
-    const maxCapacity = listing.rows[0].max_capacity || 1;
+    
     const existingBookings = await pool.query(
       `SELECT COUNT(*) as count 
        FROM bookings 
-       WHERE listing_id = $1 
+       WHERE schedule_id = $1 
        AND start_date = $2 
        AND end_date = $3`,
-      [listing_id, start_date, end_date]
+      [schedule_id, start_date, end_date]
     );
 
     const bookedCount = parseInt(existingBookings.rows[0].count);
-    if (bookedCount >= maxCapacity) {
+    if (bookedCount >= maxSlots) {
       return res.status(400).json({ 
-        error: "This class is fully booked",
+        error: "This timeslot is fully booked",
         booked_count: bookedCount,
-        max_capacity: maxCapacity
+        max_slots: maxSlots
       });
     }
 
@@ -109,11 +118,11 @@ router.post("/", authorization, async (req, res) => {
       // Create booking record
       const newBooking = await client.query(
         `
-        INSERT INTO bookings (listing_id, user_id, start_date, end_date)
-        VALUES ($1, $2, $3, $4)
+        INSERT INTO bookings (listing_id, schedule_id, user_id, start_date, end_date)
+        VALUES ($1, $2, $3, $4, $5)
         RETURNING *
       `,
-        [listing_id, user_id, start_date, end_date]
+        [listing_id, schedule_id, user_id, start_date, end_date]
       );
 
       // Record parent's debit transaction if child context is provided
@@ -197,48 +206,58 @@ router.post("/", authorization, async (req, res) => {
   }
 });
 
-// GET availability for a specific time slot
-router.get("/availability/:listingId", async (req, res) => {
+// GET availability for a specific schedule timeslot
+router.get("/availability/:scheduleId", async (req, res) => {
   try {
-    const { listingId } = req.params;
+    const { scheduleId } = req.params;
     const { start_date, end_date } = req.query;
 
     if (!start_date || !end_date) {
       return res.status(400).json({ error: "Missing start_date or end_date" });
     }
 
-    // Get listing with max_capacity
-    const listing = await pool.query(
-      "SELECT listing_id, listing_title, max_capacity FROM listings WHERE listing_id = $1",
-      [listingId]
+    // Get schedule with slots capacity
+    const schedule = await pool.query(
+      `SELECT s.schedule_id, s.slots, s.day, s.timeslot, s.frequency,
+              l.listing_id, l.listing_title
+       FROM schedules s
+       JOIN listingOutlets lo ON s.listing_outlet_id = lo.listing_outlet_id
+       JOIN listings l ON lo.listing_id = l.listing_id
+       WHERE s.schedule_id = $1`,
+      [scheduleId]
     );
 
-    if (listing.rows.length === 0) {
-      return res.status(404).json({ error: "Listing not found" });
+    if (schedule.rows.length === 0) {
+      return res.status(404).json({ error: "Schedule not found" });
     }
 
-    const maxCapacity = listing.rows[0].max_capacity || 1;
+    const maxSlots = schedule.rows[0].slots || 10;
 
-    // Count existing bookings for this time slot
+    // Count existing bookings for this schedule and time slot
     const bookings = await pool.query(
       `SELECT COUNT(*) as count 
        FROM bookings 
-       WHERE listing_id = $1 
+       WHERE schedule_id = $1 
        AND start_date = $2 
        AND end_date = $3`,
-      [listingId, start_date, end_date]
+      [scheduleId, start_date, end_date]
     );
 
     const bookedCount = parseInt(bookings.rows[0].count);
-    const availableSpots = maxCapacity - bookedCount;
-    const isFull = bookedCount >= maxCapacity;
+    const availableSpots = maxSlots - bookedCount;
+    const isFull = bookedCount >= maxSlots;
 
     res.json({
       success: true,
-      listing_id: listingId,
+      schedule_id: scheduleId,
+      listing_id: schedule.rows[0].listing_id,
+      listing_title: schedule.rows[0].listing_title,
+      day: schedule.rows[0].day,
+      timeslot: schedule.rows[0].timeslot,
+      frequency: schedule.rows[0].frequency,
       start_date,
       end_date,
-      max_capacity: maxCapacity,
+      max_slots: maxSlots,
       booked_count: bookedCount,
       available_spots: availableSpots,
       is_full: isFull
@@ -319,7 +338,7 @@ router.delete("/:bookingId", authorization, async (req, res) => {
   const user_id = req.user;
 
   try {
-    // Get booking details with listing information
+    // Get booking details with listing information and child_id
     const booking = await pool.query(
       `
       SELECT 
@@ -331,7 +350,8 @@ router.delete("/:bookingId", authorization, async (req, res) => {
         b.created_on,
         l.credit,
         l.partner_id,
-        l.listing_title
+        l.listing_title,
+        (SELECT child_id FROM transactions WHERE parent_id = b.user_id AND listing_id = b.listing_id AND transaction_type = 'DEBIT' ORDER BY created_on DESC LIMIT 1) as child_id
       FROM bookings b
       JOIN listings l ON b.listing_id = l.listing_id
       WHERE b.booking_id = $1 AND b.user_id = $2
@@ -346,6 +366,19 @@ router.delete("/:bookingId", authorization, async (req, res) => {
     }
 
     const bookingData = booking.rows[0];
+    
+    // Check if cancellation is within 24 hours of class start
+    const classStartTime = new Date(bookingData.start_date);
+    const now = new Date();
+    const hoursUntilClass = (classStartTime - now) / (1000 * 60 * 60);
+    
+    if (hoursUntilClass < 24) {
+      return res.status(400).json({ 
+        error: "Cancellations must be made at least 24 hours before the class starts",
+        hours_until_class: Math.round(hoursUntilClass * 10) / 10
+      });
+    }
+    
     const creditRefund = bookingData.credit;
 
     // Perform cancellation within transaction
@@ -365,6 +398,15 @@ router.delete("/:bookingId", authorization, async (req, res) => {
         "UPDATE partners SET credit = credit - $1 WHERE partner_id = $2",
         [creditRefund, bookingData.partner_id]
       );
+
+      // Record refund transaction if child_id exists
+      if (bookingData.child_id) {
+        await client.query(
+          `INSERT INTO transactions (parent_id, child_id, listing_id, used_credit, transaction_type)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [user_id, bookingData.child_id, bookingData.listing_id, creditRefund, "CREDIT"]
+        );
+      }
 
       // Delete booking
       await client.query("DELETE FROM bookings WHERE booking_id = $1", [

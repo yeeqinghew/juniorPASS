@@ -116,11 +116,13 @@ const Credits = () => {
       .filter((t) => t.transaction_type === "DEBIT")
       .reduce((sum, t) => sum + t.used_credit, 0);
 
-    const totalTopup = transactions
+    const totalEarned = transactions
       .filter((t) => t.transaction_type === "CREDIT")
       .reduce((sum, t) => sum + t.used_credit, 0);
 
-    return { totalSpent, totalTopup, totalRefunds: 0 };
+    const netSpending = totalSpent - totalEarned;
+
+    return { totalSpent, totalEarned, netSpending };
   };
 
   const stats = calculateStats();
@@ -264,31 +266,34 @@ const Credits = () => {
 
       {/* Statistics Cards */}
       <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col xs={24} sm={8}>
+        <Col xs={24} sm={12}>
           <Card size="small">
             <Statistic
-              title="Total Spent"
-              value={stats.totalSpent}
-              valueStyle={{ color: "#ff4d4f" }}
+              title="Net Spending"
+              value={stats.netSpending}
+              prefix={stats.netSpending >= 0 ? "-" : "+"}
+              valueStyle={{ 
+                color: stats.netSpending >= 0 ? "#ff4d4f" : "#52c41a",
+                fontSize: "28px"
+              }}
+              suffix="credits"
             />
+            <Text type="secondary" style={{ fontSize: "12px" }}>
+              Spent: {stats.totalSpent} • Refunded: {stats.totalEarned}
+            </Text>
           </Card>
         </Col>
-        <Col xs={24} sm={8}>
-          <Card size="small">
-            <Statistic
-              title="Total Earned"
-              value={stats.totalTopup}
-              valueStyle={{ color: "#52c41a" }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={8}>
+        <Col xs={24} sm={12}>
           <Card size="small">
             <Statistic
               title="Total Transactions"
               value={transactions.length}
-              valueStyle={{ color: "#1890ff" }}
+              valueStyle={{ color: "#1890ff", fontSize: "28px" }}
+              suffix="transactions"
             />
+            <Text type="secondary" style={{ fontSize: "12px" }}>
+              All time activity
+            </Text>
           </Card>
         </Col>
       </Row>

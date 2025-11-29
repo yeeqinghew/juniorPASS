@@ -75,18 +75,6 @@ const Partner = () => {
                       src={listing?.images[0]}
                       alt={listing?.listing_title}
                     />
-                    <Text
-                      style={{
-                        display: "-webkit-box",
-                        WebkitBoxOrient: "vertical",
-                        WebkitLineClamp: 3,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        lineHeight: "1.6",
-                      }}
-                    >
-                      {listing?.description}
-                    </Text>
                     {listing?.rating !== 0 && (
                       <Rate disabled defaultValue={listing.reviews} />
                     )}

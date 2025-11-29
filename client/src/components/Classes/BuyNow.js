@@ -65,6 +65,7 @@ const BuyNow = ({
         },
         body: JSON.stringify({
           listing_id: listing?.listing_id,
+          schedule_id: selected?.location?.schedule_id, // Added for capacity tracking
           start_date: start_date,
           end_date: end_date,
           child_id: selectedChildId,

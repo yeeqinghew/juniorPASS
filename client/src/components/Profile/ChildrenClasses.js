@@ -18,6 +18,7 @@ import {
   Input,
   Select,
   InputNumber,
+  Alert,
 } from "antd";
 import {
   CalendarOutlined,
@@ -38,7 +39,7 @@ const { Panel } = Collapse;
 const { Option } = Select;
 
 const ChildrenClasses = () => {
-  const { user } = useUserContext();
+  const { user, reauthenticate } = useUserContext();
   const baseURL = getBaseURL();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -47,6 +48,12 @@ const ChildrenClasses = () => {
   const [filterType, setFilterType] = useState("upcoming");
   const [isAddChildModalOpen, setIsAddChildModalOpen] = useState(false);
   const [editingChild, setEditingChild] = useState(null);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [bookingToCancel, setBookingToCancel] = useState(null);
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [isDeleteChildModalOpen, setIsDeleteChildModalOpen] = useState(false);
+  const [childToDelete, setChildToDelete] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [form] = Form.useForm();
 
   const fetchChildrenAndBookings = async () => {
@@ -107,35 +114,63 @@ const ChildrenClasses = () => {
     setIsAddChildModalOpen(true);
   };
 
-  const handleDeleteChild = async (childId) => {
-    Modal.confirm({
-      title: 'Delete Child Profile',
-      content: 'Are you sure you want to delete this child profile? This action cannot be undone.',
-      okText: 'Delete',
-      okType: 'danger',
-      cancelText: 'Cancel',
-      onOk: async () => {
-        try {
-          const token = localStorage.getItem("token");
-          const response = await fetch(`${baseURL}/children/${childId}`, {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+  const handleDeleteChild = (child) => {
+    // Check if child has upcoming classes
+    const now = new Date();
+    const childUpcomingBookings = bookings.filter(
+      b => new Date(b.start_date) >= now
+    );
+    
+    if (childUpcomingBookings.length > 0) {
+      Modal.error({
+        title: 'Cannot Delete Child Profile',
+        content: (
+          <div>
+            <p style={{ marginBottom: 12 }}>
+              This child has {childUpcomingBookings.length} upcoming {childUpcomingBookings.length === 1 ? 'class' : 'classes'}.
+            </p>
+            <p style={{ margin: 0 }}>
+              Please cancel all upcoming classes before deleting the profile.
+            </p>
+          </div>
+        ),
+        okText: 'Understood',
+        centered: true,
+      });
+      return;
+    }
+    
+    setChildToDelete(child);
+    setIsDeleteChildModalOpen(true);
+  };
 
-          if (response.ok) {
-            toast.success("Child profile deleted successfully");
-            fetchChildrenAndBookings();
-          } else {
-            toast.error("Failed to delete child profile");
-          }
-        } catch (error) {
-          console.error("Error deleting child:", error);
-          toast.error("Failed to delete child profile");
-        }
-      },
-    });
+  const confirmDeleteChild = async () => {
+    if (!childToDelete) return;
+
+    setDeleteLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${baseURL}/children/${childToDelete.child_id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        toast.success("Child profile deleted successfully");
+        await fetchChildrenAndBookings();
+        setIsDeleteChildModalOpen(false);
+        setChildToDelete(null);
+      } else {
+        toast.error("Failed to delete child profile");
+      }
+    } catch (error) {
+      console.error("Error deleting child:", error);
+      toast.error("Failed to delete child profile");
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
   const handleSaveChild = async (values) => {
@@ -177,10 +212,49 @@ const ChildrenClasses = () => {
     }
   };
 
-  const handleCancelBooking = async (bookingId) => {
+  const handleCancelBooking = (booking) => {
+    // Check if cancellation is within 24 hours of class start
+    const classStartTime = new Date(booking.start_date);
+    const now = new Date();
+    const hoursUntilClass = (classStartTime - now) / (1000 * 60 * 60);
+    
+    if (hoursUntilClass < 24) {
+      Modal.error({
+        title: 'Cannot Cancel Booking',
+        content: (
+          <div>
+            <p style={{ marginBottom: 12 }}>
+              Cancellations must be made at least 24 hours before the class starts.
+            </p>
+            <p style={{ margin: 0, color: '#8c8c8c', fontSize: '13px' }}>
+              Class starts: {new Date(booking.start_date).toLocaleString('en-US', {
+                weekday: 'short',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
+            </p>
+          </div>
+        ),
+        okText: 'Understood',
+        centered: true,
+      });
+      return;
+    }
+    
+    setBookingToCancel({ bookingId: booking.booking_id, bookingTitle: booking.listing_title });
+    setIsCancelModalOpen(true);
+  };
+
+  const confirmCancelBooking = async () => {
+    if (!bookingToCancel) return;
+
+    setCancelLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`${baseURL}/bookings/${bookingId}`, {
+      const response = await fetch(`${baseURL}/bookings/${bookingToCancel.bookingId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -189,8 +263,16 @@ const ChildrenClasses = () => {
       });
 
       if (response.ok) {
-        toast.success("Booking cancelled successfully");
-        fetchChildrenAndBookings();
+        const data = await response.json();
+        toast.success(
+          `Booking cancelled! ${data.refunded_credit} credits refunded.`
+        );
+        
+        // Refresh bookings list and user credit balance
+        await fetchChildrenAndBookings();
+        await reauthenticate();
+        setIsCancelModalOpen(false);
+        setBookingToCancel(null);
       } else {
         const data = await response.json();
         toast.error(data.error || "Failed to cancel booking");
@@ -198,6 +280,8 @@ const ChildrenClasses = () => {
     } catch (error) {
       console.error("Error cancelling booking:", error);
       toast.error("Failed to cancel booking");
+    } finally {
+      setCancelLoading(false);
     }
   };
 
@@ -270,7 +354,7 @@ const ChildrenClasses = () => {
             <Button 
               type="link" 
               danger
-              onClick={() => handleCancelBooking(booking.booking_id)}
+              onClick={() => handleCancelBooking(booking)}
             >
               Cancel
             </Button>
@@ -371,7 +455,7 @@ const ChildrenClasses = () => {
               icon={<DeleteOutlined />}
               onClick={(e) => {
                 e.stopPropagation();
-                handleDeleteChild(child.child_id);
+                handleDeleteChild(child);
               }}
             />
           </Space>
@@ -557,6 +641,280 @@ const ChildrenClasses = () => {
             </Select>
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* Cancel Booking Modal */}
+      <Modal
+        open={isCancelModalOpen}
+        onCancel={() => {
+          setIsCancelModalOpen(false);
+          setBookingToCancel(null);
+        }}
+        footer={null}
+        centered
+        width={500}
+        styles={{
+          body: { padding: '32px' }
+        }}
+      >
+        <Space direction="vertical" size={24} style={{ width: '100%' }}>
+          {/* Icon and Title */}
+          <div style={{ textAlign: 'center' }}>
+            <div style={{
+              width: '64px',
+              height: '64px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 16px',
+              boxShadow: '0 4px 12px rgba(255, 77, 79, 0.2)'
+            }}>
+              <DeleteOutlined style={{ fontSize: '28px', color: '#fff' }} />
+            </div>
+            <Title level={3} style={{ marginBottom: 8, color: '#262626' }}>
+              Cancel Class Booking
+            </Title>
+            <Text type="secondary" style={{ fontSize: '15px' }}>
+              Are you sure you want to cancel this booking?
+            </Text>
+          </div>
+
+          {/* Class Info Card */}
+          {bookingToCancel?.bookingTitle && (
+            <Card 
+              style={{ 
+                background: 'linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%)',
+                border: '1px solid #e0e0e0',
+                borderRadius: '12px',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)'
+              }}
+            >
+              <Space direction="vertical" size={8} style={{ width: '100%' }}>
+                <Text 
+                  type="secondary" 
+                  style={{ 
+                    fontSize: '11px', 
+                    textTransform: 'uppercase', 
+                    letterSpacing: '1px',
+                    fontWeight: 600,
+                    color: '#8c8c8c'
+                  }}
+                >
+                  Booking Details
+                </Text>
+                <Text 
+                  strong 
+                  style={{ 
+                    fontSize: '16px', 
+                    color: '#262626',
+                    display: 'block'
+                  }}
+                >
+                  {bookingToCancel.bookingTitle}
+                </Text>
+              </Space>
+            </Card>
+          )}
+
+          {/* Refund Alert */}
+          <Alert
+            message={
+              <Space>
+                <span style={{ fontSize: '15px', fontWeight: 500 }}>
+                  Credits will be automatically refunded
+                </span>
+              </Space>
+            }
+            description={
+              <Text style={{ fontSize: '13px', color: '#595959' }}>
+                The refunded credits will be available immediately for booking other classes
+              </Text>
+            }
+            type="success"
+            showIcon
+            style={{ 
+              borderRadius: '12px',
+              border: '1px solid #b7eb8f',
+              background: '#f6ffed'
+            }}
+          />
+
+          {/* Action Buttons */}
+          <Row gutter={12}>
+            <Col span={12}>
+              <Button
+                block
+                size="large"
+                onClick={() => {
+                  setIsCancelModalOpen(false);
+                  setBookingToCancel(null);
+                }}
+                style={{
+                  height: '48px',
+                  borderRadius: '8px',
+                  fontWeight: 500,
+                  fontSize: '15px'
+                }}
+              >
+                Keep Booking
+              </Button>
+            </Col>
+            <Col span={12}>
+              <Button
+                block
+                danger
+                type="primary"
+                size="large"
+                loading={cancelLoading}
+                onClick={confirmCancelBooking}
+                style={{
+                  height: '48px',
+                  borderRadius: '8px',
+                  fontWeight: 500,
+                  fontSize: '15px',
+                  boxShadow: '0 2px 8px rgba(255, 77, 79, 0.3)'
+                }}
+              >
+                Cancel Booking
+              </Button>
+            </Col>
+          </Row>
+        </Space>
+      </Modal>
+
+      {/* Delete Child Profile Modal */}
+      <Modal
+        open={isDeleteChildModalOpen}
+        onCancel={() => {
+          setIsDeleteChildModalOpen(false);
+          setChildToDelete(null);
+        }}
+        footer={null}
+        centered
+        width={500}
+        styles={{
+          body: { padding: '32px' }
+        }}
+      >
+        <Space direction="vertical" size={24} style={{ width: '100%' }}>
+          {/* Icon and Title */}
+          <div style={{ textAlign: 'center' }}>
+            <div style={{
+              width: '64px',
+              height: '64px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 16px',
+              boxShadow: '0 4px 12px rgba(255, 77, 79, 0.2)'
+            }}>
+              <UserOutlined style={{ fontSize: '28px', color: '#fff' }} />
+            </div>
+            <Title level={3} style={{ marginBottom: 8, color: '#262626' }}>
+              Delete Child Profile
+            </Title>
+            <Text type="secondary" style={{ fontSize: '15px' }}>
+              Are you sure you want to delete this child's profile?
+            </Text>
+          </div>
+
+          {/* Child Info Card */}
+          {childToDelete && (
+            <Card 
+              style={{ 
+                background: 'linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%)',
+                border: '1px solid #e0e0e0',
+                borderRadius: '12px',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)'
+              }}
+            >
+              <Space align="center" style={{ width: '100%' }}>
+                <Avatar 
+                  size={56} 
+                  src={getChildImage(childToDelete)} 
+                  icon={<UserOutlined />}
+                  style={{ flexShrink: 0 }}
+                />
+                <Space direction="vertical" size={4} style={{ flex: 1 }}>
+                  <Text strong style={{ fontSize: '16px', color: '#262626' }}>
+                    {childToDelete.name}
+                  </Text>
+                  <Text type="secondary" style={{ fontSize: '13px' }}>
+                    Age {childToDelete.age} • {childToDelete.gender === "M" ? "Male" : "Female"}
+                  </Text>
+                </Space>
+              </Space>
+            </Card>
+          )}
+
+          {/* Warning Alert */}
+          <Alert
+            message={
+              <Space>
+                <span style={{ fontSize: '15px', fontWeight: 500 }}>
+                  This action cannot be undone
+                </span>
+              </Space>
+            }
+            description={
+              <Text style={{ fontSize: '13px', color: '#595959' }}>
+                All data associated with this child's profile will be permanently deleted
+              </Text>
+            }
+            type="error"
+            showIcon
+            style={{ 
+              borderRadius: '12px',
+              border: '1px solid #ffccc7',
+              background: '#fff2f0'
+            }}
+          />
+
+          {/* Action Buttons */}
+          <Row gutter={12}>
+            <Col span={12}>
+              <Button
+                block
+                size="large"
+                onClick={() => {
+                  setIsDeleteChildModalOpen(false);
+                  setChildToDelete(null);
+                }}
+                style={{
+                  height: '48px',
+                  borderRadius: '8px',
+                  fontWeight: 500,
+                  fontSize: '15px'
+                }}
+              >
+                Cancel
+              </Button>
+            </Col>
+            <Col span={12}>
+              <Button
+                block
+                danger
+                type="primary"
+                size="large"
+                loading={deleteLoading}
+                onClick={confirmDeleteChild}
+                style={{
+                  height: '48px',
+                  borderRadius: '8px',
+                  fontWeight: 500,
+                  fontSize: '15px',
+                  boxShadow: '0 2px 8px rgba(255, 77, 79, 0.3)'
+                }}
+              >
+                Delete Profile
+              </Button>
+            </Col>
+          </Row>
+        </Space>
       </Modal>
     </div>
   );

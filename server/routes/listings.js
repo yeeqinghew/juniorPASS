@@ -78,13 +78,13 @@ router.post("", authorization, async (req, res) => {
       const listing_outlet_id = listingOutlet.rows[0].listing_outlet_id;
 
       for (let schedule of schedules) {
-        const { day, timeslot, frequency } = schedule;
+        const { day, timeslot, frequency, slots, credit: scheduleCredit } = schedule;
 
         schedulePromises.push(
           pool.query(
-            `INSERT INTO schedules (listing_outlet_id, day, timeslot, frequency)
-             VALUES($1, $2, $3, $4)`,
-            [listing_outlet_id, day, timeslot, frequency]
+            `INSERT INTO schedules (listing_outlet_id, day, timeslot, frequency, slots, credit)
+             VALUES($1, $2, $3, $4, $5, $6)`,
+            [listing_outlet_id, day, timeslot, frequency, slots || 10, scheduleCredit || credit]
           )
         );
       }
@@ -141,6 +141,8 @@ router.get("", cacheMiddleware, async (req, res) => {
             'day', s.day,
             'timeslot', s.timeslot,
             'frequency', s.frequency,
+            'slots', s.slots,
+            'credit', s.credit,
             'outlet_id', o.outlet_id,
             'outlet_address', o.address,
             'nearest_mrt', o.nearest_mrt
@@ -426,7 +428,7 @@ router.patch("/:id/schedules", authorization, async (req, res) => {
 
         // Insert new schedules
         for (const sch of schedules) {
-          const { day, timeslot, frequency } = sch;
+          const { day, timeslot, frequency, slots, credit: scheduleCredit } = sch;
           if (
             !day ||
             !Array.isArray(timeslot) ||
@@ -436,10 +438,18 @@ router.patch("/:id/schedules", authorization, async (req, res) => {
             await tx.query("ROLLBACK");
             return res.status(400).json({ error: "Invalid schedule payload" });
           }
+          
+          // Get listing credit as fallback
+          const listingResult = await tx.query(
+            "SELECT credit FROM listings WHERE listing_id = $1",
+            [listing_id]
+          );
+          const listingCredit = listingResult.rows[0]?.credit || 1;
+          
           await tx.query(
-            `INSERT INTO schedules (listing_outlet_id, day, timeslot, frequency)
-             VALUES ($1, $2, $3, $4)`,
-            [listing_outlet_id, day, timeslot, frequency]
+            `INSERT INTO schedules (listing_outlet_id, day, timeslot, frequency, slots, credit)
+             VALUES ($1, $2, $3, $4, $5, $6)`,
+            [listing_outlet_id, day, timeslot, frequency, slots || 10, scheduleCredit || listingCredit]
           );
         }
       }

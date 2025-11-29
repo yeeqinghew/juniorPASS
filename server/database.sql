@@ -121,7 +121,6 @@ CREATE TABLE listings (
     registered_parents VARCHAR(500),
     short_term_start_date TIMESTAMP,
     long_term_start_date TIMESTAMP,
-    max_capacity INTEGER DEFAULT 1, 
     active BOOLEAN,
     created_on TIMESTAMP DEFAULT NOW(),
     last_updated_on TIMESTAMP
@@ -148,6 +147,8 @@ CREATE TABLE schedules (
     day TEXT CHECK (day IN ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')),
     timeslot TEXT[],
     frequency TEXT CHECK (frequency IN ('Biweekly', 'Weekly', 'Monthly', 'Yearly')),
+    slots INTEGER DEFAULT 10 CHECK (slots >= 1 AND slots <= 100),
+    credit INTEGER CHECK (credit >= 1 AND credit <= 10),
     created_on TIMESTAMP DEFAULT NOW()
 );
 
@@ -260,6 +261,7 @@ CREATE TABLE otpRequests (
 CREATE TABLE bookings (
     booking_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     listing_id uuid REFERENCES listings(listing_id) ON DELETE CASCADE,
+    schedule_id uuid REFERENCES schedules(schedule_id) ON DELETE CASCADE,
     user_id uuid REFERENCES users(user_id) ON DELETE CASCADE,
     start_date TIMESTAMP NOT NULL,
     end_date TIMESTAMP NOT NULL,
@@ -268,6 +270,9 @@ CREATE TABLE bookings (
 
 -- Helpful index for overlap checks by user and date range
 CREATE INDEX idx_bookings_user_date ON bookings (user_id, start_date, end_date);
+
+-- Index for checking schedule capacity
+CREATE INDEX idx_bookings_schedule_date ON bookings (schedule_id, start_date, end_date);
 
 -- NOTIFICATIONS: generic notification system for users, partners, and admins
 CREATE TABLE notifications (

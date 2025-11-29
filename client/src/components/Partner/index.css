@@ -2,16 +2,20 @@
 .partner-page {
     width: 100%;
     min-height: 100vh;
-    background: linear-gradient(to bottom, #f8fafc 0%, #ffffff 100%);
-    padding: 48px;
+    background: #f8f9fa;
+    padding: 120px 48px 48px 48px;
 }
 
 .partner-header {
     display: flex;
     align-items: center;
     gap: 32px;
-    margin-bottom: 48px;
-    padding: 40px;
+    margin-bottom: 32px;
+    padding: 32px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    max-width: 100%;
 }
 
 .partner-header .ant-avatar {
@@ -87,7 +91,16 @@
     border: 1px solid #e5e7eb;
     overflow: hidden;
     transition: all 0.3s ease;
-    height: 100%;
+    height: 320px;
+    display: flex;
+    flex-direction: column;
+}
+
+.partner-page .ant-card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
 }
 
 .partner-page .ant-card:hover {
@@ -165,7 +178,7 @@
 /* Responsive Design */
 @media screen and (max-width: 767.9px) {
     .partner-page {
-        padding: 24px 16px;
+        padding: 120px 16px 24px 16px;
     }
 
     .partner-header {
@@ -183,11 +196,6 @@
         padding: 16px;
     }
 
-    .partner-page .ant-list-grid .ant-col {
-        max-width: 100% !important;
-        flex: 0 0 100% !important;
-    }
-
     .partner-page .ant-card img {
         height: 200px;
     }
@@ -195,29 +203,10 @@
 
 @media screen and (min-width: 768px) and (max-width: 1023.9px) {
     .partner-page {
-        padding: 32px 24px;
+        padding: 120px 24px 32px 24px;
     }
 
     .partner-header {
-        padding: 32px;
-    }
-
-    .partner-page .ant-list-grid .ant-col {
-        max-width: 50% !important;
-        flex: 0 0 50% !important;
-    }
-}
-
-@media screen and (min-width: 1024px) and (max-width: 1335.9px) {
-    .partner-page .ant-list-grid .ant-col {
-        max-width: 33.33% !important;
-        flex: 0 0 33.33% !important;
-    }
-}
-
-@media screen and (min-width: 1336px) {
-    .partner-page .ant-list-grid .ant-col {
-        max-width: 25% !important;
-        flex: 0 0 25% !important;
+        padding: 28px;
     }
 }
