@@ -1,6 +1,58 @@
 /* Import global variables */
 @import '../../styles/variables.css';
 
+/* Desktop Collapse Panel Styling */
+.profile-tab-content .ant-collapse {
+  background: transparent;
+  border: none;
+}
+
+.profile-tab-content .ant-collapse-item {
+  background: white;
+  border-radius: 12px !important;
+  margin-bottom: 16px;
+  border: 2px solid #e8e8e8 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.profile-tab-content .ant-collapse-item:hover {
+  border-color: #1890ff !important;
+  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.15);
+}
+
+.profile-tab-content .ant-collapse-header {
+  padding: 16px 20px !important;
+  border-radius: 12px !important;
+  font-weight: 500;
+}
+
+.profile-tab-content .ant-collapse-item-active .ant-collapse-header {
+  border-bottom: 1px solid #f0f0f0;
+  border-radius: 12px 12px 0 0 !important;
+}
+
+/* Edit/Delete button styling for desktop */
+.profile-tab-content .ant-collapse-header .ant-collapse-extra .ant-btn {
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.profile-tab-content .ant-collapse-header .ant-collapse-extra .ant-btn-primary.ant-btn-background-ghost {
+  border-width: 2px;
+}
+
+.profile-tab-content .ant-collapse-header .ant-collapse-extra .ant-btn-primary.ant-btn-background-ghost:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(24, 144, 255, 0.3);
+}
+
+.profile-tab-content .ant-collapse-header .ant-collapse-extra .ant-btn-dangerous:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255, 77, 79, 0.3);
+}
+
 /* ChildrenClasses Component Mobile Styles */
 
 /* Mobile specific styles */
@@ -48,17 +100,18 @@
 
   /* Segmented filter */
   .profile-tab-content .ant-segmented {
-    font-size: 12px !important;
+    font-size: 13px !important;
   }
 
   .profile-tab-content .ant-segmented-item {
-    padding: 8px 6px !important;
-    min-height: 36px;
+    padding: 10px 8px !important;
+    min-height: 44px !important;
   }
 
   .profile-tab-content .ant-segmented-item-label {
-    font-size: 11px !important;
-    line-height: 1.4;
+    font-size: 12px !important;
+    line-height: 1.5;
+    white-space: normal;
   }
 
   /* Collapse panels */
@@ -71,7 +124,7 @@
     background: white;
     border-radius: 12px !important;
     margin-bottom: 12px;
-    border: 1px solid #e8e8e8 !important;
+    border: 2px solid #e8e8e8 !important;
   }
 
   .profile-tab-content .ant-collapse-header {
@@ -102,18 +155,16 @@
     padding: 2px 6px;
   }
 
-  /* Edit/Delete buttons - smaller on mobile */
+  /* Edit/Delete buttons - show text on mobile with better styling */
   .profile-tab-content .ant-collapse-header .ant-collapse-extra .ant-btn {
-    width: 28px !important;
-    height: 28px !important;
-    padding: 0 !important;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    height: 32px !important;
+    padding: 0 10px !important;
+    font-size: 12px !important;
+    border-width: 2px !important;
   }
 
   .profile-tab-content .ant-collapse-header .ant-collapse-extra .ant-btn .anticon {
-    font-size: 14px;
+    font-size: 12px;
   }
 
   /* Collapse content */

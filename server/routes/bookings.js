@@ -280,7 +280,17 @@ router.get("/user", authorization, async (req, res) => {
         l.description as listing_description,
         l.images,
         p.partner_name,
-        p.picture as partner_picture
+        p.picture as partner_picture,
+        (
+          SELECT child_id 
+          FROM transactions 
+          WHERE parent_id = b.user_id 
+            AND listing_id = b.listing_id 
+            AND transaction_type = 'DEBIT'
+            AND created_on >= b.created_on
+          ORDER BY created_on ASC
+          LIMIT 1
+        ) as child_id
       FROM bookings b
       JOIN listings l ON b.listing_id = l.listing_id
       JOIN partners p ON l.partner_id = p.partner_id

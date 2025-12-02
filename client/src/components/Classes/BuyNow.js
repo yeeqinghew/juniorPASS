@@ -109,6 +109,7 @@ const BuyNow = ({
       width={600}
       confirmLoading={isLoading}
       okButtonProps={{ disabled: !selectedChildId }}
+      cancelButtonProps={{ type: "primary" }}
     >
       <Space direction="vertical" style={{ width: "100%" }}>
         {/* Credit Display */}

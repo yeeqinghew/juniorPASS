@@ -111,7 +111,8 @@ const Classes = () => {
 
   const pins = useMemo(() => {
     return listings?.map((listing) => {
-      const color = "#98BDD2";
+      // Use a more visible color for map pins - bright coral/red stands out better on maps
+      const color = "#ff4757"; // Bright coral red for maximum visibility
 
       return listing?.schedule_info.map((outlet, index) => {
         let parsedAddress = {};
@@ -136,12 +137,28 @@ const Classes = () => {
               setPopupInfo(listing);
             }}
           >
-            <EnvironmentTwoTone
-              twoToneColor={color}
+            <div
               style={{
-                fontSize: "36px",
+                position: "relative",
+                animation: "pulse 2s ease-in-out infinite",
               }}
-            />
+            >
+              <EnvironmentTwoTone
+                twoToneColor={color}
+                style={{
+                  fontSize: "64px",
+                  cursor: "pointer",
+                  filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.5))",
+                  transition: "transform 0.2s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "scale(1.2)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "scale(1)";
+                }}
+              />
+            </div>
           </Marker>
         );
       });

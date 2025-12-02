@@ -116,10 +116,10 @@ const ChildrenClasses = () => {
   };
 
   const handleDeleteChild = (child) => {
-    // Check if child has upcoming classes
+    // Check if THIS child has upcoming classes
     const now = new Date();
     const childUpcomingBookings = bookings.filter(
-      b => new Date(b.start_date) >= now
+      b => b.child_id === child.child_id && new Date(b.start_date) >= now
     );
     
     if (childUpcomingBookings.length > 0) {
@@ -203,7 +203,10 @@ const ChildrenClasses = () => {
         );
         setIsAddChildModalOpen(false);
         form.resetFields();
-        fetchChildrenAndBookings();
+        setEditingChild(null);
+        
+        // Refresh the children and bookings data
+        await fetchChildrenAndBookings();
       } else {
         toast.error("Failed to save child profile");
       }
@@ -305,15 +308,17 @@ const ChildrenClasses = () => {
 
   const getFilteredBookings = (childId) => {
     const now = new Date();
-    let filtered = bookings;
+    
+    // Filter bookings by child_id to show only this child's classes
+    let filtered = bookings.filter(b => b.child_id === childId);
 
+    // Apply time-based filters
     if (filterType === "upcoming") {
-      filtered = bookings.filter(b => new Date(b.start_date) >= now);
+      filtered = filtered.filter(b => new Date(b.start_date) >= now);
     } else if (filterType === "past") {
-      filtered = bookings.filter(b => new Date(b.start_date) < now);
+      filtered = filtered.filter(b => new Date(b.start_date) < now);
     }
 
-    // For now, return all filtered bookings (will need child_id in bookings table to properly filter)
     return filtered;
   };
 
@@ -353,8 +358,9 @@ const ChildrenClasses = () => {
         actions={
           !isPast ? [
             <Button 
-              type="link" 
+              type="primary" 
               danger
+              size="small"
               onClick={() => handleCancelBooking(booking)}
             >
               Cancel
@@ -419,44 +425,75 @@ const ChildrenClasses = () => {
     return (
       <Panel
         header={
-          <Space>
+          <Space align="center">
             <Avatar 
               size={48} 
               src={getChildImage(child)} 
               icon={<UserOutlined />}
             />
             <div>
-              <Text strong style={{ fontSize: "16px" }}>
-                {child.name}
-              </Text>
+              <Space align="center" size={8}>
+                <Text strong style={{ fontSize: "16px" }}>
+                  {child.name}
+                </Text>
+                <sup>
+                  <Tag 
+                    color={childBookings.length > 0 ? "blue" : "default"}
+                    style={{
+                      borderRadius: '12px',
+                      padding: '2px 8px',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      lineHeight: '18px'
+                    }}
+                  >
+                    {childBookings.length}
+                  </Tag>
+                </sup>
+              </Space>
               <br />
               <Text type="secondary">
                 Age {child.age} • {child.gender === "M" ? "Male" : "Female"}
               </Text>
             </div>
-            <Tag color="blue">
-              {childBookings.length} {childBookings.length === 1 ? 'Class' : 'Classes'}
-            </Tag>
           </Space>
         }
         key={child.child_id}
         extra={
-          <Space onClick={(e) => e.stopPropagation()}>
+          <Space onClick={(e) => e.stopPropagation()} size="small" align="center">
             <Button
-              type="text"
+              type="primary"
+              ghost
               icon={<EditOutlined />}
               onClick={(e) => {
                 e.stopPropagation();
                 handleEditChild(child);
               }}
+              style={{
+                borderRadius: '8px',
+                width: '36px',
+                height: '36px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderWidth: '2px'
+              }}
             />
             <Button
-              type="text"
               danger
               icon={<DeleteOutlined />}
               onClick={(e) => {
                 e.stopPropagation();
                 handleDeleteChild(child);
+              }}
+              style={{
+                borderRadius: '8px',
+                width: '36px',
+                height: '36px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderWidth: '2px'
               }}
             />
           </Space>
@@ -585,7 +622,9 @@ const ChildrenClasses = () => {
           </Card>
         ) : (
           <Collapse 
-            defaultActiveKey={children.map(c => c.child_id)}
+            defaultActiveKey={children
+              .filter(c => getFilteredBookings(c.child_id).length > 0)
+              .map(c => c.child_id)}
             expandIconPosition="end"
           >
             {children.map((child) => renderChildPanel(child))}
@@ -596,52 +635,151 @@ const ChildrenClasses = () => {
 
       {/* Add/Edit Child Modal */}
       <Modal
-        title={editingChild ? "Edit Child Profile" : "Add Child Profile"}
+        title={null}
         open={isAddChildModalOpen}
         onCancel={() => {
           setIsAddChildModalOpen(false);
           form.resetFields();
         }}
-        onOk={() => form.submit()}
-        okText={editingChild ? "Update" : "Add"}
+        footer={null}
+        centered
+        width={520}
+        styles={{
+          body: { padding: '32px' }
+        }}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSaveChild}
-        >
-          <Form.Item
-            label="Name"
-            name="name"
-            rules={[{ required: true, message: 'Please enter child name' }]}
-          >
-            <Input placeholder="Enter child's name" />
-          </Form.Item>
+        <Space direction="vertical" size={24} style={{ width: '100%' }}>
+          {/* Icon and Title */}
+          <div style={{ textAlign: 'center' }}>
+            <div style={{
+              width: '64px',
+              height: '64px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #52c41a 0%, #73d13d 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 16px',
+              boxShadow: '0 4px 12px rgba(82, 196, 26, 0.3)'
+            }}>
+              <UserOutlined style={{ fontSize: '28px', color: '#fff' }} />
+            </div>
+            <Title level={3} style={{ marginBottom: 8, color: '#262626' }}>
+              {editingChild ? "Edit Child Profile" : "Add Child Profile"}
+            </Title>
+            <Text type="secondary" style={{ fontSize: '15px' }}>
+              {editingChild 
+                ? "Update your child's information" 
+                : "Add a new child to your family account"}
+            </Text>
+          </div>
 
-          <Form.Item
-            label="Age"
-            name="age"
-            rules={[{ required: true, message: 'Please enter age' }]}
+          {/* Form */}
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleSaveChild}
+            requiredMark={false}
           >
-            <InputNumber 
-              min={0} 
-              max={18} 
-              style={{ width: '100%' }}
-              placeholder="Enter age"
-            />
-          </Form.Item>
+            <Form.Item
+              label={<Text strong style={{ fontSize: '15px' }}>Child's Name</Text>}
+              name="name"
+              rules={[{ required: true, message: 'Please enter child name' }]}
+            >
+              <Input 
+                placeholder="Enter child's full name" 
+                size="large"
+                style={{ 
+                  borderRadius: '8px',
+                  fontSize: '15px'
+                }}
+              />
+            </Form.Item>
 
-          <Form.Item
-            label="Gender"
-            name="gender"
-            rules={[{ required: true, message: 'Please select gender' }]}
-          >
-            <Select placeholder="Select gender">
-              <Option value="M">Male</Option>
-              <Option value="F">Female</Option>
-            </Select>
-          </Form.Item>
-        </Form>
+            <Row gutter={12}>
+              <Col span={12}>
+                <Form.Item
+                  label={<Text strong style={{ fontSize: '15px' }}>Age</Text>}
+                  name="age"
+                  rules={[{ required: true, message: 'Please enter age' }]}
+                >
+                  <InputNumber 
+                    min={0} 
+                    max={18} 
+                    style={{ 
+                      width: '100%',
+                      borderRadius: '8px',
+                      fontSize: '15px'
+                    }}
+                    size="large"
+                    placeholder="Age"
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item
+                  label={<Text strong style={{ fontSize: '15px' }}>Gender</Text>}
+                  name="gender"
+                  rules={[{ required: true, message: 'Please select gender' }]}
+                >
+                  <Select 
+                    placeholder="Select" 
+                    size="large"
+                    style={{ 
+                      borderRadius: '8px',
+                      fontSize: '15px'
+                    }}
+                  >
+                    <Option value="M">Male</Option>
+                    <Option value="F">Female</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+          </Form>
+
+          {/* Action Buttons */}
+          <Row gutter={12}>
+            <Col span={12}>
+              <Button
+                block
+                type="primary"
+                size="large"
+                onClick={() => {
+                  setIsAddChildModalOpen(false);
+                  form.resetFields();
+                }}
+                style={{
+                  height: '48px',
+                  borderRadius: '8px',
+                  fontWeight: 500,
+                  fontSize: '15px'
+                }}
+              >
+                Cancel
+              </Button>
+            </Col>
+            <Col span={12}>
+              <Button
+                block
+                type="primary"
+                size="large"
+                onClick={() => form.submit()}
+                style={{
+                  height: '48px',
+                  borderRadius: '8px',
+                  fontWeight: 500,
+                  fontSize: '15px',
+                  background: 'linear-gradient(135deg, #52c41a 0%, #73d13d 100%)',
+                  border: 'none',
+                  boxShadow: '0 2px 8px rgba(82, 196, 26, 0.3)'
+                }}
+              >
+                {editingChild ? "Update Profile" : "Add Child"}
+              </Button>
+            </Col>
+          </Row>
+        </Space>
       </Modal>
 
       {/* Cancel Booking Modal */}
@@ -747,6 +885,7 @@ const ChildrenClasses = () => {
             <Col span={12}>
               <Button
                 block
+                type="primary"
                 size="large"
                 onClick={() => {
                   setIsCancelModalOpen(false);
@@ -766,7 +905,6 @@ const ChildrenClasses = () => {
               <Button
                 block
                 danger
-                type="primary"
                 size="large"
                 loading={cancelLoading}
                 onClick={confirmCancelBooking}
@@ -880,6 +1018,7 @@ const ChildrenClasses = () => {
             <Col span={12}>
               <Button
                 block
+                type="primary"
                 size="large"
                 onClick={() => {
                   setIsDeleteChildModalOpen(false);
@@ -899,7 +1038,6 @@ const ChildrenClasses = () => {
               <Button
                 block
                 danger
-                type="primary"
                 size="large"
                 loading={deleteLoading}
                 onClick={confirmDeleteChild}

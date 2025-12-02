@@ -145,9 +145,8 @@ const Account = () => {
                   </Button>
                 ) : (
                   <>
-                    <Button onClick={handleCancel}>Cancel</Button>
+                    <Button type="primary" onClick={handleCancel}>Cancel</Button>
                     <Button
-                      type="primary"
                       icon={<SaveOutlined />}
                       loading={loading}
                       onClick={handleSave}

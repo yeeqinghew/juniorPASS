@@ -441,9 +441,8 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen, onSuccess }) => {
         modalStep === "form" ? (
           <div style={{ textAlign: "right" }}>
             <Space>
-              <Button onClick={handleCancel}>Cancel</Button>
+              <Button type="primary" onClick={handleCancel}>Cancel</Button>
               <Button
-                type="primary"
                 loading={isLoading}
                 onClick={onHandleTopUp}
                 disabled={!getFinalAmount() || getFinalAmount() < 5}
