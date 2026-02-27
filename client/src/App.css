@@ -62,3 +62,172 @@
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Ovo&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* ============================================
+   GLOBAL BUTTON STYLES
+   Consistent button styling across the app
+   ============================================ */
+
+/* Base button styles for Ant Design buttons */
+.ant-btn {
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 500 !important;
+  border-radius: 8px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  transition: all 0.3s ease !important;
+  line-height: 1.5 !important;
+}
+
+/* Small button */
+.ant-btn-sm {
+  height: 32px !important;
+  padding: 0 12px !important;
+  font-size: 13px !important;
+}
+
+/* Default/Medium button */
+.ant-btn-default,
+.ant-btn:not(.ant-btn-sm):not(.ant-btn-lg) {
+  height: 40px !important;
+  padding: 0 20px !important;
+  font-size: 14px !important;
+}
+
+/* Large button */
+.ant-btn-lg {
+  height: 48px !important;
+  padding: 0 28px !important;
+  font-size: 16px !important;
+}
+
+/* Primary button styling */
+.ant-btn-primary {
+  background: linear-gradient(135deg, #98BDD2 0%, #7fa8c0 100%) !important;
+  border: none !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(152, 189, 210, 0.3) !important;
+}
+
+.ant-btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #a8cde2 0%, #8fb8d0 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 16px rgba(152, 189, 210, 0.4) !important;
+}
+
+.ant-btn-primary:active:not(:disabled) {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 8px rgba(152, 189, 210, 0.3) !important;
+}
+
+/* Default button styling */
+.ant-btn-default:not(.ant-btn-dangerous) {
+  background: white !important;
+  border: 1.5px solid #d9d9d9 !important;
+  color: #333 !important;
+}
+
+.ant-btn-default:not(.ant-btn-dangerous):hover:not(:disabled) {
+  border-color: #98BDD2 !important;
+  color: #98BDD2 !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(152, 189, 210, 0.15) !important;
+}
+
+/* Danger button styling */
+.ant-btn-dangerous.ant-btn-primary {
+  background: linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%) !important;
+  box-shadow: 0 4px 12px rgba(255, 77, 79, 0.3) !important;
+}
+
+.ant-btn-dangerous.ant-btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ff6b6d 0%, #ff9090 100%) !important;
+  box-shadow: 0 6px 16px rgba(255, 77, 79, 0.4) !important;
+}
+
+/* Ghost button styling */
+.ant-btn-ghost {
+  background: transparent !important;
+  border: 1.5px solid #98BDD2 !important;
+  color: #98BDD2 !important;
+}
+
+.ant-btn-ghost:hover:not(:disabled) {
+  background: rgba(152, 189, 210, 0.1) !important;
+  border-color: #7fa8c0 !important;
+  color: #7fa8c0 !important;
+}
+
+/* Link button styling */
+.ant-btn-link {
+  color: #98BDD2 !important;
+  padding: 0 !important;
+  height: auto !important;
+}
+
+.ant-btn-link:hover:not(:disabled) {
+  color: #7fa8c0 !important;
+}
+
+/* Disabled button styling */
+.ant-btn:disabled,
+.ant-btn[disabled] {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Button with icon alignment */
+.ant-btn > .anticon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: inherit !important;
+}
+
+/* Block button */
+.ant-btn-block {
+  width: 100% !important;
+}
+
+/* Rounded/Pill button variant */
+.btn-rounded,
+.ant-btn.btn-rounded {
+  border-radius: 50px !important;
+}
+
+/* Pink accent button (for CTAs) */
+.btn-pink,
+.ant-btn.btn-pink {
+  background: linear-gradient(135deg, #f3a5c7 0%, #e88bb1 100%) !important;
+  border: none !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(243, 165, 199, 0.35) !important;
+}
+
+.btn-pink:hover:not(:disabled),
+.ant-btn.btn-pink:hover:not(:disabled) {
+  background: linear-gradient(135deg, #f5b5d3 0%, #ea9bc1 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 16px rgba(243, 165, 199, 0.5) !important;
+}
+
+/* Gold accent button (for premium) */
+.btn-gold,
+.ant-btn.btn-gold {
+  background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%) !important;
+  border: none !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.35) !important;
+}
+
+.btn-gold:hover:not(:disabled),
+.ant-btn.btn-gold:hover:not(:disabled) {
+  background: linear-gradient(135deg, #e4bf47 0%, #c8a42f 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 16px rgba(212, 175, 55, 0.5) !important;
+}

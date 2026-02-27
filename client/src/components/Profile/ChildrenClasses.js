@@ -63,12 +63,15 @@ const ChildrenClasses = () => {
       const token = localStorage.getItem("token");
 
       // Fetch children
-      const childrenResponse = await fetch(`${baseURL}/children/${user.user_id}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const childrenResponse = await fetch(
+        `${baseURL}/children/${user.user_id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
 
       // Fetch bookings
       const bookingsResponse = await fetch(`${baseURL}/bookings/user`, {
@@ -81,7 +84,7 @@ const ChildrenClasses = () => {
       if (childrenResponse.ok && bookingsResponse.ok) {
         const childrenData = await childrenResponse.json();
         const bookingsData = await bookingsResponse.json();
-        
+
         setChildren(childrenData);
         setBookings(bookingsData.bookings || []);
       }
@@ -119,28 +122,29 @@ const ChildrenClasses = () => {
     // Check if THIS child has upcoming classes
     const now = new Date();
     const childUpcomingBookings = bookings.filter(
-      b => b.child_id === child.child_id && new Date(b.start_date) >= now
+      (b) => b.child_id === child.child_id && new Date(b.start_date) >= now,
     );
-    
+
     if (childUpcomingBookings.length > 0) {
       Modal.error({
-        title: 'Cannot Delete Child Profile',
+        title: "Cannot Delete Child Profile",
         content: (
           <div>
             <p style={{ marginBottom: 12 }}>
-              This child has {childUpcomingBookings.length} upcoming {childUpcomingBookings.length === 1 ? 'class' : 'classes'}.
+              This child has {childUpcomingBookings.length} upcoming{" "}
+              {childUpcomingBookings.length === 1 ? "class" : "classes"}.
             </p>
             <p style={{ margin: 0 }}>
               Please cancel all upcoming classes before deleting the profile.
             </p>
           </div>
         ),
-        okText: 'Understood',
+        okText: "Understood",
         centered: true,
       });
       return;
     }
-    
+
     setChildToDelete(child);
     setIsDeleteChildModalOpen(true);
   };
@@ -151,12 +155,15 @@ const ChildrenClasses = () => {
     setDeleteLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`${baseURL}/children/${childToDelete.child_id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await fetch(
+        `${baseURL}/children/${childToDelete.child_id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
 
       if (response.ok) {
         toast.success("Child profile deleted successfully");
@@ -180,9 +187,9 @@ const ChildrenClasses = () => {
       const url = editingChild
         ? `${baseURL}/children/${editingChild.child_id}`
         : `${baseURL}/children`;
-      
+
       const method = editingChild ? "PUT" : "POST";
-      
+
       const response = await fetch(url, {
         method,
         headers: {
@@ -199,12 +206,12 @@ const ChildrenClasses = () => {
         toast.success(
           editingChild
             ? "Child profile updated successfully"
-            : "Child profile added successfully"
+            : "Child profile added successfully",
         );
         setIsAddChildModalOpen(false);
         form.resetFields();
         setEditingChild(null);
-        
+
         // Refresh the children and bookings data
         await fetchChildrenAndBookings();
       } else {
@@ -221,34 +228,39 @@ const ChildrenClasses = () => {
     const classStartTime = new Date(booking.start_date);
     const now = new Date();
     const hoursUntilClass = (classStartTime - now) / (1000 * 60 * 60);
-    
+
     if (hoursUntilClass < 24) {
       Modal.error({
-        title: 'Cannot Cancel Booking',
+        title: "Cannot Cancel Booking",
         content: (
           <div>
             <p style={{ marginBottom: 12 }}>
-              Cancellations must be made at least 24 hours before the class starts.
+              Cancellations must be made at least 24 hours before the class
+              starts.
             </p>
-            <p style={{ margin: 0, color: '#8c8c8c', fontSize: '13px' }}>
-              Class starts: {new Date(booking.start_date).toLocaleString('en-US', {
-                weekday: 'short',
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
+            <p style={{ margin: 0, color: "#8c8c8c", fontSize: "13px" }}>
+              Class starts:{" "}
+              {new Date(booking.start_date).toLocaleString("en-US", {
+                weekday: "short",
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
               })}
             </p>
           </div>
         ),
-        okText: 'Understood',
+        okText: "Understood",
         centered: true,
       });
       return;
     }
-    
-    setBookingToCancel({ bookingId: booking.booking_id, bookingTitle: booking.listing_title });
+
+    setBookingToCancel({
+      bookingId: booking.booking_id,
+      bookingTitle: booking.listing_title,
+    });
     setIsCancelModalOpen(true);
   };
 
@@ -258,20 +270,23 @@ const ChildrenClasses = () => {
     setCancelLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`${baseURL}/bookings/${bookingToCancel.bookingId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const response = await fetch(
+        `${baseURL}/bookings/${bookingToCancel.bookingId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
 
       if (response.ok) {
         const data = await response.json();
         toast.success(
-          `Booking cancelled! ${data.refunded_credit} credits refunded.`
+          `Booking cancelled! ${data.refunded_credit} credits refunded.`,
         );
-        
+
         // Refresh bookings list and user credit balance
         await fetchChildrenAndBookings();
         await reauthenticate();
@@ -308,15 +323,15 @@ const ChildrenClasses = () => {
 
   const getFilteredBookings = (childId) => {
     const now = new Date();
-    
+
     // Filter bookings by child_id to show only this child's classes
-    let filtered = bookings.filter(b => b.child_id === childId);
+    let filtered = bookings.filter((b) => b.child_id === childId);
 
     // Apply time-based filters
     if (filterType === "upcoming") {
-      filtered = filtered.filter(b => new Date(b.start_date) >= now);
+      filtered = filtered.filter((b) => new Date(b.start_date) >= now);
     } else if (filterType === "past") {
-      filtered = filtered.filter(b => new Date(b.start_date) < now);
+      filtered = filtered.filter((b) => new Date(b.start_date) < now);
     }
 
     return filtered;
@@ -327,7 +342,7 @@ const ChildrenClasses = () => {
       return child.display_picture;
     }
     try {
-      return child.gender === "M" 
+      return child.gender === "M"
         ? require("../../images/profile/boys/boy0.png")
         : require("../../images/profile/girls/girl0.png");
     } catch (e) {
@@ -339,9 +354,10 @@ const ChildrenClasses = () => {
     let imageUrl = null;
     if (booking.images) {
       try {
-        const imagesArray = typeof booking.images === 'string' 
-          ? JSON.parse(booking.images) 
-          : booking.images;
+        const imagesArray =
+          typeof booking.images === "string"
+            ? JSON.parse(booking.images)
+            : booking.images;
         imageUrl = imagesArray[0];
       } catch (e) {
         imageUrl = booking.partner_picture;
@@ -356,16 +372,18 @@ const ChildrenClasses = () => {
       <List.Item
         key={booking.booking_id}
         actions={
-          !isPast ? [
-            <Button 
-              type="primary" 
-              danger
-              size="small"
-              onClick={() => handleCancelBooking(booking)}
-            >
-              Cancel
-            </Button>
-          ] : []
+          !isPast
+            ? [
+                <Button
+                  type="primary"
+                  danger
+                  size="small"
+                  onClick={() => handleCancelBooking(booking)}
+                >
+                  Cancel
+                </Button>,
+              ]
+            : []
         }
       >
         <List.Item.Meta
@@ -407,7 +425,8 @@ const ChildrenClasses = () => {
                   <Space size="small">
                     <ClockCircleOutlined style={{ color: "#666" }} />
                     <Text type="secondary">
-                      {formatTime(booking.start_date)} - {formatTime(booking.end_date)}
+                      {formatTime(booking.start_date)} -{" "}
+                      {formatTime(booking.end_date)}
                     </Text>
                   </Space>
                 </Col>
@@ -421,14 +440,14 @@ const ChildrenClasses = () => {
 
   const renderChildPanel = (child) => {
     const childBookings = getFilteredBookings(child.child_id);
-    
+
     return (
       <Panel
         header={
           <Space align="center">
-            <Avatar 
-              size={48} 
-              src={getChildImage(child)} 
+            <Avatar
+              size={48}
+              src={getChildImage(child)}
               icon={<UserOutlined />}
             />
             <div>
@@ -437,14 +456,14 @@ const ChildrenClasses = () => {
                   {child.name}
                 </Text>
                 <sup>
-                  <Tag 
+                  <Tag
                     color={childBookings.length > 0 ? "blue" : "default"}
                     style={{
-                      borderRadius: '12px',
-                      padding: '2px 8px',
-                      fontSize: '12px',
+                      borderRadius: "12px",
+                      padding: "2px 8px",
+                      fontSize: "12px",
                       fontWeight: 600,
-                      lineHeight: '18px'
+                      lineHeight: "18px",
                     }}
                   >
                     {childBookings.length}
@@ -460,7 +479,11 @@ const ChildrenClasses = () => {
         }
         key={child.child_id}
         extra={
-          <Space onClick={(e) => e.stopPropagation()} size="small" align="center">
+          <Space
+            onClick={(e) => e.stopPropagation()}
+            size="small"
+            align="center"
+          >
             <Button
               type="primary"
               ghost
@@ -470,13 +493,13 @@ const ChildrenClasses = () => {
                 handleEditChild(child);
               }}
               style={{
-                borderRadius: '8px',
-                width: '36px',
-                height: '36px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderWidth: '2px'
+                borderRadius: "8px",
+                width: "36px",
+                height: "36px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                borderWidth: "2px",
               }}
             />
             <Button
@@ -487,13 +510,13 @@ const ChildrenClasses = () => {
                 handleDeleteChild(child);
               }}
               style={{
-                borderRadius: '8px',
-                width: '36px',
-                height: '36px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderWidth: '2px'
+                borderRadius: "8px",
+                width: "36px",
+                height: "36px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                borderWidth: "2px",
               }}
             />
           </Space>
@@ -502,39 +525,42 @@ const ChildrenClasses = () => {
         {childBookings.length === 0 ? (
           <Empty
             description={`No ${filterType} classes`}
-            image={<BookOutlined style={{ fontSize: 48, color: '#ccc' }} />}
+            image={<BookOutlined style={{ fontSize: 48, color: "#ccc" }} />}
           >
             {filterType === "upcoming" && (
-              <Button type="primary" onClick={() => navigate('/classes')}>
+              <Button type="primary" onClick={() => navigate("/classes")}>
                 Browse Classes
               </Button>
             )}
           </Empty>
         ) : (
-          <List
-            dataSource={childBookings}
-            renderItem={renderBookingItem}
-          />
+          <List dataSource={childBookings} renderItem={renderBookingItem} />
         )}
       </Panel>
     );
   };
 
-  const upcomingCount = bookings.filter(b => new Date(b.start_date) >= new Date()).length;
-  const pastCount = bookings.filter(b => new Date(b.start_date) < new Date()).length;
+  const upcomingCount = bookings.filter(
+    (b) => new Date(b.start_date) >= new Date(),
+  ).length;
+  const pastCount = bookings.filter(
+    (b) => new Date(b.start_date) < new Date(),
+  ).length;
 
   return (
     <div>
       <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
         <Col>
-          <Title level={4} style={{ margin: 0 }}>Children & Their Classes</Title>
+          <Title level={4} style={{ margin: 0 }}>
+            Children & Their Classes
+          </Title>
           <Text type="secondary">
             Manage your children and view their booked classes
           </Text>
         </Col>
         <Col>
-          <Button 
-            type="primary" 
+          <Button
+            type="primary"
             icon={<PlusOutlined />}
             onClick={handleAddChild}
           >
@@ -554,7 +580,7 @@ const ChildrenClasses = () => {
                 </Text>
                 <br />
                 <Text type="secondary">
-                  {children.length === 1 ? 'Child' : 'Children'}
+                  {children.length === 1 ? "Child" : "Children"}
                 </Text>
               </div>
             </Card>
@@ -600,9 +626,9 @@ const ChildrenClasses = () => {
           value={filterType}
           onChange={setFilterType}
           options={[
-            { label: `Upcoming (${upcomingCount})`, value: 'upcoming' },
-            { label: `Past (${pastCount})`, value: 'past' },
-            { label: `All (${bookings.length})`, value: 'all' },
+            { label: `Upcoming (${upcomingCount})`, value: "upcoming" },
+            { label: `Past (${pastCount})`, value: "past" },
+            { label: `All (${bookings.length})`, value: "all" },
           ]}
           block
         />
@@ -613,25 +639,28 @@ const ChildrenClasses = () => {
           <Card>
             <Empty
               description="No children profiles found"
-              image={<UserOutlined style={{ fontSize: 48, color: '#ccc' }} />}
+              image={<UserOutlined style={{ fontSize: 48, color: "#ccc" }} />}
             >
-              <Button type="primary" icon={<PlusOutlined />} onClick={handleAddChild}>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={handleAddChild}
+              >
                 Add Your First Child
               </Button>
             </Empty>
           </Card>
         ) : (
-          <Collapse 
+          <Collapse
             defaultActiveKey={children
-              .filter(c => getFilteredBookings(c.child_id).length > 0)
-              .map(c => c.child_id)}
+              .filter((c) => getFilteredBookings(c.child_id).length > 0)
+              .map((c) => c.child_id)}
             expandIconPosition="end"
           >
             {children.map((child) => renderChildPanel(child))}
           </Collapse>
         )}
       </Spin>
-
 
       {/* Add/Edit Child Modal */}
       <Modal
@@ -645,31 +674,33 @@ const ChildrenClasses = () => {
         centered
         width={520}
         styles={{
-          body: { padding: '32px' }
+          body: { padding: "32px" },
         }}
       >
-        <Space direction="vertical" size={24} style={{ width: '100%' }}>
+        <Space direction="vertical" size={24} style={{ width: "100%" }}>
           {/* Icon and Title */}
-          <div style={{ textAlign: 'center' }}>
-            <div style={{
-              width: '64px',
-              height: '64px',
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #52c41a 0%, #73d13d 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 16px',
-              boxShadow: '0 4px 12px rgba(82, 196, 26, 0.3)'
-            }}>
-              <UserOutlined style={{ fontSize: '28px', color: '#fff' }} />
+          <div style={{ textAlign: "center" }}>
+            <div
+              style={{
+                width: "64px",
+                height: "64px",
+                borderRadius: "50%",
+                background: "linear-gradient(135deg, #52c41a 0%, #73d13d 100%)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 16px",
+                boxShadow: "0 4px 12px rgba(82, 196, 26, 0.3)",
+              }}
+            >
+              <UserOutlined style={{ fontSize: "28px", color: "#fff" }} />
             </div>
-            <Title level={3} style={{ marginBottom: 8, color: '#262626' }}>
+            <Title level={3} style={{ marginBottom: 8, color: "#262626" }}>
               {editingChild ? "Edit Child Profile" : "Add Child Profile"}
             </Title>
-            <Text type="secondary" style={{ fontSize: '15px' }}>
-              {editingChild 
-                ? "Update your child's information" 
+            <Text type="secondary" style={{ fontSize: "15px" }}>
+              {editingChild
+                ? "Update your child's information"
                 : "Add a new child to your family account"}
             </Text>
           </div>
@@ -682,16 +713,20 @@ const ChildrenClasses = () => {
             requiredMark={false}
           >
             <Form.Item
-              label={<Text strong style={{ fontSize: '15px' }}>Child's Name</Text>}
+              label={
+                <Text strong style={{ fontSize: "15px" }}>
+                  Child's Name
+                </Text>
+              }
               name="name"
-              rules={[{ required: true, message: 'Please enter child name' }]}
+              rules={[{ required: true, message: "Please enter child name" }]}
             >
-              <Input 
-                placeholder="Enter child's full name" 
+              <Input
+                placeholder="Enter child's full name"
                 size="large"
-                style={{ 
-                  borderRadius: '8px',
-                  fontSize: '15px'
+                style={{
+                  borderRadius: "8px",
+                  fontSize: "15px",
                 }}
               />
             </Form.Item>
@@ -699,17 +734,21 @@ const ChildrenClasses = () => {
             <Row gutter={12}>
               <Col span={12}>
                 <Form.Item
-                  label={<Text strong style={{ fontSize: '15px' }}>Age</Text>}
+                  label={
+                    <Text strong style={{ fontSize: "15px" }}>
+                      Age
+                    </Text>
+                  }
                   name="age"
-                  rules={[{ required: true, message: 'Please enter age' }]}
+                  rules={[{ required: true, message: "Please enter age" }]}
                 >
-                  <InputNumber 
-                    min={0} 
-                    max={18} 
-                    style={{ 
-                      width: '100%',
-                      borderRadius: '8px',
-                      fontSize: '15px'
+                  <InputNumber
+                    min={0}
+                    max={18}
+                    style={{
+                      width: "100%",
+                      borderRadius: "8px",
+                      fontSize: "15px",
                     }}
                     size="large"
                     placeholder="Age"
@@ -718,16 +757,20 @@ const ChildrenClasses = () => {
               </Col>
               <Col span={12}>
                 <Form.Item
-                  label={<Text strong style={{ fontSize: '15px' }}>Gender</Text>}
+                  label={
+                    <Text strong style={{ fontSize: "15px" }}>
+                      Gender
+                    </Text>
+                  }
                   name="gender"
-                  rules={[{ required: true, message: 'Please select gender' }]}
+                  rules={[{ required: true, message: "Please select gender" }]}
                 >
-                  <Select 
-                    placeholder="Select" 
+                  <Select
+                    placeholder="Select"
                     size="large"
-                    style={{ 
-                      borderRadius: '8px',
-                      fontSize: '15px'
+                    style={{
+                      borderRadius: "8px",
+                      fontSize: "15px",
                     }}
                   >
                     <Option value="M">Male</Option>
@@ -750,10 +793,10 @@ const ChildrenClasses = () => {
                   form.resetFields();
                 }}
                 style={{
-                  height: '48px',
-                  borderRadius: '8px',
+                  height: "48px",
+                  borderRadius: "8px",
                   fontWeight: 500,
-                  fontSize: '15px'
+                  fontSize: "15px",
                 }}
               >
                 Cancel
@@ -766,13 +809,14 @@ const ChildrenClasses = () => {
                 size="large"
                 onClick={() => form.submit()}
                 style={{
-                  height: '48px',
-                  borderRadius: '8px',
+                  height: "48px",
+                  borderRadius: "8px",
                   fontWeight: 500,
-                  fontSize: '15px',
-                  background: 'linear-gradient(135deg, #52c41a 0%, #73d13d 100%)',
-                  border: 'none',
-                  boxShadow: '0 2px 8px rgba(82, 196, 26, 0.3)'
+                  fontSize: "15px",
+                  background:
+                    "linear-gradient(135deg, #52c41a 0%, #73d13d 100%)",
+                  border: "none",
+                  boxShadow: "0 2px 8px rgba(82, 196, 26, 0.3)",
                 }}
               >
                 {editingChild ? "Update Profile" : "Add Child"}
@@ -793,62 +837,64 @@ const ChildrenClasses = () => {
         centered
         width={500}
         styles={{
-          body: { padding: '32px' }
+          body: { padding: "32px" },
         }}
       >
-        <Space direction="vertical" size={24} style={{ width: '100%' }}>
+        <Space direction="vertical" size={24} style={{ width: "100%" }}>
           {/* Icon and Title */}
-          <div style={{ textAlign: 'center' }}>
-            <div style={{
-              width: '64px',
-              height: '64px',
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 16px',
-              boxShadow: '0 4px 12px rgba(255, 77, 79, 0.2)'
-            }}>
-              <DeleteOutlined style={{ fontSize: '28px', color: '#fff' }} />
+          <div style={{ textAlign: "center" }}>
+            <div
+              style={{
+                width: "64px",
+                height: "64px",
+                borderRadius: "50%",
+                background: "linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 16px",
+                boxShadow: "0 4px 12px rgba(255, 77, 79, 0.2)",
+              }}
+            >
+              <DeleteOutlined style={{ fontSize: "28px", color: "#fff" }} />
             </div>
-            <Title level={3} style={{ marginBottom: 8, color: '#262626' }}>
+            <Title level={3} style={{ marginBottom: 8, color: "#262626" }}>
               Cancel Class Booking
             </Title>
-            <Text type="secondary" style={{ fontSize: '15px' }}>
+            <Text type="secondary" style={{ fontSize: "15px" }}>
               Are you sure you want to cancel this booking?
             </Text>
           </div>
 
           {/* Class Info Card */}
           {bookingToCancel?.bookingTitle && (
-            <Card 
-              style={{ 
-                background: 'linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%)',
-                border: '1px solid #e0e0e0',
-                borderRadius: '12px',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)'
+            <Card
+              style={{
+                background: "linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%)",
+                border: "1px solid #e0e0e0",
+                borderRadius: "12px",
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
               }}
             >
-              <Space direction="vertical" size={8} style={{ width: '100%' }}>
-                <Text 
-                  type="secondary" 
-                  style={{ 
-                    fontSize: '11px', 
-                    textTransform: 'uppercase', 
-                    letterSpacing: '1px',
+              <Space direction="vertical" size={8} style={{ width: "100%" }}>
+                <Text
+                  type="secondary"
+                  style={{
+                    fontSize: "11px",
+                    textTransform: "uppercase",
+                    letterSpacing: "1px",
                     fontWeight: 600,
-                    color: '#8c8c8c'
+                    color: "#8c8c8c",
                   }}
                 >
                   Booking Details
                 </Text>
-                <Text 
-                  strong 
-                  style={{ 
-                    fontSize: '16px', 
-                    color: '#262626',
-                    display: 'block'
+                <Text
+                  strong
+                  style={{
+                    fontSize: "16px",
+                    color: "#262626",
+                    display: "block",
                   }}
                 >
                   {bookingToCancel.bookingTitle}
@@ -861,22 +907,23 @@ const ChildrenClasses = () => {
           <Alert
             message={
               <Space>
-                <span style={{ fontSize: '15px', fontWeight: 500 }}>
+                <span style={{ fontSize: "15px", fontWeight: 500 }}>
                   Credits will be automatically refunded
                 </span>
               </Space>
             }
             description={
-              <Text style={{ fontSize: '13px', color: '#595959' }}>
-                The refunded credits will be available immediately for booking other classes
+              <Text style={{ fontSize: "13px", color: "#595959" }}>
+                The refunded credits will be available immediately for booking
+                other classes
               </Text>
             }
             type="success"
             showIcon
-            style={{ 
-              borderRadius: '12px',
-              border: '1px solid #b7eb8f',
-              background: '#f6ffed'
+            style={{
+              borderRadius: "12px",
+              border: "1px solid #b7eb8f",
+              background: "#f6ffed",
             }}
           />
 
@@ -892,10 +939,10 @@ const ChildrenClasses = () => {
                   setBookingToCancel(null);
                 }}
                 style={{
-                  height: '48px',
-                  borderRadius: '8px',
+                  height: "48px",
+                  borderRadius: "8px",
                   fontWeight: 500,
-                  fontSize: '15px'
+                  fontSize: "15px",
                 }}
               >
                 Keep Booking
@@ -909,11 +956,11 @@ const ChildrenClasses = () => {
                 loading={cancelLoading}
                 onClick={confirmCancelBooking}
                 style={{
-                  height: '48px',
-                  borderRadius: '8px',
+                  height: "48px",
+                  borderRadius: "8px",
                   fontWeight: 500,
-                  fontSize: '15px',
-                  boxShadow: '0 2px 8px rgba(255, 77, 79, 0.3)'
+                  fontSize: "15px",
+                  boxShadow: "0 2px 8px rgba(255, 77, 79, 0.3)",
                 }}
               >
                 Cancel Booking
@@ -934,56 +981,59 @@ const ChildrenClasses = () => {
         centered
         width={500}
         styles={{
-          body: { padding: '32px' }
+          body: { padding: "32px" },
         }}
       >
-        <Space direction="vertical" size={24} style={{ width: '100%' }}>
+        <Space direction="vertical" size={24} style={{ width: "100%" }}>
           {/* Icon and Title */}
-          <div style={{ textAlign: 'center' }}>
-            <div style={{
-              width: '64px',
-              height: '64px',
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 16px',
-              boxShadow: '0 4px 12px rgba(255, 77, 79, 0.2)'
-            }}>
-              <UserOutlined style={{ fontSize: '28px', color: '#fff' }} />
+          <div style={{ textAlign: "center" }}>
+            <div
+              style={{
+                width: "64px",
+                height: "64px",
+                borderRadius: "50%",
+                background: "linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 16px",
+                boxShadow: "0 4px 12px rgba(255, 77, 79, 0.2)",
+              }}
+            >
+              <UserOutlined style={{ fontSize: "28px", color: "#fff" }} />
             </div>
-            <Title level={3} style={{ marginBottom: 8, color: '#262626' }}>
+            <Title level={3} style={{ marginBottom: 8, color: "#262626" }}>
               Delete Child Profile
             </Title>
-            <Text type="secondary" style={{ fontSize: '15px' }}>
+            <Text type="secondary" style={{ fontSize: "15px" }}>
               Are you sure you want to delete this child's profile?
             </Text>
           </div>
 
           {/* Child Info Card */}
           {childToDelete && (
-            <Card 
-              style={{ 
-                background: 'linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%)',
-                border: '1px solid #e0e0e0',
-                borderRadius: '12px',
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)'
+            <Card
+              style={{
+                background: "linear-gradient(135deg, #f5f5f5 0%, #fafafa 100%)",
+                border: "1px solid #e0e0e0",
+                borderRadius: "12px",
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)",
               }}
             >
-              <Space align="center" style={{ width: '100%' }}>
-                <Avatar 
-                  size={56} 
-                  src={getChildImage(childToDelete)} 
+              <Space align="center" style={{ width: "100%" }}>
+                <Avatar
+                  size={56}
+                  src={getChildImage(childToDelete)}
                   icon={<UserOutlined />}
                   style={{ flexShrink: 0 }}
                 />
                 <Space direction="vertical" size={4} style={{ flex: 1 }}>
-                  <Text strong style={{ fontSize: '16px', color: '#262626' }}>
+                  <Text strong style={{ fontSize: "16px", color: "#262626" }}>
                     {childToDelete.name}
                   </Text>
-                  <Text type="secondary" style={{ fontSize: '13px' }}>
-                    Age {childToDelete.age} • {childToDelete.gender === "M" ? "Male" : "Female"}
+                  <Text type="secondary" style={{ fontSize: "13px" }}>
+                    Age {childToDelete.age} •{" "}
+                    {childToDelete.gender === "M" ? "Male" : "Female"}
                   </Text>
                 </Space>
               </Space>
@@ -994,22 +1044,23 @@ const ChildrenClasses = () => {
           <Alert
             message={
               <Space>
-                <span style={{ fontSize: '15px', fontWeight: 500 }}>
+                <span style={{ fontSize: "15px", fontWeight: 500 }}>
                   This action cannot be undone
                 </span>
               </Space>
             }
             description={
-              <Text style={{ fontSize: '13px', color: '#595959' }}>
-                All data associated with this child's profile will be permanently deleted
+              <Text style={{ fontSize: "13px", color: "#595959" }}>
+                All data associated with this child's profile will be
+                permanently deleted
               </Text>
             }
             type="error"
             showIcon
-            style={{ 
-              borderRadius: '12px',
-              border: '1px solid #ffccc7',
-              background: '#fff2f0'
+            style={{
+              borderRadius: "12px",
+              border: "1px solid #ffccc7",
+              background: "#fff2f0",
             }}
           />
 
@@ -1025,10 +1076,10 @@ const ChildrenClasses = () => {
                   setChildToDelete(null);
                 }}
                 style={{
-                  height: '48px',
-                  borderRadius: '8px',
+                  height: "48px",
+                  borderRadius: "8px",
                   fontWeight: 500,
-                  fontSize: '15px'
+                  fontSize: "15px",
                 }}
               >
                 Cancel
@@ -1042,11 +1093,11 @@ const ChildrenClasses = () => {
                 loading={deleteLoading}
                 onClick={confirmDeleteChild}
                 style={{
-                  height: '48px',
-                  borderRadius: '8px',
+                  height: "48px",
+                  borderRadius: "8px",
                   fontWeight: 500,
-                  fontSize: '15px',
-                  boxShadow: '0 2px 8px rgba(255, 77, 79, 0.3)'
+                  fontSize: "15px",
+                  boxShadow: "0 2px 8px rgba(255, 77, 79, 0.3)",
                 }}
               >
                 Delete Profile
