@@ -46,6 +46,7 @@ const Class = () => {
   const [isBuyNowModalOpen, setIsBuyNowModalOpen] = useState(false);
   const [selected, setSelected] = useState(null);
   const [children, setChildren] = useState([]);
+  const [allChildren, setAllChildren] = useState([]); // Store all children for booking status display
   const [slotAvailability, setSlotAvailability] = useState({});
   const [userBookings, setUserBookings] = useState([]);
 
@@ -114,11 +115,11 @@ const Class = () => {
 
   const availableTimeSlots = generateAvailableTimeSlots();
 
-  // Fetch user's bookings
+  // Fetch user's bookings and children
   useEffect(() => {
     async function fetchUserBookings() {
       if (!user) return;
-      
+
       try {
         const token = localStorage.getItem("token");
         const response = await fetch(`${baseURL}/bookings/user`, {
@@ -136,7 +137,29 @@ const Class = () => {
       }
     }
 
+    async function fetchAllChildren() {
+      if (!user) return;
+
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${baseURL}/children/${user.user_id}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+        });
+
+        if (response.ok) {
+          const childrenData = await response.json();
+          setAllChildren(Array.isArray(childrenData) ? childrenData : []);
+        }
+      } catch (error) {
+        console.error("Error fetching children:", error);
+      }
+    }
+
     fetchUserBookings();
+    fetchAllChildren();
   }, [user, baseURL]);
 
   // Fetch slot availability
@@ -162,7 +185,7 @@ const Class = () => {
 
         try {
           const response = await fetch(
-            `${baseURL}/bookings/availability/${slot.location.schedule_id}?start_date=${startDate}&end_date=${endDate}`
+            `${baseURL}/bookings/availability/${slot.location.schedule_id}?start_date=${startDate}&end_date=${endDate}`,
           );
 
           if (response.ok) {
@@ -226,10 +249,10 @@ const Class = () => {
     const previousDay = dayjs(selectedDate).subtract(1, "day").toDate();
     setSelectedDate(previousDay);
   };
-  const handleBookNow = async (item) => {
+  const handleBookNow = async (item, bookedChildIds = []) => {
     if (!listing || !item) {
       toast.error(
-        "Class information is not available. Please try again later."
+        "Class information is not available. Please try again later.",
       );
       return;
     }
@@ -265,7 +288,17 @@ const Class = () => {
         return;
       }
 
-      setChildren(childrenData);
+      // Filter out children who are already booked for this slot
+      const availableChildren = childrenData.filter(
+        (child) => !bookedChildIds.includes(child.child_id)
+      );
+
+      if (availableChildren.length === 0) {
+        toast.error("All your children are already booked for this class.");
+        return;
+      }
+
+      setChildren(availableChildren);
       setSelected({
         ...item,
         selectedDate: dayjs(selectedDate).format("YYYY-MM-DD"),
@@ -276,11 +309,53 @@ const Class = () => {
     }
   };
 
+  // Function to refresh slot availability
+  const refreshSlotAvailability = async () => {
+    if (!listing || !listing.schedule_info || !selectedDate) return;
+
+    const slots = generateAvailableTimeSlots();
+    if (!slots.length) return;
+
+    const availability = {};
+
+    for (const slot of slots) {
+      const slotStartDate = dayjs(selectedDate)
+        .hour(parseInt(slot.location.timeslot[0].split(":")[0]))
+        .minute(parseInt(slot.location.timeslot[0].split(":")[1]))
+        .format("YYYY-MM-DDTHH:mm:ss");
+
+      const slotEndDate = dayjs(selectedDate)
+        .hour(parseInt(slot.location.timeslot[1].split(":")[0]))
+        .minute(parseInt(slot.location.timeslot[1].split(":")[1]))
+        .format("YYYY-MM-DDTHH:mm:ss");
+
+      try {
+        const response = await fetch(
+          `${baseURL}/bookings/availability/${slot.location.schedule_id}?start_date=${slotStartDate}&end_date=${slotEndDate}`,
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          const key = `${slot.location.schedule_id}-${slotStartDate}`;
+          availability[key] = {
+            isFull: data.is_full,
+            availableSpots: data.available_spots,
+            maxSlots: data.max_slots,
+          };
+        }
+      } catch (error) {
+        console.error("Error fetching availability:", error);
+      }
+    }
+
+    setSlotAvailability(availability);
+  };
+
   // Callback to refresh user data after successful booking
   const handleBookingSuccess = async (updatedCredit) => {
     // Re-fetch user data to get updated credit balance
     await reauthenticate();
-    
+
     // Re-fetch user bookings to update the "Booked" indicators
     try {
       const token = localStorage.getItem("token");
@@ -297,6 +372,9 @@ const Class = () => {
     } catch (error) {
       console.error("Error fetching user bookings:", error);
     }
+
+    // Re-fetch slot availability to update spots left
+    await refreshSlotAvailability();
   };
 
   if (loading) {
@@ -512,64 +590,120 @@ const Class = () => {
                 const isSoldOut = availability?.isFull || false;
                 const spotsLeft = availability?.availableSpots;
 
-                // Check if user has already booked this slot (compare without seconds)
-                const isBooked = userBookings.some((booking) => {
-                  const bookingStart = dayjs(booking.start_date).format("YYYY-MM-DDTHH:mm");
-                  const targetStart = dayjs(startDate).format("YYYY-MM-DDTHH:mm");
+                // Check if the class has already started (current time > start time)
+                const classStartTime = dayjs(selectedDate)
+                  .hour(parseInt(item.location.timeslot[0].split(":")[0]))
+                  .minute(parseInt(item.location.timeslot[0].split(":")[1]));
+                const isPastClass = dayjs().isAfter(classStartTime);
+
+                // Find all bookings for this slot and get the booked children info
+                const slotBookings = userBookings.filter((booking) => {
+                  const bookingStart = dayjs(booking.start_date).format(
+                    "YYYY-MM-DDTHH:mm",
+                  );
+                  const targetStart =
+                    dayjs(startDate).format("YYYY-MM-DDTHH:mm");
                   const matchesListing = booking.listing_id === classId;
                   const matchesTime = bookingStart === targetStart;
-                  
+
                   return matchesListing && matchesTime;
                 });
+
+                // Get the names of booked children
+                const bookedChildIds = slotBookings.map((b) => b.child_id).filter(Boolean);
+                const bookedChildrenNames = allChildren
+                  .filter((child) => bookedChildIds.includes(child.child_id))
+                  .map((child) => child.name);
+
+                // Check if all children are booked for this slot
+                const allChildrenBooked = allChildren.length > 0 && 
+                  allChildren.every((child) => bookedChildIds.includes(child.child_id));
+
+                // Has at least one booking
+                const hasBooking = slotBookings.length > 0;
+
+                // Determine the action button/tag to show
+                const renderAction = () => {
+                  if (isPastClass) {
+                    return (
+                      <Tag
+                        color="default"
+                        style={{
+                          fontSize: "14px",
+                          padding: "6px 16px",
+                          fontWeight: "bold",
+                          background: "#f0f0f0",
+                          color: "#8c8c8c",
+                        }}
+                      >
+                        CLASS ENDED
+                      </Tag>
+                    );
+                  }
+                  
+                  if (allChildrenBooked) {
+                    return (
+                      <Tag
+                        color="blue"
+                        style={{
+                          fontSize: "14px",
+                          padding: "6px 16px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        ✓ ALL BOOKED
+                      </Tag>
+                    );
+                  }
+                  
+                  if (isSoldOut) {
+                    return (
+                      <Tag
+                        color="red"
+                        style={{
+                          fontSize: "14px",
+                          padding: "6px 16px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        SOLD OUT
+                      </Tag>
+                    );
+                  }
+                  
+                  return (
+                    <Button
+                      type="primary"
+                      size="large"
+                      onClick={() => handleBookNow(item, bookedChildIds)}
+                      style={{
+                        borderRadius: "8px",
+                        height: "40px",
+                        fontWeight: "500",
+                      }}
+                    >
+                      Book Now
+                    </Button>
+                  );
+                };
 
                 return (
                   <List.Item
                     style={{
                       padding: "16px",
-                      background: isBooked ? "#e6f7ff" : isSoldOut ? "#f5f5f5" : "#fafafa",
+                      background: isPastClass
+                        ? "#fafafa"
+                        : hasBooking
+                          ? "#e6f7ff"
+                          : isSoldOut
+                            ? "#f5f5f5"
+                            : "#fafafa",
                       borderRadius: "12px",
                       marginBottom: "12px",
-                      border: `1px solid ${isBooked ? "#1890ff" : isSoldOut ? "#d9d9d9" : "#e8e8e8"}`,
-                      opacity: isSoldOut ? 0.7 : 1,
+                      border: `1px solid ${isPastClass ? "#d9d9d9" : hasBooking ? "#1890ff" : isSoldOut ? "#d9d9d9" : "#e8e8e8"}`,
+                      opacity: isPastClass || isSoldOut ? 0.7 : 1,
                     }}
-                    actions={[
-                      isBooked ? (
-                        <Tag
-                          color="blue"
-                          style={{
-                            fontSize: "14px",
-                            padding: "6px 16px",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          ✓ BOOKED
-                        </Tag>
-                      ) : isSoldOut ? (
-                        <Tag
-                          color="red"
-                          style={{
-                            fontSize: "14px",
-                            padding: "6px 16px",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          SOLD OUT
-                        </Tag>
-                      ) : (
-                        <Button
-                          type="primary"
-                          size="large"
-                          onClick={() => handleBookNow(item)}
-                          style={{
-                            borderRadius: "8px",
-                            height: "40px",
-                            fontWeight: "500",
-                          }}
-                        >
-                          Book Now
-                        </Button>
-                      ),
-                    ]}
+                    actions={[renderAction()]}
                   >
                     <List.Item.Meta
                       avatar={
@@ -578,25 +712,25 @@ const Class = () => {
                             width: "48px",
                             height: "48px",
                             borderRadius: "12px",
-                            background: isSoldOut ? "#d9d9d9" : "#1890ff",
+                            background: isPastClass ? "#d9d9d9" : isSoldOut ? "#d9d9d9" : "#1890ff",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
                             fontSize: "20px",
                           }}
                         >
-                          {isSoldOut ? "❌" : "🕐"}
+                          {isPastClass ? "⏰" : isSoldOut ? "❌" : "🕐"}
                         </div>
                       }
                       title={
-                        <Space>
+                        <Space wrap>
                           <Text strong style={{ fontSize: "16px" }}>
                             {item.timeRange}
                           </Text>
                           <Tag color="gold" style={{ fontWeight: "bold" }}>
                             💰 {item.location.credit || listing?.credit} Credits
                           </Tag>
-                          {!isSoldOut &&
+                          {!isPastClass && !isSoldOut &&
                             spotsLeft !== undefined &&
                             spotsLeft <= 3 &&
                             spotsLeft > 0 && (
@@ -608,9 +742,23 @@ const Class = () => {
                         </Space>
                       }
                       description={
-                        <Space size="small">
-                          <Tag>{item.duration}</Tag>
-                          <Tag color="blue">{item.location.nearest_mrt}</Tag>
+                        <Space direction="vertical" size="small" style={{ width: "100%" }}>
+                          <Space size="small">
+                            <Tag>{item.duration}</Tag>
+                            <Tag color="blue">{item.location.nearest_mrt}</Tag>
+                          </Space>
+                          {hasBooking && bookedChildrenNames.length > 0 && (
+                            <Space size="small" wrap>
+                              <Text type="secondary" style={{ fontSize: "12px" }}>
+                                Booked for:
+                              </Text>
+                              {bookedChildrenNames.map((name, idx) => (
+                                <Tag key={idx} color="green" style={{ fontSize: "12px" }}>
+                                  ✓ {name}
+                                </Tag>
+                              ))}
+                            </Space>
+                          )}
                         </Space>
                       }
                     />

@@ -12,6 +12,18 @@ router.post("/", authorization, async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
+    // Check if the class has already started (prevent booking past classes)
+    const classStartTime = new Date(start_date);
+    const now = new Date();
+    
+    if (classStartTime <= now) {
+      return res.status(400).json({ 
+        error: "Cannot book a class that has already started or ended",
+        class_start_time: classStartTime.toISOString(),
+        current_time: now.toISOString()
+      });
+    }
+
     // Retrieve listing and user data
     const listing = await pool.query(
       "SELECT * FROM listings WHERE listing_id = $1",

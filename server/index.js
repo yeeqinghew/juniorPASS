@@ -38,8 +38,29 @@ app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(express.json());
 
 // Cache-Control middleware - to instruct browsers and intermediate cache (CDNs) on how cache the response
+// Only cache static assets, not API responses
 app.use((req, res, next) => {
-  res.set("Cache-Control", "public, max-age=3600"); // Cache for 1 hour
+  // Don't cache API responses - they contain user-specific data that changes frequently
+  const isApiRoute = req.path.startsWith('/auth') || 
+                     req.path.startsWith('/admins') || 
+                     req.path.startsWith('/partners') || 
+                     req.path.startsWith('/listings') || 
+                     req.path.startsWith('/misc') || 
+                     req.path.startsWith('/children') || 
+                     req.path.startsWith('/payment') || 
+                     req.path.startsWith('/bookings') || 
+                     req.path.startsWith('/transactions') || 
+                     req.path.startsWith('/notifications');
+  
+  if (isApiRoute) {
+    // Don't cache API responses
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.set("Pragma", "no-cache");
+    res.set("Expires", "0");
+  } else {
+    // Cache static assets for 1 hour
+    res.set("Cache-Control", "public, max-age=3600");
+  }
   next();
 });
 
