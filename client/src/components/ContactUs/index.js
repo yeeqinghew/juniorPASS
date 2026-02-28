@@ -1,9 +1,23 @@
 import React from "react";
-import { Form, Input, Typography, Button, Space } from "antd";
+import { Form, Input, Typography, Button, Card, Row, Col, Tag } from "antd";
+import {
+  SendOutlined,
+  UserOutlined,
+  MailOutlined,
+  BankOutlined,
+  RocketOutlined,
+  TeamOutlined,
+  TrophyOutlined,
+  CheckCircleOutlined,
+  StarFilled,
+  HeartFilled,
+  SafetyCertificateOutlined,
+} from "@ant-design/icons";
 import getBaseURL from "../../utils/config";
 import toast from "react-hot-toast";
+import "./index.css";
 
-const { Title, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
 
 const ContactUs = () => {
@@ -31,80 +45,223 @@ const ContactUs = () => {
     }
   };
 
+  const benefits = [
+    {
+      icon: <TeamOutlined className="benefit-icon" />,
+      title: "Reach More Families",
+      description:
+        "Connect with thousands of parents actively searching for quality enrichment classes",
+      color: "var(--primary-color)",
+    },
+    {
+      icon: <RocketOutlined className="benefit-icon" />,
+      title: "Grow Your Business",
+      description:
+        "Increase bookings, fill empty slots, and expand your customer base effortlessly",
+      color: "var(--color-success)",
+    },
+    {
+      icon: <TrophyOutlined className="benefit-icon" />,
+      title: "Build Your Brand",
+      description:
+        "Showcase your classes with beautiful listings and collect verified reviews",
+      color: "var(--accent-gold)",
+    },
+  ];
+
+  const stats = [
+    {
+      number: "100+",
+      label: "Partner Centers",
+      icon: <SafetyCertificateOutlined />,
+    },
+    { number: "10K+", label: "Happy Families", icon: <HeartFilled /> },
+    { number: "4.9", label: "Average Rating", icon: <StarFilled /> },
+  ];
+
   return (
-    <div
-      style={{
-        padding: "50px",
-        borderRadius: "8px",
-        maxWidth: "600px",
-        margin: "0 auto",
-        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
-      }}
-    >
-      <Space direction="vertical" size="large" style={{ width: "100%" }}>
-        <Title level={3} style={{ textAlign: "center" }}>
-          Ready to grow your business?
-        </Title>
-        <Text
-          type="secondary"
-          style={{ textAlign: "center", display: "block" }}
-        >
-          Interested in joining our platform or learning more about how we can
-          grow your business? Fill out the form below, and we’ll be in touch!
-        </Text>
-        <Form
-          form={contactUsForm}
-          layout="vertical"
-          style={{
-            width: "100%",
-          }}
-          onFinish={handleContactUs}
-        >
-          <Form.Item
-            name="companyName"
-            label="Company Name"
-            rules={[
-              { required: true, message: "Please enter your company name" },
-            ]}
-          >
-            <Input placeholder="Enter your company name" size="large" />
-          </Form.Item>
-          <Form.Item
-            name="companyPersonName"
-            label="Contact Person's Name"
-            rules={[{ required: true, message: "Please enter a contact name" }]}
-          >
-            <Input placeholder="Enter the contact person's name" size="large" />
-          </Form.Item>
-          <Form.Item
-            name="email"
-            label="Email Address"
-            rules={[
-              { required: true, message: "Please enter your email" },
-              { type: "email", message: "Please enter a valid email address" },
-            ]}
-          >
-            <Input placeholder="Enter your email" size="large" />
-          </Form.Item>
-          <Form.Item
-            name="message"
-            label="Message"
-            rules={[{ required: true, message: "Please enter your email" }]}
-          >
-            <TextArea rows={6}></TextArea>
-          </Form.Item>
-          <Form.Item>
-            <Button
-              type="primary"
-              size="large"
-              htmlType="submit"
-              style={{ width: "100%" }}
-            >
-              Submit
-            </Button>
-          </Form.Item>
-        </Form>
-      </Space>
+    <div className="contact-page">
+      {/* Decorative elements */}
+      <div className="contact-decoration contact-decoration-1"></div>
+      <div className="contact-decoration contact-decoration-2"></div>
+
+      <div className="contact-container">
+        <Row gutter={[48, 32]} align="stretch">
+          {/* Left Side - Info */}
+          <Col xs={24} lg={12}>
+            <div className="contact-info-section">
+              <Tag color="gold" className="partner-badge">
+                <StarFilled /> Become a Partner
+              </Tag>
+
+              <Title level={1} className="contact-title">
+                Grow Your Business With{" "}
+                <span className="highlight-text">JuniorPASS</span>
+              </Title>
+
+              <Paragraph className="contact-subtitle">
+                Join Singapore's fastest-growing platform for children's
+                enrichment classes. We help you reach more families and fill
+                your classes.
+              </Paragraph>
+
+              {/* Stats Row */}
+              <div className="stats-row">
+                {stats.map((stat, index) => (
+                  <div key={index} className="stat-item">
+                    <div className="stat-icon">{stat.icon}</div>
+                    <div className="stat-number">{stat.number}</div>
+                    <div className="stat-label">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Benefits */}
+              <div className="benefits-list">
+                {benefits.map((benefit, index) => (
+                  <div key={index} className="benefit-item">
+                    <div
+                      className="benefit-icon-wrapper"
+                      style={{ background: benefit.color }}
+                    >
+                      {benefit.icon}
+                    </div>
+                    <div className="benefit-content">
+                      <Text strong className="benefit-title">
+                        {benefit.title}
+                      </Text>
+                      <Text className="benefit-description">
+                        {benefit.description}
+                      </Text>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Trust badges */}
+              <div className="trust-badges">
+                <div className="trust-badge">
+                  <CheckCircleOutlined className="trust-check" />
+                  <span>Free to Join</span>
+                </div>
+                <div className="trust-badge">
+                  <CheckCircleOutlined className="trust-check" />
+                  <span>No Hidden Fees</span>
+                </div>
+                <div className="trust-badge">
+                  <CheckCircleOutlined className="trust-check" />
+                  <span>24/7 Support</span>
+                </div>
+              </div>
+            </div>
+          </Col>
+
+          {/* Right Side - Form */}
+          <Col xs={24} lg={12}>
+            <Card className="contact-form-card" bordered={false}>
+              <div className="form-header">
+                <div className="form-icon-wrapper">
+                  <SendOutlined className="form-icon" />
+                </div>
+                <Title level={3} className="form-title">
+                  Get Started Today
+                </Title>
+                <Text className="form-subtitle">
+                  Fill out the form and our team will reach out within 24 hours
+                </Text>
+              </div>
+
+              <Form
+                form={contactUsForm}
+                layout="vertical"
+                className="contact-form"
+                onFinish={handleContactUs}
+              >
+                <Form.Item
+                  name="companyName"
+                  label={<Text strong>Company Name</Text>}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please enter your company name",
+                    },
+                  ]}
+                >
+                  <Input
+                    prefix={<BankOutlined className="input-icon" />}
+                    placeholder="Your company name"
+                    size="large"
+                    className="contact-input"
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  name="companyPersonName"
+                  label={<Text strong>Contact Person</Text>}
+                  rules={[
+                    { required: true, message: "Please enter a contact name" },
+                  ]}
+                >
+                  <Input
+                    prefix={<UserOutlined className="input-icon" />}
+                    placeholder="Your name"
+                    size="large"
+                    className="contact-input"
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  name="email"
+                  label={<Text strong>Email Address</Text>}
+                  rules={[
+                    { required: true, message: "Please enter your email" },
+                    { type: "email", message: "Please enter a valid email" },
+                  ]}
+                >
+                  <Input
+                    prefix={<MailOutlined className="input-icon" />}
+                    placeholder="your@email.com"
+                    size="large"
+                    className="contact-input"
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  name="message"
+                  label={<Text strong>Message</Text>}
+                  rules={[
+                    { required: true, message: "Please enter your message" },
+                  ]}
+                >
+                  <TextArea
+                    rows={5}
+                    placeholder="Tell us about your business, what classes you offer, and how we can help..."
+                    className="contact-textarea"
+                  />
+                </Form.Item>
+
+                <Form.Item className="submit-wrapper">
+                  <Button
+                    type="primary"
+                    size="large"
+                    htmlType="submit"
+                    className="contact-submit-btn"
+                    icon={<SendOutlined />}
+                  >
+                    Send Message
+                  </Button>
+                </Form.Item>
+
+                <div className="form-footer">
+                  <Text type="secondary" className="form-footer-text">
+                    🔒 Your information is secure and will never be shared
+                  </Text>
+                </div>
+              </Form>
+            </Card>
+          </Col>
+        </Row>
+      </div>
     </div>
   );
 };

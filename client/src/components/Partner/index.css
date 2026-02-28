@@ -1,28 +1,41 @@
 /* Import global variables */
 @import '../../styles/variables.css';
 
-/* Partner Page Styling */
+/* ============================================
+   PARTNER PAGE - REVAMPED DESIGN
+   Using CSS Variables only
+   ============================================ */
+
+/* Page Container */
 .partner-page {
     width: 100%;
     min-height: 100vh;
-    background: #f8f9fa;
-    padding: 120px var(--spacing-2xl) var(--spacing-2xl) var(--spacing-2xl);
+    background: var(--bg-cream);
+    padding: var(--spacing-3xl) var(--spacing-2xl) var(--spacing-2xl) var(--spacing-2xl);
 }
 
+.partner-page > div {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Partner Header */
 .partner-header {
     display: flex;
     align-items: center;
-    gap: 32px;
-    margin-bottom: 32px;
-    padding: 32px;
-    background: white;
-    border-radius: 16px;
-    max-width: 100%;
+    gap: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+    padding: var(--spacing-xl);
+    background: var(--bg-white);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-light);
 }
 
 .partner-header .ant-avatar {
-    border: 4px solid #e5e7eb;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 4px solid var(--border-light);
+    box-shadow: var(--shadow-md);
+    flex-shrink: 0;
 }
 
 .partner-info {
@@ -30,31 +43,33 @@
 }
 
 .partner-info .ant-typography-h2 {
-    color: #1e293b;
-    font-weight: 700;
-    margin-bottom: 12px;
+    color: var(--text-dark);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--spacing-sm) !important;
+    font-size: var(--font-size-3xl) !important;
 }
 
 .partner-info .ant-typography {
-    color: #64748b;
-    font-size: 16px;
-    line-height: 1.7;
+    color: var(--text-light);
+    font-size: var(--font-size-md);
+    line-height: var(--line-height-relaxed);
 }
 
 /* Tabs Styling */
 .partner-page .ant-tabs {
-    background: white;
-    padding: 24px;
-    border-radius: 16px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    background: var(--bg-white);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-light);
 }
 
 .partner-page .ant-tabs-tab {
-    font-size: 16px;
-    font-weight: 600;
-    padding: 12px 24px;
-    color: #64748b;
-    transition: all 0.3s ease;
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-semibold);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    color: var(--text-muted);
+    transition: var(--transition-base);
 }
 
 .partner-page .ant-tabs-tab:hover {
@@ -68,98 +83,95 @@
 .partner-page .ant-tabs-ink-bar {
     background: var(--primary-color);
     height: 3px;
+    border-radius: var(--radius-full);
 }
 
 /* Divider */
 .partner-page .ant-divider {
-    margin: 24px 0;
-    border-color: #e5e7eb;
+    margin: var(--spacing-lg) 0;
+    border-color: var(--border-light);
 }
 
 .partner-page .ant-divider-inner-text {
-    font-size: 18px;
-    font-weight: 600;
-    color: #1e293b;
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-dark);
 }
 
 /* Listings Grid */
 .partner-page .ant-list-grid .ant-col {
-    margin-bottom: 24px;
+    margin-bottom: var(--spacing-lg);
 }
 
 /* Listing Cards */
 .partner-page .ant-card {
-    border-radius: 12px;
-    border: 1px solid #e5e7eb;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-light);
     overflow: hidden;
-    transition: all 0.3s ease;
+    transition: var(--transition-base);
     height: 320px;
     display: flex;
     flex-direction: column;
+}
+
+.partner-page .ant-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-color);
+}
+
+.partner-page .ant-card-head {
+    background: linear-gradient(135deg, var(--bg-cream) 0%, var(--bg-white) 100%);
+    border-bottom: 1px solid var(--border-light);
+    padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.partner-page .ant-card-head-title {
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-dark);
 }
 
 .partner-page .ant-card-body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 16px;
-}
-
-.partner-page .ant-card:hover {
-    transform: translateY(-8px);
-    box-shadow: var(--shadow-xl);
-    border-color: var(--primary-color);
-}
-
-.partner-page .ant-card-head {
-    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-    border-bottom: 1px solid #e5e7eb;
-    padding: 16px 20px;
-}
-
-.partner-page .ant-card-head-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #1e293b;
-}
-
-.partner-page .ant-card-body {
-    padding: 16px;
+    padding: var(--spacing-md);
 }
 
 .partner-page .ant-card img {
     width: 100%;
     height: 180px;
     object-fit: cover;
-    border-radius: 8px;
-    margin-bottom: 12px;
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-sm);
 }
 
 .partner-page .ant-card .ant-typography {
-    color: #64748b;
-    font-size: 14px;
-    line-height: 1.6;
-    margin-bottom: 12px;
+    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-normal);
+    margin-bottom: var(--spacing-sm);
 }
 
 .partner-page .ant-rate {
-    color: #fbbf24;
-    font-size: 16px;
+    color: var(--accent-gold);
+    font-size: var(--font-size-md);
 }
 
 /* Review Cards */
 .partner-page .ant-list-item {
     border: none;
     padding: 0;
-    margin-bottom: 16px;
+    margin-bottom: var(--spacing-md);
 }
 
 .review-card {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    border: 1px solid #e5e7eb;
-    transition: all 0.3s ease;
+    background: var(--bg-white);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-light);
+    transition: var(--transition-base);
 }
 
 .review-card:hover {
@@ -168,47 +180,93 @@
 }
 
 .review-card .ant-rate {
-    margin-bottom: 12px;
+    margin-bottom: var(--spacing-sm);
 }
 
 .review-card .ant-typography {
-    color: #64748b;
-    font-size: 15px;
-    line-height: 1.7;
+    color: var(--text-light);
+    font-size: var(--font-size-md);
+    line-height: var(--line-height-relaxed);
 }
 
-/* Responsive Design */
+/* Empty State */
+.partner-page .ant-list-empty-text {
+    padding: var(--spacing-2xl);
+    color: var(--text-muted);
+    font-size: var(--font-size-md);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
 @media screen and (max-width: 767.9px) {
     .partner-page {
-        padding: 120px 16px 24px 16px;
+        padding: var(--spacing-3xl) var(--spacing-sm) var(--spacing-lg) var(--spacing-sm);
     }
 
     .partner-header {
         flex-direction: column;
         text-align: center;
-        padding: 24px;
-        gap: 20px;
+        padding: var(--spacing-lg);
+        gap: var(--spacing-md);
+    }
+
+    .partner-header .ant-avatar {
+        width: 100px !important;
+        height: 100px !important;
     }
 
     .partner-info .ant-typography-h2 {
-        font-size: 24px;
+        font-size: var(--font-size-2xl) !important;
+    }
+
+    .partner-info .ant-typography {
+        font-size: var(--font-size-sm);
     }
 
     .partner-page .ant-tabs {
-        padding: 16px;
+        padding: var(--spacing-md);
+        border-radius: var(--radius-xl);
+    }
+
+    .partner-page .ant-tabs-tab {
+        font-size: var(--font-size-sm);
+        padding: var(--spacing-xs) var(--spacing-md);
+    }
+
+    .partner-page .ant-card {
+        height: auto;
+        min-height: 280px;
     }
 
     .partner-page .ant-card img {
-        height: 200px;
+        height: 160px;
+    }
+
+    .review-card {
+        padding: var(--spacing-md);
     }
 }
 
 @media screen and (min-width: 768px) and (max-width: 1023.9px) {
     .partner-page {
-        padding: 120px 24px 32px 24px;
+        padding: var(--spacing-3xl) var(--spacing-lg) var(--spacing-xl) var(--spacing-lg);
     }
 
     .partner-header {
-        padding: 28px;
+        padding: var(--spacing-lg);
+    }
+
+    .partner-header .ant-avatar {
+        width: 100px !important;
+        height: 100px !important;
+    }
+}
+
+@media screen and (min-width: 1024px) {
+    .partner-header .ant-avatar {
+        width: 120px !important;
+        height: 120px !important;
     }
 }
