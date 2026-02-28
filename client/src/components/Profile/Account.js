@@ -11,17 +11,23 @@ import {
   Typography,
   Upload,
   message,
-  Divider,
 } from "antd";
 import {
   EditOutlined,
   SaveOutlined,
   UserOutlined,
   UploadOutlined,
+  CheckCircleOutlined,
+  LockOutlined,
+  MailOutlined,
+  PhoneOutlined,
+  CalendarOutlined,
+  IdcardOutlined,
 } from "@ant-design/icons";
 import { useUserContext } from "../UserContext";
 import toast from "react-hot-toast";
 import getBaseURL from "../../utils/config";
+import "./Account.css";
 
 const { Title, Text } = Typography;
 
@@ -85,8 +91,6 @@ const Account = () => {
   };
 
   const handleAvatarUpload = async (info) => {
-    // This would handle avatar upload
-    // Implementation depends on your file upload setup
     if (info.file.status === "done") {
       message.success(`${info.file.name} file uploaded successfully`);
     } else if (info.file.status === "error") {
@@ -94,37 +98,87 @@ const Account = () => {
     }
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
   return (
-    <div>
-      <Title level={4}>Account Information</Title>
+    <div className="account-page">
+      {/* Header Section */}
+      <div className="account-header">
+        <Title level={3} className="account-title">
+          <UserOutlined /> My Account
+        </Title>
+        <Text className="account-subtitle">
+          Manage your profile information and account settings
+        </Text>
+      </div>
 
       <Row gutter={[24, 24]}>
         {/* Profile Picture Section */}
         <Col xs={24} md={8}>
-          <Card>
-            <div style={{ textAlign: "center" }}>
-              <Avatar
-                size={120}
-                src={user?.display_picture}
-                icon={<UserOutlined />}
-                style={{ marginBottom: 16 }}
-              />
-              <br />
-              <Upload
-                name="avatar"
-                showUploadList={false}
-                action={`${baseURL}/upload/avatar`}
-                onChange={handleAvatarUpload}
+          <Card className="profile-card" bordered={false}>
+            <Avatar
+              size={120}
+              src={user?.display_picture}
+              icon={<UserOutlined />}
+              className="profile-avatar"
+            />
+            <Title level={5} className="profile-name">
+              {user?.name || "User"}
+            </Title>
+            <Text className="profile-email">{user?.email}</Text>
+
+            <div className="profile-badge">
+              <CheckCircleOutlined />
+              Active Account
+            </div>
+
+            <Upload
+              name="avatar"
+              showUploadList={false}
+              action={`${baseURL}/upload/avatar`}
+              onChange={handleAvatarUpload}
+              disabled={!isEditing}
+            >
+              <Button
+                icon={<UploadOutlined />}
                 disabled={!isEditing}
+                size="small"
+                className="upload-button"
               >
-                <Button
-                  icon={<UploadOutlined />}
-                  disabled={!isEditing}
-                  size="small"
-                >
-                  {isEditing ? "Change Photo" : "Photo"}
-                </Button>
-              </Upload>
+                {isEditing ? "Change Photo" : "Photo"}
+              </Button>
+            </Upload>
+
+            {/* Quick Stats */}
+            <div
+              className="stats-grid"
+              style={{ marginTop: 24, width: "100%" }}
+            >
+              <div className="stat-item">
+                <span className="stat-item-value primary">
+                  {user?.credit || 0}
+                </span>
+                <span className="stat-item-label">Credits</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-item-value success">
+                  {user?.children_count || 0}
+                </span>
+                <span className="stat-item-label">Children</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-item-value info">
+                  {user?.bookings_count || 0}
+                </span>
+                <span className="stat-item-label">Bookings</span>
+              </div>
             </div>
           </Card>
         </Col>
@@ -132,9 +186,11 @@ const Account = () => {
         {/* User Information Section */}
         <Col xs={24} md={16}>
           <Card
+            className="info-card"
             title="Personal Information"
+            bordered={false}
             extra={
-              <Space>
+              <Space className="action-buttons">
                 {!isEditing ? (
                   <Button
                     type="primary"
@@ -145,8 +201,9 @@ const Account = () => {
                   </Button>
                 ) : (
                   <>
-                    <Button type="primary" onClick={handleCancel}>Cancel</Button>
+                    <Button onClick={handleCancel}>Cancel</Button>
                     <Button
+                      type="primary"
                       icon={<SaveOutlined />}
                       loading={loading}
                       onClick={handleSave}
@@ -158,7 +215,12 @@ const Account = () => {
               </Space>
             }
           >
-            <Form form={form} layout="vertical" disabled={!isEditing}>
+            <Form
+              form={form}
+              layout="vertical"
+              disabled={!isEditing}
+              className="account-form"
+            >
               <Row gutter={16}>
                 <Col xs={24} sm={12}>
                   <Form.Item
@@ -172,7 +234,10 @@ const Account = () => {
                       { min: 2, message: "Name must be at least 2 characters" },
                     ]}
                   >
-                    <Input placeholder="Enter your full name" />
+                    <Input
+                      prefix={<UserOutlined />}
+                      placeholder="Enter your full name"
+                    />
                   </Form.Item>
                 </Col>
                 <Col xs={24} sm={12}>
@@ -184,7 +249,10 @@ const Account = () => {
                       { type: "email", message: "Please enter a valid email" },
                     ]}
                   >
-                    <Input placeholder="Enter your email address" />
+                    <Input
+                      prefix={<MailOutlined />}
+                      placeholder="Enter your email address"
+                    />
                   </Form.Item>
                 </Col>
               </Row>
@@ -201,75 +269,68 @@ const Account = () => {
                       },
                     ]}
                   >
-                    <Input placeholder="Enter your phone number" />
+                    <Input
+                      prefix={<PhoneOutlined />}
+                      placeholder="Enter your phone number"
+                    />
                   </Form.Item>
                 </Col>
               </Row>
             </Form>
+
+            {/* Account Details */}
+            <div style={{ marginTop: 24 }}>
+              <Text strong style={{ marginBottom: 12, display: "block" }}>
+                Account Details
+              </Text>
+              <div className="detail-row">
+                <span className="detail-label">
+                  <IdcardOutlined style={{ marginRight: 8 }} />
+                  User ID
+                </span>
+                <span className="detail-value">{user?.user_id || "N/A"}</span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">
+                  <CheckCircleOutlined style={{ marginRight: 8 }} />
+                  Account Status
+                </span>
+                <span className="detail-value active">Active</span>
+              </div>
+              <div className="detail-row">
+                <span className="detail-label">
+                  <CalendarOutlined style={{ marginRight: 8 }} />
+                  Member Since
+                </span>
+                <span className="detail-value">
+                  {formatDate(user?.created_on)}
+                </span>
+              </div>
+            </div>
           </Card>
         </Col>
       </Row>
 
-      {/* Account Details */}
+      {/* Security Section */}
       <Row gutter={[24, 24]} style={{ marginTop: 24 }}>
         <Col xs={24}>
-          <Card title="Account Details">
-            <Row gutter={16}>
-              <Col xs={24} sm={8}>
-                <Text strong>User ID:</Text>
-                <br />
-                <Text type="secondary">{user?.user_id}</Text>
-              </Col>
-              <Col xs={24} sm={8}>
-                <Text strong>Account Status:</Text>
-                <br />
-                <Text style={{ color: "#52c41a" }}>Active</Text>
-              </Col>
-              <Col xs={24} sm={8}>
-                <Text strong>Member Since:</Text>
-                <br />
-                <Text type="secondary">
-                  {user?.created_on
-                    ? new Date(user.created_on).toLocaleDateString()
-                    : "N/A"}
-                </Text>
-              </Col>
-            </Row>
-
-            <Divider />
-
-            <Row gutter={16}>
-              <Col xs={24} sm={12}>
-                <Text strong>Current Credit Balance:</Text>
-                <br />
-                <Text style={{ fontSize: "18px", color: "#1890ff" }}>
-                  {user?.credit || 0}
-                </Text>
-              </Col>
-              <Col xs={24} sm={12}>
-                <Text strong>Total Children Profiles:</Text>
-                <br />
-                <Text style={{ fontSize: "18px", color: "#52c41a" }}>
-                  {user?.children_count || 0}
-                </Text>
-              </Col>
-            </Row>
-          </Card>
-        </Col>
-      </Row>
-
-      {/* Password Change Section */}
-      <Row gutter={[24, 24]} style={{ marginTop: 24 }}>
-        <Col xs={24}>
-          <Card title="Security">
-            <Space direction="vertical" size="middle">
-              <div>
-                <Text strong>Password</Text>
-                <br />
-                <Text type="secondary">Last changed: Never</Text>
+          <Card
+            className="security-card"
+            title={
+              <Space>
+                <LockOutlined />
+                Security
+              </Space>
+            }
+            bordered={false}
+          >
+            <div className="security-item">
+              <div className="security-item-info">
+                <span className="security-item-title">Password</span>
+                <span className="security-item-desc">Last changed: Never</span>
               </div>
               <Button type="default">Change Password</Button>
-            </Space>
+            </div>
           </Card>
         </Col>
       </Row>
