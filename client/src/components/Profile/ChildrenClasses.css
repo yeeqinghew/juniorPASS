@@ -1,290 +1,505 @@
 /* Import global variables */
 @import '../../styles/variables.css';
 
-/* Desktop Collapse Panel Styling */
-.profile-tab-content .ant-collapse {
+/* ============================================
+   CHILDREN & CLASSES PAGE - REVAMPED DESIGN
+   Using CSS Variables for consistency
+   ============================================ */
+
+.children-classes-page {
+  padding: 0;
+  max-width: 100%;
+}
+
+/* Header Section */
+.children-header {
+  margin-bottom: var(--spacing-lg);
+}
+
+.children-title {
+  margin: 0 0 4px 0 !important;
+  font-size: var(--font-size-3xl) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.children-title .anticon {
+  color: var(--primary-color);
+}
+
+.children-subtitle {
+  font-size: var(--font-size-base);
+  color: var(--text-muted);
+}
+
+/* Stats Cards */
+.stats-row {
+  margin-bottom: var(--spacing-lg);
+}
+
+.stat-card {
+  border-radius: var(--radius-lg) !important;
+  border: 1px solid var(--border-light) !important;
+  transition: var(--transition-base);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-card .ant-card-body {
+  padding: var(--spacing-md);
+}
+
+.stat-card-content {
+  text-align: center;
+}
+
+.stat-card-value {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  display: block;
+  line-height: var(--line-height-tight);
+}
+
+.stat-card-value.primary {
+  color: var(--primary-color);
+}
+
+.stat-card-value.info {
+  color: var(--color-info);
+}
+
+.stat-card-value.success {
+  color: var(--color-success);
+}
+
+.stat-card-value.muted {
+  color: var(--text-disabled);
+}
+
+.stat-card-value.error {
+  color: var(--color-error);
+}
+
+.stat-card-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Filter Card */
+.filter-card {
+  border-radius: var(--radius-lg) !important;
+  border: 1px solid var(--border-light) !important;
+  margin-bottom: var(--spacing-lg);
+}
+
+.filter-card .ant-card-body {
+  padding: var(--spacing-md);
+}
+
+.filter-segmented {
+  background: var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+}
+
+.filter-segmented .ant-segmented-item {
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.filter-segmented .ant-segmented-item-selected {
+  background: var(--bg-white);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Collapse Panel */
+.children-collapse {
   background: transparent;
   border: none;
 }
 
-.profile-tab-content .ant-collapse-item {
-  background: white;
-  border-radius: 12px !important;
-  margin-bottom: 16px;
-  border: 2px solid #e8e8e8 !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  transition: all 0.3s ease;
+.children-collapse .ant-collapse-item {
+  background: var(--bg-white);
+  border-radius: var(--radius-lg) !important;
+  margin-bottom: var(--spacing-md);
+  border: 1px solid var(--border-light);
+  overflow: hidden;
 }
 
-.profile-tab-content .ant-collapse-item:hover {
-  border-color: #1890ff !important;
-  box-shadow: 0 4px 12px rgba(24, 144, 255, 0.15);
+.children-collapse .ant-collapse-item:last-child {
+  margin-bottom: 0;
 }
 
-.profile-tab-content .ant-collapse-header {
-  padding: 16px 20px !important;
-  border-radius: 12px !important;
-  font-weight: 500;
+.children-collapse .ant-collapse-header {
+  padding: var(--spacing-md) var(--spacing-lg) !important;
+  align-items: center !important;
 }
 
-.profile-tab-content .ant-collapse-item-active .ant-collapse-header {
-  border-bottom: 1px solid #f0f0f0;
-  border-radius: 12px 12px 0 0 !important;
+.children-collapse .ant-collapse-content {
+  border-top: 1px solid var(--border-light);
 }
 
-/* Edit/Delete button styling for desktop */
-.profile-tab-content .ant-collapse-header .ant-collapse-extra .ant-btn {
+.children-collapse .ant-collapse-content-box {
+  padding: var(--spacing-lg) !important;
+}
+
+/* Child Panel Header */
+.child-panel-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.child-avatar {
+  border: 3px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+.child-info {
+  flex: 1;
+}
+
+.child-name {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.child-count-badge {
+  border-radius: var(--radius-full);
+  padding: 2px var(--spacing-xs);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  line-height: 18px;
+}
+
+.child-meta {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Panel Actions */
+.panel-actions {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.panel-action-btn {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: var(--radius-sm) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+}
+
+/* Booking List */
+.booking-list .ant-list-item {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--border-light);
+  transition: var(--transition-fast);
+}
+
+.booking-list .ant-list-item:last-child {
+  border-bottom: none;
+}
+
+.booking-list .ant-list-item:hover {
+  background: var(--bg-cream);
+}
+
+.booking-avatar {
+  border-radius: var(--radius-sm) !important;
+}
+
+.booking-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-dark);
+}
+
+.booking-tags {
+  margin-top: var(--spacing-xs);
+}
+
+.booking-tag {
   border-radius: 6px;
-  font-weight: 500;
-  transition: all 0.3s ease;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
 }
 
-.profile-tab-content .ant-collapse-header .ant-collapse-extra .ant-btn-primary.ant-btn-background-ghost {
-  border-width: 2px;
+.booking-meta {
+  margin-top: var(--spacing-xs);
 }
 
-.profile-tab-content .ant-collapse-header .ant-collapse-extra .ant-btn-primary.ant-btn-background-ghost:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(24, 144, 255, 0.3);
+.booking-meta-item {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.profile-tab-content .ant-collapse-header .ant-collapse-extra .ant-btn-dangerous:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(255, 77, 79, 0.3);
+.booking-meta-item .anticon {
+  color: var(--text-light);
 }
 
-/* ChildrenClasses Component Mobile Styles */
+/* Empty State */
+.empty-state {
+  padding: var(--spacing-2xl) var(--spacing-lg);
+}
 
-/* Mobile specific styles */
+.empty-state .ant-empty-image {
+  margin-bottom: var(--spacing-md);
+}
+
+.empty-state .ant-empty-description {
+  color: var(--text-muted);
+  margin-bottom: var(--spacing-md);
+}
+
+/* Empty Card */
+.empty-card {
+  border-radius: var(--radius-lg) !important;
+  border: 1px solid var(--border-light) !important;
+}
+
+.empty-card .ant-card-body {
+  padding: var(--spacing-2xl);
+}
+
+/* Modal Styling */
+.child-modal .ant-modal-content {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.modal-icon-wrapper {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--spacing-md);
+}
+
+.modal-icon-wrapper.success {
+  background: var(--color-success-bg);
+  box-shadow: 0 4px 12px rgba(82, 196, 26, 0.3);
+}
+
+.modal-icon-wrapper.error {
+  background: var(--color-error-bg);
+  box-shadow: 0 4px 12px rgba(255, 77, 79, 0.2);
+}
+
+.modal-icon-wrapper .anticon {
+  font-size: var(--font-size-4xl);
+  color: var(--bg-white);
+}
+
+.modal-title {
+  font-size: var(--font-size-2xl) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  color: var(--text-dark);
+  margin-bottom: var(--spacing-xs) !important;
+}
+
+.modal-subtitle {
+  font-size: var(--font-size-md);
+  color: var(--text-muted);
+}
+
+/* Modal Form */
+.modal-form .ant-form-item-label > label {
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-md);
+  color: var(--text-secondary);
+}
+
+.modal-form .ant-input,
+.modal-form .ant-input-number,
+.modal-form .ant-select-selector {
+  border-radius: var(--radius-sm) !important;
+  font-size: var(--font-size-md);
+}
+
+.modal-form .ant-input-lg,
+.modal-form .ant-input-number-lg,
+.modal-form .ant-select-lg .ant-select-selector {
+  height: 44px !important;
+}
+
+/* Modal Info Card */
+.modal-info-card {
+  background: var(--bg-gradient-blue);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.modal-info-card .ant-card-body {
+  padding: var(--spacing-md);
+}
+
+.modal-info-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-disabled);
+}
+
+.modal-info-value {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-dark);
+  display: block;
+  margin-top: var(--spacing-xs);
+}
+
+/* Modal Alert */
+.modal-alert {
+  border-radius: var(--radius-md);
+}
+
+.modal-alert.success {
+  border: 1px solid #b7eb8f;
+  background: var(--color-success-light);
+}
+
+.modal-alert.error {
+  border: 1px solid #ffccc7;
+  background: var(--color-error-light);
+}
+
+.modal-alert-title {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+}
+
+.modal-alert-desc {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+/* Modal Action Buttons */
+.modal-actions {
+  margin-top: var(--spacing-lg);
+}
+
+.modal-btn {
+  height: 48px !important;
+  border-radius: var(--radius-sm) !important;
+  font-weight: var(--font-weight-medium) !important;
+  font-size: var(--font-size-md) !important;
+}
+
+.modal-btn.success {
+  background: var(--color-success-bg) !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(82, 196, 26, 0.3) !important;
+}
+
+.modal-btn.error {
+  box-shadow: 0 2px 8px rgba(255, 77, 79, 0.3) !important;
+}
+
+/* Mobile Responsive */
 @media screen and (max-width: 767.9px) {
-  /* Header row */
-  .profile-tab-content > div > .ant-row:first-child {
-    margin-bottom: 12px !important;
+  .children-title {
+    font-size: var(--font-size-2xl) !important;
   }
 
-  .profile-tab-content > div > .ant-row:first-child .ant-col:first-child {
-    margin-bottom: 12px;
+  .stat-card .ant-card-body {
+    padding: var(--spacing-sm);
   }
 
-  .profile-tab-content > div > .ant-row:first-child .ant-typography h4 {
-    font-size: 18px !important;
-    margin-bottom: 4px !important;
+  .stat-card-value {
+    font-size: var(--font-size-2xl);
   }
 
-  .profile-tab-content > div > .ant-row:first-child .ant-typography-secondary {
-    font-size: 12px;
+  .stat-card-label {
+    font-size: var(--font-size-xs);
   }
 
-  .profile-tab-content > div > .ant-row:first-child .ant-btn {
-    width: 100%;
-    height: 40px;
-    font-size: 14px;
+  .children-collapse .ant-collapse-header {
+    padding: var(--spacing-sm) var(--spacing-md) !important;
   }
 
-  /* Summary stats cards */
-  .profile-tab-content > div > .ant-row:nth-child(2) {
-    margin-bottom: 12px !important;
+  .children-collapse .ant-collapse-content-box {
+    padding: var(--spacing-md) !important;
   }
 
-  .profile-tab-content > div > .ant-row:nth-child(2) .ant-card {
-    margin-bottom: 0 !important;
-  }
-
-  .profile-tab-content > div > .ant-row:nth-child(2) .ant-typography {
-    font-size: 20px !important;
-  }
-
-  .profile-tab-content > div > .ant-row:nth-child(2) .ant-typography-secondary {
-    font-size: 11px !important;
-  }
-
-  /* Segmented filter */
-  .profile-tab-content .ant-segmented {
-    font-size: 13px !important;
-  }
-
-  .profile-tab-content .ant-segmented-item {
-    padding: 10px 8px !important;
-    min-height: 44px !important;
-  }
-
-  .profile-tab-content .ant-segmented-item-label {
-    font-size: 12px !important;
-    line-height: 1.5;
-    white-space: normal;
-  }
-
-  /* Collapse panels */
-  .profile-tab-content .ant-collapse {
-    background: transparent;
-    border: none;
-  }
-
-  .profile-tab-content .ant-collapse-item {
-    background: white;
-    border-radius: 12px !important;
-    margin-bottom: 12px;
-    border: 2px solid #e8e8e8 !important;
-  }
-
-  .profile-tab-content .ant-collapse-header {
-    padding: 12px !important;
-    border-radius: 12px !important;
-  }
-
-  /* Child header in collapse - Simple mobile layout */
-  .profile-tab-content .ant-collapse-header .ant-avatar {
+  .child-avatar {
     width: 40px !important;
     height: 40px !important;
   }
 
-  .profile-tab-content .ant-collapse-header .ant-collapse-header-text {
-    flex: 1;
+  .child-name {
+    font-size: var(--font-size-md);
   }
 
-  .profile-tab-content .ant-collapse-header strong {
-    font-size: 14px !important;
+  .child-meta {
+    font-size: var(--font-size-xs);
   }
 
-  .profile-tab-content .ant-collapse-header .ant-typography-secondary {
-    font-size: 11px !important;
-  }
-
-  .profile-tab-content .ant-collapse-header .ant-tag {
-    font-size: 10px;
-    padding: 2px 6px;
-  }
-
-  /* Edit/Delete buttons - show text on mobile with better styling */
-  .profile-tab-content .ant-collapse-header .ant-collapse-extra .ant-btn {
+  .panel-action-btn {
+    width: 32px !important;
     height: 32px !important;
-    padding: 0 10px !important;
-    font-size: 12px !important;
-    border-width: 2px !important;
   }
 
-  .profile-tab-content .ant-collapse-header .ant-collapse-extra .ant-btn .anticon {
-    font-size: 12px;
+  .booking-list .ant-list-item {
+    padding: var(--spacing-sm);
   }
 
-  /* Collapse content */
-  .profile-tab-content .ant-collapse-content-box {
-    padding: 12px !important;
+  .booking-avatar {
+    width: 48px !important;
+    height: 48px !important;
   }
 
-  /* Booking list items */
-  .profile-tab-content .ant-collapse-content .ant-list-item {
-    padding: 12px !important;
-    display: block !important;
-    border-bottom: 1px solid #f0f0f0;
-    position: relative;
+  .booking-title {
+    font-size: var(--font-size-md);
   }
 
-  .profile-tab-content .ant-collapse-content .ant-list-item-meta {
-    display: block !important;
-    position: relative;
-    padding-left: 76px;
-    min-height: 64px;
+  .filter-segmented .ant-segmented-item {
+    font-size: var(--font-size-xs);
   }
 
-  .profile-tab-content .ant-collapse-content .ant-list-item-meta-avatar {
-    position: absolute !important;
-    left: 0;
-    top: 0;
-    margin: 0 !important;
-  }
-
-  .profile-tab-content .ant-collapse-content .ant-list-item-meta-avatar .ant-avatar {
-    width: 64px !important;
-    height: 64px !important;
-  }
-
-  .profile-tab-content .ant-collapse-content .ant-list-item-meta-content {
-    display: block !important;
-    width: 100% !important;
-    padding-left: 0;
-  }
-
-  .profile-tab-content .ant-collapse-content .ant-list-item-meta-title {
-    margin-bottom: 8px !important;
-  }
-
-  .profile-tab-content .ant-collapse-content .ant-list-item-meta-title .ant-typography {
-    font-size: 14px !important;
-    display: block;
-    margin-bottom: 6px;
-  }
-
-  .profile-tab-content .ant-collapse-content .ant-list-item-meta-title .ant-space {
-    width: 100%;
-    flex-wrap: wrap;
-  }
-
-  .profile-tab-content .ant-collapse-content .ant-list-item-meta-title .ant-tag {
-    font-size: 10px;
-    padding: 2px 8px;
-    margin: 2px 4px 2px 0;
-  }
-
-  /* Booking description */
-  .profile-tab-content .ant-collapse-content .ant-list-item-meta-description {
-    margin-top: 8px;
-  }
-
-  .profile-tab-content .ant-collapse-content .ant-list-item-meta-description .ant-row {
-    gap: 8px;
-  }
-
-  .profile-tab-content .ant-collapse-content .ant-list-item-meta-description .ant-col {
-    margin-bottom: 4px;
-  }
-
-  .profile-tab-content .ant-collapse-content .ant-list-item-meta-description .ant-typography {
-    font-size: 11px !important;
-  }
-
-  .profile-tab-content .ant-collapse-content .ant-list-item-meta-description .anticon {
-    font-size: 12px;
-  }
-
-  /* Cancel button */
-  .profile-tab-content .ant-collapse-content .ant-list-item-action {
-    margin: 8px 0 0 0;
-    padding-left: 0;
-  }
-
-  .profile-tab-content .ant-collapse-content .ant-list-item-action li {
-    padding: 0;
-  }
-
-  .profile-tab-content .ant-collapse-content .ant-list-item-action .ant-btn {
-    font-size: 13px;
-    padding: 4px 8px;
-    height: auto;
-  }
-
-  /* Empty state */
-  .profile-tab-content .ant-collapse-content .ant-empty {
-    padding: 24px 0;
-  }
-
-  .profile-tab-content .ant-collapse-content .ant-empty-description {
-    font-size: 13px;
-  }
-
-  .profile-tab-content .ant-collapse-content .ant-empty .ant-btn {
-    height: 40px;
-    font-size: 14px;
+  .modal-btn {
+    height: 44px !important;
+    font-size: var(--font-size-base) !important;
   }
 }
 
-/* Very small screens */
+/* Small mobile screens */
 @media screen and (max-width: 374.9px) {
-  .profile-tab-content .ant-collapse-header .ant-typography:first-of-type {
-    font-size: 13px !important;
+  .stat-card-value {
+    font-size: var(--font-size-xl);
   }
 
-  .profile-tab-content .ant-segmented-item-label {
-    font-size: 10px !important;
+  .child-panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+
+  .panel-actions {
+    width: 100%;
+    justify-content: flex-end;
   }
 }
