@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Modal, Select, Space, Typography } from "antd";
+import { Modal, Select, Space, Typography, Button, Row, Col } from "antd";
 import {
   EnvironmentOutlined,
   ClockCircleOutlined,
@@ -101,30 +101,15 @@ const BuyNow = ({
       title="Book Your Class"
       open={isBuyNowModalOpen}
       onCancel={handleCancel}
-      onOk={handleBooking}
       centered
       className="buynow-modal"
-      okText="Confirm Booking"
-      cancelText="Cancel"
-      width={600}
-      confirmLoading={isLoading}
-      okButtonProps={{ disabled: !selectedChildId }}
-      cancelButtonProps={{ type: "primary" }}
+      width={520}
+      footer={null}
     >
-      <Space direction="vertical" style={{ width: "100%" }}>
-        {/* Credit Display */}
-        <div className="credit-display">
-          <DollarOutlined className="info-icon" />
-          <Text>Available Credit:</Text>
-          <Text className="credit-amount">{user?.credit}</Text>
-        </div>
-
+      <Space direction="vertical" size={16} style={{ width: "100%" }}>
         {/* Select child */}
         <div>
-          <Text
-            strong
-            style={{ display: "block", marginBottom: "8px", color: "#64748b" }}
-          >
+          <Text strong style={{ display: "block", marginBottom: "8px" }}>
             Select Child *
           </Text>
           <Select
@@ -142,22 +127,8 @@ const BuyNow = ({
           </Select>
         </div>
 
-        {/* Class Cost */}
-        <div className="class-info-card">
-          <div className="class-info-row">
-            <DollarOutlined className="info-icon" />
-            <Text className="class-info-label">Class Cost:</Text>
-            <Text
-              className="class-info-value"
-              style={{ fontWeight: 600, color: "#98BDD2" }}
-            >
-              {listing?.credit} credits
-            </Text>
-          </div>
-        </div>
-
         {/* Map */}
-        <div className="buynow-map-container">
+        <div className="buynow-map-container" style={{ marginTop: 16, marginBottom: 16 }}>
           <Map
             mapStyle="mapbox://styles/mapbox/streets-v8"
             mapboxAccessToken={process.env.REACT_APP_MAPBOX_TOKEN}
@@ -192,7 +163,7 @@ const BuyNow = ({
           </Map>
         </div>
 
-        {/* Class Information Cards */}
+        {/* Class Information */}
         <div className="class-info-card">
           <div className="class-info-row">
             <EnvironmentOutlined className="info-icon" />
@@ -214,7 +185,49 @@ const BuyNow = ({
             <Text className="class-info-label">Duration:</Text>
             <Text className="class-info-value">{selected?.duration}</Text>
           </div>
+
+          <div className="class-info-row">
+            <DollarOutlined className="info-icon" />
+            <Text className="class-info-label">Cost:</Text>
+            <Text className="class-info-value" style={{ fontWeight: 600, color: "var(--primary-color)" }}>
+              {listing?.credit} credits
+            </Text>
+          </div>
         </div>
+
+        {/* Available Credit Display */}
+        <div className="credit-display">
+          <DollarOutlined className="info-icon" />
+          <Text>Available Credits:</Text>
+          <Text className="credit-amount">{user?.credit}</Text>
+        </div>
+
+        {/* Action Buttons */}
+        <Row gutter={12} className="modal-actions" style={{ marginTop: 16 }}>
+          <Col span={12}>
+            <Button
+              block
+              size="large"
+              className="modal-btn"
+              onClick={handleCancel}
+            >
+              Cancel
+            </Button>
+          </Col>
+          <Col span={12}>
+            <Button
+              block
+              type="primary"
+              size="large"
+              loading={isLoading}
+              className="modal-btn modal-btn-primary"
+              onClick={handleBooking}
+              disabled={!selectedChildId}
+            >
+              Confirm Booking
+            </Button>
+          </Col>
+        </Row>
       </Space>
     </Modal>
   );

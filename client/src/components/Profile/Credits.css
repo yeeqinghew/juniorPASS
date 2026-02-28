@@ -132,9 +132,27 @@
   margin-bottom: var(--spacing-lg);
 }
 
+.stats-row.ant-row {
+  flex-wrap: wrap !important;
+}
+
+.stats-row .ant-col {
+  display: flex;
+  flex: 0 0 25%;
+  max-width: 25%;
+}
+
+@media screen and (max-width: 575.9px) {
+  .stats-row .ant-col {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
 .stat-card {
   border-radius: var(--radius-lg) !important;
   height: 100%;
+  width: 100%;
   transition: var(--transition-base);
   border: 1px solid var(--border-light) !important;
 }

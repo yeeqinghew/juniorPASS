@@ -64,6 +64,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Ovo&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
+/* Import global styles */
+@import './styles/variables.css';
+@import './styles/modals.css';
+
 /* ============================================
    GLOBAL BUTTON STYLES
    Consistent button styling across the app

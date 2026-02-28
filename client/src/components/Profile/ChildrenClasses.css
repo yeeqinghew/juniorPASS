@@ -40,10 +40,28 @@
   margin-bottom: var(--spacing-lg);
 }
 
+.stats-row.ant-row {
+  flex-wrap: wrap !important;
+}
+
+.stats-row .ant-col {
+  display: flex;
+  flex: 0 0 25%;
+  max-width: 25%;
+}
+
+@media screen and (max-width: 575.9px) {
+  .stats-row .ant-col {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
 .stat-card {
   border-radius: var(--radius-lg) !important;
   border: 1px solid var(--border-light) !important;
   transition: var(--transition-base);
+  width: 100%;
 }
 
 .stat-card:hover {
@@ -325,7 +343,7 @@
 }
 
 /* Modal Form */
-.modal-form .ant-form-item-label > label {
+.modal-form .ant-form-item-label>label {
   font-weight: var(--font-weight-medium);
   font-size: var(--font-size-md);
   color: var(--text-secondary);

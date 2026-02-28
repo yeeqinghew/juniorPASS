@@ -4,7 +4,6 @@ import {
   Card,
   Col,
   Form,
-  Image,
   Input,
   Modal,
   Row,
@@ -24,6 +23,7 @@ import toast from "react-hot-toast";
 import getBaseURL from "../../utils/config";
 import { useUserContext } from "../UserContext";
 import { useRef } from "react";
+import "./TopupModal.css";
 
 const { Title, Text } = Typography;
 
@@ -46,7 +46,7 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen, onSuccess }) => {
   ];
 
   const handleCancel = () => {
-    if (modalStep === "loading") return; // Prevent closing during payment
+    if (modalStep === "loading") return;
     setIsTopUpModalOpen(false);
     setSelectedAmount(null);
     setCustomAmount("");
@@ -212,92 +212,50 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen, onSuccess }) => {
   };
 
   const renderForm = () => (
-    <div>
-      <div style={{ textAlign: "center", marginBottom: 32 }}>
-        <CreditCardOutlined
-          style={{ fontSize: 48, color: "#1890ff", marginBottom: 16 }}
-        />
-        <Title level={3} style={{ margin: 0 }}>
-          Top Up Credit
+    <Space direction="vertical" size={16} style={{ width: "100%" }}>
+      {/* Header */}
+      <div className="modal-header-centered">
+        <div className="modal-icon-wrapper info">
+          <CreditCardOutlined />
+        </div>
+        <Title level={3} className="modal-title">
+          Top Up Credits
         </Title>
-        <Text type="secondary">
-          Add credit to your account for class bookings
+        <Text className="modal-subtitle">
+          Add credits to your account for class bookings
         </Text>
       </div>
 
-      <div style={{ marginBottom: 32 }}>
-        <Text
-          strong
-          style={{ fontSize: 16, marginBottom: 16, display: "block" }}
-        >
-          Choose Amount
+      {/* Package Selection */}
+      <div className="topup-packages">
+        <Text strong className="topup-section-label">
+          Choose Package
         </Text>
         <Row gutter={[12, 12]}>
           {topupPackages.map((pkg) => (
             <Col span={12} key={pkg.amount}>
               <Card
                 hoverable
-                style={{
-                  textAlign: "center",
-                  border:
-                    selectedAmount === pkg.amount
-                      ? "2px solid #1890ff"
-                      : "1px solid #d9d9d9",
-                  borderRadius: 8,
-                  position: "relative",
-                  height: "100%",
-                  cursor: "pointer",
-                }}
-                bodyStyle={{
-                  padding: 16,
-                  height: "100%",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  minHeight: 100,
-                }}
+                className={`topup-package-card ${selectedAmount === pkg.amount ? "selected" : ""}`}
                 onClick={() => selectPackage(pkg.amount)}
               >
                 {pkg.popular && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: -8,
-                      right: -8,
-                      background: "#ff4d4f",
-                      color: "white",
-                      fontSize: "10px",
-                      padding: "2px 6px",
-                      borderRadius: 4,
-                      fontWeight: "bold",
-                    }}
-                  >
-                    POPULAR
-                  </div>
+                  <div className="topup-popular-badge">POPULAR</div>
                 )}
-
-                <div>
-                  <Title
-                    level={4}
-                    style={{ margin: "0 0 8px 0", color: "#1890ff" }}
-                  >
-                    {pkg.label}
-                  </Title>
-                </div>
-
-                <div style={{ minHeight: 42 }}>
+                <div className="topup-package-amount">{pkg.label}</div>
+                <div className="topup-package-bonus">
                   {pkg.bonus > 0 ? (
-                    <div>
-                      <Text type="success" style={{ fontWeight: "bold" }}>
+                    <>
+                      <Text type="success" strong>
                         + {pkg.bonus} credits
                       </Text>
                       <br />
-                      <Text type="secondary" style={{ fontSize: "12px" }}>
+                      <Text type="secondary" className="topup-package-total">
                         Total: {pkg.amount + pkg.bonus} credits
                       </Text>
-                    </div>
+                    </>
                   ) : (
-                    <Text type="secondary" style={{ fontSize: "12px" }}>
+                    <Text type="secondary" className="topup-package-total">
                       {pkg.amount} credits
                     </Text>
                   )}
@@ -308,13 +266,11 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen, onSuccess }) => {
         </Row>
       </div>
 
-      <Divider>OR</Divider>
+      <Divider style={{ margin: "12px 0" }}>OR</Divider>
 
-      <Form form={topUpForm} layout="vertical">
-        <Form.Item
-          label={<Text strong>Custom Amount</Text>}
-          style={{ marginBottom: 24 }}
-        >
+      {/* Custom Amount */}
+      <Form form={topUpForm} layout="vertical" className="modal-form">
+        <Form.Item label={<Text strong>Custom Amount</Text>} style={{ marginBottom: 12 }}>
           <Input
             placeholder="Enter amount (min $5)"
             value={customAmount}
@@ -324,52 +280,68 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen, onSuccess }) => {
             max={1000}
             size="large"
             prefix={<DollarOutlined />}
-            style={{
-              border: customAmount ? "1px solid #1890ff" : undefined,
-            }}
+            className={customAmount ? "input-selected" : ""}
           />
         </Form.Item>
       </Form>
 
+      {/* Summary Card */}
       {(selectedAmount || customAmount) && (
-        <Card
-          style={{
-            backgroundColor: "#f6ffed",
-            border: "1px solid #b7eb8f",
-            marginBottom: 16,
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
+        <Card className="topup-summary-card" bordered={false}>
+          <div className="topup-summary-content">
             <div>
               <Text strong>Amount to pay:</Text>
               <br />
-              <Text style={{ fontSize: 18, color: "#1890ff" }}>
+              <Text className="topup-summary-amount">
                 ${getFinalAmount()}
               </Text>
               {getBonusAmount() > 0 && (
-                <Text style={{ color: "#52c41a", marginLeft: 8 }}>
+                <Text className="topup-summary-bonus">
                   (+${getBonusAmount()} bonus)
                 </Text>
               )}
             </div>
-            <GiftOutlined style={{ fontSize: 24, color: "#52c41a" }} />
+            <GiftOutlined className="topup-summary-icon" />
           </div>
         </Card>
       )}
-    </div>
+
+      {/* Action Buttons */}
+      <Row gutter={12} className="modal-actions">
+        <Col span={12}>
+          <Button
+            block
+            size="large"
+            className="modal-btn"
+            onClick={handleCancel}
+          >
+            Cancel
+          </Button>
+        </Col>
+        <Col span={12}>
+          <Button
+            block
+            type="primary"
+            size="large"
+            loading={isLoading}
+            className="modal-btn modal-btn-primary"
+            onClick={onHandleTopUp}
+            disabled={!getFinalAmount() || getFinalAmount() < 5}
+          >
+            Proceed to Payment
+          </Button>
+        </Col>
+      </Row>
+    </Space>
   );
 
   const renderLoading = () => (
-    <div style={{ textAlign: "center", padding: "40px 20px" }}>
-      <Spin size="large" style={{ marginBottom: 20 }} />
-      <Title level={4}>Processing Payment...</Title>
-      <Text type="secondary">
+    <div className="modal-loading">
+      <Spin size="large" />
+      <Title level={4} className="modal-loading-title">
+        Processing Payment...
+      </Title>
+      <Text className="modal-loading-text">
         Please wait while we confirm your payment.
         <br />
         Do not close this window.
@@ -378,14 +350,12 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen, onSuccess }) => {
   );
 
   const renderSuccess = () => (
-    <div style={{ textAlign: "center", padding: "40px 20px" }}>
-      <CheckCircleOutlined
-        style={{ fontSize: 64, color: "#52c41a", marginBottom: 20 }}
-      />
-      <Title level={3} style={{ color: "#52c41a" }}>
+    <div className="modal-success">
+      <CheckCircleOutlined />
+      <Title level={3} className="modal-success-title">
         Top-up Successful!
       </Title>
-      <Text type="secondary" style={{ fontSize: 16 }}>
+      <Text className="modal-success-text">
         ${getFinalAmount()} has been added to your account.
         {getBonusAmount() > 0 && (
           <>
@@ -396,35 +366,36 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen, onSuccess }) => {
           </>
         )}
       </Text>
-      <div style={{ marginTop: 24 }}>
-        <Button type="primary" onClick={handleCancel}>
-          Continue
-        </Button>
-      </div>
+      <Button type="primary" size="large" className="modal-btn" onClick={handleCancel}>
+        Continue
+      </Button>
     </div>
   );
 
   const renderError = () => (
-    <div style={{ textAlign: "center", padding: "40px 20px" }}>
-      <CloseCircleOutlined
-        style={{ fontSize: 64, color: "#ff4d4f", marginBottom: 20 }}
-      />
-      <Title level={3} style={{ color: "#ff4d4f" }}>
+    <div className="modal-error">
+      <CloseCircleOutlined />
+      <Title level={3} className="modal-error-title">
         Payment Failed
       </Title>
-      <Text type="secondary" style={{ fontSize: 16 }}>
+      <Text className="modal-error-text">
         We couldn't process your payment.
         <br />
         Please try again or contact support.
       </Text>
-      <div style={{ marginTop: 24 }}>
-        <Space>
-          <Button onClick={handleCancel}>Close</Button>
-          <Button type="primary" onClick={() => setModalStep("form")}>
-            Try Again
-          </Button>
-        </Space>
-      </div>
+      <Space size="middle">
+        <Button size="large" className="modal-btn" onClick={handleCancel}>
+          Close
+        </Button>
+        <Button
+          type="primary"
+          size="large"
+          className="modal-btn"
+          onClick={() => setModalStep("form")}
+        >
+          Try Again
+        </Button>
+      </Space>
     </div>
   );
 
@@ -437,23 +408,8 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen, onSuccess }) => {
       centered
       closable={modalStep !== "loading"}
       maskClosable={modalStep !== "loading"}
-      footer={
-        modalStep === "form" ? (
-          <div style={{ textAlign: "right" }}>
-            <Space>
-              <Button type="primary" onClick={handleCancel}>Cancel</Button>
-              <Button
-                loading={isLoading}
-                onClick={onHandleTopUp}
-                disabled={!getFinalAmount() || getFinalAmount() < 5}
-                size="large"
-              >
-                Proceed to Payment
-              </Button>
-            </Space>
-          </div>
-        ) : null
-      }
+      footer={null}
+      className="topup-modal"
     >
       {modalStep === "form" && renderForm()}
       {modalStep === "loading" && renderLoading()}

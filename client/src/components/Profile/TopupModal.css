@@ -1,0 +1,133 @@
+/* Import global variables */
+@import '../../styles/variables.css';
+
+/* ============================================
+   TOPUP MODAL SPECIFIC STYLES
+   ============================================ */
+
+/* Package Selection */
+.topup-packages {
+  margin-bottom: var(--spacing-md);
+}
+
+.topup-section-label {
+  font-size: var(--font-size-md);
+  display: block;
+  margin-bottom: var(--spacing-md);
+  color: var(--text-dark);
+}
+
+.topup-package-card {
+  text-align: center;
+  border: 2px solid var(--border-light) !important;
+  border-radius: var(--radius-md) !important;
+  position: relative;
+  height: 100%;
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.topup-package-card .ant-card-body {
+  padding: var(--spacing-md);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 100px;
+}
+
+.topup-package-card:hover {
+  border-color: var(--primary-color) !important;
+  box-shadow: var(--shadow-md);
+}
+
+.topup-package-card.selected {
+  border-color: var(--primary-color) !important;
+  background: var(--bg-light-blue);
+  box-shadow: var(--shadow-primary);
+}
+
+.topup-popular-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: linear-gradient(135deg, var(--accent-pink), var(--accent-pink-dark));
+  color: var(--bg-white);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-weight-bold);
+  box-shadow: var(--shadow-pink);
+}
+
+.topup-package-amount {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--primary-color);
+  margin-bottom: var(--spacing-xs);
+}
+
+.topup-package-bonus {
+  min-height: 42px;
+}
+
+.topup-package-total {
+  font-size: var(--font-size-xs);
+}
+
+/* Custom Amount Input */
+.input-selected {
+  border-color: var(--primary-color) !important;
+}
+
+/* Summary Card */
+.topup-summary-card {
+  background: var(--color-success-light) !important;
+  border: 1px solid #b7eb8f !important;
+  border-radius: var(--radius-md) !important;
+}
+
+.topup-summary-card .ant-card-body {
+  padding: var(--spacing-md);
+}
+
+.topup-summary-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.topup-summary-amount {
+  font-size: var(--font-size-xl);
+  color: var(--primary-color);
+  font-weight: var(--font-weight-semibold);
+}
+
+.topup-summary-bonus {
+  color: var(--color-success);
+  margin-left: var(--spacing-xs);
+}
+
+.topup-summary-icon {
+  font-size: var(--font-size-3xl);
+  color: var(--color-success);
+}
+
+/* Mobile Responsive */
+@media screen and (max-width: 767.9px) {
+  .topup-package-card .ant-card-body {
+    padding: var(--spacing-sm);
+    min-height: 90px;
+  }
+
+  .topup-package-amount {
+    font-size: var(--font-size-2xl);
+  }
+
+  .topup-popular-badge {
+    font-size: 9px;
+    padding: 2px 6px;
+    top: -6px;
+    right: -6px;
+  }
+}
