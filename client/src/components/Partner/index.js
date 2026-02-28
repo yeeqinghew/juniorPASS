@@ -36,7 +36,7 @@ const Partner = () => {
 
   return (
     <div className="partner-page">
-      <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
+      <div className="partner-page-inner">
         <div className="partner-header">
           <Avatar size={120} src={partner?.picture} />
           <div className="partner-info">

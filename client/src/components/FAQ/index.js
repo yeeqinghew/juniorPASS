@@ -4,7 +4,7 @@ import { PlusOutlined, MinusOutlined } from "@ant-design/icons";
 import faq from "../../data/faq.json";
 import "./index.css";
 
-const { Title, Text, Paragraph } = Typography;
+const { Text } = Typography;
 
 const FAQ = () => {
   const [faqList, setFaqList] = useState([]);
@@ -13,30 +13,9 @@ const FAQ = () => {
     setFaqList(() =>
       faq.map((item, index) => ({
         key: index,
-        label: (
-          <Text
-            style={{
-              fontSize: "16px",
-              fontWeight: "600",
-              color: "#333",
-            }}
-          >
-            {item.question}
-          </Text>
-        ),
-        children: (
-          <Text
-            style={{
-              fontSize: "15px",
-              lineHeight: "1.7",
-              color: "#555",
-              display: "block",
-            }}
-          >
-            {item.answer}
-          </Text>
-        ),
-      }))
+        label: <Text className="faq-question">{item.question}</Text>,
+        children: <Text className="faq-answer">{item.answer}</Text>,
+      })),
     );
   }, []);
 
@@ -46,16 +25,11 @@ const FAQ = () => {
         items={faqList}
         expandIcon={({ isActive }) =>
           isActive ? (
-            <MinusOutlined style={{ fontSize: "16px", color: "#98BDD2" }} />
+            <MinusOutlined className="faq-expand-icon" />
           ) : (
-            <PlusOutlined style={{ fontSize: "16px", color: "#98BDD2" }} />
+            <PlusOutlined className="faq-expand-icon" />
           )
         }
-        style={{
-          width: "100%",
-          background: "transparent",
-          border: "none",
-        }}
         expandIconPosition="end"
         className="faq-collapse"
       />

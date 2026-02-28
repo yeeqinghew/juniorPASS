@@ -14,7 +14,7 @@
     padding: var(--spacing-3xl) var(--spacing-2xl) var(--spacing-2xl) var(--spacing-2xl);
 }
 
-.partner-page > div {
+.partner-page-inner {
     max-width: 1400px;
     margin: 0 auto;
 }
