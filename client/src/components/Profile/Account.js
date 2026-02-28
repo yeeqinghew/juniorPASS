@@ -119,72 +119,54 @@ const Account = () => {
         </Text>
       </div>
 
-      <Row gutter={[24, 24]}>
+      <div className="account-cards-row">
         {/* Profile Picture Section */}
-        <Col xs={24} md={8}>
+        <div className="profile-card-wrapper">
           <Card className="profile-card" bordered={false}>
-            <Avatar
-              size={120}
-              src={user?.display_picture}
-              icon={<UserOutlined />}
-              className="profile-avatar"
-            />
-            <Title level={5} className="profile-name">
-              {user?.name || "User"}
-            </Title>
-            <Text className="profile-email">{user?.email}</Text>
+            <div className="profile-card-content">
+              <Avatar
+                size={100}
+                src={user?.display_picture}
+                icon={<UserOutlined />}
+                className="profile-avatar"
+              />
+              <Title level={5} className="profile-name">
+                {user?.name || "User"}
+              </Title>
+              <Text className="profile-email">{user?.email}</Text>
 
-            <div className="profile-badge">
-              <CheckCircleOutlined />
-              Active Account
-            </div>
+              <div className="profile-badge">
+                <CheckCircleOutlined />
+                Active Account
+              </div>
 
-            <Upload
-              name="avatar"
-              showUploadList={false}
-              action={`${baseURL}/upload/avatar`}
-              onChange={handleAvatarUpload}
-              disabled={!isEditing}
-            >
-              <Button
-                icon={<UploadOutlined />}
+              <Upload
+                name="avatar"
+                showUploadList={false}
+                action={`${baseURL}/upload/avatar`}
+                onChange={handleAvatarUpload}
                 disabled={!isEditing}
-                size="small"
-                className="upload-button"
               >
-                {isEditing ? "Change Photo" : "Photo"}
-              </Button>
-            </Upload>
+                <Button
+                  icon={<UploadOutlined />}
+                  disabled={!isEditing}
+                  size="small"
+                  className="upload-button"
+                >
+                  {isEditing ? "Change Photo" : "Photo"}
+                </Button>
+              </Upload>
 
-            {/* Quick Stats */}
-            <div
-              className="stats-grid"
-              style={{ marginTop: 24, width: "100%" }}
-            >
-              <div className="stat-item">
-                <span className="stat-item-value primary">
-                  {user?.credit || 0}
-                </span>
-                <span className="stat-item-label">Credits</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-item-value success">
-                  {user?.children_count || 0}
-                </span>
-                <span className="stat-item-label">Children</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-item-value info">
-                  {user?.bookings_count || 0}
-                </span>
-                <span className="stat-item-label">Bookings</span>
+              <div className="profile-member-since">
+                <CalendarOutlined className="member-icon" />
+                <span>Member since {formatDate(user?.created_on)}</span>
               </div>
             </div>
           </Card>
-        </Col>
+        </div>
 
         {/* User Information Section */}
-        <Col xs={24} md={16}>
+        <div className="info-card-wrapper">
           <Card
             className="info-card"
             title="Personal Information"
@@ -279,40 +261,31 @@ const Account = () => {
             </Form>
 
             {/* Account Details */}
-            <div style={{ marginTop: 24 }}>
-              <Text strong style={{ marginBottom: 12, display: "block" }}>
+            <div className="account-details-section">
+              <Text strong className="account-details-title">
                 Account Details
               </Text>
               <div className="detail-row">
                 <span className="detail-label">
-                  <IdcardOutlined style={{ marginRight: 8 }} />
+                  <IdcardOutlined className="detail-icon" />
                   User ID
                 </span>
                 <span className="detail-value">{user?.user_id || "N/A"}</span>
               </div>
               <div className="detail-row">
                 <span className="detail-label">
-                  <CheckCircleOutlined style={{ marginRight: 8 }} />
+                  <CheckCircleOutlined className="detail-icon" />
                   Account Status
                 </span>
                 <span className="detail-value active">Active</span>
               </div>
-              <div className="detail-row">
-                <span className="detail-label">
-                  <CalendarOutlined style={{ marginRight: 8 }} />
-                  Member Since
-                </span>
-                <span className="detail-value">
-                  {formatDate(user?.created_on)}
-                </span>
-              </div>
             </div>
           </Card>
-        </Col>
-      </Row>
+        </div>
+      </div>
 
       {/* Security Section */}
-      <Row gutter={[24, 24]} style={{ marginTop: 24 }}>
+      <Row gutter={[24, 24]} className="security-row">
         <Col xs={24}>
           <Card
             className="security-card"

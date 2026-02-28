@@ -231,11 +231,9 @@ const Credits = () => {
             <div className="balance-actions">
               <Button
                 type="primary"
-                size="large"
                 icon={<PlusOutlined />}
                 onClick={handleTopUp}
                 className="topup-button"
-                block
               >
                 Top Up Credits
               </Button>
