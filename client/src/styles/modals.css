@@ -7,14 +7,19 @@
    ============================================ */
 
 /* Base Modal Styling */
-.ant-modal-content {
-  border-radius: var(--radius-xl) !important;
-  overflow: hidden;
+.ant-modal-wrap {
+  z-index: var(--z-modal) !important;
 }
 
 .ant-modal-mask {
+  z-index: var(--z-modal-backdrop) !important;
   background-color: rgba(0, 0, 0, 0.65) !important;
   backdrop-filter: blur(4px);
+}
+
+.ant-modal-content {
+  border-radius: var(--radius-xl) !important;
+  overflow: hidden;
 }
 
 .ant-modal-header {

@@ -328,7 +328,7 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen, onSuccess }) => {
             onClick={onHandleTopUp}
             disabled={!getFinalAmount() || getFinalAmount() < 5}
           >
-            Proceed to Payment
+            Pay Now
           </Button>
         </Col>
       </Row>
@@ -407,7 +407,7 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen, onSuccess }) => {
       width={520}
       centered
       closable={modalStep !== "loading"}
-      maskClosable={modalStep !== "loading"}
+      maskClosable={false}
       footer={null}
       className="topup-modal"
     >

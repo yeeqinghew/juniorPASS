@@ -99,6 +99,7 @@ const BuyNow = ({
   return (
     <Modal
       title="Book Your Class"
+      maskClosable={false}
       open={isBuyNowModalOpen}
       onCancel={handleCancel}
       centered

@@ -633,6 +633,7 @@ const ChildrenClasses = () => {
         footer={null}
         centered
         width={520}
+        maskClosable={false}
         className="child-modal"
       >
         <Space direction="vertical" size={24} style={{ width: "100%" }}>
@@ -735,6 +736,7 @@ const ChildrenClasses = () => {
         footer={null}
         centered
         width={500}
+        maskClosable={false}
         className="child-modal"
       >
         <Space direction="vertical" size={24} style={{ width: "100%" }}>
@@ -811,6 +813,7 @@ const ChildrenClasses = () => {
         footer={null}
         centered
         width={500}
+        maskClosable={false}
         className="child-modal"
       >
         <Space direction="vertical" size={24} style={{ width: "100%" }}>
