@@ -1,0 +1,63 @@
+/* Import global variables */
+@import '../styles/variables.css';
+
+/* ============================================
+   SESSION TIMEOUT MODAL
+   ============================================ */
+
+.session-timeout-modal .ant-modal-content {
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xl);
+}
+
+.session-timeout-modal .session-timeout-content {
+  width: 100%;
+  text-align: center;
+}
+
+.session-timeout-modal .session-timeout-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--bg-warning-light) 0%, #ffeeba 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--spacing-lg);
+}
+
+.session-timeout-modal .session-timeout-icon .anticon {
+  font-size: 40px;
+  color: var(--accent-gold);
+}
+
+.session-timeout-modal .session-timeout-title {
+  margin-bottom: var(--spacing-xs) !important;
+  color: var(--text-dark) !important;
+}
+
+.session-timeout-modal .session-timeout-text {
+  color: var(--text-secondary);
+  font-size: var(--font-size-md);
+}
+
+.session-timeout-modal .session-timeout-actions {
+  width: 100%;
+  margin-top: var(--spacing-lg);
+}
+
+.session-timeout-modal .session-timeout-btn {
+  height: 48px;
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.session-timeout-modal .session-timeout-btn-primary {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.session-timeout-modal .session-timeout-btn-primary:hover {
+  background: var(--primary-dark);
+  border-color: var(--primary-dark);
+}

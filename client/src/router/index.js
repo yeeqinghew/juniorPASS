@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState, useCallback } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { useIdleTimer } from "react-idle-timer/dist/index.legacy.cjs.js";
+import { Modal, Button, Space, Typography } from "antd";
+import { ClockCircleOutlined } from "@ant-design/icons";
 import OverallLayout from "../layouts/Layout";
 import Profile from "../components/Profile";
 import HomePage from "../components/HomePage";
@@ -12,76 +14,120 @@ import VerifyOTP from "../components/VerifyOTP";
 import { useUserContext } from "../components/UserContext";
 import Class from "../components/Classes/Class";
 import AuthenticatedRoute from "./AuthenticatedRoute";
-import { confirmAlert } from "react-confirm-alert"; // Import
 import toast from "react-hot-toast";
 import ContactUs from "../components/ContactUs";
-import FAQ from "../components/FAQ";
 import AboutUs from "../components/AboutUs";
-import LoggedInLayout from "../layouts/LoggedInLayout";
 import Partner from "../components/Partner";
 import getBaseURL from "../utils/config";
 
 import "mapbox-gl/dist/mapbox-gl.css";
-import "react-confirm-alert/src/react-confirm-alert.css"; // Import css
+import "./index.css";
 import ForgotPassword from "../components/ForgotPassword";
 import ResetPassword from "../components/ResetPassword";
+
+const { Title, Text } = Typography;
 
 export default () => {
   const navigate = useNavigate();
   const { isAuthenticated, setLoading, setAuth } = useUserContext();
   const baseURL = getBaseURL();
+  const [isTimeoutModalOpen, setIsTimeoutModalOpen] = useState(false);
 
-  const handleOnIdle = () => {
-    if (isAuthenticated) {
-      confirmAlert({
-        title: "Session Timeout",
-        message: "Are you sure to logout?",
-        closeOnEscape: true,
-        buttons: [
-          {
-            label: "Yes",
-            onClick: async () => {
-              try {
-                const token = localStorage.getItem("token");
-                if (token) {
-                  await fetch(`${baseURL}/auth/logout`, {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                      Authorization: `Bearer ${token}`,
-                    },
-                  });
-                }
-              } catch (e) {
-                console.error("Logout error:", e);
-              }
-              localStorage.removeItem("token");
-              localStorage.clear();
-              setAuth(false);
-              setLoading(false);
-              toast.success("You have been logged out");
-              navigate("/login");
-            },
+  const handleLogout = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (token) {
+        await fetch(`${baseURL}/auth/logout`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
-          {
-            label: "No",
-            onClick: () => {
-              return;
-            },
-          },
-        ],
-      });
+        });
+      }
+    } catch (e) {
+      console.error("Logout error:", e);
     }
-  };
+    localStorage.removeItem("token");
+    localStorage.clear();
+    setAuth(false);
+    setLoading(false);
+    setIsTimeoutModalOpen(false);
+    toast.success("You have been logged out due to inactivity");
+    navigate("/login");
+  }, [baseURL, navigate, setAuth, setLoading]);
 
-  const { getRemainingTime, getLastActiveTime } = useIdleTimer({
-    timeout: 7200000, // 2hr
-    // timeout: 1000,
+  const handleOnIdle = useCallback(() => {
+    if (isAuthenticated) {
+      setIsTimeoutModalOpen(true);
+    }
+  }, [isAuthenticated]);
+
+  const { activate } = useIdleTimer({
+    timeout: 720000, // 2 hours
     onIdle: handleOnIdle,
+    debounce: 500,
   });
+
+  const handleStayLoggedIn = useCallback(() => {
+    setIsTimeoutModalOpen(false);
+    // Reset the idle timer by activating
+    if (activate) {
+      activate();
+    }
+  }, [activate]);
 
   return (
     <div className="App">
+      {/* Session Timeout Modal */}
+      <Modal
+        open={isTimeoutModalOpen}
+        onCancel={handleStayLoggedIn}
+        footer={null}
+        centered
+        closable={false}
+        maskClosable={false}
+        width={420}
+        className="session-timeout-modal"
+      >
+        <div className="session-timeout-content">
+          <div className="session-timeout-icon">
+            <ClockCircleOutlined />
+          </div>
+
+          <Title level={3} className="session-timeout-title">
+            Session Timeout
+          </Title>
+          <Text className="session-timeout-text">
+            You've been inactive for a while. Would you like to stay logged in?
+          </Text>
+
+          <Space
+            direction="vertical"
+            size={12}
+            className="session-timeout-actions"
+          >
+            <Button
+              type="primary"
+              size="large"
+              block
+              onClick={handleStayLoggedIn}
+              className="session-timeout-btn session-timeout-btn-primary"
+            >
+              Stay Logged In
+            </Button>
+            <Button
+              size="large"
+              block
+              onClick={handleLogout}
+              className="session-timeout-btn"
+            >
+              Logout
+            </Button>
+          </Space>
+        </div>
+      </Modal>
+
       <Routes>
         <Route path="/" element={<HomePage />} />
 
