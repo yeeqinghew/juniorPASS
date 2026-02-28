@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Button,
   Card,
@@ -22,7 +22,6 @@ import {
 import toast from "react-hot-toast";
 import getBaseURL from "../../utils/config";
 import { useUserContext } from "../UserContext";
-import { useRef } from "react";
 import "./TopupModal.css";
 
 const { Title, Text } = Typography;

@@ -1,3 +1,5 @@
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   Avatar,
   Button,
@@ -15,8 +17,6 @@ import {
   Divider,
   List,
 } from "antd";
-import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   LeftOutlined,
   RightOutlined,
@@ -24,9 +24,9 @@ import {
   ShopOutlined,
   PhoneOutlined,
 } from "@ant-design/icons";
-import { useUserContext } from "../UserContext";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
+import { useUserContext } from "../UserContext";
 import getBaseURL from "../../utils/config";
 import Spinner from "../../utils/Spinner";
 import toast from "react-hot-toast";
@@ -34,7 +34,6 @@ import "./Class.css";
 import BuyNow from "./BuyNow";
 
 const { Title, Text, Paragraph } = Typography;
-const { Meta } = Card;
 
 dayjs.extend(duration);
 
@@ -46,14 +45,14 @@ const Class = () => {
   const [isBuyNowModalOpen, setIsBuyNowModalOpen] = useState(false);
   const [selected, setSelected] = useState(null);
   const [children, setChildren] = useState([]);
-  const [allChildren, setAllChildren] = useState([]); // Store all children for booking status display
+  const [allChildren, setAllChildren] = useState([]);
   const [slotAvailability, setSlotAvailability] = useState({});
   const [userBookings, setUserBookings] = useState([]);
 
   const { state } = useLocation();
   const { classId } = useParams();
   const { user, reauthenticate } = useUserContext();
-  const isToday = dayjs(selectedDate).isSame(dayjs(), "day"); // Check if the selected date is today
+  const isToday = dayjs(selectedDate).isSame(dayjs(), "day");
   const dateFormat = "ddd, D MMM YYYY";
   const navigate = useNavigate();
   const baseURL = getBaseURL();
@@ -69,7 +68,6 @@ const Class = () => {
     };
   };
 
-  // Function to generate available time slots
   const generateAvailableTimeSlots = () => {
     if (!listing || !listing?.schedule_info) return [];
 
@@ -103,7 +101,7 @@ const Class = () => {
         if (
           monthsDiff >= 0 &&
           monthsDiff % 1 === 0 &&
-          selected.date() === Math.min(startDate.date(), selected.daysInMonth()) // handle month that does not have the day (e.g. 31st February)
+          selected.date() === Math.min(startDate.date(), selected.daysInMonth())
         ) {
           acc.push({ ...formatTimeslot(timeslot), location: curr });
         }
@@ -115,7 +113,6 @@ const Class = () => {
 
   const availableTimeSlots = generateAvailableTimeSlots();
 
-  // Fetch user's bookings and children
   useEffect(() => {
     async function fetchUserBookings() {
       if (!user) return;
@@ -162,7 +159,6 @@ const Class = () => {
     fetchAllChildren();
   }, [user, baseURL]);
 
-  // Fetch slot availability
   useEffect(() => {
     async function fetchSlotAvailability() {
       if (!listing || !listing.schedule_info || !selectedDate) return;
@@ -249,6 +245,7 @@ const Class = () => {
     const previousDay = dayjs(selectedDate).subtract(1, "day").toDate();
     setSelectedDate(previousDay);
   };
+
   const handleBookNow = async (item, bookedChildIds = []) => {
     if (!listing || !item) {
       toast.error(
@@ -288,7 +285,6 @@ const Class = () => {
         return;
       }
 
-      // Filter out children who are already booked for this slot
       const availableChildren = childrenData.filter(
         (child) => !bookedChildIds.includes(child.child_id)
       );
@@ -309,7 +305,6 @@ const Class = () => {
     }
   };
 
-  // Function to refresh slot availability
   const refreshSlotAvailability = async () => {
     if (!listing || !listing.schedule_info || !selectedDate) return;
 
@@ -351,12 +346,9 @@ const Class = () => {
     setSlotAvailability(availability);
   };
 
-  // Callback to refresh user data after successful booking
   const handleBookingSuccess = async (updatedCredit) => {
-    // Re-fetch user data to get updated credit balance
     await reauthenticate();
 
-    // Re-fetch user bookings to update the "Booked" indicators
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(`${baseURL}/bookings/user`, {
@@ -373,7 +365,6 @@ const Class = () => {
       console.error("Error fetching user bookings:", error);
     }
 
-    // Re-fetch slot availability to update spots left
     await refreshSlotAvailability();
   };
 
@@ -393,26 +384,12 @@ const Class = () => {
   }
 
   return (
-    <div
-      style={{
-        width: "100%",
-        minHeight: "100vh",
-        background: "#f8f9fa",
-        padding: "120px 24px 48px 24px",
-      }}
-    >
-      <Row gutter={[24, 24]} style={{ maxWidth: "1400px", margin: "0 auto" }}>
+    <div className="class-page">
+      <div className="class-page-inner">
+        <Row gutter={[24, 24]}>
         <Col xs={24} sm={24} md={24} lg={16} xl={16}>
           {/* Hero Image Carousel */}
-          <Card
-            bordered={false}
-            style={{
-              borderRadius: "20px",
-              overflow: "hidden",
-              boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
-              marginBottom: "24px",
-            }}
-          >
+          <Card bordered={false} className="class-hero-card">
             <Carousel autoplay arrows dots>
               {listing?.images.map((imgUrl, index) => (
                 <div key={index} style={{ position: "relative" }}>
@@ -420,33 +397,10 @@ const Class = () => {
                     alt={`carousel-${index}`}
                     src={imgUrl}
                     preview={false}
-                    style={{
-                      margin: 0,
-                      width: "100%",
-                      height: "400px",
-                      objectFit: "cover",
-                    }}
+                    className="class-carousel-image"
                   />
-                  <div
-                    style={{
-                      position: "absolute",
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      background:
-                        "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)",
-                      padding: "40px 24px 24px",
-                      color: "white",
-                    }}
-                  >
-                    <Title
-                      level={2}
-                      style={{
-                        color: "white",
-                        margin: 0,
-                        textShadow: "0 2px 8px rgba(0,0,0,0.3)",
-                      }}
-                    >
+                  <div className="class-carousel-overlay">
+                    <Title level={2} className="class-carousel-title">
                       {listing?.listing_title}
                     </Title>
                   </div>
@@ -456,15 +410,7 @@ const Class = () => {
           </Card>
 
           {/* Description Card */}
-          <Card
-            bordered={false}
-            style={{
-              borderRadius: "16px",
-              boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
-              background: "white",
-              marginBottom: "24px",
-            }}
-          >
+          <Card bordered={false} className="class-content-card">
             <Space direction="vertical" size="middle" style={{ width: "100%" }}>
               {/* Tags */}
               <Space wrap>
@@ -473,77 +419,33 @@ const Class = () => {
                     .replace(/[{}]/g, "")
                     .split(",")
                     .map((type, index) => (
-                      <Tag
-                        key={`package-type-${index}`}
-                        color="blue"
-                        style={{
-                          fontSize: "13px",
-                          padding: "4px 12px",
-                          borderRadius: "12px",
-                          border: "none",
-                        }}
-                      >
+                      <Tag key={`package-type-${index}`} color="blue" className="class-tag">
                         {type.trim()}
                       </Tag>
                     ))}
 
                 {listing?.partner_info?.categories?.map((category, index) => (
-                  <Tag
-                    key={`category-${index}`}
-                    color="purple"
-                    style={{
-                      fontSize: "13px",
-                      padding: "4px 12px",
-                      borderRadius: "12px",
-                      border: "none",
-                    }}
-                  >
+                  <Tag key={`category-${index}`} color="purple" className="class-tag">
                     {category}
                   </Tag>
                 ))}
               </Space>
 
-              <Paragraph
-                style={{
-                  fontSize: "15px",
-                  lineHeight: "1.8",
-                  color: "#4a5568",
-                  marginTop: "8px",
-                }}
-              >
+              <Paragraph className="class-description">
                 {listing?.description}
               </Paragraph>
             </Space>
           </Card>
 
           {/* Schedule Card */}
-          <Card
-            bordered={false}
-            style={{
-              borderRadius: "16px",
-              boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
-              background: "white",
-              marginBottom: "24px",
-            }}
-          >
-            <Title level={4} style={{ marginBottom: "20px", color: "#2d3748" }}>
+          <Card bordered={false} className="class-content-card">
+            <Title level={4} className="class-section-title">
               📅 Select a Date & Time
             </Title>
+            
             {/* Date Navigation */}
-            <Space
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                width: "100%",
-                justifyContent: "space-between",
-              }}
-            >
-              <Button
-                onClick={handlePreviousDay}
-                disabled={isToday}
-                style={{ border: "none", flexShrink: 0 }}
-              >
+            <div className="class-date-nav">
+              <Button onClick={handlePreviousDay} disabled={isToday}>
                 <LeftOutlined />
               </Button>
               <DatePicker
@@ -551,234 +453,145 @@ const Class = () => {
                 format={dateFormat}
                 onChange={handleDateChange}
                 allowClear={false}
-                style={{
-                  border: "none",
-                  width: "100%",
-                  flexGrow: 1, // Ensures it expands
-                  maxWidth: "200px",
-                }}
+                className="custom-date-picker"
                 open={false}
                 inputReadOnly
                 suffixIcon={null}
-                className="custom-date-picker"
               />
-              <Button
-                onClick={handleNextDay}
-                style={{ border: "none", flexShrink: 0 }}
-              >
+              <Button onClick={handleNextDay}>
                 <RightOutlined />
               </Button>
-            </Space>
+            </div>
 
             {/* Available Classes List */}
-            <List
-              itemLayout="horizontal"
-              dataSource={availableTimeSlots}
-              locale={{
-                emptyText:
-                  "There are no upcoming classes available on this day",
-              }}
-              style={{ marginTop: "20px" }}
-              renderItem={(item) => {
-                const startDate = dayjs(selectedDate)
-                  .hour(parseInt(item.location.timeslot[0].split(":")[0]))
-                  .minute(parseInt(item.location.timeslot[0].split(":")[1]))
-                  .format("YYYY-MM-DDTHH:mm:ss");
+            <div className="class-schedule-list">
+              <List
+                itemLayout="horizontal"
+                dataSource={availableTimeSlots}
+                locale={{
+                  emptyText: "There are no upcoming classes available on this day",
+                }}
+                renderItem={(item) => {
+                  const startDate = dayjs(selectedDate)
+                    .hour(parseInt(item.location.timeslot[0].split(":")[0]))
+                    .minute(parseInt(item.location.timeslot[0].split(":")[1]))
+                    .format("YYYY-MM-DDTHH:mm:ss");
 
-                const availabilityKey = `${item.location.schedule_id}-${startDate}`;
-                const availability = slotAvailability[availabilityKey];
-                const isSoldOut = availability?.isFull || false;
-                const spotsLeft = availability?.availableSpots;
+                  const availabilityKey = `${item.location.schedule_id}-${startDate}`;
+                  const availability = slotAvailability[availabilityKey];
+                  const isSoldOut = availability?.isFull || false;
+                  const spotsLeft = availability?.availableSpots;
 
-                // Check if the class has already started (current time > start time)
-                const classStartTime = dayjs(selectedDate)
-                  .hour(parseInt(item.location.timeslot[0].split(":")[0]))
-                  .minute(parseInt(item.location.timeslot[0].split(":")[1]));
-                const isPastClass = dayjs().isAfter(classStartTime);
+                  const classStartTime = dayjs(selectedDate)
+                    .hour(parseInt(item.location.timeslot[0].split(":")[0]))
+                    .minute(parseInt(item.location.timeslot[0].split(":")[1]));
+                  const isPastClass = dayjs().isAfter(classStartTime);
 
-                // Find all bookings for this slot and get the booked children info
-                const slotBookings = userBookings.filter((booking) => {
-                  const bookingStart = dayjs(booking.start_date).format(
-                    "YYYY-MM-DDTHH:mm",
-                  );
-                  const targetStart =
-                    dayjs(startDate).format("YYYY-MM-DDTHH:mm");
-                  const matchesListing = booking.listing_id === classId;
-                  const matchesTime = bookingStart === targetStart;
+                  const slotBookings = userBookings.filter((booking) => {
+                    const bookingStart = dayjs(booking.start_date).format("YYYY-MM-DDTHH:mm");
+                    const targetStart = dayjs(startDate).format("YYYY-MM-DDTHH:mm");
+                    const matchesListing = booking.listing_id === classId;
+                    const matchesTime = bookingStart === targetStart;
+                    return matchesListing && matchesTime;
+                  });
 
-                  return matchesListing && matchesTime;
-                });
+                  const bookedChildIds = slotBookings.map((b) => b.child_id).filter(Boolean);
+                  const bookedChildrenNames = allChildren
+                    .filter((child) => bookedChildIds.includes(child.child_id))
+                    .map((child) => child.name);
 
-                // Get the names of booked children
-                const bookedChildIds = slotBookings.map((b) => b.child_id).filter(Boolean);
-                const bookedChildrenNames = allChildren
-                  .filter((child) => bookedChildIds.includes(child.child_id))
-                  .map((child) => child.name);
+                  const allChildrenBooked = allChildren.length > 0 && 
+                    allChildren.every((child) => bookedChildIds.includes(child.child_id));
 
-                // Check if all children are booked for this slot
-                const allChildrenBooked = allChildren.length > 0 && 
-                  allChildren.every((child) => bookedChildIds.includes(child.child_id));
+                  const hasBooking = slotBookings.length > 0;
 
-                // Has at least one booking
-                const hasBooking = slotBookings.length > 0;
+                  const getItemClassName = () => {
+                    let className = "class-schedule-item";
+                    if (isPastClass) className += " past";
+                    else if (hasBooking) className += " booked";
+                    else if (isSoldOut) className += " sold-out";
+                    return className;
+                  };
 
-                // Determine the action button/tag to show
-                const renderAction = () => {
-                  if (isPastClass) {
+                  const renderAction = () => {
+                    if (isPastClass) {
+                      return <Tag color="default">CLASS ENDED</Tag>;
+                    }
+                    
+                    if (allChildrenBooked) {
+                      return <Tag color="blue">✓ ALL BOOKED</Tag>;
+                    }
+                    
+                    if (isSoldOut) {
+                      return <Tag color="red">SOLD OUT</Tag>;
+                    }
+                    
                     return (
-                      <Tag
-                        color="default"
-                        style={{
-                          fontSize: "14px",
-                          padding: "6px 16px",
-                          fontWeight: "bold",
-                          background: "#f0f0f0",
-                          color: "#8c8c8c",
-                        }}
+                      <Button
+                        type="primary"
+                        size="large"
+                        onClick={() => handleBookNow(item, bookedChildIds)}
+                        className="book-now-btn"
                       >
-                        CLASS ENDED
-                      </Tag>
+                        Book Now
+                      </Button>
                     );
-                  }
-                  
-                  if (allChildrenBooked) {
-                    return (
-                      <Tag
-                        color="blue"
-                        style={{
-                          fontSize: "14px",
-                          padding: "6px 16px",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        ✓ ALL BOOKED
-                      </Tag>
-                    );
-                  }
-                  
-                  if (isSoldOut) {
-                    return (
-                      <Tag
-                        color="red"
-                        style={{
-                          fontSize: "14px",
-                          padding: "6px 16px",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        SOLD OUT
-                      </Tag>
-                    );
-                  }
-                  
+                  };
+
                   return (
-                    <Button
-                      type="primary"
-                      size="large"
-                      onClick={() => handleBookNow(item, bookedChildIds)}
-                      style={{
-                        borderRadius: "8px",
-                        height: "40px",
-                        fontWeight: "500",
-                      }}
-                    >
-                      Book Now
-                    </Button>
-                  );
-                };
-
-                return (
-                  <List.Item
-                    style={{
-                      padding: "16px",
-                      background: isPastClass
-                        ? "#fafafa"
-                        : hasBooking
-                          ? "#e6f7ff"
-                          : isSoldOut
-                            ? "#f5f5f5"
-                            : "#fafafa",
-                      borderRadius: "12px",
-                      marginBottom: "12px",
-                      border: `1px solid ${isPastClass ? "#d9d9d9" : hasBooking ? "#1890ff" : isSoldOut ? "#d9d9d9" : "#e8e8e8"}`,
-                      opacity: isPastClass || isSoldOut ? 0.7 : 1,
-                    }}
-                    actions={[renderAction()]}
-                  >
-                    <List.Item.Meta
-                      avatar={
-                        <div
-                          style={{
-                            width: "48px",
-                            height: "48px",
-                            borderRadius: "12px",
-                            background: isPastClass ? "#d9d9d9" : isSoldOut ? "#d9d9d9" : "#1890ff",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: "20px",
-                          }}
-                        >
-                          {isPastClass ? "⏰" : isSoldOut ? "❌" : "🕐"}
-                        </div>
-                      }
-                      title={
-                        <Space wrap>
-                          <Text strong style={{ fontSize: "16px" }}>
-                            {item.timeRange}
-                          </Text>
-                          <Tag color="gold" style={{ fontWeight: "bold" }}>
-                            💰 {item.location.credit || listing?.credit} Credits
-                          </Tag>
-                          {!isPastClass && !isSoldOut &&
-                            spotsLeft !== undefined &&
-                            spotsLeft <= 3 &&
-                            spotsLeft > 0 && (
-                              <Tag color="orange">
-                                Only {spotsLeft}{" "}
-                                {spotsLeft === 1 ? "spot" : "spots"} left!
+                    <List.Item className={getItemClassName()} actions={[renderAction()]}>
+                      <List.Item.Meta
+                        avatar={
+                          <div className={`schedule-time-icon ${isPastClass ? 'past' : isSoldOut ? 'sold-out' : ''}`}>
+                            {isPastClass ? "⏰" : isSoldOut ? "❌" : "🕐"}
+                          </div>
+                        }
+                        title={
+                          <Space wrap>
+                            <Text strong className="schedule-time-text">
+                              {item.timeRange}
+                            </Text>
+                            <Tag color="gold" className="schedule-credit-tag">
+                              💰 {item.location.credit || listing?.credit} Credits
+                            </Tag>
+                            {!isPastClass && !isSoldOut && spotsLeft !== undefined && spotsLeft <= 3 && spotsLeft > 0 && (
+                              <Tag color="orange" className="schedule-spots-tag">
+                                Only {spotsLeft} {spotsLeft === 1 ? "spot" : "spots"} left!
                               </Tag>
                             )}
-                        </Space>
-                      }
-                      description={
-                        <Space direction="vertical" size="small" style={{ width: "100%" }}>
-                          <Space size="small">
-                            <Tag>{item.duration}</Tag>
-                            <Tag color="blue">{item.location.nearest_mrt}</Tag>
                           </Space>
-                          {hasBooking && bookedChildrenNames.length > 0 && (
-                            <Space size="small" wrap>
-                              <Text type="secondary" style={{ fontSize: "12px" }}>
-                                Booked for:
-                              </Text>
-                              {bookedChildrenNames.map((name, idx) => (
-                                <Tag key={idx} color="green" style={{ fontSize: "12px" }}>
-                                  ✓ {name}
-                                </Tag>
-                              ))}
+                        }
+                        description={
+                          <Space direction="vertical" size="small" style={{ width: "100%" }}>
+                            <Space size="small">
+                              <Tag>{item.duration}</Tag>
+                              <Tag color="blue">{item.location.nearest_mrt}</Tag>
                             </Space>
-                          )}
-                        </Space>
-                      }
-                    />
-                  </List.Item>
-                );
-              }}
-            />
+                            {hasBooking && bookedChildrenNames.length > 0 && (
+                              <Space size="small" wrap>
+                                <Text type="secondary" className="schedule-booked-info">
+                                  Booked for:
+                                </Text>
+                                {bookedChildrenNames.map((name, idx) => (
+                                  <Tag key={idx} color="green">
+                                    ✓ {name}
+                                  </Tag>
+                                ))}
+                              </Space>
+                            )}
+                          </Space>
+                        }
+                      />
+                    </List.Item>
+                  );
+                }}
+              />
+            </div>
           </Card>
 
           {/* Review Card */}
-          <Card
-            bordered={false}
-            style={{
-              borderRadius: "16px",
-              boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
-              background: "white",
-              marginBottom: "24px",
-            }}
-          >
-            <Title level={4} style={{ color: "#2d3748" }}>
+          <Card bordered={false} className="class-content-card class-reviews-card">
+            <Title level={4} className="class-section-title">
               ⭐ Reviews
             </Title>
             <Text type="secondary">Reviews coming soon...</Text>
@@ -789,122 +602,76 @@ const Class = () => {
           <Affix offsetTop={120}>
             <Card
               bordered={false}
-              style={{
-                borderRadius: "16px",
-                boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
-                background: "white",
-                overflow: "hidden",
-                cursor: "pointer",
-                transition: "all 0.3s ease",
-                maxWidth: "100%",
-              }}
+              className="class-partner-card"
               hoverable
               onClick={() => {
                 navigate(`/partner/${listing?.partner_info?.partner_id}`, {});
               }}
             >
               {/* Partner Header */}
-              <Space
-                align="center"
-                size="middle"
-                style={{ marginBottom: "20px" }}
-              >
+              <div className="partner-card-header">
                 <Avatar
                   size={64}
                   src={listing?.partner_info?.picture}
-                  style={{
-                    border: "2px solid #e8e8e8",
-                  }}
+                  className="partner-card-avatar"
                 />
                 <div>
-                  <Title level={4} style={{ margin: 0 }}>
+                  <Title level={4} className="partner-card-name">
                     {listing?.partner_name}
                   </Title>
-                  <Text type="secondary" style={{ fontSize: "13px" }}>
+                  <Text className="partner-card-badge">
                     Verified Partner
                   </Text>
                 </div>
-              </Space>
+              </div>
 
-              <Divider style={{ margin: "16px 0" }} />
+              <Divider className="partner-card-divider" />
 
               {/* Contact Information */}
-              <Space
-                direction="vertical"
-                size="middle"
-                style={{ width: "100%" }}
-              >
-                <Space>
-                  <ShopOutlined
-                    style={{ fontSize: "16px", color: "#8c8c8c" }}
-                  />
+              <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+                <div className="partner-contact-item">
+                  <ShopOutlined className="partner-contact-icon" />
                   <div>
-                    <Text
-                      type="secondary"
-                      style={{ fontSize: "12px", display: "block" }}
-                    >
-                      Website
-                    </Text>
-                    <Text strong style={{ fontSize: "14px" }}>
+                    <Text className="partner-contact-label">Website</Text>
+                    <Text className="partner-contact-value">
                       {listing?.partner_info?.website || "N/A"}
                     </Text>
                   </div>
-                </Space>
+                </div>
 
-                <Space>
-                  <MailOutlined
-                    style={{ fontSize: "16px", color: "#8c8c8c" }}
-                  />
+                <div className="partner-contact-item">
+                  <MailOutlined className="partner-contact-icon" />
                   <div>
-                    <Text
-                      type="secondary"
-                      style={{ fontSize: "12px", display: "block" }}
-                    >
-                      Email
-                    </Text>
-                    <Text strong style={{ fontSize: "14px" }}>
+                    <Text className="partner-contact-label">Email</Text>
+                    <Text className="partner-contact-value">
                       {listing?.partner_info?.email}
                     </Text>
                   </div>
-                </Space>
+                </div>
 
-                <Space>
-                  <PhoneOutlined
-                    style={{ fontSize: "16px", color: "#8c8c8c" }}
-                  />
+                <div className="partner-contact-item">
+                  <PhoneOutlined className="partner-contact-icon" />
                   <div>
-                    <Text
-                      type="secondary"
-                      style={{ fontSize: "12px", display: "block" }}
-                    >
-                      Phone
-                    </Text>
-                    <Text strong style={{ fontSize: "14px" }}>
+                    <Text className="partner-contact-label">Phone</Text>
+                    <Text className="partner-contact-value">
                       {listing?.partner_info?.contact_number}
                     </Text>
                   </div>
-                </Space>
+                </div>
               </Space>
 
-              <Divider style={{ margin: "16px 0" }} />
+              <Divider className="partner-card-divider" />
 
               {/* View Profile Button */}
-              <Button
-                type="primary"
-                block
-                size="large"
-                style={{
-                  height: "44px",
-                  borderRadius: "8px",
-                  fontWeight: "500",
-                }}
-              >
+              <Button type="primary" block size="large" className="view-partner-btn">
                 View Partner Profile
               </Button>
             </Card>
           </Affix>
         </Col>
-      </Row>
+        </Row>
+      </div>
+      
       <BuyNow
         isBuyNowModalOpen={isBuyNowModalOpen}
         setIsBuyNowModalOpen={setIsBuyNowModalOpen}

@@ -1,263 +1,348 @@
-.custom-date-picker .ant-picker-input>input {
-    text-align: center;
+/* Import global variables */
+@import '../../styles/variables.css';
+
+/* ============================================
+   CLASS DETAIL PAGE - CONSISTENT DESIGN
+   Using CSS Variables only
+   ============================================ */
+
+/* Page Container */
+.class-page {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--bg-cream);
+  padding: var(--spacing-3xl) var(--spacing-2xl) var(--spacing-2xl) var(--spacing-2xl);
 }
 
-/* Carousel styling */
-.ant-carousel {
-    margin-bottom: 32px;
-    border-radius: 16px;
-    overflow: hidden;
+.class-page .class-page-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
 }
 
-.ant-carousel .slick-slide img {
-    border-radius: 16px;
+/* Hero Card with Carousel */
+.class-hero-card {
+  border-radius: var(--radius-xl) !important;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  margin-bottom: var(--spacing-lg);
+  border: 1px solid var(--border-light) !important;
 }
 
-.ant-carousel .slick-dots li button {
-    background: #98BDD2;
+.class-hero-card .ant-card-body {
+  padding: 0;
 }
 
-.ant-carousel .slick-dots li.slick-active button {
-    background: #7fa8c0;
+.class-carousel-image {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
 }
 
-/* Class title and description */
-.ant-typography h4 {
-    color: #1e293b;
-    font-weight: 600;
-    margin-bottom: 16px;
+.class-carousel-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%);
+  padding: var(--spacing-2xl) var(--spacing-lg) var(--spacing-lg);
 }
 
-.ant-typography h5 {
-    color: #334155;
-    font-weight: 600;
-    margin-top: 24px;
-    margin-bottom: 16px;
+.class-carousel-title {
+  color: var(--bg-white) !important;
+  margin: 0 !important;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  font-size: var(--font-size-2xl) !important;
+  font-weight: var(--font-weight-bold) !important;
 }
 
-.ant-typography p {
-    color: #64748b;
-    line-height: 1.8;
+/* Content Cards */
+.class-content-card {
+  border-radius: var(--radius-xl) !important;
+  box-shadow: var(--shadow-md);
+  background: var(--bg-white);
+  margin-bottom: var(--spacing-lg);
+  border: 1px solid var(--border-light) !important;
 }
 
-/* Tags styling */
-.ant-col-16 .ant-tag {
-    border-radius: 12px;
-    padding: 6px 14px;
-    font-weight: 500;
-    border: none;
-    background: linear-gradient(135deg, #98BDD2 0%, #7fa8c0 100%);
-    color: white;
-    font-size: 13px;
+.class-content-card .ant-card-body {
+  padding: var(--spacing-lg);
 }
 
-/* Date picker navigation */
-.ant-space .ant-btn {
-    border-radius: 8px;
-    transition: all 0.3s ease;
+.class-section-title {
+  color: var(--text-dark) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  margin-bottom: var(--spacing-md) !important;
+  font-size: var(--font-size-lg) !important;
 }
 
-.ant-space .ant-btn:hover:not(:disabled) {
-    border-color: #98BDD2;
-    color: #98BDD2;
-    transform: scale(1.05);
+.class-description {
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-relaxed);
+  color: var(--text-secondary);
+  margin-top: var(--spacing-sm);
+}
+
+/* Tags */
+.class-tag {
+  font-size: var(--font-size-sm);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  border: none;
+}
+
+/* Date Navigation */
+.class-date-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+.class-date-nav .ant-btn {
+  border: none;
+  flex-shrink: 0;
 }
 
 .custom-date-picker {
-    border-radius: 8px;
+  border: none;
+  flex-grow: 1;
+  max-width: 200px;
 }
 
-/* Available classes list */
-.ant-list {
-    background: white;
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+.custom-date-picker .ant-picker-input > input {
+  text-align: center;
+  font-weight: var(--font-weight-medium);
 }
 
-.ant-list-item {
-    border-radius: 8px;
-    padding: 16px !important;
-    margin-bottom: 8px;
-    transition: all 0.3s ease;
-    border: 1px solid #f1f5f9 !important;
+/* Schedule List */
+.class-schedule-list {
+  margin-top: var(--spacing-md);
 }
 
-.ant-list-item:hover {
-    background: #f8fafc;
-    border-color: #98BDD2 !important;
-    transform: translateX(4px);
+.class-schedule-list .ant-list {
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
 }
 
-.ant-list-item-meta-title {
-    color: #1e293b;
-    font-weight: 500;
+.class-schedule-item {
+  padding: var(--spacing-md) !important;
+  background: var(--bg-cream);
+  border-radius: var(--radius-lg) !important;
+  margin-bottom: var(--spacing-sm) !important;
+  border: 1px solid var(--border-light) !important;
+  transition: var(--transition-base);
 }
 
-.ant-list-item-meta-description {
-    color: #64748b;
+.class-schedule-item:hover {
+  border-color: var(--primary-color) !important;
+  transform: translateX(4px);
 }
 
-.ant-list-item .ant-btn-primary {
-    border-radius: 20px;
-    height: 40px;
-    padding: 0 24px;
-    font-weight: 500;
-    background: #98BDD2;
-    border-color: #98BDD2;
-    box-shadow: 0 2px 8px rgba(152, 189, 210, 0.3);
-    transition: all 0.3s ease;
+.class-schedule-item.booked {
+  background: var(--bg-info-light);
+  border-color: var(--primary-color) !important;
 }
 
-.ant-list-item .ant-btn-primary:hover {
-    background: #7fa8c0;
-    border-color: #7fa8c0;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(152, 189, 210, 0.4);
+.class-schedule-item.sold-out {
+  background: var(--bg-cream);
+  opacity: 0.7;
 }
 
-/* Partner info card */
-.ant-card {
-    border-radius: 16px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-    border: 1px solid #f1f5f9;
-    transition: all 0.3s ease;
-    width: 100% !important;
-    max-width: 100%;
+.class-schedule-item.past {
+  background: var(--bg-cream);
+  opacity: 0.6;
 }
 
-.ant-card:hover {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    transform: translateY(-4px);
+.schedule-time-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+  background: var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xl);
 }
 
-.ant-card-meta-avatar {
-    padding-right: 16px;
+.schedule-time-icon.sold-out {
+  background: var(--text-disabled);
 }
 
-.ant-card-meta-title {
-    color: #1e293b;
-    font-weight: 600;
-    font-size: 16px;
+.schedule-time-icon.past {
+  background: var(--text-disabled);
 }
 
-.ant-card-meta-description {
-    color: #64748b;
+.schedule-time-text {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-dark);
 }
 
-.ant-card-meta-description .ant-space {
-    width: 100%;
+.schedule-credit-tag {
+  font-weight: var(--font-weight-bold);
 }
 
-.ant-card-meta-description .anticon {
-    color: #98BDD2;
+.schedule-spots-tag {
+  font-size: var(--font-size-xs);
 }
 
-/* Divider styling */
-.ant-divider {
-    margin: 32px 0;
-    border-color: #e5e7eb;
+.schedule-booked-info {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
 }
 
-/* Map styling */
-.map {
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-    border: 2px solid #f1f5f9;
+/* Book Now Button */
+.book-now-btn {
+  border-radius: var(--radius-sm) !important;
+  height: 40px;
+  font-weight: var(--font-weight-medium);
 }
 
-/* Map popup styling */
-.mapboxgl-popup-content {
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+/* Partner Sidebar Card */
+.class-partner-card {
+  border-radius: var(--radius-xl) !important;
+  box-shadow: var(--shadow-md);
+  background: var(--bg-white);
+  border: 1px solid var(--border-light) !important;
+  overflow: hidden;
+  cursor: pointer;
+  transition: var(--transition-base);
 }
 
-.mapboxgl-popup-close-button {
-    font-size: 20px;
-    padding: 8px;
-    color: #64748b;
+.class-partner-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+  border-color: var(--primary-color) !important;
 }
 
-.mapboxgl-popup-close-button:hover {
-    color: #98BDD2;
+.class-partner-card .ant-card-body {
+  padding: var(--spacing-lg);
 }
 
-/* Responsive adjustments for Class detail page */
+.partner-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.partner-card-avatar {
+  border: 2px solid var(--border-light);
+  flex-shrink: 0;
+}
+
+.partner-card-name {
+  color: var(--text-dark) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  margin: 0 !important;
+  font-size: var(--font-size-lg) !important;
+}
+
+.partner-card-badge {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+}
+
+.partner-card-divider {
+  margin: var(--spacing-md) 0 !important;
+  border-color: var(--border-light) !important;
+}
+
+.partner-contact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+}
+
+.partner-contact-icon {
+  font-size: var(--font-size-md);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.partner-contact-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  display: block;
+}
+
+.partner-contact-value {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-dark);
+}
+
+.view-partner-btn {
+  height: 44px;
+  border-radius: var(--radius-sm) !important;
+  font-weight: var(--font-weight-medium);
+}
+
+/* Reviews Section */
+.class-reviews-card .ant-typography {
+  color: var(--text-muted);
+}
+
+/* Carousel Styling */
+.class-hero-card .ant-carousel .slick-dots li button {
+  background: var(--primary-color);
+}
+
+.class-hero-card .ant-carousel .slick-dots li.slick-active button {
+  background: var(--primary-dark);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
 @media screen and (max-width: 767.9px) {
-    .ant-card {
-        margin-top: 24px;
-    }
+  .class-page {
+    padding: var(--spacing-3xl) var(--spacing-sm) var(--spacing-lg) var(--spacing-sm);
+  }
 
-    .ant-affix {
-        position: relative !important;
-    }
+  .class-carousel-image {
+    height: 250px;
+  }
 
-    .ant-carousel .slick-slide img {
-        max-height: 250px !important;
-    }
+  .class-carousel-title {
+    font-size: var(--font-size-xl) !important;
+  }
 
-    .ant-space-vertical {
-        width: 100%;
-    }
+  .class-content-card .ant-card-body,
+  .class-partner-card .ant-card-body {
+    padding: var(--spacing-md);
+  }
+
+  .class-partner-card {
+    margin-top: var(--spacing-lg);
+  }
+
+  /* Disable Affix on mobile */
+  .class-page .ant-affix {
+    position: relative !important;
+  }
 }
 
 @media screen and (min-width: 768px) and (max-width: 1023.9px) {
-    .ant-affix {
-        position: relative !important;
-    }
+  .class-page {
+    padding: var(--spacing-3xl) var(--spacing-md) var(--spacing-xl) var(--spacing-md);
+  }
+
+  .class-carousel-image {
+    height: 350px;
+  }
+
+  /* Disable Affix on tablet */
+  .class-page .ant-affix {
+    position: relative !important;
+  }
 }
 
-/* Clear All button styling */
-.classes .ant-space > .ant-space:last-child button {
-    border-radius: 20px;
-    height: 40px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.classes .ant-space > .ant-space:last-child button:hover {
-    border-color: #ef4444;
-    color: #ef4444;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.15);
-}
-
-/* Divider styling */
-.classes .ant-divider {
-    margin: 24px 0;
-    border-color: #e5e7eb;
-}
-
-/* Rate styling */
-.listing-container .ant-rate {
-    color: #fbbf24;
-}
-
-/* Pagination styling */
-.listing-container .ant-pagination {
-    margin-top: 16px;
-}
-
-.listing-container .ant-pagination-item {
-    border-radius: 8px;
-    border-color: #e5e7eb;
-}
-
-.listing-container .ant-pagination-item-active {
-    border-color: #98BDD2;
-    background: #98BDD2;
-}
-
-.listing-container .ant-pagination-item-active a {
-    color: white;
-}
-
-.listing-container .ant-pagination-item:hover {
-    border-color: #98BDD2;
-}
-
-.listing-container .ant-pagination-item:hover a {
-    color: #98BDD2;
+@media screen and (min-width: 1024px) {
+  .class-page {
+    padding: var(--spacing-3xl) var(--spacing-xl) var(--spacing-2xl) var(--spacing-xl);
+  }
 }
