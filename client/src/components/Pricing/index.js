@@ -1,11 +1,24 @@
-import React, { useState } from "react";
-import { Typography, Card, Col, Row, Space, Button, Badge, Divider } from "antd";
-import { CheckOutlined, StarFilled, ThunderboltFilled, CrownFilled, TrophyFilled } from "@ant-design/icons";
-import "./index.css"; // Import the external CSS file
+import React from "react";
+import { Typography, Card, Col, Row, Space, Button, Badge, Divider, Tag } from "antd";
+import { 
+  CheckOutlined, 
+  StarFilled, 
+  ThunderboltFilled, 
+  CrownFilled, 
+  TrophyFilled,
+  ClockCircleOutlined,
+  SafetyCertificateOutlined,
+  CustomerServiceOutlined,
+  CalendarOutlined,
+  GiftOutlined,
+  RocketOutlined
+} from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
+import "./index.css";
 
 const { Text, Title } = Typography;
 
-const CardComponent = ({ plan }) => {
+const CardComponent = ({ plan, onSelect }) => {
   const isPopular = plan.isPopular;
   const price = plan.price;
   const credits = plan.credits;
@@ -19,21 +32,18 @@ const CardComponent = ({ plan }) => {
   };
 
   return (
-    <Col
-      xs={24}
-      sm={24}
-      md={24}
-      lg={8}
-      className="card-container"
-    >
+    <Col xs={24} sm={24} md={24} lg={8} className="card-container">
       <Card
         hoverable
         className={`pricing-card ${isPopular ? "popular-card" : ""} ${plan.tierClass || ""}`}
-        bodyStyle={{ padding: "32px 24px" }}
       >
         {isPopular && <span className="popular-label">🎯 Best Value</span>}
         {savingsPercent && (
-          <Badge.Ribbon text={`Save ${savingsPercent}%`} color="#52c41a" className="savings-ribbon">
+          <Badge.Ribbon 
+            text={`Save ${savingsPercent}%`} 
+            color="var(--color-success)" 
+            className="savings-ribbon"
+          >
             <div></div>
           </Badge.Ribbon>
         )}
@@ -50,14 +60,15 @@ const CardComponent = ({ plan }) => {
         )}
 
         <div className="pricing-section">
-          <Space direction="vertical" size={2} style={{ width: '100%' }}>
+          <Space direction="vertical" size={4} style={{ width: '100%' }}>
             <Text className="card-price">
               <span className="currency">SGD</span> {price}
             </Text>
             <Text className="card-credits">
+              <GiftOutlined style={{ marginRight: 6 }} />
               <b>{credits} credits</b> included
             </Text>
-            <Divider style={{ margin: '12px 0' }} />
+            <Divider className="pricing-divider" />
             <Text className="per-credit-price">
               <span className="price-label">SGD {perCreditPrice}</span> per credit
             </Text>
@@ -69,7 +80,12 @@ const CardComponent = ({ plan }) => {
           </Space>
         </div>
 
-        <Button type="primary" size="large" className="choose-plan-btn">
+        <Button 
+          type="primary" 
+          size="large" 
+          className="choose-plan-btn"
+          onClick={() => onSelect(plan)}
+        >
           Get Started
         </Button>
         
@@ -87,7 +103,7 @@ const CardComponent = ({ plan }) => {
 };
 
 const Pricing = () => {
-  const basePrice = 5.0; // Base price per credit for comparison
+  const navigate = useNavigate();
 
   const plans = [
     {
@@ -139,23 +155,59 @@ const Pricing = () => {
       ]
     },
   ];
+
+  const benefits = [
+    {
+      icon: <ClockCircleOutlined className="benefit-icon-large" />,
+      title: "No Expiry",
+      description: "Use your credits anytime, at your own pace"
+    },
+    {
+      icon: <SafetyCertificateOutlined className="benefit-icon-large" />,
+      title: "Wide Selection",
+      description: "Access classes from verified partner centers"
+    },
+    {
+      icon: <CalendarOutlined className="benefit-icon-large" />,
+      title: "Easy Booking",
+      description: "Schedule classes in just a few clicks"
+    },
+    {
+      icon: <CustomerServiceOutlined className="benefit-icon-large" />,
+      title: "Secure Payment",
+      description: "Safe transactions with instant confirmation"
+    }
+  ];
+
+  const handleSelectPlan = (plan) => {
+    navigate("/register", { state: { selectedPlan: plan } });
+  };
+
   return (
     <div className="pricing-container">
+      {/* Header Section */}
       <div className="pricing-header">
-        <Badge count={<TrophyFilled style={{ color: '#faad14' }} />} offset={[10, 0]}>
-          <Title level={3} className="section-subtitle">
-            Transparent Pricing
-          </Title>
-        </Badge>
+        <Tag 
+          icon={<TrophyFilled />} 
+          color="gold"
+          className="pricing-badge"
+        >
+          Transparent Pricing
+        </Tag>
         <Title level={1} className="section-title">
           Choose Your Perfect Plan
         </Title>
         <Text className="section-description">
-          Flexible credit packages that grow with your child's learning journey.<br />
-          <span className="highlight-text">Buy more, save more — up to 20% off!</span>
+          Flexible credit packages that grow with your child's learning journey.
+          <br />
+          <span className="highlight-text">
+            <RocketOutlined style={{ marginRight: 6 }} />
+            Buy more, save more — up to 20% off!
+          </span>
         </Text>
       </div>
 
+      {/* Pricing Cards */}
       <Row
         gutter={[24, 24]}
         justify="center"
@@ -163,54 +215,35 @@ const Pricing = () => {
         wrap={true}
       >
         {plans.map((plan, idx) => (
-          <CardComponent key={idx} plan={plan} />
+          <CardComponent 
+            key={idx} 
+            plan={plan} 
+            onSelect={handleSelectPlan}
+          />
         ))}
       </Row>
 
+      {/* Benefits Section */}
       <div className="benefits-section">
         <Title level={4} className="benefits-title">
           Why Families Love JuniorPASS
         </Title>
         <Row gutter={[24, 24]} justify="center" className="benefits-grid">
-          <Col xs={24} sm={12} md={6}>
-            <div className="benefit-card">
-              <CheckOutlined className="benefit-icon-large" />
-              <Text className="benefit-title">No Expiry</Text>
-              <Text className="benefit-description">
-                Use your credits anytime, at your own pace
-              </Text>
-            </div>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <div className="benefit-card">
-              <CheckOutlined className="benefit-icon-large" />
-              <Text className="benefit-title">Wide Selection</Text>
-              <Text className="benefit-description">
-                Access classes from verified partner centers
-              </Text>
-            </div>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <div className="benefit-card">
-              <CheckOutlined className="benefit-icon-large" />
-              <Text className="benefit-title">Easy Booking</Text>
-              <Text className="benefit-description">
-                Schedule classes in just a few clicks
-              </Text>
-            </div>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <div className="benefit-card">
-              <CheckOutlined className="benefit-icon-large" />
-              <Text className="benefit-title">Secure Payment</Text>
-              <Text className="benefit-description">
-                Safe transactions with instant confirmation
-              </Text>
-            </div>
-          </Col>
+          {benefits.map((benefit, idx) => (
+            <Col xs={24} sm={12} md={6} key={idx}>
+              <div className="benefit-card">
+                {benefit.icon}
+                <Text className="benefit-title">{benefit.title}</Text>
+                <Text className="benefit-description">
+                  {benefit.description}
+                </Text>
+              </div>
+            </Col>
+          ))}
         </Row>
       </div>
 
+      {/* Footer Note */}
       <div className="pricing-footer">
         <Text className="footer-note">
           💡 <strong>Pro Tip:</strong> Larger packages offer better value per credit. 
