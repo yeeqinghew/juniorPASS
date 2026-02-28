@@ -1,255 +1,498 @@
 /* Import global variables */
 @import '../../styles/variables.css';
 
-/* Credits Component Mobile Styles */
+/* ============================================
+   CREDITS PAGE - REVAMPED DESIGN
+   Using CSS Variables for consistency
+   ============================================ */
 
-/* Desktop defaults */
-.credits-container {
+.credits-page {
   padding: 0;
+  max-width: 100%;
 }
 
-/* Mobile specific styles */
+/* Header Section */
+.credits-header {
+  margin-bottom: var(--spacing-lg);
+}
+
+.page-title {
+  margin: 0 0 4px 0 !important;
+  font-size: var(--font-size-3xl) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.page-title .anticon {
+  color: var(--primary-color);
+}
+
+.page-subtitle {
+  font-size: var(--font-size-base);
+  color: var(--text-muted);
+}
+
+/* Balance Card - Clean White Design */
+.balance-card {
+  background: var(--bg-white);
+  border-radius: var(--radius-xl) !important;
+  margin-bottom: var(--spacing-lg);
+  border: 1px solid var(--border-light) !important;
+  box-shadow: var(--shadow-sm);
+}
+
+.balance-card .ant-card-body {
+  padding: var(--spacing-xl);
+}
+
+.balance-content {
+  color: var(--text-dark);
+}
+
+.balance-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-xs);
+}
+
+.balance-icon {
+  font-size: var(--font-size-2xl);
+  color: var(--primary-color);
+}
+
+.balance-text {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.balance-amount-wrapper {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-sm);
+}
+
+.balance-amount {
+  font-size: 56px;
+  font-weight: var(--font-weight-bold);
+  color: var(--primary-color);
+  line-height: var(--line-height-tight);
+}
+
+.balance-unit {
+  font-size: var(--font-size-xl);
+  color: var(--text-muted);
+  font-weight: var(--font-weight-medium);
+}
+
+.balance-info {
+  margin-top: var(--spacing-xs);
+}
+
+.balance-info .ant-typography {
+  color: var(--text-light) !important;
+  font-size: var(--font-size-sm);
+}
+
+.balance-info .anticon {
+  margin-right: 6px;
+}
+
+.balance-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.topup-button {
+  height: 52px !important;
+  font-size: var(--font-size-lg) !important;
+  font-weight: var(--font-weight-semibold) !important;
+  border-radius: var(--radius-md) !important;
+  transition: var(--transition-base) !important;
+}
+
+.topup-button:hover {
+  transform: translateY(-2px) !important;
+}
+
+.topup-button .anticon {
+  font-size: var(--font-size-xl);
+}
+
+/* Statistics Row */
+.stats-row {
+  margin-bottom: var(--spacing-lg);
+}
+
+.stat-card {
+  border-radius: var(--radius-lg) !important;
+  height: 100%;
+  transition: var(--transition-base);
+  border: 1px solid var(--border-light) !important;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-card .ant-card-body {
+  padding: var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-2xl);
+  flex-shrink: 0;
+}
+
+.stat-icon.spent {
+  background: var(--color-error-bg);
+  color: var(--color-error);
+}
+
+.stat-icon.refunded {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.stat-icon.bookings {
+  background: var(--color-info-bg);
+  color: var(--color-info);
+}
+
+.stat-icon.total {
+  background: var(--color-purple-bg);
+  color: var(--color-purple);
+}
+
+.stat-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.stat-value {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-dark);
+  display: block;
+  line-height: var(--line-height-tight);
+}
+
+.stat-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-disabled);
+  display: block;
+  margin-top: 2px;
+}
+
+/* Transactions Card */
+.transactions-card {
+  border-radius: var(--radius-xl) !important;
+  border: 1px solid var(--border-light) !important;
+}
+
+.transactions-card .ant-card-body {
+  padding: var(--spacing-lg);
+}
+
+.transactions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.transactions-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.transactions-title .anticon {
+  font-size: var(--font-size-2xl);
+  color: var(--primary-color);
+}
+
+.transactions-title .ant-typography {
+  font-weight: var(--font-weight-semibold) !important;
+}
+
+.filter-segmented {
+  background: var(--border-light);
+  border-radius: 10px;
+  padding: 4px;
+}
+
+.filter-segmented .ant-segmented-item {
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.filter-segmented .ant-segmented-item-selected {
+  background: var(--bg-white);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Transaction List */
+.transactions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.transaction-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) 0;
+  border-bottom: 1px solid var(--border-light);
+  transition: background var(--transition-fast);
+}
+
+.transaction-item:last-child {
+  border-bottom: none;
+}
+
+.transaction-item:hover {
+  background: var(--bg-cream);
+  margin: 0 calc(-1 * var(--spacing-md));
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+}
+
+.transaction-icon-wrapper {
+  flex-shrink: 0;
+}
+
+.transaction-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-xl);
+}
+
+.transaction-icon.debit {
+  background: var(--color-error-bg);
+  color: var(--color-error);
+}
+
+.transaction-icon.credit {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.transaction-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.transaction-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
+}
+
+.transaction-title {
+  font-size: var(--font-size-md);
+  color: var(--text-dark);
+  line-height: 1.4;
+  flex: 1;
+  word-break: break-word;
+}
+
+.transaction-amount {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  flex-shrink: 0;
+}
+
+.transaction-amount.debit {
+  color: var(--color-error);
+}
+
+.transaction-amount.credit {
+  color: var(--color-success);
+}
+
+.transaction-meta {
+  margin-bottom: var(--spacing-xs);
+}
+
+.meta-tag {
+  font-size: 11px;
+  padding: 2px var(--spacing-xs);
+  border-radius: 6px;
+  border: none;
+  margin: 0;
+}
+
+.meta-tag.child-tag {
+  background: var(--color-info-light);
+  color: var(--color-info);
+}
+
+.meta-tag.partner-tag {
+  background: var(--color-purple-light);
+  color: var(--color-purple);
+}
+
+.transaction-footer {
+  display: flex;
+  align-items: center;
+}
+
+.transaction-date {
+  font-size: var(--font-size-xs);
+  color: var(--text-disabled);
+  display: flex;
+  align-items: center;
+}
+
+/* Empty State */
+.empty-state {
+  padding: var(--spacing-2xl) var(--spacing-lg);
+}
+
+.empty-state .ant-empty-description {
+  margin-bottom: var(--spacing-md);
+}
+
+/* Mobile Responsive */
 @media screen and (max-width: 767.9px) {
-  /* Main title */
-  .credits-container .ant-typography h4 {
-    font-size: 18px !important;
-    margin-bottom: 16px;
+  .credits-page {
+    padding: 0;
   }
 
-  /* Credit balance card */
-  .credits-container > .ant-card:first-of-type {
-    margin-bottom: 16px !important;
+  .page-title {
+    font-size: var(--font-size-2xl) !important;
   }
 
-  .credits-container > .ant-card:first-of-type .ant-row {
-    gap: 16px;
+  .balance-card .ant-card-body {
+    padding: var(--spacing-lg);
   }
 
-  .credits-container > .ant-card:first-of-type .ant-col-xs-24 {
-    text-align: left !important;
+  .balance-amount {
+    font-size: var(--font-size-6xl);
   }
 
-  .credits-container > .ant-card:first-of-type .ant-col-xs-24:last-child {
-    margin-top: 16px;
+  .balance-unit {
+    font-size: var(--font-size-lg);
   }
 
-  /* Credit icon and amount */
-  .credits-container .anticon-icon-money {
-    font-size: 24px !important;
+  .topup-button {
+    height: 48px !important;
+    font-size: var(--font-size-md) !important;
   }
 
-  .credits-container > .ant-card:first-of-type .ant-typography {
-    font-size: 12px;
+  .stat-card .ant-card-body {
+    padding: var(--spacing-md);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
   }
 
-  .credits-container > .ant-card:first-of-type .ant-typography:last-child {
-    font-size: 24px !important;
+  .stat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: var(--font-size-xl);
   }
 
-  /* Top up button */
-  .credits-container .ant-btn-lg {
-    width: 100%;
-    height: 44px;
-    font-size: 15px;
+  .stat-value {
+    font-size: var(--font-size-2xl);
   }
 
-  /* Statistics row */
-  .credits-container .ant-row-gutter {
-    margin-bottom: 16px !important;
+  .stat-label {
+    font-size: 11px;
   }
 
-  .credits-container .ant-statistic-title {
-    font-size: 12px !important;
+  .transactions-card .ant-card-body {
+    padding: var(--spacing-md);
   }
 
-  .credits-container .ant-statistic-content {
-    font-size: 20px !important;
+  .transactions-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
   }
 
-  .credits-container .ant-statistic-content-suffix {
-    font-size: 12px !important;
-  }
-
-  /* Transaction history card */
-  .credits-container > .ant-card:last-of-type .ant-card-head {
-    padding: 12px 16px;
-  }
-
-  .credits-container > .ant-card:last-of-type .ant-card-head-title {
-    font-size: 16px;
-  }
-
-  /* Hide filter controls on mobile */
-  .credits-container > .ant-card:last-of-type .ant-card-extra {
-    display: none;
-  }
-
-  /* Transaction list items - vertical layout */
-  .credits-container .ant-list-item {
-    padding: 16px 12px !important;
-    display: block !important;
-    border-bottom: 1px solid #f0f0f0;
-  }
-
-  .credits-container .ant-list-item-meta {
-    width: 100%;
-    display: block !important;
-    margin: 0 !important;
-  }
-
-  .credits-container .ant-list-item-meta-avatar {
-    position: absolute;
-    left: 12px;
-    top: 16px;
-    margin: 0 !important;
-  }
-
-  .credits-container .ant-list-item-meta-avatar .anticon {
-    font-size: 20px;
-  }
-
-  .credits-container .ant-list-item-meta-content {
-    display: block !important;
-    padding-left: 36px;
-    width: 100% !important;
-  }
-
-  .credits-container .ant-list-item-meta-title {
-    margin-bottom: 8px !important;
+  .filter-segmented {
     width: 100%;
   }
 
-  /* Transaction title and amount - stack vertically */
-  .credits-container .ant-list-item-meta-title > .ant-space {
-    width: 100%;
-    display: block !important;
+  .filter-segmented .ant-segmented-item {
+    font-size: var(--font-size-xs);
   }
 
-  .credits-container .ant-list-item-meta-title > .ant-space > div:first-child {
-    width: 100%;
-    display: block !important;
+  .transaction-item {
+    gap: var(--spacing-sm);
+    padding: var(--spacing-base) 0;
   }
 
-  .credits-container .ant-list-item-meta-title > .ant-space > div:first-child > div {
-    display: block !important;
+  .transaction-icon {
+    width: 40px;
+    height: 40px;
+    font-size: var(--font-size-lg);
   }
 
-  .credits-container .ant-list-item-meta-title .ant-typography:first-child {
-    font-size: 14px !important;
-    display: block !important;
-    margin-bottom: 6px;
-    text-align: left !important;
+  .transaction-title {
+    font-size: var(--font-size-base);
   }
 
-  .credits-container .ant-list-item-meta-title .ant-typography:last-child {
-    font-size: 16px !important;
-    display: block !important;
-    text-align: left !important;
-    margin-top: 4px;
+  .transaction-amount {
+    font-size: var(--font-size-md);
   }
 
-  /* Transaction tags */
-  .credits-container .ant-list-item-meta-title .ant-space-item:last-child {
-    width: 100%;
-    margin-top: 8px;
+  .transaction-date {
+    font-size: 11px;
   }
 
-  .credits-container .ant-list-item-meta-title .ant-tag {
+  .meta-tag {
     font-size: 10px;
-    padding: 2px 6px;
-    margin: 2px 4px 2px 0;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: inline-block;
-    vertical-align: middle;
-  }
-
-  /* Specific tag size limits */
-  .credits-container .ant-list-item-meta-title .ant-tag:first-child {
-    max-width: 80px;
-  }
-
-  .credits-container .ant-list-item-meta-title .ant-tag:not(:first-child) {
-    max-width: calc(50% - 8px);
-  }
-
-  /* Transaction description */
-  .credits-container .ant-list-item-meta-description {
-    font-size: 11px !important;
-  }
-
-  .credits-container .ant-list-item-meta-description .ant-space {
-    gap: 4px !important;
-  }
-
-  .credits-container .ant-list-item-meta-description .ant-typography {
-    font-size: 11px !important;
-  }
-
-  /* Pagination */
-  .credits-container .ant-pagination {
-    margin-top: 16px;
-    text-align: center;
-  }
-
-  .credits-container .ant-pagination-total-text,
-  .credits-container .ant-pagination-options {
-    display: none !important;
-  }
-
-  .credits-container .ant-pagination-item,
-  .credits-container .ant-pagination-prev,
-  .credits-container .ant-pagination-next {
-    min-width: 32px;
-    height: 32px;
-    line-height: 32px;
-    font-size: 14px;
-  }
-
-  .credits-container .ant-pagination-jump-prev,
-  .credits-container .ant-pagination-jump-next {
-    min-width: 32px;
-    height: 32px;
-    line-height: 32px;
-  }
-
-  /* Empty state */
-  .credits-container .ant-empty {
-    margin: 24px 0;
-  }
-
-  .credits-container .ant-empty-description {
-    font-size: 13px;
-  }
-
-  .credits-container .ant-empty .ant-btn {
-    margin-top: 12px;
-  }
-
-  /* Spin loading */
-  .credits-container .ant-spin-nested-loading {
-    min-height: 200px;
+    padding: 1px 6px;
   }
 }
 
 /* Small mobile screens */
 @media screen and (max-width: 374.9px) {
-  .credits-container .ant-statistic-content {
-    font-size: 18px !important;
+  .balance-amount {
+    font-size: 36px;
   }
 
-  .credits-container .ant-list-item-meta-title .ant-typography:first-child {
-    font-size: 13px !important;
+  .stat-value {
+    font-size: var(--font-size-xl);
   }
 
-  .credits-container .ant-list-item-meta-title .ant-typography:last-child {
-    font-size: 14px !important;
+  .transaction-main {
+    flex-direction: column;
+    gap: 4px;
   }
 
-  .credits-container .ant-tag {
-    font-size: 10px !important;
-    padding: 1px 6px !important;
+  .transaction-amount {
+    align-self: flex-start;
   }
 }
