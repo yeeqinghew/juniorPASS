@@ -16,7 +16,6 @@ router.post("", authorization, async (req, res) => {
     const {
       partner_id,
       title,
-      credit,
       package_types,
       description,
       age_groups,
@@ -25,10 +24,7 @@ router.post("", authorization, async (req, res) => {
       long_term_start_date,
       outlets,
     } = req.body;
-        
-    if (credit < 0) {
-      return res.status(400).json({ error: 'Credit cost must be non-negative' });
-    }
+
     const partnerIdFromToken = req.user;
 
     // insert listing
@@ -36,7 +32,6 @@ router.post("", authorization, async (req, res) => {
       `INSERT INTO listings (
         partner_id, 
         listing_title, 
-        credit,
         package_types,      
         description,
         age_groups,
@@ -45,11 +40,10 @@ router.post("", authorization, async (req, res) => {
         short_term_start_date,
         long_term_start_date,
         active
-      ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *`,
+      ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
       [
         partnerIdFromToken,
         title,
-        credit,
         package_types,
         description,
         age_groups,
@@ -58,7 +52,7 @@ router.post("", authorization, async (req, res) => {
         short_term_start_date,
         long_term_start_date,
         true,
-      ]
+      ],
     );
 
     const listing_id = listing.rows[0].listing_id;
@@ -73,19 +67,32 @@ router.post("", authorization, async (req, res) => {
       const listingOutlet = await pool.query(
         `
         INSERT INTO listingOutlets (listing_id, outlet_id) VALUES($1, $2) RETURNING *`,
-        [listing_id, outlet_id]
+        [listing_id, outlet_id],
       );
       const listing_outlet_id = listingOutlet.rows[0].listing_outlet_id;
 
       for (let schedule of schedules) {
-        const { day, timeslot, frequency, slots, credit: scheduleCredit } = schedule;
+        const {
+          day,
+          timeslot,
+          frequency,
+          slots,
+          credit: scheduleCredit,
+        } = schedule;
 
         schedulePromises.push(
           pool.query(
             `INSERT INTO schedules (listing_outlet_id, day, timeslot, frequency, slots, credit)
              VALUES($1, $2, $3, $4, $5, $6)`,
-            [listing_outlet_id, day, timeslot, frequency, slots || 10, scheduleCredit || credit]
-          )
+            [
+              listing_outlet_id,
+              day,
+              timeslot,
+              frequency,
+              slots || 10,
+              scheduleCredit || 1,
+            ],
+          ),
         );
       }
     }
@@ -103,10 +110,13 @@ router.post("", authorization, async (req, res) => {
          SELECT 'admin', admin_id, 'new_listing', 'New listing created', 'A new listing has been created.',
                 jsonb_build_object('listing_id', $1, 'partner_id', $2, 'title', $3)
          FROM admins`,
-        [listing_id, partnerIdFromToken, title]
+        [listing_id, partnerIdFromToken, title],
       );
     } catch (notifyErr) {
-      console.error("Failed to insert admin notification (new listing):", notifyErr.message);
+      console.error(
+        "Failed to insert admin notification (new listing):",
+        notifyErr.message,
+      );
     }
 
     res.status(201).json({
@@ -156,7 +166,7 @@ router.get("", cacheMiddleware, async (req, res) => {
       WHERE l.active = true
       GROUP BY l.listing_id, p.partner_id
       ORDER BY l.created_on DESC;
-      `
+      `,
     );
     return res.status(200).json(listings.rows);
   } catch (err) {
@@ -190,6 +200,8 @@ router.get("/:id", cacheMiddleware, async (req, res) => {
             'day', s.day,
             'timeslot', s.timeslot,
             'frequency', s.frequency,
+            'slots', s.slots,
+            'credit', s.credit,
             'outlet_id', o.outlet_id,
             'outlet_address', o.address,
             'nearest_mrt', o.nearest_mrt
@@ -203,7 +215,7 @@ router.get("/:id", cacheMiddleware, async (req, res) => {
       WHERE l.listing_id = $1
       GROUP BY l.listing_id, p.partner_id
       ORDER BY l.created_on DESC;`,
-      [id]
+      [id],
     );
 
     return res.status(200).json(listing.rows[0]);
@@ -224,7 +236,7 @@ router.get("/partner/:partnerId", async (req, res) => {
       WHERE l.partner_id = $1
       ORDER BY 
           l.created_on DESC;`,
-      [partnerId]
+      [partnerId],
     );
 
     return res.status(200).json(listings.rows);
@@ -241,7 +253,7 @@ router.patch("/:id", authorization, async (req, res) => {
     // Fetch the existing listing
     const existingListing = await pool.query(
       "SELECT * FROM listings WHERE listing_id = $1",
-      [id]
+      [id],
     );
 
     if (existingListing.rows.length === 0) {
@@ -250,40 +262,49 @@ router.patch("/:id", authorization, async (req, res) => {
 
     // Authorize partner ownership
     if (existingListing.rows[0].partner_id !== req.user) {
-      return res.status(403).json({ error: "Not authorized to modify this listing" });
+      return res
+        .status(403)
+        .json({ error: "Not authorized to modify this listing" });
     }
 
     // Merge existing data with new data (partial update)
     const updatedData = {
       title_name: req.body.title_name || existingListing.rows[0].listing_title,
-      price: req.body.price ?? existingListing.rows[0].price,
       package_types:
         req.body.package_types ?? existingListing.rows[0].package_types,
       description: req.body.description ?? existingListing.rows[0].description,
       age_groups: req.body.age_groups ?? existingListing.rows[0].age_groups,
       images: req.body.images ?? existingListing.rows[0].images,
+      short_term_start_date: req.body.short_term_start_date !== undefined 
+        ? req.body.short_term_start_date 
+        : existingListing.rows[0].short_term_start_date,
+      long_term_start_date: req.body.long_term_start_date !== undefined 
+        ? req.body.long_term_start_date 
+        : existingListing.rows[0].long_term_start_date,
     };
 
-    // Update listing
+    // Update listing (credit/price removed - credit is per-schedule)
     const updatedListing = await pool.query(
       `UPDATE listings SET
         listing_title = $1,
-        price = $2,
-        package_types = $3,
-        description = $4,
-        age_groups = $5,
-        images = $6,
+        package_types = $2,
+        description = $3,
+        age_groups = $4,
+        images = $5,
+        short_term_start_date = $6,
+        long_term_start_date = $7,
         last_updated_on = NOW()
-      WHERE listing_id = $7 RETURNING *`,
+      WHERE listing_id = $8 RETURNING *`,
       [
         updatedData.title_name,
-        updatedData.price,
         updatedData.package_types,
         updatedData.description,
         updatedData.age_groups,
         updatedData.images,
+        updatedData.short_term_start_date,
+        updatedData.long_term_start_date,
         id,
-      ]
+      ],
     );
 
     // Invalidate cache
@@ -305,7 +326,7 @@ router.delete("/:id", async (req, res) => {
     // retrieve image URLs from the DB
     const { rows } = await pool.query(
       `SELECT images FROM listings WHERE listing_id = $1`,
-      [id]
+      [id],
     );
 
     // Extract image URLs from the database result
@@ -349,7 +370,7 @@ router.patch("/:listing_id/status", async (req, res) => {
   } catch (error) {
     console.error(
       `ERROR in /listings/${listing_id}/status PATCH`,
-      error.message
+      error.message,
     );
     res.status(500).json({ error: error.message });
   }
@@ -384,13 +405,15 @@ router.patch("/:id/schedules", authorization, async (req, res) => {
     // Validate partner owns the listing
     const listingOwner = await pool.query(
       "SELECT partner_id FROM listings WHERE listing_id = $1",
-      [listing_id]
+      [listing_id],
     );
     if (listingOwner.rowCount === 0) {
       return res.status(404).json({ error: "Listing not found" });
     }
     if (listingOwner.rows[0].partner_id !== req.user) {
-      return res.status(403).json({ error: "Not authorized to modify this listing" });
+      return res
+        .status(403)
+        .json({ error: "Not authorized to modify this listing" });
     }
 
     const tx = await pool.connect();
@@ -407,13 +430,13 @@ router.patch("/:id/schedules", authorization, async (req, res) => {
         // Ensure listingOutlets mapping exists, else create
         const loResult = await tx.query(
           `SELECT listing_outlet_id FROM listingOutlets WHERE listing_id = $1 AND outlet_id = $2`,
-          [listing_id, outlet_id]
+          [listing_id, outlet_id],
         );
         let listing_outlet_id;
         if (loResult.rowCount === 0) {
           const insertLO = await tx.query(
             `INSERT INTO listingOutlets (listing_id, outlet_id) VALUES ($1, $2) RETURNING listing_outlet_id`,
-            [listing_id, outlet_id]
+            [listing_id, outlet_id],
           );
           listing_outlet_id = insertLO.rows[0].listing_outlet_id;
         } else {
@@ -421,14 +444,19 @@ router.patch("/:id/schedules", authorization, async (req, res) => {
         }
 
         // Replace schedules for this listing_outlet
-        await tx.query(
-          `DELETE FROM schedules WHERE listing_outlet_id = $1`,
-          [listing_outlet_id]
-        );
+        await tx.query(`DELETE FROM schedules WHERE listing_outlet_id = $1`, [
+          listing_outlet_id,
+        ]);
 
         // Insert new schedules
         for (const sch of schedules) {
-          const { day, timeslot, frequency, slots, credit: scheduleCredit } = sch;
+          const {
+            day,
+            timeslot,
+            frequency,
+            slots,
+            credit: scheduleCredit,
+          } = sch;
           if (
             !day ||
             !Array.isArray(timeslot) ||
@@ -438,18 +466,18 @@ router.patch("/:id/schedules", authorization, async (req, res) => {
             await tx.query("ROLLBACK");
             return res.status(400).json({ error: "Invalid schedule payload" });
           }
-          
-          // Get listing credit as fallback
-          const listingResult = await tx.query(
-            "SELECT credit FROM listings WHERE listing_id = $1",
-            [listing_id]
-          );
-          const listingCredit = listingResult.rows[0]?.credit || 1;
-          
+
           await tx.query(
             `INSERT INTO schedules (listing_outlet_id, day, timeslot, frequency, slots, credit)
              VALUES ($1, $2, $3, $4, $5, $6)`,
-            [listing_outlet_id, day, timeslot, frequency, slots || 10, scheduleCredit || listingCredit]
+            [
+              listing_outlet_id,
+              day,
+              timeslot,
+              frequency,
+              slots || 10,
+              scheduleCredit || 1,
+            ],
           );
         }
       }
@@ -467,7 +495,7 @@ router.patch("/:id/schedules", authorization, async (req, res) => {
            FROM bookings
            WHERE listing_id = $1
              AND start_date >= NOW()`,
-          [listing_id]
+          [listing_id],
         );
 
         const notifications = bookedUsers.rows.map((row) =>
@@ -481,24 +509,35 @@ router.patch("/:id/schedules", authorization, async (req, res) => {
               "Class schedule updated",
               "A class you booked has updated its schedule.",
               JSON.stringify({ listing_id }),
-            ]
-          )
+            ],
+          ),
         );
         await Promise.all(notifications);
       } catch (notifyErr) {
-        console.error("Failed to insert user notifications (schedule update):", notifyErr.message);
+        console.error(
+          "Failed to insert user notifications (schedule update):",
+          notifyErr.message,
+        );
       }
 
-      return res.status(200).json({ message: "Schedules updated successfully" });
+      return res
+        .status(200)
+        .json({ message: "Schedules updated successfully" });
     } catch (e) {
       await tx.query("ROLLBACK");
-      console.error(`ERROR in /listings/${listing_id}/schedules PATCH`, e.message);
+      console.error(
+        `ERROR in /listings/${listing_id}/schedules PATCH`,
+        e.message,
+      );
       return res.status(500).json({ error: e.message });
     } finally {
       tx.release();
     }
   } catch (error) {
-    console.error(`ERROR in /listings/${listing_id}/schedules PATCH`, error.message);
+    console.error(
+      `ERROR in /listings/${listing_id}/schedules PATCH`,
+      error.message,
+    );
     return res.status(500).json({ error: error.message });
   }
 });
@@ -537,7 +576,9 @@ router.get("/search", async (req, res) => {
       idx++;
     }
 
-    const whereSQL = whereClauses.length ? "WHERE " + whereClauses.join(" AND ") : "";
+    const whereSQL = whereClauses.length
+      ? "WHERE " + whereClauses.join(" AND ")
+      : "";
 
     const listings = await pool.query(
       `
@@ -559,7 +600,7 @@ router.get("/search", async (req, res) => {
       ORDER BY l.created_on DESC
       LIMIT $${idx} OFFSET $${idx + 1}
       `,
-      [...params, limit, offset]
+      [...params, limit, offset],
     );
 
     // Simple total count for pagination
@@ -570,7 +611,7 @@ router.get("/search", async (req, res) => {
       JOIN partners p ON p.partner_id = l.partner_id
       ${whereSQL}
       `,
-      params
+      params,
     );
 
     return res.status(200).json({

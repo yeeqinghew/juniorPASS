@@ -26,6 +26,7 @@ import {
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
+import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import { useUserContext } from "../UserContext";
 import getBaseURL from "../../utils/config";
 import Spinner from "../../utils/Spinner";
@@ -36,6 +37,7 @@ import BuyNow from "./BuyNow";
 const { Title, Text, Paragraph } = Typography;
 
 dayjs.extend(duration);
+dayjs.extend(isSameOrAfter);
 
 const Class = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -72,9 +74,18 @@ const Class = () => {
     if (!listing || !listing?.schedule_info) return [];
 
     const selectedDay = dayjs(selectedDate).format("dddd");
-    const startDate =
-      dayjs(listing?.long_term_start_date) ||
-      dayjs(listing?.short_term_start_date);
+
+    // Properly determine the start date - use long_term or short_term if they exist
+    let startDate;
+    if (listing?.long_term_start_date) {
+      startDate = dayjs(listing.long_term_start_date);
+    } else if (listing?.short_term_start_date) {
+      startDate = dayjs(listing.short_term_start_date);
+    } else {
+      // Fallback to created_on or today if no start date is set
+      startDate = listing?.created_on ? dayjs(listing.created_on) : dayjs();
+    }
+
     return listing?.schedule_info.reduce((acc, curr) => {
       const { frequency, day, timeslot } = curr;
       if (frequency === "Daily") {
@@ -96,14 +107,23 @@ const Class = () => {
         }
       } else if (frequency === "Monthly") {
         const selected = dayjs(selectedDate);
-        const monthsDiff = selected.diff(startDate, "month");
 
-        if (
-          monthsDiff >= 0 &&
-          monthsDiff % 1 === 0 &&
-          selected.date() === Math.min(startDate.date(), selected.daysInMonth())
-        ) {
-          acc.push({ ...formatTimeslot(timeslot), location: curr });
+        // For monthly: check if selected date is on or after start date
+        // and if the day of month matches the start date's day of month
+        if (selected.isSameOrAfter(startDate, "day")) {
+          const startDayOfMonth = startDate.date();
+          const selectedDayOfMonth = selected.date();
+          const daysInSelectedMonth = selected.daysInMonth();
+
+          // Handle months with fewer days (e.g., start on 31st, but Feb only has 28)
+          const targetDayOfMonth = Math.min(
+            startDayOfMonth,
+            daysInSelectedMonth,
+          );
+
+          if (selectedDayOfMonth === targetDayOfMonth) {
+            acc.push({ ...formatTimeslot(timeslot), location: curr });
+          }
         }
       }
 
@@ -286,7 +306,7 @@ const Class = () => {
       }
 
       const availableChildren = childrenData.filter(
-        (child) => !bookedChildIds.includes(child.child_id)
+        (child) => !bookedChildIds.includes(child.child_id),
       );
 
       if (availableChildren.length === 0) {
@@ -387,291 +407,350 @@ const Class = () => {
     <div className="class-page">
       <div className="class-page-inner">
         <Row gutter={[24, 24]}>
-        <Col xs={24} sm={24} md={24} lg={16} xl={16}>
-          {/* Hero Image Carousel */}
-          <Card bordered={false} className="class-hero-card">
-            <Carousel autoplay arrows dots>
-              {listing?.images.map((imgUrl, index) => (
-                <div key={index} style={{ position: "relative" }}>
-                  <Image
-                    alt={`carousel-${index}`}
-                    src={imgUrl}
-                    preview={false}
-                    className="class-carousel-image"
-                  />
-                  <div className="class-carousel-overlay">
-                    <Title level={2} className="class-carousel-title">
-                      {listing?.listing_title}
-                    </Title>
-                  </div>
-                </div>
-              ))}
-            </Carousel>
-          </Card>
-
-          {/* Description Card */}
-          <Card bordered={false} className="class-content-card">
-            <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-              {/* Tags */}
-              <Space wrap>
-                {listing?.package_types &&
-                  listing.package_types
-                    .replace(/[{}]/g, "")
-                    .split(",")
-                    .map((type, index) => (
-                      <Tag key={`package-type-${index}`} color="blue" className="class-tag">
-                        {type.trim()}
-                      </Tag>
-                    ))}
-
-                {listing?.partner_info?.categories?.map((category, index) => (
-                  <Tag key={`category-${index}`} color="purple" className="class-tag">
-                    {category}
-                  </Tag>
-                ))}
-              </Space>
-
-              <Paragraph className="class-description">
-                {listing?.description}
-              </Paragraph>
-            </Space>
-          </Card>
-
-          {/* Schedule Card */}
-          <Card bordered={false} className="class-content-card">
-            <Title level={4} className="class-section-title">
-              📅 Select a Date & Time
-            </Title>
-            
-            {/* Date Navigation */}
-            <div className="class-date-nav">
-              <Button onClick={handlePreviousDay} disabled={isToday}>
-                <LeftOutlined />
-              </Button>
-              <DatePicker
-                value={dayjs(selectedDate)}
-                format={dateFormat}
-                onChange={handleDateChange}
-                allowClear={false}
-                className="custom-date-picker"
-                open={false}
-                inputReadOnly
-                suffixIcon={null}
-              />
-              <Button onClick={handleNextDay}>
-                <RightOutlined />
-              </Button>
-            </div>
-
-            {/* Available Classes List */}
-            <div className="class-schedule-list">
-              <List
-                itemLayout="horizontal"
-                dataSource={availableTimeSlots}
-                locale={{
-                  emptyText: "There are no upcoming classes available on this day",
-                }}
-                renderItem={(item) => {
-                  const startDate = dayjs(selectedDate)
-                    .hour(parseInt(item.location.timeslot[0].split(":")[0]))
-                    .minute(parseInt(item.location.timeslot[0].split(":")[1]))
-                    .format("YYYY-MM-DDTHH:mm:ss");
-
-                  const availabilityKey = `${item.location.schedule_id}-${startDate}`;
-                  const availability = slotAvailability[availabilityKey];
-                  const isSoldOut = availability?.isFull || false;
-                  const spotsLeft = availability?.availableSpots;
-
-                  const classStartTime = dayjs(selectedDate)
-                    .hour(parseInt(item.location.timeslot[0].split(":")[0]))
-                    .minute(parseInt(item.location.timeslot[0].split(":")[1]));
-                  const isPastClass = dayjs().isAfter(classStartTime);
-
-                  const slotBookings = userBookings.filter((booking) => {
-                    const bookingStart = dayjs(booking.start_date).format("YYYY-MM-DDTHH:mm");
-                    const targetStart = dayjs(startDate).format("YYYY-MM-DDTHH:mm");
-                    const matchesListing = booking.listing_id === classId;
-                    const matchesTime = bookingStart === targetStart;
-                    return matchesListing && matchesTime;
-                  });
-
-                  const bookedChildIds = slotBookings.map((b) => b.child_id).filter(Boolean);
-                  const bookedChildrenNames = allChildren
-                    .filter((child) => bookedChildIds.includes(child.child_id))
-                    .map((child) => child.name);
-
-                  const allChildrenBooked = allChildren.length > 0 && 
-                    allChildren.every((child) => bookedChildIds.includes(child.child_id));
-
-                  const hasBooking = slotBookings.length > 0;
-
-                  const getItemClassName = () => {
-                    let className = "class-schedule-item";
-                    if (isPastClass) className += " past";
-                    else if (hasBooking) className += " booked";
-                    else if (isSoldOut) className += " sold-out";
-                    return className;
-                  };
-
-                  const renderAction = () => {
-                    if (isPastClass) {
-                      return <Tag color="default">CLASS ENDED</Tag>;
-                    }
-                    
-                    if (allChildrenBooked) {
-                      return <Tag color="blue">✓ ALL BOOKED</Tag>;
-                    }
-                    
-                    if (isSoldOut) {
-                      return <Tag color="red">SOLD OUT</Tag>;
-                    }
-                    
-                    return (
-                      <Button
-                        type="primary"
-                        size="large"
-                        onClick={() => handleBookNow(item, bookedChildIds)}
-                        className="book-now-btn"
-                      >
-                        Book Now
-                      </Button>
-                    );
-                  };
-
-                  return (
-                    <List.Item className={getItemClassName()} actions={[renderAction()]}>
-                      <List.Item.Meta
-                        avatar={
-                          <div className={`schedule-time-icon ${isPastClass ? 'past' : isSoldOut ? 'sold-out' : ''}`}>
-                            {isPastClass ? "⏰" : isSoldOut ? "❌" : "🕐"}
-                          </div>
-                        }
-                        title={
-                          <Space wrap>
-                            <Text strong className="schedule-time-text">
-                              {item.timeRange}
-                            </Text>
-                            <Tag color="gold" className="schedule-credit-tag">
-                              💰 {item.location.credit || listing?.credit} Credits
-                            </Tag>
-                            {!isPastClass && !isSoldOut && spotsLeft !== undefined && spotsLeft <= 3 && spotsLeft > 0 && (
-                              <Tag color="orange" className="schedule-spots-tag">
-                                Only {spotsLeft} {spotsLeft === 1 ? "spot" : "spots"} left!
-                              </Tag>
-                            )}
-                          </Space>
-                        }
-                        description={
-                          <Space direction="vertical" size="small" style={{ width: "100%" }}>
-                            <Space size="small">
-                              <Tag>{item.duration}</Tag>
-                              <Tag color="blue">{item.location.nearest_mrt}</Tag>
-                            </Space>
-                            {hasBooking && bookedChildrenNames.length > 0 && (
-                              <Space size="small" wrap>
-                                <Text type="secondary" className="schedule-booked-info">
-                                  Booked for:
-                                </Text>
-                                {bookedChildrenNames.map((name, idx) => (
-                                  <Tag key={idx} color="green">
-                                    ✓ {name}
-                                  </Tag>
-                                ))}
-                              </Space>
-                            )}
-                          </Space>
-                        }
+          <Col xs={24} sm={24} md={24} lg={16} xl={16}>
+            {/* Hero Image Carousel */}
+            <Card bordered={false} className="class-hero-card">
+              <Carousel autoplay arrows dots>
+                {listing?.images &&
+                  listing?.images.map((imgUrl, index) => (
+                    <div key={index} style={{ position: "relative" }}>
+                      <Image
+                        alt={`carousel-${index}`}
+                        src={imgUrl}
+                        preview={false}
+                        className="class-carousel-image"
                       />
-                    </List.Item>
-                  );
-                }}
-              />
-            </div>
-          </Card>
+                      <div className="class-carousel-overlay">
+                        <Title level={2} className="class-carousel-title">
+                          {listing?.listing_title}
+                        </Title>
+                      </div>
+                    </div>
+                  ))}
+              </Carousel>
+            </Card>
 
-          {/* Review Card */}
-          <Card bordered={false} className="class-content-card class-reviews-card">
-            <Title level={4} className="class-section-title">
-              ⭐ Reviews
-            </Title>
-            <Text type="secondary">Reviews coming soon...</Text>
-          </Card>
-        </Col>
+            {/* Description Card */}
+            <Card bordered={false} className="class-content-card">
+              <Space
+                direction="vertical"
+                size="middle"
+                style={{ width: "100%" }}
+              >
+                {/* Tags */}
+                <Space wrap>
+                  {listing?.package_types &&
+                    listing.package_types
+                      .replace(/[{}]/g, "")
+                      .split(",")
+                      .map((type, index) => (
+                        <Tag
+                          key={`package-type-${index}`}
+                          color="blue"
+                          className="class-tag"
+                        >
+                          {type.trim()}
+                        </Tag>
+                      ))}
 
-        <Col xs={24} sm={24} md={24} lg={8} xl={8}>
-          <Affix offsetTop={120}>
-            <Card
-              bordered={false}
-              className="class-partner-card"
-              hoverable
-              onClick={() => {
-                navigate(`/partner/${listing?.partner_info?.partner_id}`, {});
-              }}
-            >
-              {/* Partner Header */}
-              <div className="partner-card-header">
-                <Avatar
-                  size={64}
-                  src={listing?.partner_info?.picture}
-                  className="partner-card-avatar"
+                  {listing?.partner_info?.categories?.map((category, index) => (
+                    <Tag
+                      key={`category-${index}`}
+                      color="purple"
+                      className="class-tag"
+                    >
+                      {category}
+                    </Tag>
+                  ))}
+                </Space>
+
+                <Paragraph className="class-description">
+                  {listing?.description}
+                </Paragraph>
+              </Space>
+            </Card>
+
+            {/* Schedule Card */}
+            <Card bordered={false} className="class-content-card">
+              <Title level={4} className="class-section-title">
+                📅 Select a Date & Time
+              </Title>
+
+              {/* Date Navigation */}
+              <div className="class-date-nav">
+                <Button onClick={handlePreviousDay} disabled={isToday}>
+                  <LeftOutlined />
+                </Button>
+                <DatePicker
+                  value={dayjs(selectedDate)}
+                  format={dateFormat}
+                  onChange={handleDateChange}
+                  allowClear={false}
+                  className="custom-date-picker"
+                  open={false}
+                  inputReadOnly
+                  suffixIcon={null}
                 />
-                <div>
-                  <Title level={4} className="partner-card-name">
-                    {listing?.partner_name}
-                  </Title>
-                  <Text className="partner-card-badge">
-                    Verified Partner
-                  </Text>
-                </div>
+                <Button onClick={handleNextDay}>
+                  <RightOutlined />
+                </Button>
               </div>
 
-              <Divider className="partner-card-divider" />
+              {/* Available Classes List */}
+              <div className="class-schedule-list">
+                <List
+                  itemLayout="horizontal"
+                  dataSource={availableTimeSlots}
+                  locale={{
+                    emptyText:
+                      "There are no upcoming classes available on this day",
+                  }}
+                  renderItem={(item) => {
+                    const startDate = dayjs(selectedDate)
+                      .hour(parseInt(item.location.timeslot[0].split(":")[0]))
+                      .minute(parseInt(item.location.timeslot[0].split(":")[1]))
+                      .format("YYYY-MM-DDTHH:mm:ss");
 
-              {/* Contact Information */}
-              <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-                <div className="partner-contact-item">
-                  <ShopOutlined className="partner-contact-icon" />
-                  <div>
-                    <Text className="partner-contact-label">Website</Text>
-                    <Text className="partner-contact-value">
-                      {listing?.partner_info?.website || "N/A"}
-                    </Text>
-                  </div>
-                </div>
+                    const availabilityKey = `${item.location.schedule_id}-${startDate}`;
+                    const availability = slotAvailability[availabilityKey];
+                    const isSoldOut = availability?.isFull || false;
+                    const spotsLeft = availability?.availableSpots;
 
-                <div className="partner-contact-item">
-                  <MailOutlined className="partner-contact-icon" />
-                  <div>
-                    <Text className="partner-contact-label">Email</Text>
-                    <Text className="partner-contact-value">
-                      {listing?.partner_info?.email}
-                    </Text>
-                  </div>
-                </div>
+                    const classStartTime = dayjs(selectedDate)
+                      .hour(parseInt(item.location.timeslot[0].split(":")[0]))
+                      .minute(
+                        parseInt(item.location.timeslot[0].split(":")[1]),
+                      );
+                    const isPastClass = dayjs().isAfter(classStartTime);
 
-                <div className="partner-contact-item">
-                  <PhoneOutlined className="partner-contact-icon" />
-                  <div>
-                    <Text className="partner-contact-label">Phone</Text>
-                    <Text className="partner-contact-value">
-                      {listing?.partner_info?.contact_number}
-                    </Text>
-                  </div>
-                </div>
-              </Space>
+                    const slotBookings = userBookings.filter((booking) => {
+                      const bookingStart = dayjs(booking.start_date).format(
+                        "YYYY-MM-DDTHH:mm",
+                      );
+                      const targetStart =
+                        dayjs(startDate).format("YYYY-MM-DDTHH:mm");
+                      const matchesListing = booking.listing_id === classId;
+                      const matchesTime = bookingStart === targetStart;
+                      return matchesListing && matchesTime;
+                    });
 
-              <Divider className="partner-card-divider" />
+                    const bookedChildIds = slotBookings
+                      .map((b) => b.child_id)
+                      .filter(Boolean);
+                    const bookedChildrenNames = allChildren
+                      .filter((child) =>
+                        bookedChildIds.includes(child.child_id),
+                      )
+                      .map((child) => child.name);
 
-              {/* View Profile Button */}
-              <Button type="primary" block size="large" className="view-partner-btn">
-                View Partner Profile
-              </Button>
+                    const allChildrenBooked =
+                      allChildren.length > 0 &&
+                      allChildren.every((child) =>
+                        bookedChildIds.includes(child.child_id),
+                      );
+
+                    const hasBooking = slotBookings.length > 0;
+
+                    const getItemClassName = () => {
+                      let className = "class-schedule-item";
+                      if (isPastClass) className += " past";
+                      else if (hasBooking) className += " booked";
+                      else if (isSoldOut) className += " sold-out";
+                      return className;
+                    };
+
+                    const renderAction = () => {
+                      if (isPastClass) {
+                        return <Tag color="default">CLASS ENDED</Tag>;
+                      }
+
+                      if (allChildrenBooked) {
+                        return <Tag color="blue">✓ ALL BOOKED</Tag>;
+                      }
+
+                      if (isSoldOut) {
+                        return <Tag color="red">SOLD OUT</Tag>;
+                      }
+
+                      return (
+                        <Button
+                          type="primary"
+                          size="large"
+                          onClick={() => handleBookNow(item, bookedChildIds)}
+                          className="book-now-btn"
+                        >
+                          Book Now
+                        </Button>
+                      );
+                    };
+
+                    return (
+                      <List.Item
+                        className={getItemClassName()}
+                        actions={[renderAction()]}
+                      >
+                        <List.Item.Meta
+                          avatar={
+                            <div
+                              className={`schedule-time-icon ${isPastClass ? "past" : isSoldOut ? "sold-out" : ""}`}
+                            >
+                              {isPastClass ? "⏰" : isSoldOut ? "❌" : "🕐"}
+                            </div>
+                          }
+                          title={
+                            <Space wrap>
+                              <Text strong className="schedule-time-text">
+                                {item.timeRange}
+                              </Text>
+                              <Tag color="gold" className="schedule-credit-tag">
+                                💰 {item.location.credit || listing?.credit}{" "}
+                                Credits
+                              </Tag>
+                              {!isPastClass &&
+                                !isSoldOut &&
+                                spotsLeft !== undefined &&
+                                spotsLeft <= 3 &&
+                                spotsLeft > 0 && (
+                                  <Tag
+                                    color="orange"
+                                    className="schedule-spots-tag"
+                                  >
+                                    Only {spotsLeft}{" "}
+                                    {spotsLeft === 1 ? "spot" : "spots"} left!
+                                  </Tag>
+                                )}
+                            </Space>
+                          }
+                          description={
+                            <Space
+                              direction="vertical"
+                              size="small"
+                              style={{ width: "100%" }}
+                            >
+                              <Space size="small">
+                                <Tag>{item.duration}</Tag>
+                                <Tag color="blue">
+                                  {item.location.nearest_mrt}
+                                </Tag>
+                              </Space>
+                              {hasBooking && bookedChildrenNames.length > 0 && (
+                                <Space size="small" wrap>
+                                  <Text
+                                    type="secondary"
+                                    className="schedule-booked-info"
+                                  >
+                                    Booked for:
+                                  </Text>
+                                  {bookedChildrenNames.map((name, idx) => (
+                                    <Tag key={idx} color="green">
+                                      ✓ {name}
+                                    </Tag>
+                                  ))}
+                                </Space>
+                              )}
+                            </Space>
+                          }
+                        />
+                      </List.Item>
+                    );
+                  }}
+                />
+              </div>
             </Card>
-          </Affix>
-        </Col>
+
+            {/* Review Card */}
+            <Card
+              bordered={false}
+              className="class-content-card class-reviews-card"
+            >
+              <Title level={4} className="class-section-title">
+                ⭐ Reviews
+              </Title>
+              <Text type="secondary">Reviews coming soon...</Text>
+            </Card>
+          </Col>
+
+          <Col xs={24} sm={24} md={24} lg={8} xl={8}>
+            <Affix offsetTop={120}>
+              <Card
+                bordered={false}
+                className="class-partner-card"
+                hoverable
+                onClick={() => {
+                  navigate(`/partner/${listing?.partner_info?.partner_id}`, {});
+                }}
+              >
+                {/* Partner Header */}
+                <div className="partner-card-header">
+                  <Avatar
+                    size={64}
+                    src={listing?.partner_info?.picture}
+                    className="partner-card-avatar"
+                  />
+                  <div>
+                    <Title level={4} className="partner-card-name">
+                      {listing?.partner_name}
+                    </Title>
+                    <Text className="partner-card-badge">Verified Partner</Text>
+                  </div>
+                </div>
+
+                <Divider className="partner-card-divider" />
+
+                {/* Contact Information */}
+                <Space
+                  direction="vertical"
+                  size="middle"
+                  style={{ width: "100%" }}
+                >
+                  <div className="partner-contact-item">
+                    <ShopOutlined className="partner-contact-icon" />
+                    <div>
+                      <Text className="partner-contact-label">Website</Text>
+                      <Text className="partner-contact-value">
+                        {listing?.partner_info?.website || "N/A"}
+                      </Text>
+                    </div>
+                  </div>
+
+                  <div className="partner-contact-item">
+                    <MailOutlined className="partner-contact-icon" />
+                    <div>
+                      <Text className="partner-contact-label">Email</Text>
+                      <Text className="partner-contact-value">
+                        {listing?.partner_info?.email}
+                      </Text>
+                    </div>
+                  </div>
+
+                  <div className="partner-contact-item">
+                    <PhoneOutlined className="partner-contact-icon" />
+                    <div>
+                      <Text className="partner-contact-label">Phone</Text>
+                      <Text className="partner-contact-value">
+                        {listing?.partner_info?.contact_number}
+                      </Text>
+                    </div>
+                  </div>
+                </Space>
+
+                <Divider className="partner-card-divider" />
+
+                {/* View Profile Button */}
+                <Button
+                  type="primary"
+                  block
+                  size="large"
+                  className="view-partner-btn"
+                >
+                  View Partner Profile
+                </Button>
+              </Card>
+            </Affix>
+          </Col>
         </Row>
       </div>
-      
+
       <BuyNow
         isBuyNowModalOpen={isBuyNowModalOpen}
         setIsBuyNowModalOpen={setIsBuyNowModalOpen}
