@@ -23,10 +23,7 @@ router.post("/login", cacheMiddleware, async (req, res) => {
       return res.status(401).json({ message: "Invalid Credential" });
     }
 
-    const validPassword = bcrypt.compareSync(
-      password,
-      admin.rows[0].password
-    );
+    const validPassword = bcrypt.compareSync(password, admin.rows[0].password);
 
     if (!validPassword) {
       return res
@@ -42,26 +39,31 @@ router.post("/login", cacheMiddleware, async (req, res) => {
   }
 });
 
-router.get("/getAllParents", authorization, adminOnly, cacheMiddleware, async (req, res) => {
-  // TODO: use middleware to check if user is superadmin
-  try {
-    const allParents = await pool.query(
-      "SELECT * FROM users WHERE user_type = 'parent'"
-    );
-    return res.status(200).json(allParents.rows);
-  } catch (error) {
-    console.error("ERROR in /admins/getAllParents", error.message);
-    res.status(500).json({ error: error.message });
-  }
-});
+router.get(
+  "/getAllParents",
+  authorization,
+  adminOnly,
+  cacheMiddleware,
+  async (req, res) => {
+    // TODO: use middleware to check if user is superadmin
+    try {
+      const allParents = await pool.query(
+        "SELECT * FROM users WHERE user_type = 'parent'",
+      );
+      return res.status(200).json(allParents.rows);
+    } catch (error) {
+      console.error("ERROR in /admins/getAllParents", error.message);
+      res.status(500).json({ error: error.message });
+    }
+  },
+);
 
-router.get("/getAllChildren", authorization, adminOnly, cacheMiddleware, async (req, res) => {
+router.get("/getAllChildren", authorization, adminOnly, async (req, res) => {
   // TODO: use middleware to check if user is superadmin
   try {
-    const allParents = await pool.query(
-      "SELECT * FROM users WHERE user_type = 'child'"
-    );
-    return res.status(200).json(allParents.rows);
+    const allChildren = await pool.query("SELECT * FROM children");
+    console.log("Fetched children:", allChildren.rows);
+    return res.status(200).json(allChildren.rows);
   } catch (error) {
     console.error("ERROR in /admins/getAllChildren", error.message);
     res.status(500).json({ error: error.message });
@@ -81,88 +83,125 @@ router.get("/getAllPartners", authorization, adminOnly, async (req, res) => {
 /**
  * Moderation: Approve a listing (sets active=true) and notify partner.
  */
-router.patch("/listings/:id/approve", authorization, adminOnly, async (req, res) => {
-  const { id } = req.params;
-  try {
-    // Get partner_id for notification
-    const listing = await pool.query(
-      "SELECT partner_id, listing_title FROM listings WHERE listing_id = $1",
-      [id]
-    );
-    if (listing.rowCount === 0) {
-      return res.status(404).json({ error: "Listing not found" });
-    }
-
-    await pool.query("UPDATE listings SET active = true WHERE listing_id = $1", [id]);
-
-    // Notify partner of approval
+router.patch(
+  "/listings/:id/approve",
+  authorization,
+  adminOnly,
+  async (req, res) => {
+    const { id } = req.params;
     try {
-      await pool.query(
-        `INSERT INTO notifications (recipient_type, recipient_id, type, title, message, data)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
-        [
-          "partner",
-          listing.rows[0].partner_id,
-          "listing_status",
-          "Listing approved",
-          "Your listing has been approved.",
-          JSON.stringify({ listing_id: id, status: "approved", title: listing.rows[0].listing_title }),
-        ]
+      // Get partner_id for notification
+      const listing = await pool.query(
+        "SELECT partner_id, listing_title FROM listings WHERE listing_id = $1",
+        [id],
       );
-    } catch (notifyErr) {
-      console.error("Failed to insert partner notification (approve):", notifyErr.message);
-    }
+      if (listing.rowCount === 0) {
+        return res.status(404).json({ error: "Listing not found" });
+      }
 
-    return res.status(200).json({ message: "Listing approved" });
-  } catch (error) {
-    console.error("ERROR in PATCH /admins/listings/:id/approve", error.message);
-    return res.status(500).json({ error: error.message });
-  }
-});
+      await pool.query(
+        "UPDATE listings SET active = true WHERE listing_id = $1",
+        [id],
+      );
+
+      // Notify partner of approval
+      try {
+        await pool.query(
+          `INSERT INTO notifications (recipient_type, recipient_id, type, title, message, data)
+         VALUES ($1, $2, $3, $4, $5, $6)`,
+          [
+            "partner",
+            listing.rows[0].partner_id,
+            "listing_status",
+            "Listing approved",
+            "Your listing has been approved.",
+            JSON.stringify({
+              listing_id: id,
+              status: "approved",
+              title: listing.rows[0].listing_title,
+            }),
+          ],
+        );
+      } catch (notifyErr) {
+        console.error(
+          "Failed to insert partner notification (approve):",
+          notifyErr.message,
+        );
+      }
+
+      return res.status(200).json({ message: "Listing approved" });
+    } catch (error) {
+      console.error(
+        "ERROR in PATCH /admins/listings/:id/approve",
+        error.message,
+      );
+      return res.status(500).json({ error: error.message });
+    }
+  },
+);
 
 /**
  * Moderation: Reject a listing (sets active=false) and notify partner with reason.
  * Body: { reason: string }
  */
-router.patch("/listings/:id/reject", authorization, adminOnly, async (req, res) => {
-  const { id } = req.params;
-  const { reason } = req.body;
+router.patch(
+  "/listings/:id/reject",
+  authorization,
+  adminOnly,
+  async (req, res) => {
+    const { id } = req.params;
+    const { reason } = req.body;
 
-  try {
-    const listing = await pool.query(
-      "SELECT partner_id, listing_title FROM listings WHERE listing_id = $1",
-      [id]
-    );
-    if (listing.rowCount === 0) {
-      return res.status(404).json({ error: "Listing not found" });
-    }
-
-    await pool.query("UPDATE listings SET active = false WHERE listing_id = $1", [id]);
-
-    // Notify partner of rejection
     try {
-      await pool.query(
-        `INSERT INTO notifications (recipient_type, recipient_id, type, title, message, data)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
-        [
-          "partner",
-          listing.rows[0].partner_id,
-          "listing_status",
-          "Listing rejected",
-          "Your listing has been rejected.",
-          JSON.stringify({ listing_id: id, status: "rejected", reason: reason || null, title: listing.rows[0].listing_title }),
-        ]
+      const listing = await pool.query(
+        "SELECT partner_id, listing_title FROM listings WHERE listing_id = $1",
+        [id],
       );
-    } catch (notifyErr) {
-      console.error("Failed to insert partner notification (reject):", notifyErr.message);
-    }
+      if (listing.rowCount === 0) {
+        return res.status(404).json({ error: "Listing not found" });
+      }
 
-    return res.status(200).json({ message: "Listing rejected" });
-  } catch (error) {
-    console.error("ERROR in PATCH /admins/listings/:id/reject", error.message);
-    return res.status(500).json({ error: error.message });
-  }
-});
+      await pool.query(
+        "UPDATE listings SET active = false WHERE listing_id = $1",
+        [id],
+      );
+
+      // Notify partner of rejection
+      try {
+        await pool.query(
+          `INSERT INTO notifications (recipient_type, recipient_id, type, title, message, data)
+         VALUES ($1, $2, $3, $4, $5, $6)`,
+          [
+            "partner",
+            listing.rows[0].partner_id,
+            "listing_status",
+            "Listing rejected",
+            "Your listing has been rejected.",
+            JSON.stringify({
+              listing_id: id,
+              status: "rejected",
+              reason: reason || null,
+              title: listing.rows[0].listing_title,
+            }),
+          ],
+        );
+      } catch (notifyErr) {
+        console.error(
+          "Failed to insert partner notification (reject):",
+          notifyErr.message,
+        );
+      }
+
+      return res.status(200).json({ message: "Listing rejected" });
+    } catch (error) {
+      console.error(
+        "ERROR in PATCH /admins/listings/:id/reject",
+        error.message,
+      );
+      return res.status(500).json({ error: error.message });
+    }
+  },
+);
 
 /**
  * Analytics overview with basic KPIs.
@@ -184,13 +223,17 @@ router.get("/metrics/overview", authorization, adminOnly, async (req, res) => {
       debitSum,
       partnersCount,
     ] = await Promise.all([
-      pool.query("SELECT COUNT(*) AS c FROM users WHERE created_on >= $1", [since]),
-      pool.query("SELECT COUNT(*) AS c FROM bookings WHERE created_on >= $1", [since]),
+      pool.query("SELECT COUNT(*) AS c FROM users WHERE created_on >= $1", [
+        since,
+      ]),
+      pool.query("SELECT COUNT(*) AS c FROM bookings WHERE created_on >= $1", [
+        since,
+      ]),
       pool.query("SELECT COALESCE(SUM(credit), 0) AS s FROM users"),
       pool.query("SELECT COALESCE(SUM(credit), 0) AS s FROM partners"),
       pool.query(
         "SELECT COALESCE(SUM(used_credit), 0) AS s FROM transactions WHERE transaction_type = 'DEBIT' AND created_on >= $1",
-        [since]
+        [since],
       ),
       pool.query("SELECT COUNT(*) AS c FROM partners"),
     ]);

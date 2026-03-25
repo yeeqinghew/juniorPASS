@@ -95,13 +95,13 @@ router.post("/register", registerLimiter, validInfo, async (req, res) => {
 
     // decode phone number from base64
     const decodedPhoneNumber = Buffer.from(phoneNumber, "base64").toString(
-      "utf-8"
+      "utf-8",
     );
 
     // check if phone number exists
     const phoneExist = await pool.query(
       "SELECT * FROM users WHERE phone_number = $1",
-      [decodedPhoneNumber]
+      [decodedPhoneNumber],
     );
 
     if (user.rows.length !== 0) {
@@ -123,13 +123,13 @@ router.post("/register", registerLimiter, validInfo, async (req, res) => {
     const newUser = await pool.query(
       `INSERT INTO users(name, user_type, email, password, phone_number, method)
        VALUES($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [name, "parent", email, bcryptedPassword, decodedPhoneNumber, "email"]
+      [name, "parent", email, bcryptedPassword, decodedPhoneNumber, "email"],
     );
 
     if (newUser) {
       await pool.query(
         "INSERT INTO parents (parent_id) VALUES($1) RETURNING *",
-        [newUser.rows[0].user_id]
+        [newUser.rows[0].user_id],
       );
     }
 
@@ -143,12 +143,12 @@ router.post("/register", registerLimiter, validInfo, async (req, res) => {
          SELECT 'admin', admin_id, 'user_registration', 'New user registered', 'A new user has signed up.',
                 jsonb_build_object('user_id', $1, 'email', $2)
          FROM admins`,
-        [newUser.rows[0].user_id, email]
+        [newUser.rows[0].user_id, email],
       );
     } catch (notifyErr) {
       console.error(
         "Failed to insert admin notification (registration):",
-        notifyErr.message
+        notifyErr.message,
       );
     }
 
@@ -211,7 +211,7 @@ router.post("/login/google", async (req, res) => {
 
     const existingUser = await pool.query(
       `SELECT * FROM users WHERE email = $1`,
-      [email]
+      [email],
     );
 
     if (existingUser.rows.length === 0) {
@@ -219,13 +219,13 @@ router.post("/login/google", async (req, res) => {
       const newUser = await pool.query(
         `INSERT INTO users (email, name, user_type, method, display_picture) 
         VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-        [email, name, "parent", "gmail", picture]
+        [email, name, "parent", "gmail", picture],
       );
 
       if (newUser) {
         await pool.query(
           "INSERT INTO parents (parent_id) VALUES($1) RETURNING *",
-          [newUser.rows[0].user_id]
+          [newUser.rows[0].user_id],
         );
       }
 
@@ -248,7 +248,7 @@ router.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
   try {
     const userResult = await pool.query(
       `SELECT * FROM users WHERE email = $1`,
-      [email]
+      [email],
     );
 
     if (userResult.rowCount === 0)
@@ -274,7 +274,7 @@ router.post("/forgot-password", forgotPasswordLimiter, async (req, res) => {
 
     await pool.query(
       `INSERT INTO password_resets (user_id, token, expires_at) VALUES ($1, $2, $3)`,
-      [userId, hashedToken, expiresAt]
+      [userId, hashedToken, expiresAt],
     );
 
     const resetURL = `https://www.juniorpass.sg/reset-password?token=${hashedToken}`;
@@ -297,7 +297,7 @@ router.post("/reset-password", resetPasswordLimiter, async (req, res) => {
   try {
     const resetResult = await pool.query(
       `SELECT user_id, expires_at FROM password_resets WHERE token = $1`,
-      [token]
+      [token],
     );
 
     if (resetResult.rows.length === 0)
@@ -364,7 +364,7 @@ router.post("/send-otp", otpLimiter, async (req, res) => {
     await pool.query(
       `
     INSERT INTO otpRequests(email, otp, expires_at) VALUES($1, $2, $3)`,
-      [email, code, expiresAt]
+      [email, code, expiresAt],
     );
 
     const emailContent = otpHtmlTemplate(code);
@@ -385,7 +385,7 @@ router.post("/verify-otp", async (req, res) => {
     const attemptsKey = `otpAttempts:${email}`;
     const currentAttempts = await new Promise((resolve) => {
       redisClient.get(attemptsKey, (err, data) =>
-        resolve(parseInt(data || "0", 10))
+        resolve(parseInt(data || "0", 10)),
       );
     });
     if (currentAttempts >= 5) {
@@ -400,7 +400,7 @@ router.post("/verify-otp", async (req, res) => {
   try {
     const otpResult = await pool.query(
       `SELECT * FROM otpRequests WHERE email = $1 AND otp = $2 AND expires_at > NOW() AND is_verified = false`,
-      [email, otp]
+      [email, otp],
     );
     if (otpResult.rows.length === 0) {
       // increment attempts with TTL 15 minutes
@@ -420,7 +420,7 @@ router.post("/verify-otp", async (req, res) => {
     // mark OTP as verified
     await pool.query(
       `UPDATE otpRequests SET is_verified = true WHERE email = $1 AND otp = $2`,
-      [email, otp]
+      [email, otp],
     );
 
     // Clear attempts on success
@@ -443,6 +443,22 @@ router.get("/is-verify", authorization, async (req, res) => {
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: error.message });
+  }
+});
+
+router.put("/:id", async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { name, phone_number } = req.body;
+
+    await pool.query(
+      `UPDATE users SET name = $1, phone_number = $2 WHERE user_id = $3`,
+      [name, phone_number, userId],
+    );
+
+    return res.status(200).json({ message: "Profile updated successfully" });
+  } catch (error) {
+    console.error(error.message);
   }
 });
 

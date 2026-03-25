@@ -32,7 +32,7 @@ import "./Account.css";
 const { Title, Text } = Typography;
 
 const Account = () => {
-  const { user, setUser } = useUserContext();
+  const { user } = useUserContext();
   const baseURL = getBaseURL();
   const [isEditing, setIsEditing] = useState(false);
   const [form] = Form.useForm();
@@ -65,11 +65,13 @@ const Account = () => {
     try {
       setLoading(true);
       const values = await form.validateFields();
+      const token = localStorage.getItem("token");
 
-      const response = await fetch(`${baseURL}/users/${user.user_id}`, {
+      const response = await fetch(`${baseURL}/auth/${user.user_id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(values),
       });
@@ -77,7 +79,6 @@ const Account = () => {
       const parseRes = await response.json();
 
       if (response.ok) {
-        setUser({ ...user, ...values });
         toast.success("Profile updated successfully!");
         setIsEditing(false);
       } else {
@@ -134,7 +135,6 @@ const Account = () => {
                 {user?.name || "User"}
               </Title>
               <Text className="profile-email">{user?.email}</Text>
-
               <div className="profile-badge">
                 <CheckCircleOutlined />
                 Active Account
@@ -223,18 +223,8 @@ const Account = () => {
                   </Form.Item>
                 </Col>
                 <Col xs={24} sm={12}>
-                  <Form.Item
-                    name="email"
-                    label="Email Address"
-                    rules={[
-                      { required: true, message: "Please enter your email" },
-                      { type: "email", message: "Please enter a valid email" },
-                    ]}
-                  >
-                    <Input
-                      prefix={<MailOutlined />}
-                      placeholder="Enter your email address"
-                    />
+                  <Form.Item name="email" label="Email Address">
+                    <Input disabled prefix={<MailOutlined />} />
                   </Form.Item>
                 </Col>
               </Row>

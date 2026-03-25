@@ -70,6 +70,16 @@ CREATE TABLE children (
     gender genders NOT NULL
 );
 
+CREATE TABLE referrals (
+    id SERIAL PRIMARY KEY,
+    referrer_id INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    referee_id INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    status VARCHAR(20) DEFAULT 'pending', -- pending, completed, expired, cancelled
+    created_on TIMESTAMP DEFAULT NOW(),
+    completed_on TIMESTAMP,
+    expired_on TIMESTAMP -- e.g. 30 days after created_on
+);
+
 -- PARTNER PORTAL
 CREATE TABLE partners (
     partner_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
