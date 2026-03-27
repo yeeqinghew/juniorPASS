@@ -11,7 +11,6 @@ import {
   Modal,
   Input,
   Form,
-  Avatar,
   Divider,
 } from "antd";
 import {
@@ -22,6 +21,8 @@ import {
   ClockCircleOutlined,
   CopyOutlined,
   MailOutlined,
+  StarOutlined,
+  ThunderboltOutlined,
 } from "@ant-design/icons";
 import { useUserContext } from "../UserContext";
 import toast from "react-hot-toast";
@@ -36,7 +37,7 @@ const Referrals = () => {
   const [referralData, setReferralData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
-  const [leaderboard, setLeaderboard] = useState([]);
+  const [copied, setCopied] = useState(false);
   const [form] = Form.useForm();
 
   const fetchReferralData = async () => {
@@ -50,7 +51,6 @@ const Referrals = () => {
           "Content-Type": "application/json",
         },
       });
-
       if (response.ok) {
         const data = await response.json();
         setReferralData(data);
@@ -65,30 +65,17 @@ const Referrals = () => {
     }
   };
 
-  const fetchLeaderboard = async () => {
-    try {
-      const response = await fetch(`${baseURL}/referrals/leaderboard`);
-      if (response.ok) {
-        const data = await response.json();
-        setLeaderboard(data.leaderboard);
-      }
-    } catch (error) {
-      console.error("Error fetching leaderboard:", error);
-    }
-  };
-
   useEffect(() => {
-    if (user) {
-      fetchReferralData();
-      // fetchLeaderboard();
-    }
+    if (user) fetchReferralData();
   }, [user]);
 
   const handleCopyCode = async () => {
     try {
       await navigator.clipboard.writeText(referralData?.referral_code);
-      toast.success("Referral code copied to clipboard!");
-    } catch (error) {
+      setCopied(true);
+      toast.success("Referral code copied!");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
       toast.error("Failed to copy code");
     }
   };
@@ -107,7 +94,6 @@ const Referrals = () => {
           recipient_name: values.recipient_name,
         }),
       });
-
       if (response.ok) {
         toast.success("Invitation sent successfully!");
         setShareModalOpen(false);
@@ -121,172 +107,185 @@ const Referrals = () => {
     }
   };
 
-  const getReferralLink = () => {
-    return `${window.location.origin}/register?referral_code=${referralData?.referral_code}`;
-  };
+  const getReferralLink = () =>
+    `${window.location.origin}/register?referral_code=${referralData?.referral_code}`;
 
   const stats = referralData?.stats || {};
 
+  const statItems = [
+    {
+      key: "total",
+      icon: <UserAddOutlined />,
+      value: stats.total_referrals || 0,
+      label: "Total Invited",
+      className: "total",
+    },
+    {
+      key: "completed",
+      icon: <CheckCircleOutlined />,
+      value: stats.completed_referrals || 0,
+      label: "Completed",
+      className: "completed",
+    },
+    {
+      key: "pending",
+      icon: <ClockCircleOutlined />,
+      value: stats.pending_referrals || 0,
+      label: "Pending",
+      className: "pending",
+    },
+    {
+      key: "earned",
+      icon: <GiftOutlined />,
+      value: stats.total_credits_earned || 0,
+      label: "Credits Earned",
+      className: "earned",
+    },
+  ];
+
   return (
     <div className="referrals-page">
-      {/* Header */}
+      {/* ── HEADER ── */}
       <div className="referrals-header">
         <div className="header-content">
+          <div className="header-badge">
+            <StarOutlined style={{ fontSize: 10 }} />
+            Referral Program
+          </div>
           <Title level={3} className="page-title">
-            <GiftOutlined style={{ marginRight: 12 }} /> Earn Credits Through
-            Referrals
+            Earn Credits, Share the Love 🎁
           </Title>
           <Text className="page-subtitle">
-            Share the joy of juniorPASS and earn rewards
+            Invite friends to juniorPASS — both of you get rewarded
           </Text>
         </div>
       </div>
 
       <Spin spinning={loading}>
-        {/* Main Stats Card */}
         {referralData && (
           <>
+            {/* ── REFERRAL CODE + INVITE ── */}
             <Card className="referral-stats-card" bordered={false}>
-              <Row gutter={[32, 32]} align="middle">
-                <Col xs={24} md={12}>
+              <Row gutter={[32, 28]} align="middle">
+                <Col xs={24} md={13}>
                   <div className="referral-code-section">
                     <div className="code-label">
-                      <LinkOutlined style={{ fontSize: 16 }} />
-                      YOUR REFERRAL CODE
+                      <LinkOutlined />
+                      Your Referral Code
                     </div>
-                    <div className="code-display">
+                    <div className="code-display" onClick={handleCopyCode}>
                       <span className="code-value">
                         {referralData.referral_code}
                       </span>
                       <Button
                         type="text"
-                        icon={<CopyOutlined style={{ fontSize: 18 }} />}
-                        onClick={handleCopyCode}
+                        icon={
+                          copied ? (
+                            <CheckCircleOutlined
+                              style={{ fontSize: 17, color: "#0ecb81" }}
+                            />
+                          ) : (
+                            <CopyOutlined style={{ fontSize: 17 }} />
+                          )
+                        }
                         className="copy-button"
                         title="Copy code"
                       />
                     </div>
                     <Text className="code-hint">
-                      ✨ Share this code with friends to earn rewards
+                      ✦ Click the code to copy &amp; share with friends
                     </Text>
                   </div>
                 </Col>
 
-                <Col xs={24} md={12}>
+                <Col xs={24} md={11}>
                   <div className="referral-actions">
                     <Button
-                      type="primary"
+                      className="invite-button"
                       icon={
                         <MailOutlined
-                          style={{ marginRight: 8, fontSize: 16 }}
+                          style={{ marginRight: 6, fontSize: 16 }}
                         />
                       }
                       size="large"
                       onClick={() => setShareModalOpen(true)}
                       block
-                      style={{
-                        height: 48,
-                        fontSize: 16,
-                        fontWeight: 600,
-                        background:
-                          "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                        border: "none",
-                        boxShadow: "0 4px 15px rgba(102, 126, 234, 0.4)",
-                      }}
                     >
                       Invite Friends via Email
                     </Button>
+                    <div className="invite-note">
+                      <ThunderboltOutlined
+                        style={{ color: "#f7b731", fontSize: 13 }}
+                      />
+                      Both you &amp; your friend earn 100 credits
+                    </div>
                   </div>
                 </Col>
               </Row>
             </Card>
 
-            {/* Statistics */}
-            {stats && (
-              <Row gutter={[16, 16]} className="stats-row">
-                <Col xs={24} sm={12} md={6}>
+            {/* ── STATS ── */}
+            <Row gutter={[14, 14]} className="stats-row">
+              {statItems.map((s) => (
+                <Col xs={12} sm={12} md={6} key={s.key}>
                   <Card className="stat-card referral-stat" bordered={false}>
-                    <div className="stat-icon total">
-                      <UserAddOutlined />
-                    </div>
+                    <div className={`stat-icon ${s.className}`}>{s.icon}</div>
                     <div className="stat-content">
-                      <div className="stat-value">
-                        {stats.total_referrals || 0}
-                      </div>
-                      <div className="stat-label">Total Invited</div>
+                      <div className="stat-value">{s.value}</div>
+                      <div className="stat-label">{s.label}</div>
                     </div>
                   </Card>
                 </Col>
-                <Col xs={24} sm={12} md={6}>
-                  <Card className="stat-card referral-stat" bordered={false}>
-                    <div className="stat-icon completed">
-                      <CheckCircleOutlined />
-                    </div>
-                    <div className="stat-content">
-                      <div className="stat-value">
-                        {stats.completed_referrals || 0}
-                      </div>
-                      <div className="stat-label">Completed</div>
-                    </div>
-                  </Card>
-                </Col>
-                <Col xs={24} sm={12} md={6}>
-                  <Card className="stat-card referral-stat" bordered={false}>
-                    <div className="stat-icon pending">
-                      <ClockCircleOutlined />
-                    </div>
-                    <div className="stat-content">
-                      <div className="stat-value">
-                        {stats.pending_referrals || 0}
-                      </div>
-                      <div className="stat-label">Pending</div>
-                    </div>
-                  </Card>
-                </Col>
-                <Col xs={24} sm={12} md={6}>
-                  <Card className="stat-card referral-stat" bordered={false}>
-                    <div className="stat-icon earned">
-                      <GiftOutlined />
-                    </div>
-                    <div className="stat-content">
-                      <div className="stat-value">
-                        {stats.total_credits_earned || 0}
-                      </div>
-                      <div className="stat-label">Credits Earned</div>
-                    </div>
-                  </Card>
-                </Col>
-              </Row>
-            )}
+              ))}
+            </Row>
 
-            {/* Referral List */}
+            {/* ── REFERRAL LIST ── */}
             <Card className="referrals-list-card" bordered={false}>
               <div className="list-header">
-                <Title
-                  level={5}
-                  style={{
-                    margin: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                  }}
-                >
-                  <UserAddOutlined style={{ fontSize: 20 }} /> Recent Referrals
+                <Title level={5} className="section-title">
+                  <span className="section-title-icon">
+                    <UserAddOutlined />
+                  </span>
+                  Recent Referrals
                 </Title>
+                {referralData.recent_referrals?.length > 0 && (
+                  <Tag
+                    color="blue"
+                    style={{ borderRadius: 100, fontWeight: 600 }}
+                  >
+                    {referralData.recent_referrals.length} total
+                  </Tag>
+                )}
               </div>
 
               {!referralData.recent_referrals ||
               referralData.recent_referrals.length === 0 ? (
-                <div style={{ padding: "40px 24px" }}>
-                  <Empty
-                    image={Empty.PRESENTED_IMAGE_SIMPLE}
-                    description="No referrals yet"
-                    style={{ marginTop: 20 }}
+                <div className="empty-state">
+                  <div className="empty-icon">🤝</div>
+                  <Text
+                    style={{
+                      fontWeight: 600,
+                      fontSize: 15,
+                      color: "#1a2744",
+                    }}
                   >
-                    <Text style={{ color: "#999", fontSize: 14 }}>
-                      Start inviting friends to earn rewards!
-                    </Text>
-                  </Empty>
+                    No referrals yet
+                  </Text>
+                  <Text style={{ color: "#aab2c0", fontSize: 13 }}>
+                    Share your code to start earning rewards!
+                  </Text>
+                  <Button
+                    style={{
+                      marginTop: 8,
+                      borderRadius: 10,
+                      fontWeight: 600,
+                      borderColor: "#2d3f7a",
+                      color: "#2d3f7a",
+                    }}
+                    onClick={() => setShareModalOpen(true)}
+                  >
+                    Send First Invite
+                  </Button>
                 </div>
               ) : (
                 <div className="referrals-list">
@@ -298,8 +297,8 @@ const Referrals = () => {
                           <Tag
                             color={
                               referral.status === "completed"
-                                ? "#52c41a"
-                                : "#faad14"
+                                ? "success"
+                                : "warning"
                             }
                             icon={
                               referral.status === "completed" ? (
@@ -308,11 +307,7 @@ const Referrals = () => {
                                 <ClockCircleOutlined />
                               )
                             }
-                            style={{
-                              marginLeft: 12,
-                              textTransform: "capitalize",
-                              fontWeight: 600,
-                            }}
+                            style={{ textTransform: "capitalize" }}
                           >
                             {referral.status}
                           </Tag>
@@ -321,14 +316,15 @@ const Referrals = () => {
                           {referral.referee_email}
                         </div>
                       </div>
-
                       <div className="referral-reward">
                         <div className="reward-amount">
-                          <GiftOutlined className="reward-icon" />+
-                          {referral.reward_credits} credits
+                          <GiftOutlined />+{referral.reward_credits} credits
                         </div>
                         <div className="reward-date">
-                          {new Date(referral.created_on).toLocaleDateString()}
+                          {new Date(referral.created_on).toLocaleDateString(
+                            "en-US",
+                            { month: "short", day: "numeric", year: "numeric" },
+                          )}
                         </div>
                       </div>
                     </div>
@@ -337,111 +333,79 @@ const Referrals = () => {
               )}
             </Card>
 
-            {/* Leaderboard */}
-            {/* {leaderboard.length > 0 && (
-              <Card className="leaderboard-card" bordered={false}>
-                <div className="leaderboard-header">
-                  <Title
-                    level={5}
-                    style={{
-                      margin: 0,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                    }}
-                  >
-                    <TrophyOutlined
-                      style={{ fontSize: 20, color: "#ffd700" }}
-                    />{" "}
-                    Top Referrers
-                  </Title>
-                </div>
-
-                <div className="leaderboard-list">
-                  {leaderboard.map((referrer, index) => (
-                    <div className="leaderboard-item" key={referrer.user_id}>
-                      <div className="rank">
-                        <div className={`rank-badge rank-${index + 1}`}>
-                          #{index + 1}
-                        </div>
-                      </div>
-
-                      <div className="referrer-info">
-                        <Avatar
-                          src={referrer.display_picture}
-                          icon={<UserOutlined />}
-                          className="referrer-avatar"
-                        />
-                        <div className="referrer-details">
-                          <span>{referrer.name}</span>
-                          <span className="referrer-stats">
-                            {referrer.completed_referrals} completed
-                            {referrer.total_referrals >
-                              referrer.completed_referrals &&
-                              ` (${referrer.total_referrals - referrer.completed_referrals} pending)`}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="referrer-reward">
-                        <div className="reward-value">
-                          {referrer.total_credits_earned}
-                        </div>
-                        <div className="reward-label">credits</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            )} */}
-
+            {/* ── HOW IT WORKS ── */}
             {/* How it Works */}
             <Card className="how-it-works-card" bordered={false}>
-              <Title
-                level={4}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10,
-                  marginBottom: 24,
-                }}
-              >
-                <GiftOutlined style={{ fontSize: 24, color: "#667eea" }} /> How
-                It Works
-              </Title>
+              {/* Header row */}
+              <div className="hiw-header">
+                <Title
+                  level={4}
+                  className="hiw-title"
+                  style={{ color: "white" }}
+                >
+                  <GiftOutlined style={{ fontSize: 22, color: "#ff6b4a" }} />
+                  How It Works
+                </Title>
+                <span className="hiw-reward-pill">🎁 100 credits each</span>
+              </div>
 
-              <div className="steps">
+              {/* Timeline grid */}
+              <div className="steps-timeline">
                 <div className="step">
-                  <div className="step-number">1</div>
+                  <div className="step-icon-wrap">
+                    <div className="step-emoji-icon">🔗</div>
+                    <div className="step-number-badge">1</div>
+                  </div>
                   <div className="step-content">
                     <span>Share Your Code</span>
-                    <span>
-                      Copy your referral code or send invitations via email
+                    <span style={{ color: "rgba(255,255,255,0.6)" }}>
+                      Copy your referral code or send an email invite
                     </span>
                   </div>
                 </div>
 
+                <div className="step-connector">›</div>
+
                 <div className="step">
-                  <div className="step-number">2</div>
+                  <div className="step-icon-wrap">
+                    <div className="step-emoji-icon">✍️</div>
+                    <div className="step-number-badge">2</div>
+                  </div>
                   <div className="step-content">
                     <span>Friend Signs Up</span>
-                    <span>They use your code during registration</span>
+                    <span style={{ color: "rgba(255,255,255,0.6)" }}>
+                      They use your code during registration
+                    </span>
                   </div>
                 </div>
 
+                <div className="step-connector">›</div>
+
                 <div className="step">
-                  <div className="step-number">3</div>
+                  <div className="step-icon-wrap">
+                    <div className="step-emoji-icon">💳</div>
+                    <div className="step-number-badge">3</div>
+                  </div>
                   <div className="step-content">
-                    <span>They Top Up First Time</span>
-                    <span>Your friend completes their first payment</span>
+                    <span>First Top-Up</span>
+                    <span style={{ color: "rgba(255,255,255,0.6)" }}>
+                      Your friend completes their first payment
+                    </span>
                   </div>
                 </div>
 
+                <div className="step-connector">›</div>
+
                 <div className="step">
-                  <div className="step-number">4</div>
+                  <div className="step-icon-wrap">
+                    <div className="step-emoji-icon">🏆</div>
+                    <div className="step-number-badge">4</div>
+                  </div>
                   <div className="step-content">
-                    <span>Earn 100 Credits</span>
-                    <span>Both you and your friend get 100 bonus credits!</span>
+                    <span>Both Earn Credits</span>
+                    <span style={{ color: "rgba(255,255,255,0.6)" }}>
+                      You and your friend each get 100 bonus credits
+                    </span>
                   </div>
                 </div>
               </div>
@@ -450,9 +414,20 @@ const Referrals = () => {
         )}
       </Spin>
 
-      {/* Share Email Modal */}
+      {/* ── INVITE MODAL ── */}
       <Modal
-        title="Invite Friends"
+        title={
+          <span
+            style={{
+              fontFamily: "'Sora', sans-serif",
+              fontWeight: 700,
+              fontSize: 17,
+              color: "#1a2744",
+            }}
+          >
+            Invite a Friend 🎁
+          </span>
+        }
         open={shareModalOpen}
         onCancel={() => {
           setShareModalOpen(false);
@@ -460,7 +435,22 @@ const Referrals = () => {
         }}
         footer={null}
         centered
+        styles={{
+          content: { borderRadius: 18, overflow: "hidden" },
+          header: { paddingBottom: 0 },
+        }}
       >
+        <p
+          style={{
+            fontSize: 13,
+            color: "#8892a4",
+            marginTop: 4,
+            marginBottom: 20,
+          }}
+        >
+          We'll send them a personalised invite with your referral code.
+        </p>
+
         <Form
           form={form}
           layout="vertical"
@@ -474,47 +464,54 @@ const Referrals = () => {
               { required: true, message: "Please enter your friend's name" },
             ]}
           >
-            <Input placeholder="John Doe" />
+            <Input placeholder="Jane Doe" size="large" />
           </Form.Item>
 
           <Form.Item
             label="Friend's Email"
             name="email"
             rules={[
-              { required: true, message: "Please enter email address" },
-              { type: "email", message: "Please enter valid email" },
+              { required: true, message: "Please enter an email address" },
+              { type: "email", message: "Please enter a valid email" },
             ]}
           >
-            <Input placeholder="john@example.com" />
+            <Input placeholder="jane@example.com" size="large" />
           </Form.Item>
 
-          <Form.Item>
-            <Button type="primary" htmlType="submit" block>
+          <Form.Item style={{ marginBottom: 0 }}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              block
+              className="modal-submit-btn"
+            >
               Send Invitation
             </Button>
           </Form.Item>
         </Form>
 
-        <Divider />
+        <Divider style={{ margin: "20px 0" }}>
+          <Text style={{ fontSize: 11, color: "#aab2c0", fontWeight: 600 }}>
+            OR SHARE A LINK
+          </Text>
+        </Divider>
 
-        {
-          <div className="share-link-section">
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              Or share this link:
-            </Text>
-            <div className="share-link">
-              <Input value={getReferralLink()} readOnly />
-              <Button
-                type="text"
-                icon={<CopyOutlined />}
-                onClick={() => {
-                  navigator.clipboard.writeText(getReferralLink());
-                  toast.success("Link copied!");
-                }}
-              />
-            </div>
+        <div className="share-link-section">
+          <Text style={{ fontSize: 12, fontWeight: 600, color: "#8892a4" }}>
+            Referral link:
+          </Text>
+          <div className="share-link">
+            <Input value={getReferralLink()} readOnly size="small" />
+            <Button
+              icon={<CopyOutlined />}
+              style={{ borderRadius: 10, flexShrink: 0 }}
+              onClick={() => {
+                navigator.clipboard.writeText(getReferralLink());
+                toast.success("Link copied!");
+              }}
+            />
           </div>
-        }
+        </div>
       </Modal>
     </div>
   );
