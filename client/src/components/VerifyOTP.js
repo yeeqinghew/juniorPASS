@@ -1,6 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { ArrowLeftOutlined, SafetyCertificateOutlined, MailOutlined, ClockCircleOutlined, CheckCircleOutlined } from "@ant-design/icons";
-import { Button, Form, Input, Typography, Divider, Card, Alert, Space } from "antd";
+import {
+  ArrowLeftOutlined,
+  SafetyCertificateOutlined,
+  MailOutlined,
+  ClockCircleOutlined,
+  CheckCircleOutlined,
+} from "@ant-design/icons";
+import {
+  Button,
+  Form,
+  Input,
+  Typography,
+  Divider,
+  Card,
+  Alert,
+  Space,
+} from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import getBaseURL from "../utils/config";
@@ -33,13 +48,13 @@ const VerifyOTP = () => {
   // OTP State
   const [cooldown, setCooldown] = useState(() => getCooldownTimeLeft());
   const [otpAttempts, setOtpAttempts] = useState(
-    () => getSessionOtpState().attempts
+    () => getSessionOtpState().attempts,
   );
   const [isOtpLocked, setIsOtpLocked] = useState(
-    () => getSessionOtpState().locked
+    () => getSessionOtpState().locked,
   );
   const [hasRequestedOtp, setHasRequestedOtp] = useState(
-    () => getSessionOtpState().requested
+    () => getSessionOtpState().requested,
   );
 
   // UI State
@@ -113,7 +128,7 @@ const VerifyOTP = () => {
         "Verification failed. Please click Resend OTP and try again.",
         {
           autoClose: 8000,
-        }
+        },
       );
       return;
     }
@@ -147,7 +162,7 @@ const VerifyOTP = () => {
           locked
             ? "Verification failed. Please click Resend OTP and try again."
             : verifyRes.message || "Enter a valid verification code.",
-          { autoClose: 8000 }
+          { autoClose: 8000 },
         );
 
         return;
@@ -155,7 +170,7 @@ const VerifyOTP = () => {
 
       const encodedPhoneNumber = btoa(phoneNumber);
       const encryptedPassword = CryptoJS.SHA256(password).toString(
-        CryptoJS.enc.Hex
+        CryptoJS.enc.Hex,
       );
 
       const registrationData = {
@@ -215,7 +230,7 @@ const VerifyOTP = () => {
             </Title>
             <Text className="register-subtitle">
               We've sent a verification code to{" "}
-              <strong style={{ color: '#98BDD2' }}>{email}</strong>
+              <strong style={{ color: "#98BDD2" }}>{email}</strong>
             </Text>
           </div>
 
@@ -253,7 +268,10 @@ const VerifyOTP = () => {
               name="otp"
               label={<Text strong>Verification Code</Text>}
               rules={[
-                { required: true, message: "Please enter the verification code" },
+                {
+                  required: true,
+                  message: "Please enter the verification code",
+                },
                 { pattern: /^\d{6}$/, message: "Code must be 6 digits" },
               ]}
             >
@@ -263,13 +281,17 @@ const VerifyOTP = () => {
                 size="large"
                 className="register-input"
                 maxLength={6}
-                style={{ fontSize: '18px', letterSpacing: '4px', textAlign: 'center' }}
+                style={{
+                  fontSize: "18px",
+                  letterSpacing: "4px",
+                  textAlign: "center",
+                }}
               />
             </Form.Item>
 
             {/* OTP Attempts Indicator */}
             {otpAttempts > 0 && !isOtpLocked && (
-              <div style={{ marginBottom: 16, textAlign: 'center' }}>
+              <div style={{ marginBottom: 16, textAlign: "center" }}>
                 <Text type="secondary" style={{ fontSize: 13 }}>
                   Attempts remaining: {MAX_OTP_ATTEMPTS - otpAttempts}
                 </Text>
@@ -285,17 +307,17 @@ const VerifyOTP = () => {
                 loading={isResending}
                 size="large"
                 className={hasRequestedOtp ? "" : "register-submit-btn"}
-                style={{ 
+                style={{
                   width: "100%",
-                  marginBottom: 12
+                  marginBottom: 12,
                 }}
                 icon={cooldown > 0 ? <ClockCircleOutlined /> : <MailOutlined />}
               >
                 {cooldown > 0
                   ? `Resend Code in ${cooldown}s`
                   : hasRequestedOtp
-                  ? "Resend Verification Code"
-                  : "Send Verification Code"}
+                    ? "Resend Verification Code"
+                    : "Send Verification Code"}
               </Button>
             </Form.Item>
 
@@ -310,7 +332,9 @@ const VerifyOTP = () => {
                 disabled={isVerifying || isOtpLocked || !hasRequestedOtp}
                 icon={<CheckCircleOutlined />}
               >
-                {isVerifying ? "Verifying..." : "Verify & Complete Registration"}
+                {isVerifying
+                  ? "Verifying..."
+                  : "Verify & Complete Registration"}
               </Button>
             </Form.Item>
           </Form>
@@ -318,13 +342,19 @@ const VerifyOTP = () => {
           {/* Help Section */}
           <div className="register-footer">
             <Divider className="footer-divider" />
-            <div style={{ textAlign: 'center' }}>
+            <div style={{ textAlign: "center" }}>
               <Space direction="vertical" size={8}>
                 <Text className="footer-text">
-                  Didn't receive the code? Check your spam folder or click resend.
+                  Didn't receive the code? Check your spam folder or click
+                  resend.
                 </Text>
-                <Text className="footer-text" type="secondary" style={{ fontSize: 12 }}>
-                  Need help? Contact <a href="mailto:support@juniorpass.sg">support@juniorpass.sg</a>
+                <Text
+                  className="footer-text"
+                  type="secondary"
+                  style={{ fontSize: 12 }}
+                >
+                  Need help? Contact{" "}
+                  <a href="mailto:admin@juniorpass.sg">admin@juniorpass.sg</a>
                 </Text>
               </Space>
             </div>

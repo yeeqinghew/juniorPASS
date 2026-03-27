@@ -11,6 +11,7 @@ const cacheMiddleware = require("../middleware/cacheMiddleware");
 const jwt = require("jsonwebtoken");
 const redisClient = require("../utils/redisClient");
 const rateLimit = require("express-rate-limit");
+const { generateReferralCode } = require("../utils/referralGenerator");
 
 // Rate limiters for sensitive auth endpoints
 const loginLimiter = rateLimit({
@@ -133,6 +134,9 @@ router.post("/register", registerLimiter, validInfo, async (req, res) => {
       );
     }
 
+    // generate referral code for new user
+    const referralCode = await generateReferralCode(newUser.rows[0].user_id);
+
     // generate jwt token
     const token = jwtGenerator(newUser.rows[0].user_id);
 
@@ -152,7 +156,7 @@ router.post("/register", registerLimiter, validInfo, async (req, res) => {
       );
     }
 
-    return res.status(200).json({ token, newUser: true });
+    return res.status(200).json({ token, newUser: true, referralCode });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: error.message });
@@ -229,8 +233,10 @@ router.post("/login/google", async (req, res) => {
         );
       }
 
+      const referralCode = await generateReferralCode(newUser.rows[0].user_id);
+
       const token = jwtGenerator(newUser.rows[0].user_id);
-      return res.status(200).json({ token, newUser: true });
+      return res.status(200).json({ token, newUser: true, referralCode });
     }
 
     // existing Gmail user

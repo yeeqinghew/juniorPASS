@@ -17,6 +17,10 @@ DROP TABLE IF EXISTS schedules CASCADE;
 DROP TABLE IF EXISTS partnerForms CASCADE;
 DROP TABLE IF EXISTS passwordResets CASCADE;
 DROP TABLE IF EXISTS otpRequests CASCADE;
+DROP TABLE IF EXISTS bookings CASCADE;
+DROP TABLE IF EXISTS notifications CASCADE;
+DROP TABLE IF EXISTS referral_codes CASCADE;
+DROP TABLE IF EXISTS referrals CASCADE;
 
 DROP TYPE IF EXISTS user_types CASCADE;
 DROP TYPE IF EXISTS methods CASCADE;
@@ -70,10 +74,21 @@ CREATE TABLE children (
     gender genders NOT NULL
 );
 
+CREATE TABLE referral_codes (
+    id SERIAL PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    code VARCHAR(10) UNIQUE NOT NULL,
+    created_on TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_referral_codes_code on referral_codes(code);
+
+CREATE INDEX idx_referral_codes_user on referral_codes(user_id);
+
 CREATE TABLE referrals (
     id SERIAL PRIMARY KEY,
-    referrer_id INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-    referee_id INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    referrer_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    referee_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     status VARCHAR(20) DEFAULT 'pending', -- pending, completed, expired, cancelled
     created_on TIMESTAMP DEFAULT NOW(),
     completed_on TIMESTAMP,

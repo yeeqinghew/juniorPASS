@@ -44,14 +44,14 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
   padding: var(--spacing-2xl) var(--spacing-lg) var(--spacing-lg);
 }
 
 .class-carousel-title {
   color: var(--bg-white) !important;
   margin: 0 !important;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   font-size: var(--font-size-2xl) !important;
   font-weight: var(--font-weight-bold) !important;
 }
@@ -110,7 +110,7 @@
   max-width: 200px;
 }
 
-.custom-date-picker .ant-picker-input > input {
+.custom-date-picker .ant-picker-input>input {
   text-align: center;
   font-weight: var(--font-weight-medium);
 }
@@ -202,10 +202,8 @@
 
 /* Partner Sidebar Card */
 .class-partner-card {
-  border-radius: var(--radius-xl) !important;
   box-shadow: var(--shadow-md);
   background: var(--bg-white);
-  border: 1px solid var(--border-light) !important;
   overflow: hidden;
   cursor: pointer;
   transition: var(--transition-base);

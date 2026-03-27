@@ -53,7 +53,7 @@ function HomePage() {
   const images = require.context(
     "../../images/partners",
     false,
-    /\.(png|jpe?g|svg)$/
+    /\.(png|jpe?g|svg)$/,
   );
   const imageList = images.keys().map((key) => images(key));
 
@@ -365,7 +365,7 @@ function HomePage() {
 
             {/* partners */}
             <div className={"partner-div"}>
-              <div className="partner-header" data-aos="fade-up">
+              <div className="partner-header">
                 <Title level={1} className="title partner-title">
                   Trusted by Leading Educators
                 </Title>

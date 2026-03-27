@@ -15,8 +15,18 @@ export const WEEKDAYS = [
 ];
 
 export const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December"
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 // ===== Age Groups =====
@@ -25,7 +35,7 @@ export const AGE_GROUPS = [
   "3-5 years",
   "6-8 years",
   "9-12 years",
-  "13+ years"
+  "13+ years",
 ];
 
 // ===== Payment & Pricing =====
@@ -40,22 +50,23 @@ export const CREDIT_PACKAGES = [
 export const SESSION_CONFIG = {
   IDLE_TIMEOUT: 7200000, // 2 hours in milliseconds
   POLL_INTERVAL: 5000, // 5 seconds
-  MAX_POLL_ATTEMPTS: 12
+  MAX_POLL_ATTEMPTS: 12,
 };
 
 // ===== Brand Info =====
 export const BRAND = {
   NAME: "Junior Pass",
-  TAGLINE: "Connecting parents with trusted enrichment partners across Singapore",
-  CONTACT_EMAIL: "support@juniorpass.sg",
-  LOCATION: "Singapore"
+  TAGLINE:
+    "Connecting parents with trusted enrichment partners across Singapore",
+  CONTACT_EMAIL: "admin@juniorpass.sg",
+  LOCATION: "Singapore",
 };
 
 // ===== User Roles =====
 export const USER_ROLES = {
   PARENT: "parent",
   PARTNER: "partner",
-  ADMIN: "admin"
+  ADMIN: "admin",
 };
 
 // ===== Booking Status =====
@@ -63,7 +74,7 @@ export const BOOKING_STATUS = {
   PENDING: "pending",
   CONFIRMED: "confirmed",
   CANCELLED: "cancelled",
-  COMPLETED: "completed"
+  COMPLETED: "completed",
 };
 
 // ===== Payment Status =====
@@ -71,7 +82,7 @@ export const PAYMENT_STATUS = {
   PENDING: "PENDING",
   COMPLETED: "COMPLETED",
   FAILED: "FAILED",
-  REFUNDED: "REFUNDED"
+  REFUNDED: "REFUNDED",
 };
 
 // ===== Routes =====
@@ -88,14 +99,14 @@ export const ROUTES = {
   CONTACT: "/partner-contact",
   VERIFY_OTP: "/verify-otp",
   FORGOT_PASSWORD: "/forgot-password",
-  RESET_PASSWORD: "/reset-password"
+  RESET_PASSWORD: "/reset-password",
 };
 
 // ===== Regex Patterns =====
 export const PATTERNS = {
   EMAIL: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
   PHONE_SG: /^[689]\d{7}$/,
-  POSTAL_CODE_SG: /^\d{6}$/
+  POSTAL_CODE_SG: /^\d{6}$/,
 };
 
 // ===== Error Messages =====
@@ -105,7 +116,7 @@ export const ERROR_MESSAGES = {
   PAYMENT_FAILED: "Payment failed. Please try again.",
   INVALID_CREDENTIALS: "Invalid email or password.",
   MIN_TOPUP: "Minimum top-up amount is $5.",
-  MAX_TOPUP: "Maximum top-up amount is $1000."
+  MAX_TOPUP: "Maximum top-up amount is $1000.",
 };
 
 // ===== Success Messages =====
@@ -114,5 +125,5 @@ export const SUCCESS_MESSAGES = {
   REGISTER_SUCCESS: "Registration successful!",
   TOPUP_SUCCESS: "Top-up successful!",
   BOOKING_SUCCESS: "Class booked successfully!",
-  PROFILE_UPDATED: "Profile updated successfully!"
+  PROFILE_UPDATED: "Profile updated successfully!",
 };

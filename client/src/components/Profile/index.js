@@ -3,6 +3,7 @@ import { Avatar, Tabs } from "antd";
 import Account from "./Account";
 import Credits from "./Credits";
 import ChildrenClasses from "./ChildrenClasses";
+import Referrals from "./Referrals";
 import { useLocation } from "react-router-dom";
 import { useUserContext } from "../UserContext";
 import useWindowDimensions from "../../hooks/useWindowDimensions";
@@ -39,6 +40,15 @@ const Profile = () => {
       children: (
         <div className="profile-tab-content">
           <Credits />
+        </div>
+      ),
+    },
+    {
+      label: "Referral",
+      key: "referral",
+      children: (
+        <div className="profile-tab-content">
+          <Referrals />
         </div>
       ),
     },

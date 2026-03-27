@@ -14,14 +14,18 @@ app.use(
   cors({
     origin: function (origin, callback) {
       // Allow non-browser requests (no Origin header) and whitelisted origins
-      if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+      if (
+        !origin ||
+        allowedOrigins.length === 0 ||
+        allowedOrigins.includes(origin)
+      ) {
         callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
-  })
+  }),
 );
 
 // Serve static files from the React app
@@ -31,7 +35,7 @@ app.use(express.static(path.join(__dirname, "../client/build")));
 // This must come before express.json() and express.urlencoded()
 app.use(
   "/payment/webhook",
-  express.raw({ type: "application/x-www-form-urlencoded" })
+  express.raw({ type: "application/x-www-form-urlencoded" }),
 );
 
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
@@ -41,20 +45,25 @@ app.use(express.json());
 // Only cache static assets, not API responses
 app.use((req, res, next) => {
   // Don't cache API responses - they contain user-specific data that changes frequently
-  const isApiRoute = req.path.startsWith('/auth') || 
-                     req.path.startsWith('/admins') || 
-                     req.path.startsWith('/partners') || 
-                     req.path.startsWith('/listings') || 
-                     req.path.startsWith('/misc') || 
-                     req.path.startsWith('/children') || 
-                     req.path.startsWith('/payment') || 
-                     req.path.startsWith('/bookings') || 
-                     req.path.startsWith('/transactions') || 
-                     req.path.startsWith('/notifications');
-  
+  const isApiRoute =
+    req.path.startsWith("/auth") ||
+    req.path.startsWith("/admins") ||
+    req.path.startsWith("/partners") ||
+    req.path.startsWith("/listings") ||
+    req.path.startsWith("/misc") ||
+    req.path.startsWith("/children") ||
+    req.path.startsWith("/payment") ||
+    req.path.startsWith("/referrals") ||
+    req.path.startsWith("/bookings") ||
+    req.path.startsWith("/transactions") ||
+    req.path.startsWith("/notifications");
+
   if (isApiRoute) {
     // Don't cache API responses
-    res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate",
+    );
     res.set("Pragma", "no-cache");
     res.set("Expires", "0");
   } else {
@@ -75,6 +84,7 @@ app.use("/payment", require("./routes/payment"));
 app.use("/bookings", require("./routes/bookings"));
 app.use("/transactions", require("./routes/transactions"));
 app.use("/notifications", require("./routes/notifications"));
+app.use("/referrals", require("./routes/referrals"));
 
 // Catch-all route to serve React app for any non-API route
 app.get("*", (req, res) => {
