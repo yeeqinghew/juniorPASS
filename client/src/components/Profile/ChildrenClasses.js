@@ -30,13 +30,14 @@ import {
   EditOutlined,
   DeleteOutlined,
   TeamOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import toast from "react-hot-toast";
 import { useUserContext } from "../UserContext";
 import getBaseURL from "../../utils/config";
 import "./ChildrenClasses.css";
 
-const { Title, Text, TextArea } = Typography;
+const { Title, Text } = Typography;
 const { Panel } = Collapse;
 const { Option } = Select;
 
@@ -112,6 +113,7 @@ const ChildrenClasses = () => {
       name: child.name,
       age: child.age,
       gender: child.gender,
+      special_notes: child.special_notes,
     });
     setIsAddChildModalOpen(true);
   };
@@ -185,7 +187,15 @@ const ChildrenClasses = () => {
         ? `${baseURL}/children/${editingChild.child_id}`
         : `${baseURL}/children`;
 
-      const method = editingChild ? "PUT" : "POST";
+      const method = editingChild ? "PATCH" : "POST";
+
+      console.log(
+        "sasas",
+        JSON.stringify({
+          ...values,
+          parent_id: user.user_id,
+        }),
+      );
 
       const response = await fetch(url, {
         method,
@@ -592,6 +602,16 @@ const ChildrenClasses = () => {
         </Row>
       )}
 
+      {/* Search Bar */}
+      <div className="search-bar">
+        <Input
+          placeholder="Search classes..."
+          // value={searchTerm}
+          // onChange={(e) => setSearchTerm(e.target.value)}
+          prefix={<SearchOutlined />}
+        />
+      </div>
+
       {/* Filter Card */}
       <Card className="filter-card" bordered={false}>
         <Segmented
@@ -724,7 +744,6 @@ const ChildrenClasses = () => {
                 placeholder="Enter any special notes about the child..."
                 rows={4}
                 maxLength={1000}
-                showCount // Useful since your DB limit is 1000
               />
             </Form.Item>
           </Form>
