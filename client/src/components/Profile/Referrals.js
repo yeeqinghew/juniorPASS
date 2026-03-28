@@ -338,12 +338,8 @@ const Referrals = () => {
             <Card className="how-it-works-card" bordered={false}>
               {/* Header row */}
               <div className="hiw-header">
-                <Title
-                  level={4}
-                  className="hiw-title"
-                  style={{ color: "white" }}
-                >
-                  <GiftOutlined style={{ fontSize: 22, color: "#ff6b4a" }} />
+                <Title level={4} className="hiw-title">
+                  <GiftOutlined style={{ fontSize: 22 }} />
                   How It Works
                 </Title>
                 <span className="hiw-reward-pill">🎁 100 credits each</span>
@@ -358,9 +354,7 @@ const Referrals = () => {
                   </div>
                   <div className="step-content">
                     <span>Share Your Code</span>
-                    <span style={{ color: "rgba(255,255,255,0.6)" }}>
-                      Copy your referral code or send an email invite
-                    </span>
+                    <span>Copy your referral code or send an email invite</span>
                   </div>
                 </div>
 
@@ -373,9 +367,7 @@ const Referrals = () => {
                   </div>
                   <div className="step-content">
                     <span>Friend Signs Up</span>
-                    <span style={{ color: "rgba(255,255,255,0.6)" }}>
-                      They use your code during registration
-                    </span>
+                    <span>They use your code during registration</span>
                   </div>
                 </div>
 
@@ -388,9 +380,7 @@ const Referrals = () => {
                   </div>
                   <div className="step-content">
                     <span>First Top-Up</span>
-                    <span style={{ color: "rgba(255,255,255,0.6)" }}>
-                      Your friend completes their first payment
-                    </span>
+                    <span>Your friend completes their first payment</span>
                   </div>
                 </div>
 
@@ -403,9 +393,7 @@ const Referrals = () => {
                   </div>
                   <div className="step-content">
                     <span>Both Earn Credits</span>
-                    <span style={{ color: "rgba(255,255,255,0.6)" }}>
-                      You and your friend each get 100 bonus credits
-                    </span>
+                    <span>You and your friend each get 100 bonus credits</span>
                   </div>
                 </div>
               </div>

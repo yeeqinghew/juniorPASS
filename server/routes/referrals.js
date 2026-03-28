@@ -8,7 +8,6 @@ const { generateReferralCode } = require("../utils/referralGenerator");
 // Get user's referral info
 router.get("/my-referral", authorization, async (req, res) => {
   try {
-    console.log("Fetching referral info for user:", req.user);
     const userId = req.user;
 
     // Get referral code
