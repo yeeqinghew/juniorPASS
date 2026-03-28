@@ -233,6 +233,19 @@
     font-size: var(--font-size-sm) !important;
 }
 
+/* Team Subsection */
+.team-subsection {
+    margin-bottom: var(--spacing-2xl);
+}
+
+.team-subsection-title {
+    color: var(--text-dark) !important;
+    font-size: var(--font-size-2xl) !important;
+    margin-bottom: var(--spacing-lg) !important;
+    font-weight: var(--font-weight-semibold) !important;
+    text-align: center;
+}
+
 /* Team Row */
 .team-row {
     margin-top: var(--spacing-2xl);
@@ -378,5 +391,10 @@
 
     .about-content {
         padding: var(--spacing-2xl);
+    }
+
+    /* 3 columns layout for team on desktop */
+    .team-row .ant-col-md-8 {
+        flex: 0 0 33.333%;
     }
 }
