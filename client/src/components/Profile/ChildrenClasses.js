@@ -36,7 +36,7 @@ import { useUserContext } from "../UserContext";
 import getBaseURL from "../../utils/config";
 import "./ChildrenClasses.css";
 
-const { Title, Text } = Typography;
+const { Title, Text, TextArea } = Typography;
 const { Panel } = Collapse;
 const { Option } = Select;
 
@@ -70,7 +70,7 @@ const ChildrenClasses = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       const bookingsResponse = await fetch(`${baseURL}/bookings/user`, {
@@ -119,7 +119,7 @@ const ChildrenClasses = () => {
   const handleDeleteChild = (child) => {
     const now = new Date();
     const childUpcomingBookings = bookings.filter(
-      (b) => b.child_id === child.child_id && new Date(b.start_date) >= now
+      (b) => b.child_id === child.child_id && new Date(b.start_date) >= now,
     );
 
     if (childUpcomingBookings.length > 0) {
@@ -159,7 +159,7 @@ const ChildrenClasses = () => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (response.ok) {
@@ -203,7 +203,7 @@ const ChildrenClasses = () => {
         toast.success(
           editingChild
             ? "Child profile updated successfully"
-            : "Child profile added successfully"
+            : "Child profile added successfully",
         );
         setIsAddChildModalOpen(false);
         form.resetFields();
@@ -229,9 +229,13 @@ const ChildrenClasses = () => {
         content: (
           <div>
             <p className="modal-alert-desc">
-              Cancellations must be made at least 24 hours before the class starts.
+              Cancellations must be made at least 24 hours before the class
+              starts.
             </p>
-            <p className="modal-alert-desc" style={{ color: "var(--text-disabled)" }}>
+            <p
+              className="modal-alert-desc"
+              style={{ color: "var(--text-disabled)" }}
+            >
               Class starts:{" "}
               {new Date(booking.start_date).toLocaleString("en-US", {
                 weekday: "short",
@@ -271,13 +275,13 @@ const ChildrenClasses = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (response.ok) {
         const data = await response.json();
         toast.success(
-          `Booking cancelled! ${data.refunded_credit} credits refunded.`
+          `Booking cancelled! ${data.refunded_credit} credits refunded.`,
         );
         await fetchChildrenAndBookings();
         await reauthenticate();
@@ -389,7 +393,10 @@ const ChildrenClasses = () => {
                 {booking.listing_title}
               </Text>
               <Space size="small" className="booking-tags">
-                <Tag color={isPast ? "default" : "green"} className="booking-tag">
+                <Tag
+                  color={isPast ? "default" : "green"}
+                  className="booking-tag"
+                >
                   {isPast ? "Completed" : "Confirmed"}
                 </Tag>
                 {booking.partner_name && (
@@ -406,14 +413,17 @@ const ChildrenClasses = () => {
                 <Col xs={24} sm={12}>
                   <div className="booking-meta-item">
                     <CalendarOutlined />
-                    <Text type="secondary">{formatDate(booking.start_date)}</Text>
+                    <Text type="secondary">
+                      {formatDate(booking.start_date)}
+                    </Text>
                   </div>
                 </Col>
                 <Col xs={24} sm={12}>
                   <div className="booking-meta-item">
                     <ClockCircleOutlined />
                     <Text type="secondary">
-                      {formatTime(booking.start_date)} - {formatTime(booking.end_date)}
+                      {formatTime(booking.start_date)} -{" "}
+                      {formatTime(booking.end_date)}
                     </Text>
                   </div>
                 </Col>
@@ -484,7 +494,11 @@ const ChildrenClasses = () => {
         {childBookings.length === 0 ? (
           <Empty
             description={`No ${filterType} classes`}
-            image={<BookOutlined style={{ fontSize: 48, color: "var(--text-disabled)" }} />}
+            image={
+              <BookOutlined
+                style={{ fontSize: 48, color: "var(--text-disabled)" }}
+              />
+            }
             className="empty-state"
           >
             {filterType === "upcoming" && (
@@ -505,10 +519,10 @@ const ChildrenClasses = () => {
   };
 
   const upcomingCount = bookings.filter(
-    (b) => new Date(b.start_date) >= new Date()
+    (b) => new Date(b.start_date) >= new Date(),
   ).length;
   const pastCount = bookings.filter(
-    (b) => new Date(b.start_date) < new Date()
+    (b) => new Date(b.start_date) < new Date(),
   ).length;
 
   return (
@@ -568,7 +582,9 @@ const ChildrenClasses = () => {
           <Col xs={12} sm={6}>
             <Card className="stat-card" bordered={false}>
               <div className="stat-card-content">
-                <span className="stat-card-value error">{user?.credit || 0}</span>
+                <span className="stat-card-value error">
+                  {user?.credit || 0}
+                </span>
                 <Text className="stat-card-label">Credits</Text>
               </div>
             </Card>
@@ -597,7 +613,11 @@ const ChildrenClasses = () => {
           <Card className="empty-card" bordered={false}>
             <Empty
               description="No children profiles found"
-              image={<UserOutlined style={{ fontSize: 48, color: "var(--text-disabled)" }} />}
+              image={
+                <UserOutlined
+                  style={{ fontSize: 48, color: "var(--text-disabled)" }}
+                />
+              }
               className="empty-state"
             >
               <Button
@@ -695,6 +715,18 @@ const ChildrenClasses = () => {
                 </Form.Item>
               </Col>
             </Row>
+            <Form.Item
+              label="Special Notes"
+              name="special_notes"
+              extra="Allergies, medical conditions, or dietary requirements."
+            >
+              <Input.TextArea
+                placeholder="Enter any special notes about the child..."
+                rows={4}
+                maxLength={1000}
+                showCount // Useful since your DB limit is 1000
+              />
+            </Form.Item>
           </Form>
 
           <Row gutter={12} className="modal-actions">
@@ -762,10 +794,15 @@ const ChildrenClasses = () => {
           )}
 
           <Alert
-            message={<span className="modal-alert-title">Credits will be automatically refunded</span>}
+            message={
+              <span className="modal-alert-title">
+                Credits will be automatically refunded
+              </span>
+            }
             description={
               <Text className="modal-alert-desc">
-                The refunded credits will be available immediately for booking other classes
+                The refunded credits will be available immediately for booking
+                other classes
               </Text>
             }
             type="success"
@@ -851,10 +888,15 @@ const ChildrenClasses = () => {
           )}
 
           <Alert
-            message={<span className="modal-alert-title">This action cannot be undone</span>}
+            message={
+              <span className="modal-alert-title">
+                This action cannot be undone
+              </span>
+            }
             description={
               <Text className="modal-alert-desc">
-                All data associated with this child's profile will be permanently deleted
+                All data associated with this child's profile will be
+                permanently deleted
               </Text>
             }
             type="error"

@@ -71,7 +71,8 @@ CREATE TABLE children (
     parent_id uuid REFERENCES parents(parent_id) ON DELETE CASCADE,
     name VARCHAR(100),
     age BIGINT,
-    gender genders NOT NULL
+    gender genders NOT NULL,
+    special_notes TEXT
 );
 
 CREATE TABLE referral_codes (

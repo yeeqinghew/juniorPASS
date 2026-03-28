@@ -9,7 +9,7 @@ router.use(etagMiddleware);
 
 // router.post("/add-child", authorization, async (req, res) => {
 router.post("", authorization, async (req, res) => {
-  const { name, age, gender } = req.body;
+  const { name, age, gender, special_notes } = req.body;
   const parent_id = req.user;
 
   // Basic validation
@@ -21,8 +21,8 @@ router.post("", authorization, async (req, res) => {
   }
   try {
     const newChild = await pool.query(
-      `INSERT INTO children (name, age, gender, parent_id) VALUES ($1, $2, $3, $4) RETURNING *`,
-      [name, age, gender, parent_id]
+      `INSERT INTO children (name, age, gender, special_notes, parent_id) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [name, age, gender, special_notes, parent_id],
     );
 
     // Optionally, invalidate or update related cache entries, like the list of all listings
@@ -49,7 +49,7 @@ router.get("/:parent_id", authorization, async (req, res) => {
   try {
     const children = await pool.query(
       "SELECT * FROM children WHERE parent_id = $1",
-      [parent_id]
+      [parent_id],
     );
     return res.status(200).json(children.rows);
   } catch (error) {
@@ -59,18 +59,18 @@ router.get("/:parent_id", authorization, async (req, res) => {
 });
 
 /**
- * Update a child (name/age/gender). Only the owning parent can update.
+ * Update a child (name/age/gender/special_notes). Only the owning parent can update.
  */
 router.patch("/:child_id", authorization, async (req, res) => {
   const { child_id } = req.params;
   const parent_id = req.user;
-  const { name, age, gender } = req.body;
+  const { name, age, gender, special_notes } = req.body;
 
   try {
     // Verify child exists and is owned by requester
     const child = await pool.query(
       "SELECT parent_id FROM children WHERE child_id = $1",
-      [child_id]
+      [child_id],
     );
     if (child.rowCount === 0) {
       return res.status(404).json({ error: "Child not found" });
@@ -84,14 +84,20 @@ router.patch("/:child_id", authorization, async (req, res) => {
       name,
       age,
       gender,
+      special_notes,
     };
-    if (typeof updates.name === "undefined" &&
-        typeof updates.age === "undefined" &&
-        typeof updates.gender === "undefined") {
+    if (
+      typeof updates.name === "undefined" &&
+      typeof updates.age === "undefined" &&
+      typeof updates.gender === "undefined" &&
+      typeof updates.special_notes === "undefined"
+    ) {
       return res.status(400).json({ error: "No fields provided for update" });
     }
-    if (typeof updates.gender !== "undefined" &&
-        !["M", "F"].includes(updates.gender)) {
+    if (
+      typeof updates.gender !== "undefined" &&
+      !["M", "F"].includes(updates.gender)
+    ) {
       return res.status(400).json({ error: "Invalid gender" });
     }
 
@@ -100,10 +106,17 @@ router.patch("/:child_id", authorization, async (req, res) => {
        SET
          name = COALESCE($1, name),
          age = COALESCE($2, age),
-         gender = COALESCE($3, gender)
-       WHERE child_id = $4
+         gender = COALESCE($3, gender),
+         special_notes = COALESCE($4, special_notes)
+       WHERE child_id = $5
        RETURNING *`,
-      [updates.name ?? null, updates.age ?? null, updates.gender ?? null, child_id]
+      [
+        updates.name ?? null,
+        updates.age ?? null,
+        updates.gender ?? null,
+        updates.special_notes ?? null,
+        child_id,
+      ],
     );
 
     // Invalidate cache for this parent's children
@@ -130,7 +143,7 @@ router.delete("/:child_id", authorization, async (req, res) => {
     // Verify child exists and is owned by requester
     const child = await pool.query(
       "SELECT parent_id FROM children WHERE child_id = $1",
-      [child_id]
+      [child_id],
     );
     if (child.rowCount === 0) {
       return res.status(404).json({ error: "Child not found" });
