@@ -9,6 +9,7 @@
 # Run your project
 
 1. Clone this repository to your local computer by running this command on Terminal: `git clone https://github.com/yeeqinghew/juniorPASS.git`
+
 2. Run this command to set up DB locally:
 
    ```
@@ -73,6 +74,8 @@
    npx nodemon // for Mac
    nodemon // for Windows
    ```
-6. App is up running on http://localhost:3000
+6. Or open a terminal to run `python3 run_all.py`
 
-7. Ensure that you have obtain the right `.env` files to get the database and other services up running
+7. App is up running on http://localhost:3000
+
+8. Ensure that you have obtain the right `.env` files to get the database and other services up running
