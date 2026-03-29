@@ -69,9 +69,7 @@
   box-shadow: var(--shadow-md);
 }
 
-.stat-card .ant-card-body {
-  padding: var(--spacing-md);
-}
+ /
 
 .stat-card-content {
   text-align: center;

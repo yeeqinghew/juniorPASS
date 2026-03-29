@@ -231,10 +231,6 @@
   box-shadow: 0 8px 28px rgba(26, 39, 68, 0.13) !important;
 }
 
-.stat-card .ant-card-body {
-  padding: 0 !important;
-}
-
 .stat-card.referral-stat {
   display: flex;
   align-items: center;

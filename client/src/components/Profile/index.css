@@ -7,11 +7,11 @@
   width: 100%;
   height: auto;
   min-height: auto;
+  padding: 0 150px !important;
 }
 
 .profile-tabs {
   flex: 1;
-  background: var(--bg-white);
   border-radius: var(--radius-md);
   margin: var(--spacing-lg);
   padding: var(--spacing-lg);
@@ -53,13 +53,18 @@
 }
 
 .profile-tabs .ant-tabs-tab:hover {
-  background: var(--bg-cream);
+  background: var(--primary-color);
+  color: var(--bg-black) !important;
   border-radius: var(--radius-sm);
 }
 
 .profile-tabs .ant-tabs-tab-active {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
   border-radius: var(--radius-sm);
+}
+
+.profile-tabs .ant-tabs-tab-active:hover .ant-tabs-tab-btn {
+  color: black !important;
 }
 
 .profile-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
@@ -86,7 +91,6 @@
     padding: 0;
     height: auto;
     min-height: 100vh;
-    background: var(--bg-cream);
   }
 
   .profile-tabs {

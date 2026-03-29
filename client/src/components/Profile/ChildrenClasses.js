@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Card,
@@ -36,6 +36,7 @@ import toast from "react-hot-toast";
 import { useUserContext } from "../UserContext";
 import getBaseURL from "../../utils/config";
 import "./ChildrenClasses.css";
+import CalendarView from "./utils/CalendarView";
 
 const { Title, Text } = Typography;
 const { Panel } = Collapse;
@@ -57,7 +58,21 @@ const ChildrenClasses = () => {
   const [isDeleteChildModalOpen, setIsDeleteChildModalOpen] = useState(false);
   const [childToDelete, setChildToDelete] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState("list");
   const [form] = Form.useForm();
+
+  const filteredBookings = useMemo(() => {
+    if (!searchTerm.trim()) return bookings;
+    const term = searchTerm.toLowerCase();
+    return bookings.filter(
+      (booking) =>
+        booking.listing_title?.toLowerCase().includes(term) ||
+        booking.partner_name?.toLowerCase().includes(term) ||
+        booking.child_name?.toLowerCase().includes(term) ||
+        booking.outlet_address?.toLowerCase().includes(term),
+    );
+  }, [bookings, searchTerm]);
 
   const fetchChildrenAndBookings = async () => {
     setLoading(true);
@@ -188,14 +203,6 @@ const ChildrenClasses = () => {
         : `${baseURL}/children`;
 
       const method = editingChild ? "PATCH" : "POST";
-
-      console.log(
-        "sasas",
-        JSON.stringify({
-          ...values,
-          parent_id: user.user_id,
-        }),
-      );
 
       const response = await fetch(url, {
         method,
@@ -328,7 +335,7 @@ const ChildrenClasses = () => {
 
   const getFilteredBookings = (childId) => {
     const now = new Date();
-    let filtered = bookings.filter((b) => b.child_id === childId);
+    let filtered = filteredBookings.filter((b) => b.child_id === childId);
 
     if (filterType === "upcoming") {
       filtered = filtered.filter((b) => new Date(b.start_date) >= now);
@@ -528,10 +535,10 @@ const ChildrenClasses = () => {
     );
   };
 
-  const upcomingCount = bookings.filter(
+  const upcomingCount = filteredBookings.filter(
     (b) => new Date(b.start_date) >= new Date(),
   ).length;
-  const pastCount = bookings.filter(
+  const pastCount = filteredBookings.filter(
     (b) => new Date(b.start_date) < new Date(),
   ).length;
 
@@ -605,12 +612,34 @@ const ChildrenClasses = () => {
       {/* Search Bar */}
       <div className="search-bar">
         <Input
-          placeholder="Search classes..."
-          // value={searchTerm}
-          // onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search by class name, partner, child name, or location..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
           prefix={<SearchOutlined />}
+          allowClear
+          size="large"
         />
+        {searchTerm && (
+          <Text type="secondary" className="search-results-count">
+            Found {filteredBookings.length} result
+            {filteredBookings.length !== 1 ? "s" : ""}
+          </Text>
+        )}
       </div>
+
+      {/* View Toggle */}
+      <Card className="filter-card" bordered={false}>
+        <Segmented
+          value={activeTab}
+          onChange={setActiveTab}
+          options={[
+            { label: "📋 List View", value: "list" },
+            { label: "📅 Calendar View", value: "calendar" },
+          ]}
+          block
+          className="filter-segmented"
+        />
+      </Card>
 
       {/* Filter Card */}
       <Card className="filter-card" bordered={false}>
@@ -620,47 +649,52 @@ const ChildrenClasses = () => {
           options={[
             { label: `Upcoming (${upcomingCount})`, value: "upcoming" },
             { label: `Past (${pastCount})`, value: "past" },
-            { label: `All (${bookings.length})`, value: "all" },
+            { label: `All (${filteredBookings.length})`, value: "all" },
           ]}
           block
           className="filter-segmented"
         />
       </Card>
 
+      {/* Calendar View */}
+      {activeTab === "calendar" && <CalendarView bookings={filteredBookings} />}
+
       {/* Children List */}
-      <Spin spinning={loading}>
-        {children.length === 0 ? (
-          <Card className="empty-card" bordered={false}>
-            <Empty
-              description="No children profiles found"
-              image={
-                <UserOutlined
-                  style={{ fontSize: 48, color: "var(--text-disabled)" }}
-                />
-              }
-              className="empty-state"
-            >
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={handleAddChild}
+      {activeTab === "list" && (
+        <Spin spinning={loading}>
+          {children.length === 0 ? (
+            <Card className="empty-card" bordered={false}>
+              <Empty
+                description="No children profiles found"
+                image={
+                  <UserOutlined
+                    style={{ fontSize: 48, color: "var(--text-disabled)" }}
+                  />
+                }
+                className="empty-state"
               >
-                Add Your First Child
-              </Button>
-            </Empty>
-          </Card>
-        ) : (
-          <Collapse
-            className="children-collapse"
-            defaultActiveKey={children
-              .filter((c) => getFilteredBookings(c.child_id).length > 0)
-              .map((c) => c.child_id)}
-            expandIconPosition="end"
-          >
-            {children.map((child) => renderChildPanel(child))}
-          </Collapse>
-        )}
-      </Spin>
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={handleAddChild}
+                >
+                  Add Your First Child
+                </Button>
+              </Empty>
+            </Card>
+          ) : (
+            <Collapse
+              className="children-collapse"
+              defaultActiveKey={children
+                .filter((c) => getFilteredBookings(c.child_id).length > 0)
+                .map((c) => c.child_id)}
+              expandIconPosition="end"
+            >
+              {children.map((child) => renderChildPanel(child))}
+            </Collapse>
+          )}
+        </Spin>
+      )}
 
       {/* Add/Edit Child Modal */}
       <Modal

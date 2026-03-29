@@ -1,0 +1,145 @@
+.calendar-view-container {
+  width: 100%;
+  margin-top: 24px;
+}
+
+.calendar-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+}
+
+.calendar-title {
+  margin-bottom: 16px;
+  color: var(--text-dark, #1f1f1f);
+  font-weight: 600;
+}
+
+.custom-calendar {
+  border-radius: 8px;
+}
+
+.custom-calendar .ant-picker-calendar-header {
+  padding: 12px 0;
+}
+
+.calendar-events {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.calendar-event-item {
+  width: 100%;
+}
+
+.calendar-event-tag {
+  width: 100%;
+  font-size: 12px;
+  padding: 2px 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+}
+
+.calendar-more-events {
+  font-size: 11px;
+  color: var(--primary-color, #1890ff);
+  cursor: pointer;
+  padding: 0 6px;
+  font-weight: 500;
+}
+
+.calendar-modal .ant-modal-header {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.calendar-modal .ant-list {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.booking-item-past {
+  opacity: 0.7;
+}
+
+.booking-item-past .ant-list-item-meta-title {
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.booking-child,
+.booking-partner {
+  font-size: 13px;
+  display: block;
+  margin-top: 4px;
+}
+
+.booking-child::before {
+  content: "👶 ";
+}
+
+.booking-partner::before {
+  content: "🏢 ";
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+  .calendar-modal {
+    width: 90% !important;
+  }
+
+  .calendar-modal .ant-modal-content {
+    max-height: 70vh;
+  }
+
+  .calendar-event-tag {
+    font-size: 11px;
+  }
+
+  .calendar-more-events {
+    font-size: 10px;
+  }
+}
+
+/* Calendar hover effects */
+.custom-calendar .ant-picker-cell {
+  transition: all 0.3s ease;
+}
+
+.custom-calendar .ant-picker-cell:hover {
+  background-color: rgba(24, 144, 255, 0.06);
+}
+
+.custom-calendar .ant-picker-cell-selected {
+  background-color: rgba(24, 144, 255, 0.12);
+}
+
+/* Event tag styling */
+.calendar-event-tag {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.calendar-event-tag:hover {
+  opacity: 0.8;
+}
+
+/* Modal scrollbar styling */
+.calendar-modal .ant-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.calendar-modal .ant-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.calendar-modal .ant-list::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.calendar-modal .ant-list::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
