@@ -2,27 +2,25 @@ import subprocess
 import os
 
 def launch_project():
-    # 1. Start Redis in WSL (Current Window)
-    # This triggers the WSL command from Windows
-    print("🚀 Starting Redis in WSL...")
-    subprocess.run(["wsl", "-d", "Ubuntu", "-u", "root", "service", "redis-server", "start"])
+    print("🚀 Starting the project (Redis + FE + BE)...")
 
-    # 2. Define Windows Absolute Paths
-    # Using 'r' for raw strings to handle backslashes correctly
+    # 1. Start Redis in WSL
+    subprocess.run(["wsl", "-d", "Ubuntu", "-u", "root", "service", "redis-server", "start"])
+    
+    # 2. Paths
     base_path = r"C:\Users\Admin\Desktop\JP\juniorPASS"
     server_path = os.path.join(base_path, "server")
     client_path = os.path.join(base_path, "client")
 
-    # 3. Open Backend in a NEW WINDOWS TAB (PowerShell)
-    print("📂 Opening Backend (Windows)...")
-    # -d sets the directory, then we run nodemon in powershell
-    backend_cmd = f'wt.exe -w 0 nt -d "{server_path}" powershell -noExit -Command "nodemon"'
-    subprocess.run(backend_cmd, shell=True)
+    # 3. Open tabs in Windows Terminal
+    cmd = (
+        f'wt.exe nt -p "Ubuntu" --title "Redis" ; '
+        f'nt -d "{server_path}" --title "Backend" cmd /k "nodemon" ; '
+        f'nt -d "{client_path}" --title "Frontend" cmd /k "npm start"'
+    )
 
-    # 4. Open Frontend in a NEW WINDOWS TAB (PowerShell)
-    print("📂 Opening Frontend (Windows)...")
-    frontend_cmd = f'wt.exe -w 0 nt -d "{client_path}" powershell -noExit -Command "npm start"'
-    subprocess.run(frontend_cmd, shell=True)
+    # Run via shell=True so Windows Terminal handles the semicolons correctly
+    subprocess.run(cmd, shell=True)
 
     print("\n✅ All tabs opened in Windows Terminal!")
 
