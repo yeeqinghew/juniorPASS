@@ -33,6 +33,7 @@ const { Title, Text } = Typography;
 
 const Account = () => {
   const { user } = useUserContext();
+  console.log("User data in Account component:", user);
   const baseURL = getBaseURL();
   const [isEditing, setIsEditing] = useState(false);
   const [form] = Form.useForm();
@@ -43,7 +44,7 @@ const Account = () => {
       form.setFieldsValue({
         name: user.name,
         email: user.email,
-        phone: user.phone_number || "",
+        phone_number: user.phone_number || "",
       });
     }
   }, [user, form]);
@@ -65,6 +66,7 @@ const Account = () => {
     try {
       setLoading(true);
       const values = await form.validateFields();
+      console.log("Form values to save:", values);
       const token = localStorage.getItem("token");
 
       const response = await fetch(`${baseURL}/auth/${user.user_id}`, {
@@ -232,7 +234,7 @@ const Account = () => {
               <Row gutter={16}>
                 <Col xs={24} sm={12}>
                   <Form.Item
-                    name="phone"
+                    name="phone_number"
                     label="Phone Number"
                     rules={[
                       {
