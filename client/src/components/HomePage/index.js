@@ -132,21 +132,19 @@ function HomePage() {
   const cardsData = [
     {
       title: "Register",
-      icon: <SmileOutlined style={{ fontSize: "40px", color: "#FF6B6B" }} />,
+      icon: <SmileOutlined className="homepage-icon" />,
       description:
         "Create your account to join a vibrant community of parents and learners. Enjoy easy access to our platform, personalized recommendations, and exclusive benefits.",
     },
     {
       title: "Find a Class",
-      icon: <BookOutlined style={{ fontSize: "40px", color: "#FF6B6B" }} />,
+      icon: <BookOutlined className="homepage-icon" />,
       description:
         "Explore a wide variety of classes tailored to your child's interests and needs. From art to science, browse through our curated options and discover their next favorite class.",
     },
     {
       title: "Book it!",
-      icon: (
-        <CheckCircleOutlined style={{ fontSize: "40px", color: "#FF6B6B" }} />
-      ),
+      icon: <CheckCircleOutlined className="homepage-icon" />,
       description:
         "Secure your spot in just a few clicks! Enjoy a seamless booking process and get your child started on their learning adventure right away.",
     },
@@ -155,10 +153,11 @@ function HomePage() {
   useEffect(() => {
     // Initialize AOS
     AOS.init({
-      duration: 800,
+      duration: 1000,
       once: true,
-      offset: 100,
+      offset: 80,
       easing: "ease-out-cubic",
+      delay: 100,
     });
 
     const handleScroll = () => {
@@ -171,6 +170,10 @@ function HomePage() {
     };
 
     window.addEventListener("scroll", handleScroll);
+
+    // Smooth scroll polyfill for older browsers
+    document.documentElement.style.scrollBehavior = 'smooth';
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
@@ -209,16 +212,10 @@ function HomePage() {
         },
       }}
     >
-      <Layout style={{ minHeight: "100vh", overflow: "hidden" }}>
+      <Layout className="homepage-layout">
         <Header
           id={"header-homepage"}
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            backgroundColor: scrolled ? "#FCFBF8" : "transparent",
-            transition: "background-color 0.3s ease",
-          }}
+          className={`homepage-header ${scrolled ? 'homepage-header--scrolled' : ''}`}
         >
           {/* Logo */}
           <Link to="/">
@@ -233,7 +230,7 @@ function HomePage() {
           {/* Hamburger menu (visible on mobile) */}
           <div className="hamburger-menu" onClick={showDrawer}>
             <MenuOutlined
-              style={{ fontSize: "24px", color: scrolled ? "black" : "white" }}
+              className={`hamburger-icon ${scrolled ? 'hamburger-icon--scrolled' : ''}`}
             />
           </div>
 
@@ -244,25 +241,25 @@ function HomePage() {
             onClose={closeDrawer}
             open={drawerVisible}
             width={250}
-            style={{ padding: 0 }}
+            className="homepage-drawer"
           >
             <Menu
               mode="vertical"
               onClick={closeDrawer}
-              style={{ background: "transparent", color: "black" }}
+              className="homepage-drawer__menu"
             >
               <Menu.Item key="classes">
-                <Link to="/classes" style={{ fontWeight: "600" }}>
+                <Link to="/classes" className="homepage-drawer__menu-item">
                   Browse our classes
                 </Link>
               </Menu.Item>
               <Menu.Item key="plan">
-                <Link to="/pricing" style={{ fontWeight: "600" }}>
+                <Link to="/pricing" className="homepage-drawer__menu-item">
                   Plans
                 </Link>
               </Menu.Item>
               <Menu.Item key="login">
-                <Link to="/login" style={{ fontWeight: "600" }}>
+                <Link to="/login" className="homepage-drawer__menu-item">
                   Login/Register
                 </Link>
               </Menu.Item>
@@ -273,21 +270,15 @@ function HomePage() {
             <Menu.Item key="classes">
               <Link
                 to="/classes"
-                style={{
-                  background: "transparent",
-                  color: scrolled ? "black" : "white",
-                }}
-              >
+                className={`homepage-menu__link ${scrolled ? 'homepage-menu__link--scrolled' : ''}`}
+            >
                 Browse our classes
               </Link>
             </Menu.Item>
             <Menu.Item key="plan">
               <Link
                 to="/pricing"
-                style={{
-                  background: "transparent",
-                  color: scrolled ? "black" : "white",
-                }}
+                className={`homepage-menu__link ${scrolled ? 'homepage-menu__link--scrolled' : ''}`}
               >
                 Plans
               </Link>
@@ -295,17 +286,14 @@ function HomePage() {
             <Menu.Item key="login">
               <Link
                 to="/login"
-                style={{
-                  background: "transparent",
-                  color: scrolled ? "black" : "white",
-                }}
+                className={`homepage-menu__link ${scrolled ? 'homepage-menu__link--scrolled' : ''}`}
               >
                 Login/Register
               </Link>
             </Menu.Item>
           </Menu>
         </Header>
-        <Content style={{ minHeight: "100vh" }}>
+        <Content className="homepage-content">
           <div>
             <Outlet />
             <div className="headline-div">
@@ -329,15 +317,8 @@ function HomePage() {
               />
               {/* Overlay Content */}
               <div className="overlay-homepage">
-                <div
-                  style={{
-                    display: "flex", // Create a flexbox container
-                    justifyContent: "space-between", // Evenly space the columns
-                    gap: "20px", // Add space between columns
-                    width: "100%", // Set the overall width of the heading section
-                  }}
-                >
-                  <span style={{ flex: 1 }}>
+                <div className="headline-content-wrapper">
+                  <span className="headline-title-wrapper">
                     <Title level={1} className="title headline-title">
                       Let us help your kids grow into the best versions of
                       themselves.
@@ -404,11 +385,7 @@ function HomePage() {
                 {imageList.map((image, index) => (
                   <SplideSlide key={`partner-${index}`}>
                     <Card
-                      className="partner-splide-card"
-                      style={{
-                        alignItems: "center",
-                        display: "flex",
-                      }}
+                      className="partner-splide-card partner-card-wrapper"
                       bordered={false}
                     >
                       <Image

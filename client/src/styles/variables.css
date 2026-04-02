@@ -30,6 +30,7 @@
   --text-light: #777;
   --text-disabled: #999;
   --text-dark: #1a1a2e;
+  --text-white: #fff;
 
   /* ===== Status Colors ===== */
   --color-success: #52c41a;
@@ -57,16 +58,32 @@
   --border-light: #f0f0f0;
   --border-medium: #d9d9d9;
   --border-color: rgba(0, 0, 0, 0.06);
+  --border-color-medium: rgba(0, 0, 0, 0.08);
 
+  --shadow-xs: 0 1px 4px rgba(0, 0, 0, 0.04);
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
   --shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.15);
+  --shadow-2xl: 0 16px 36px rgba(0, 0, 0, 0.18);
 
   --shadow-primary: 0 4px 12px rgba(152, 189, 210, 0.3);
   --shadow-primary-hover: 0 8px 20px rgba(152, 189, 210, 0.5);
   --shadow-pink: 0 6px 20px rgba(243, 165, 199, 0.35);
   --shadow-pink-hover: 0 10px 28px rgba(243, 165, 199, 0.5);
+  --shadow-pink-strong: 0 12px 32px rgba(243, 165, 199, 0.5);
+
+  /* Layered Shadows for Depth */
+  --shadow-multi-sm: 0 2px 6px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-multi-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.05);
+  --shadow-multi-lg: 0 8px 20px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-multi-xl: 0 12px 28px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  --shadow-pink-multi: 0 6px 20px rgba(243, 165, 199, 0.4), 0 2px 8px rgba(243, 165, 199, 0.3);
+  --shadow-pink-hover-multi: 0 12px 32px rgba(243, 165, 199, 0.6), 0 4px 12px rgba(243, 165, 199, 0.4);
+
+  --shadow-button-default: 0 6px 16px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.1);
+  --shadow-button-hover: 0 12px 28px rgba(0, 0, 0, 0.2), 0 4px 10px rgba(0, 0, 0, 0.15);
 
   /* ===== Spacing ===== */
   --spacing-xs: 8px;
@@ -76,12 +93,15 @@
   --spacing-xl: 32px;
   --spacing-2xl: 48px;
   --spacing-3xl: 64px;
+  --spacing-4xl: 80px;
 
   /* ===== Border Radius ===== */
+  --radius-xs: 4px;
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 20px;
+  --radius-2xl: 24px;
   --radius-full: 9999px;
 
   /* ===== Typography ===== */
@@ -97,7 +117,8 @@
   --font-size-3xl: 24px;
   --font-size-4xl: 28px;
   --font-size-5xl: 32px;
-  --font-size-6xl: 42px;
+  --font-size-6xl: 40px;
+  --font-size-7xl: 48px;
 
   --font-weight-light: 300;
   --font-weight-normal: 400;
@@ -107,15 +128,80 @@
   --font-weight-extrabold: 800;
 
   --line-height-tight: 1.2;
+  --line-height-snug: 1.3;
   --line-height-normal: 1.5;
   --line-height-relaxed: 1.6;
-  --line-height-loose: 1.8;
+  --line-height-loose: 1.7;
+
+  --letter-spacing-tight: -0.5px;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.5px;
 
   /* ===== Transitions ===== */
   --transition-fast: 0.2s ease;
   --transition-base: 0.3s ease;
+  --transition-medium: 0.4s ease;
   --transition-slow: 0.5s ease;
   --transition-cubic: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --transition-spring: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  /* ===== Animations ===== */
+  --animation-duration-fast: 0.3s;
+  --animation-duration-base: 0.6s;
+  --animation-duration-slow: 1s;
+
+  /* ===== Icon Sizes ===== */
+  --icon-xs: 16px;
+  --icon-sm: 20px;
+  --icon-md: 24px;
+  --icon-lg: 32px;
+  --icon-xl: 40px;
+  --icon-2xl: 48px;
+
+  /* ===== Component Sizes ===== */
+  --button-height-sm: 32px;
+  --button-height-md: 40px;
+  --button-height-lg: 48px;
+  --button-height-xl: 56px;
+
+  --input-height-sm: 32px;
+  --input-height-md: 40px;
+  --input-height-lg: 48px;
+
+  --card-padding-sm: 16px;
+  --card-padding-md: 24px;
+  --card-padding-lg: 32px;
+
+  --step-number-size-sm: 36px;
+  --step-number-size-md: 40px;
+  --step-number-size-lg: 48px;
+
+  /* ===== Gradients ===== */
+  --gradient-pink: linear-gradient(135deg, var(--accent-pink), var(--accent-pink-dark));
+  --gradient-blue: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  --gradient-overlay: linear-gradient(
+    135deg,
+    rgba(152, 189, 210, 0.15) 0%,
+    rgba(243, 165, 199, 0.15) 50%,
+    rgba(255, 182, 193, 0.15) 100%
+  );
+  --gradient-shimmer: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+
+  /* ===== Opacity Levels ===== */
+  --opacity-disabled: 0.6;
+  --opacity-hover: 0.8;
+  --opacity-overlay: 0.9;
+
+  /* ===== Backdrop Filters ===== */
+  --backdrop-blur-sm: blur(8px);
+  --backdrop-blur-md: blur(10px);
+  --backdrop-blur-lg: blur(16px);
 
   /* ===== Z-Index ===== */
   --z-dropdown: 1000;
@@ -130,4 +216,10 @@
   --breakpoint-mobile: 768px;
   --breakpoint-tablet: 980px;
   --breakpoint-desktop: 1336px;
+
+  /* ===== Filter Effects ===== */
+  --filter-brightness-hover: brightness(1.1);
+  --filter-brightness-active: brightness(0.95);
+  --filter-grayscale-light: grayscale(20%);
+  --filter-grayscale-full: grayscale(100%);
 }
