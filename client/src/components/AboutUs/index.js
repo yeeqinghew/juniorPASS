@@ -33,7 +33,8 @@ const AboutUs = () => {
       name: "Xavier",
       role: "Founder",
       emoji: "👦",
-      color: "#69b1ff",
+      avatarClass: "avatar-blue",
+      badgeClass: "badge-blue",
       badge: <RocketOutlined />,
       quote:
         "Every child deserves access to amazing learning opportunities. We're here to make that happen.",
@@ -42,7 +43,8 @@ const AboutUs = () => {
       name: "Abednego",
       role: "Co-Founder",
       emoji: "👧",
-      color: "#ff85c0",
+      avatarClass: "avatar-pink",
+      badgeClass: "badge-pink",
       badge: <HeartFilled />,
       quote:
         "Building meaningful connections between families and enrichment opportunities.",
@@ -53,7 +55,8 @@ const AboutUs = () => {
     name: "Qing",
     role: "Developer",
     emoji: "💻",
-    color: "#52c41a",
+    avatarClass: "avatar-green",
+    badgeClass: "badge-green",
     badge: <SafetyCertificateOutlined />,
     quote:
       "Technology should simplify life, not complicate it. Building Junior Pass with care and dedication.",
@@ -149,14 +152,12 @@ const AboutUs = () => {
                     <div className="avatar-container-large">
                       <Avatar
                         size={120}
-                        className="team-avatar-large"
-                        style={{ backgroundColor: founder.color }}
+                        className={`team-avatar-large ${founder.avatarClass}`}
                       >
                         {founder.emoji}
                       </Avatar>
                       <span
-                        className="avatar-badge-large"
-                        style={{ color: founder.color }}
+                        className={`avatar-badge-large ${founder.badgeClass}`}
                       >
                         {founder.badge}
                       </span>
@@ -178,14 +179,12 @@ const AboutUs = () => {
                   <div className="avatar-container-large">
                     <Avatar
                       size={120}
-                      className="team-avatar-large"
-                      style={{ backgroundColor: developer.color }}
+                      className={`team-avatar-large ${developer.avatarClass}`}
                     >
                       {developer.emoji}
                     </Avatar>
                     <span
-                      className="avatar-badge-large"
-                      style={{ color: developer.color }}
+                      className={`avatar-badge-large ${developer.badgeClass}`}
                     >
                       {developer.badge}
                     </span>

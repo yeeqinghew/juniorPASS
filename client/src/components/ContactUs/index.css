@@ -3,14 +3,66 @@
 
 /* ============================================
    CONTACT US / PARTNER PAGE - ENHANCED DESIGN
-   Using CSS Variables only
+   Modern, Playful Theme with Animations
    ============================================ */
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 4px 12px rgba(152, 189, 210, 0.3);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 6px 16px rgba(152, 189, 210, 0.4);
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+    100% {
+        background-position: 1000px 0;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
 
 /* Page Container */
 .contact-page {
     min-height: calc(100vh - 80px);
     padding: var(--spacing-xl) var(--spacing-lg);
-    background: var(--bg-cream);
+    background: linear-gradient(135deg, rgba(152, 189, 210, 0.03) 0%, rgba(243, 165, 199, 0.03) 100%);
     display: flex;
     align-items: flex-start;
     justify-content: center;
@@ -27,23 +79,21 @@
 }
 
 .contact-decoration-1 {
-    display: none;
+    top: -100px;
+    right: -100px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(152, 189, 210, 0.08) 0%, transparent 70%);
+    animation: float 8s ease-in-out infinite;
 }
 
 .contact-decoration-2 {
-    display: none;
-}
-
-@keyframes float {
-
-    0%,
-    100% {
-        transform: translateY(0) rotate(0deg);
-    }
-
-    50% {
-        transform: translateY(-20px) rotate(5deg);
-    }
+    bottom: -50px;
+    left: -50px;
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(243, 165, 199, 0.08) 0%, transparent 70%);
+    animation: float 10s ease-in-out infinite reverse;
 }
 
 .contact-container {
@@ -52,18 +102,21 @@
     margin: 0 auto;
     position: relative;
     z-index: 1;
+    animation: fadeInUp 0.8s ease-out;
 }
 
 /* Partner Badge */
 .partner-badge {
     font-size: var(--font-size-sm) !important;
     font-weight: var(--font-weight-semibold) !important;
-    padding: var(--spacing-xs) var(--spacing-md) !important;
+    padding: var(--spacing-xs) var(--spacing-lg) !important;
     border-radius: var(--radius-full) !important;
-    margin-bottom: var(--spacing-md) !important;
+    margin-bottom: var(--spacing-lg) !important;
     display: inline-flex !important;
     align-items: center !important;
     gap: var(--spacing-xs) !important;
+    box-shadow: var(--shadow-md) !important;
+    animation: pulse 3s ease-in-out infinite;
 }
 
 /* Left Side - Info Section */
@@ -73,6 +126,7 @@
     flex-direction: column;
     justify-content: flex-start;
     padding: var(--spacing-md) 0;
+    animation: slideIn 0.8s ease-out;
 }
 
 .contact-title {
@@ -112,10 +166,18 @@
     display: flex;
     gap: var(--spacing-lg);
     margin-bottom: var(--spacing-xl);
-    padding: var(--spacing-md);
+    padding: var(--spacing-lg);
     background: var(--bg-white);
     border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-multi-md);
+    border: 2px solid var(--border-light);
+    transition: all var(--transition-spring);
+}
+
+.stats-row:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-multi-lg);
+    border-color: var(--primary-color);
 }
 
 .stat-item {
@@ -152,19 +214,19 @@
     display: flex;
     align-items: flex-start;
     gap: var(--spacing-md);
-    margin-bottom: var(--spacing-sm);
-    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-lg);
     background: var(--bg-white);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    transition: var(--transition-base);
-    border-left: 4px solid transparent;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-multi-sm);
+    transition: all var(--transition-spring);
+    border: 2px solid var(--border-light);
 }
 
 .benefit-item:hover {
-    transform: translateX(var(--spacing-xs));
-    box-shadow: var(--shadow-md);
-    border-left-color: var(--primary-color);
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: var(--shadow-multi-md);
+    border-color: var(--primary-color);
 }
 
 .benefit-icon-wrapper {
@@ -173,8 +235,26 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-lg);
     flex-shrink: 0;
+    transition: all var(--transition-spring);
+}
+
+.benefit-item:hover .benefit-icon-wrapper {
+    transform: scale(1.15) rotate(5deg);
+}
+
+/* Benefit icon colors */
+.benefit-icon-primary {
+    background: var(--gradient-blue) !important;
+}
+
+.benefit-icon-success {
+    background: linear-gradient(135deg, var(--color-success), #3f8600) !important;
+}
+
+.benefit-icon-gold {
+    background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-dark)) !important;
 }
 
 .benefit-icon {
@@ -228,10 +308,17 @@
 .contact-form-card {
     background: var(--bg-white);
     border-radius: var(--radius-2xl);
-    box-shadow: var(--shadow-xl);
-    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-multi-lg);
+    padding: var(--spacing-2xl);
     height: 100%;
-    border: 1px solid var(--border-light);
+    border: 2px solid var(--border-light);
+    transition: all var(--transition-spring);
+    animation: fadeInUp 1s ease-out;
+}
+
+.contact-form-card:hover {
+    box-shadow: var(--shadow-multi-xl);
+    border-color: rgba(152, 189, 210, 0.3);
 }
 
 .contact-form-card .ant-card-body {
@@ -244,19 +331,36 @@
 }
 
 .form-icon-wrapper {
-    width: var(--spacing-3xl);
-    height: var(--spacing-3xl);
+    width: 72px;
+    height: 72px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-    border-radius: var(--radius-full);
-    margin-bottom: var(--spacing-md);
+    background: var(--gradient-blue);
+    border-radius: 50%;
+    margin-bottom: var(--spacing-lg);
     box-shadow: var(--shadow-primary);
+    animation: pulse 3s ease-in-out infinite;
+    position: relative;
+}
+
+.form-icon-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: inherit;
+    opacity: 0.3;
+    z-index: -1;
+    animation: pulse 3s ease-in-out infinite;
 }
 
 .form-icon {
-    font-size: var(--font-size-2xl);
+    font-size: var(--icon-xl);
     color: var(--bg-white);
 }
 
@@ -288,11 +392,12 @@
 .contact-form .ant-input-affix-wrapper {
     border-radius: var(--radius-lg);
     border: 2px solid var(--border-light);
-    transition: var(--transition-base);
+    transition: all var(--transition-spring);
     font-size: var(--font-size-md);
     height: 52px;
     display: flex;
     align-items: center;
+    background: var(--bg-white);
 }
 
 .contact-form .ant-input-affix-wrapper .ant-input {
@@ -306,37 +411,50 @@
 .contact-input:hover,
 .contact-form .ant-input-affix-wrapper:hover {
     border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
 }
 
 .contact-input:focus,
 .contact-form .ant-input-affix-wrapper:focus,
 .contact-form .ant-input-affix-wrapper-focused {
     border-color: var(--primary-color) !important;
-    box-shadow: var(--shadow-primary);
+    box-shadow: 0 0 0 4px rgba(152, 189, 210, 0.15), var(--shadow-sm);
+    transform: translateY(-2px);
+}
+
+.contact-form .ant-input-affix-wrapper:focus-within .input-icon {
+    transform: scale(1.1);
+    color: var(--primary-dark);
 }
 
 .contact-textarea {
     border-radius: var(--radius-lg) !important;
     border: 2px solid var(--border-light) !important;
-    transition: var(--transition-base);
+    transition: all var(--transition-spring);
     font-size: var(--font-size-md);
     padding: var(--spacing-md) !important;
     min-height: 120px !important;
     resize: vertical;
+    background: var(--bg-white);
 }
 
 .contact-textarea:hover {
     border-color: var(--primary-color) !important;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
 }
 
 .contact-textarea:focus {
     border-color: var(--primary-color) !important;
-    box-shadow: var(--shadow-primary);
+    box-shadow: 0 0 0 4px rgba(152, 189, 210, 0.15), var(--shadow-sm);
+    transform: translateY(-2px);
 }
 
 .input-icon {
     color: var(--primary-color);
-    font-size: var(--font-size-lg);
+    font-size: var(--icon-sm);
+    transition: all var(--transition-base);
 }
 
 /* Submit Button */
@@ -347,29 +465,46 @@
 
 .contact-submit-btn {
     width: 100%;
-    height: 52px;
+    height: var(--button-height-xl);
     border-radius: var(--radius-lg);
-    font-size: var(--font-size-md);
+    font-size: var(--font-size-lg);
     font-weight: var(--font-weight-bold);
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    background: var(--gradient-blue);
     border: none;
     box-shadow: var(--shadow-primary);
-    transition: var(--transition-base);
+    transition: all var(--transition-bounce);
     display: flex;
     align-items: center;
     justify-content: center;
     gap: var(--spacing-xs);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Shimmer effect on button */
+.contact-submit-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: var(--gradient-shimmer);
+    transition: left 0.6s ease;
+}
+
+.contact-submit-btn:hover::before {
+    left: 100%;
 }
 
 .contact-submit-btn:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px) scale(1.02);
     box-shadow: var(--shadow-primary-hover);
-    filter: brightness(1.05);
-    background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+    filter: var(--filter-brightness-hover);
 }
 
 .contact-submit-btn:active {
-    transform: translateY(0);
+    transform: translateY(-1px) scale(1);
 }
 
 /* Form Footer */

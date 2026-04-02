@@ -98,7 +98,7 @@ const Register = () => {
 
           {/* Info Box */}
           <div className="register-info-box">
-            <SafetyCertificateOutlined style={{ marginRight: 8, color: '#98BDD2' }} />
+            <SafetyCertificateOutlined />
             <Text className="register-info-text">
               <strong>Secure Registration:</strong> Your information is protected with industry-standard encryption
             </Text>
@@ -192,7 +192,7 @@ const Register = () => {
                 }
                 type="error"
                 showIcon
-                style={{ marginBottom: 16 }}
+                className="register-error-alert"
               />
             )}
 

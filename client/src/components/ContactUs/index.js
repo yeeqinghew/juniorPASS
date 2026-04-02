@@ -51,21 +51,21 @@ const ContactUs = () => {
       title: "Reach More Families",
       description:
         "Connect with thousands of parents actively searching for quality enrichment classes",
-      color: "var(--primary-color)",
+      colorClass: "benefit-icon-primary",
     },
     {
       icon: <RocketOutlined className="benefit-icon" />,
       title: "Grow Your Business",
       description:
         "Increase bookings, fill empty slots, and expand your customer base effortlessly",
-      color: "var(--color-success)",
+      colorClass: "benefit-icon-success",
     },
     {
       icon: <TrophyOutlined className="benefit-icon" />,
       title: "Build Your Brand",
       description:
         "Showcase your classes with beautiful listings and collect verified reviews",
-      color: "var(--accent-gold)",
+      colorClass: "benefit-icon-gold",
     },
   ];
 
@@ -121,8 +121,7 @@ const ContactUs = () => {
                 {benefits.map((benefit, index) => (
                   <div key={index} className="benefit-item">
                     <div
-                      className="benefit-icon-wrapper"
-                      style={{ background: benefit.color }}
+                      className={`benefit-icon-wrapper ${benefit.colorClass}`}
                     >
                       {benefit.icon}
                     </div>
@@ -150,7 +149,7 @@ const ContactUs = () => {
                 </div>
                 <div className="trust-badge">
                   <CheckCircleOutlined className="trust-check" />
-                  <span>24/7 Support</span>
+                  <span>12/7 Support</span>
                 </div>
               </div>
             </div>
