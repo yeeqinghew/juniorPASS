@@ -5,6 +5,9 @@ const authorization = require("../middleware/authorization");
 const sendEmail = require("../utils/emailSender");
 const { generateReferralCode } = require("../utils/referralGenerator");
 
+// Fixed referral reward amount (same for all users)
+const REFERRAL_REWARD = 50;
+
 // Get user's referral info
 router.get("/my-referral", authorization, async (req, res) => {
   try {
@@ -16,59 +19,54 @@ router.get("/my-referral", authorization, async (req, res) => {
       [userId],
     );
 
-    // let referralCode = null;
-    // if (codeResult.rows.length === 0) {
-    //   referralCode = await generateReferralCode(userId);
-    // } else {
-    //   referralCode = codeResult.rows[0].code;
-    // }
+    let referralCode = null;
+    if (codeResult.rows.length === 0) {
+      referralCode = await generateReferralCode(userId);
+    } else {
+      referralCode = codeResult.rows[0].code;
+    }
 
-    // console.log("Referral code for user:", referralCode);
-    // // Get referral stats
-    // const stats = await pool.query(
-    //   `
-    //   SELECT
-    //     COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed_referrals,
-    //     COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_referrals,
-    //     COUNT(*) as total_referrals,
-    //     COALESCE(SUM(CASE WHEN status = 'completed' THEN reward_credits ELSE 0 END), 0) as total_credits_earned
-    //   FROM referrals
-    //   WHERE referrer_id = $1
-    //   `,
-    //   [userId],
-    // );
+    // Get referral stats
+    const stats = await pool.query(
+      `
+      SELECT
+        COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed_referrals,
+        COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending_referrals,
+        COUNT(*) as total_referrals,
+        COUNT(CASE WHEN status = 'completed' THEN 1 END) * $2 as total_credits_earned
+      FROM referrals
+      WHERE referrer_id = $1
+      `,
+      [userId, REFERRAL_REWARD],
+    );
 
-    // // Get recent referrals
-    // const referrals = await pool.query(
-    //   `
-    //   SELECT
-    //     r.id,
-    //     r.status,
-    //     r.created_on,
-    //     r.completed_on,
-    //     u.name as referee_name,
-    //     u.email as referee_email,
-    //     r.reward_credits
-    //   FROM referrals r
-    //   JOIN users u ON r.referee_id = u.user_id
-    //   WHERE r.referrer_id = $1
-    //   ORDER BY r.created_on DESC
-    //   LIMIT 10
-    //   `,
-    //   [userId],
-    // );
+    // Get recent referrals
+    const referrals = await pool.query(
+      `
+      SELECT
+        r.id,
+        r.status,
+        r.created_on,
+        r.completed_on,
+        u.name as referee_name,
+        u.email as referee_email
+      FROM referrals r
+      JOIN users u ON r.referee_id = u.user_id
+      WHERE r.referrer_id = $1
+      ORDER BY r.created_on DESC
+      LIMIT 10
+      `,
+      [userId],
+    );
+
+    // Define fixed reward amount
+    const REFERRAL_REWARD = 50;
 
     res.status(200).json({
-      referral_code: codeResult.rows[0].code,
-      // stats: stats.rows[0],
-      // recent_referrals: referrals.rows,
-      // stats: {
-      //   total_referrals: 0,
-      //   completed_referrals: 0,
-      //   pending_referrals: 0,
-      //   total_credits_earned: 0,
-      // },
-      // recent_referrals: [],
+      referral_code: referralCode,
+      stats: stats.rows[0],
+      recent_referrals: referrals.rows,
+      reward_amount: REFERRAL_REWARD,
     });
   } catch (error) {
     console.error("Error fetching referral info:", error.message);
@@ -128,8 +126,8 @@ router.post("/create", async (req, res) => {
     // Create referral record
     const referralResult = await pool.query(
       `
-      INSERT INTO referrals (referrer_id, referee_id, status, reward_credits)
-      VALUES ($1, $2, 'pending', 100)
+      INSERT INTO referrals (referrer_id, referee_id, status)
+      VALUES ($1, $2, 'pending')
       RETURNING *
       `,
       [referrer_id, referee_id],
@@ -175,13 +173,13 @@ router.put("/complete/:referralId", async (req, res) => {
     // Add reward credits to referrer
     await pool.query(
       "UPDATE users SET credit = credit + $1 WHERE user_id = $2",
-      [referral.reward_credits, referral.referrer_id],
+      [REFERRAL_REWARD, referral.referrer_id],
     );
 
     // Add reward credits to referee
     await pool.query(
       "UPDATE users SET credit = credit + $1 WHERE user_id = $2",
-      [referral.reward_credits, referral.referee_id],
+      [REFERRAL_REWARD, referral.referee_id],
     );
 
     // Create notifications
@@ -195,20 +193,20 @@ router.put("/complete/:referralId", async (req, res) => {
       if (referrerInfo.rows.length > 0) {
         await pool.query(
           `INSERT INTO notifications (recipient_type, recipient_id, type, title, message, data)
-           VALUES ('user', $1, 'referral_completed', 'Referral Bonus Earned!', 
+           VALUES ('user', $1, 'referral_completed', 'Referral Bonus Earned!',
                    'Your friend completed their first top-up. You earned ' || $2 || ' credits!',
                    jsonb_build_object('reward_credits', $2))`,
-          [referral.referrer_id, referral.reward_credits],
+          [referral.referrer_id, REFERRAL_REWARD],
         );
       }
 
       // Notify referee
       await pool.query(
         `INSERT INTO notifications (recipient_type, recipient_id, type, title, message, data)
-         VALUES ('user', $1, 'referral_bonus', 'Welcome Bonus!', 
+         VALUES ('user', $1, 'referral_bonus', 'Welcome Bonus!',
                  'Thanks for joining! You earned ' || $2 || ' welcome credits!',
                  jsonb_build_object('reward_credits', $2))`,
-        [referral.referee_id, referral.reward_credits],
+        [referral.referee_id, REFERRAL_REWARD],
       );
     } catch (notifyErr) {
       console.error("Failed to create notifications:", notifyErr.message);
@@ -216,7 +214,7 @@ router.put("/complete/:referralId", async (req, res) => {
 
     res.status(200).json({
       message: "Referral completed successfully",
-      reward_credits: referral.reward_credits,
+      reward_credits: REFERRAL_REWARD,
     });
   } catch (error) {
     console.error("Error completing referral:", error.message);
@@ -263,8 +261,8 @@ router.post("/share-email", authorization, async (req, res) => {
         
         <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <p style="margin: 0 0 10px 0;"><strong>Special Offer:</strong></p>
-          <p style="margin: 0 0 15px 0;">Use referral code <strong>${referralCode}</strong> or <a href="${referralLink}">click here</a> to sign up and get <strong>100 free credits</strong> for your first booking!</p>
-          <p style="margin: 0; color: #666; font-size: 14px;">Plus, ${senderName} will also get 100 credits as a thank you!</p>
+          <p style="margin: 0 0 15px 0;">Use referral code <strong>${referralCode}</strong> or <a href="${referralLink}">click here</a> to sign up and get <strong>50 free credits</strong> for your first booking!</p>
+          <p style="margin: 0; color: #666; font-size: 14px;">Plus, ${senderName} will also get 50 credits as a thank you!</p>
         </div>
 
         <p><a href="${referralLink}" style="display: inline-block; background-color: #1890ff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Sign Up Now</a></p>
@@ -296,13 +294,13 @@ router.get("/leaderboard", async (req, res) => {
   try {
     const leaderboard = await pool.query(
       `
-      SELECT 
+      SELECT
         u.user_id,
         u.name,
         u.display_picture,
         COUNT(r.id) as total_referrals,
         COUNT(CASE WHEN r.status = 'completed' THEN 1 END) as completed_referrals,
-        COALESCE(SUM(CASE WHEN r.status = 'completed' THEN r.reward_credits ELSE 0 END), 0) as total_credits_earned
+        COUNT(CASE WHEN r.status = 'completed' THEN 1 END) * $1 as total_credits_earned
       FROM users u
       LEFT JOIN referrals r ON u.user_id = r.referrer_id
       GROUP BY u.user_id, u.name, u.display_picture
@@ -310,6 +308,7 @@ router.get("/leaderboard", async (req, res) => {
       ORDER BY completed_referrals DESC, total_referrals DESC
       LIMIT 10
       `,
+      [REFERRAL_REWARD],
     );
 
     res.status(200).json({

@@ -110,6 +110,8 @@ const Referrals = () => {
   const getReferralLink = () =>
     `${window.location.origin}/register?referral_code=${referralData?.referral_code}`;
 
+  const rewardAmount = referralData?.reward_amount || 50;
+
   const stats = referralData?.stats || {};
 
   const statItems = [
@@ -217,7 +219,7 @@ const Referrals = () => {
                       <ThunderboltOutlined
                         style={{ color: "#f7b731", fontSize: 13 }}
                       />
-                      Both you &amp; your friend earn 100 credits
+                      Both you &amp; your friend earn {rewardAmount} credits
                     </div>
                   </div>
                 </Col>
@@ -318,7 +320,7 @@ const Referrals = () => {
                       </div>
                       <div className="referral-reward">
                         <div className="reward-amount">
-                          <GiftOutlined />+{referral.reward_credits} credits
+                          <GiftOutlined />+{rewardAmount} credits
                         </div>
                         <div className="reward-date">
                           {new Date(referral.created_on).toLocaleDateString(
@@ -342,7 +344,7 @@ const Referrals = () => {
                   <GiftOutlined style={{ fontSize: 22 }} />
                   How It Works
                 </Title>
-                <span className="hiw-reward-pill">🎁 100 credits each</span>
+                <span className="hiw-reward-pill">🎁 {rewardAmount} credits each</span>
               </div>
 
               {/* Timeline grid */}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   LockOutlined,
   UserOutlined,
@@ -9,9 +9,10 @@ import {
   UserAddOutlined,
   SafetyCertificateOutlined,
   ArrowRightOutlined,
+  GiftOutlined,
 } from "@ant-design/icons";
 import { Button, Form, Input, Typography, Divider, Card, Alert } from "antd";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import { GoogleLogin } from "@react-oauth/google";
 import getBaseURL from "../utils/config";
@@ -23,11 +24,50 @@ const Register = () => {
   const baseURL = getBaseURL();
   const [registerForm] = Form.useForm();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // UI State
   const [isSendingOTP, setIsSendingOTP] = useState(false);
   const [isEmailValid, setIsEmailValid] = useState(false);
   const [isEmailDuplicate, setIsEmailDuplicate] = useState(false);
+
+  // Referral State
+  const [referralCode, setReferralCode] = useState(null);
+  const [referrerName, setReferrerName] = useState(null);
+
+  // Check for referral code in URL on mount
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const code = params.get('referral_code');
+
+    if (code) {
+      validateReferralCode(code);
+    }
+  }, [location]);
+
+  // Validate referral code with backend
+  const validateReferralCode = async (code) => {
+    try {
+      const response = await fetch(`${baseURL}/referrals/register-with-code`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ referral_code: code }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.valid) {
+        setReferralCode(code);
+        toast.success(`🎉 Using referral code: ${code}! You'll get 50 credits after your first top-up!`, {
+          duration: 5000,
+        });
+      } else {
+        toast.error("Invalid referral code");
+      }
+    } catch (error) {
+      console.error("Error validating referral code:", error);
+    }
+  };
 
   // Handle Form Submission
   const onNext = async (values) => {
@@ -60,8 +100,14 @@ const Register = () => {
 
       setIsEmailDuplicate(false);
 
-      // Navigate to OTP Screen with form values
-      navigate("/verify-otp", { state: { email, ...values } });
+      // Navigate to OTP Screen with form values and referral code
+      navigate("/verify-otp", {
+        state: {
+          email,
+          ...values,
+          referral_code: referralCode  // Pass referral code along
+        }
+      });
     } catch (error) {
       toast.error("Failed to verify email. Please try again.");
     } finally {
@@ -103,6 +149,18 @@ const Register = () => {
               <strong>Secure Registration:</strong> Your information is protected with industry-standard encryption
             </Text>
           </div>
+
+          {/* Referral Code Active Banner */}
+          {referralCode && (
+            <Alert
+              message="🎁 Referral Code Active!"
+              description={`You're registering with referral code ${referralCode}. You'll receive 50 bonus credits after your first top-up!`}
+              type="success"
+              showIcon
+              icon={<GiftOutlined />}
+              style={{ marginBottom: 16 }}
+            />
+          )}
 
           {/* Google Login */}
           <div className="google-login-wrapper">

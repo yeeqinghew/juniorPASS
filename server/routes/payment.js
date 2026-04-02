@@ -249,7 +249,7 @@ async function markPaymentCompleted({
   user_id,
 }) {
   const existing = await pool.query(
-    `SELECT status FROM payment_requests 
+    `SELECT status FROM payment_requests
      WHERE hitpay_payment_id = $1 AND reference_number = $2`,
     [hitpayPaymentId, reference_number]
   );
@@ -259,18 +259,88 @@ async function markPaymentCompleted({
   }
 
   await pool.query(
-    `UPDATE payment_requests 
+    `UPDATE payment_requests
      SET status = $1, webhook_received = true, updated_at = NOW()
      WHERE hitpay_payment_id = $2 AND reference_number = $3`,
     ["COMPLETED", hitpayPaymentId, reference_number]
   );
 
   await pool.query(
-    `UPDATE users 
+    `UPDATE users
      SET credit = credit + $1
      WHERE user_id = $2`,
     [amount, user_id]
   );
+
+  const REFERRAL_REWARD = 50;
+
+  const topUpCount = await pool.query(
+    `SELECT COUNT(*) as count FROM payment_requests
+     WHERE user_id = $1 AND status = 'COMPLETED'`,
+    [user_id]
+  );
+
+  const isFirstTopUp = parseInt(topUpCount.rows[0].count) === 1;
+
+  if (isFirstTopUp) {
+    // Check for pending referrals where this user is the referee
+    const pendingReferral = await pool.query(
+      `SELECT id, referrer_id
+       FROM referrals
+       WHERE referee_id = $1 AND status = 'pending'
+       LIMIT 1`,
+      [user_id]
+    );
+
+    if (pendingReferral.rows.length > 0) {
+      const referral = pendingReferral.rows[0];
+
+      try {
+        // Complete the referral
+        await pool.query(
+          "UPDATE referrals SET status = 'completed', completed_on = NOW() WHERE id = $1",
+          [referral.id]
+        );
+
+        // Award credits to referrer
+        await pool.query(
+          "UPDATE users SET credit = credit + $1 WHERE user_id = $2",
+          [REFERRAL_REWARD, referral.referrer_id]
+        );
+
+        // Award credits to referee (the current user)
+        await pool.query(
+          "UPDATE users SET credit = credit + $1 WHERE user_id = $2",
+          [REFERRAL_REWARD, user_id]
+        );
+
+        // Create notifications
+        try {
+          await pool.query(
+            `INSERT INTO notifications (recipient_type, recipient_id, type, title, message, data)
+             VALUES ('user', $1, 'referral_completed', 'Referral Bonus Earned!',
+                     'Your friend completed their first top-up. You earned ' || $2 || ' credits!',
+                     jsonb_build_object('reward_credits', $2))`,
+            [referral.referrer_id, REFERRAL_REWARD]
+          );
+
+          await pool.query(
+            `INSERT INTO notifications (recipient_type, recipient_id, type, title, message, data)
+             VALUES ('user', $1, 'referral_bonus', 'Welcome Bonus!',
+                     'Thanks for joining! You earned ' || $2 || ' welcome credits!',
+                     jsonb_build_object('reward_credits', $2))`,
+            [user_id, REFERRAL_REWARD]
+          );
+        } catch (notifyErr) {
+          console.error("Failed to create referral notifications:", notifyErr.message);
+        }
+
+        console.log(`✅ Referral completed: Awarded ${REFERRAL_REWARD} credits each to referrer and referee`);
+      } catch (referralErr) {
+        console.error("Failed to complete referral:", referralErr.message);
+      }
+    }
+  }
 }
 
 module.exports = router;

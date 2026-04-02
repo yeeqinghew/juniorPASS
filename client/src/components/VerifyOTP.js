@@ -43,7 +43,7 @@ const VerifyOTP = () => {
 
   // User Data
   const userData = location.state || {};
-  const { name, phoneNumber, email, password } = userData;
+  const { name, phoneNumber, email, password, referral_code } = userData;
 
   // OTP State
   const [cooldown, setCooldown] = useState(() => getCooldownTimeLeft());
@@ -191,6 +191,37 @@ const VerifyOTP = () => {
       if (!registerResponse.ok || !registerRes.token) {
         toast.error(registerRes.message || "Failed to register user.");
         return;
+      }
+
+      const newUserId = registerRes.user_id;
+
+      // If there was a referral code, create the referral record
+      if (referral_code) {
+        try {
+          // Validate the code again to get referrer_id
+          const referralValidation = await fetch(`${baseURL}/referrals/register-with-code`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ referral_code }),
+          });
+
+          const validationData = await referralValidation.json();
+
+          if (referralValidation.ok && validationData.valid) {
+            // Create the referral record
+            await fetch(`${baseURL}/referrals/create`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                referrer_id: validationData.referrer_id,
+                referee_id: newUserId,
+              }),
+            });
+          }
+        } catch (referralError) {
+          console.error("Error creating referral:", referralError);
+          // Don't block registration if referral fails
+        }
       }
 
       localStorage.setItem("token", registerRes.token);
