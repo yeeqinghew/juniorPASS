@@ -90,10 +90,13 @@
     cursor: pointer;
 }
 
-/* margin: 8px to 16px */
-/* padding: 16px to 24px */
-/* mobile: 360px x 480px */
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   ============================================ */
+
+/* Mobile: 360px x 480px (0 - 767.9px) */
 @media screen and (max-width: 767.9px) {
+    /* Hide desktop menu, show hamburger */
     .desktop-menu {
         display: none !important;
     }
@@ -103,19 +106,18 @@
     }
 
     .layout-header {
-        padding: 12px 50px;
+        padding: 12px 16px;
     }
 
     .layout-content {
-        padding: 100px 0 12px 0;
+        padding: 90px 16px 16px 16px;
         width: 100%;
     }
 }
 
-/* margin: 16px to 24px */
-/* padding: 16px to 24px */
-/* tablet portrait: 768px x 1024px */
-@media screen and (min-width: 768px) and (max-width: 979.9px) {
+/* Tablet Portrait: 768px x 1024px (768px - 1023.9px) */
+@media screen and (min-width: 768px) and (max-width: 1023.9px) {
+    /* Hide desktop menu, show hamburger */
     .desktop-menu {
         display: none !important;
     }
@@ -125,20 +127,50 @@
     }
 
     .layout-header {
-        padding: 12px 50px;
+        padding: 16px 24px;
     }
 
     .layout-content {
-        padding: 120px 24px 24px 24px;
+        padding: 100px 24px 24px 24px;
     }
 }
 
-/* margin: 24px to 32px */
-/* padding: 16px to 24px */
-/* tablet landscape: 1024px x 768px */
-@media screen and (min-width: 980px) and (max-width: 1335.9px) {}
+/* Tablet Landscape: 1024px x 768px (1024px - 1335.9px) */
+@media screen and (min-width: 1024px) and (max-width: 1335.9px) {
+    /* Show desktop menu, hide hamburger */
+    .desktop-menu {
+        display: flex !important;
+    }
 
-/* margin: 32px to 48px */
-/* padding: 24px to 32px */
-/* desktop: 1336px x 768px */
-@media screen and (min-width: 1336px) {}
+    .hamburger-menu {
+        display: none;
+    }
+
+    .layout-header {
+        padding: 20px 48px;
+    }
+
+    .layout-content {
+        padding: 120px 48px 32px 48px;
+    }
+}
+
+/* Desktop: 1336px x 768px (1336px+) */
+@media screen and (min-width: 1336px) {
+    /* Show desktop menu, hide hamburger */
+    .desktop-menu {
+        display: flex !important;
+    }
+
+    .hamburger-menu {
+        display: none;
+    }
+
+    .layout-header {
+        padding: 24px 80px;
+    }
+
+    .layout-content {
+        padding: 130px 80px 48px 80px;
+    }
+}

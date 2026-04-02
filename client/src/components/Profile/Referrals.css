@@ -725,36 +725,61 @@
   border: none !important;
 }
 
-/* ─── RESPONSIVE ──────────────────────────── */
-@media (max-width: 768px) {
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   ============================================ */
+
+/* Mobile: 360px x 480px */
+@media screen and (max-width: 767.9px) {
   .referrals-page {
-    padding: 16px;
+    padding: 12px;
   }
 
   .referrals-header {
-    padding: 28px 24px;
-    margin-bottom: 20px;
+    padding: 24px 20px;
+    margin-bottom: 16px;
   }
 
   .referrals-header .page-title {
-    font-size: 22px !important;
+    font-size: 20px !important;
   }
 
   .referral-stats-card .ant-card-body {
-    padding: 20px !important;
+    padding: 16px !important;
   }
 
   .code-value {
-    font-size: 20px;
-    letter-spacing: 3px;
+    font-size: 18px;
+    letter-spacing: 2px;
+  }
+
+  .copy-button {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+  }
+
+  .invite-button {
+    height: 48px !important;
+    font-size: 14px !important;
   }
 
   .stat-card.referral-stat {
-    padding: 16px;
+    padding: 14px;
+  }
+
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
   }
 
   .stat-value {
-    font-size: 26px !important;
+    font-size: 24px !important;
+  }
+
+  .stat-label {
+    font-size: 10px;
   }
 
   .referral-item {
@@ -774,14 +799,223 @@
   }
 
   .how-it-works-card .ant-card-body {
-    padding: 24px 20px !important;
+    padding: 20px 16px !important;
   }
 
-  .steps {
-    gap: 12px;
+  .hiw-title {
+    font-size: 18px !important;
+  }
+
+  .steps-timeline {
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
 
   .step {
-    padding: 18px 16px;
+    flex-direction: row;
+    text-align: left;
+    gap: 14px;
+    padding: 16px 14px;
+  }
+
+  .step-emoji-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .step-content {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .step-content>span:first-child {
+    font-size: 12px;
+  }
+
+  .step-content>span:last-child {
+    font-size: 11px;
+  }
+
+  .step-connector {
+    display: none;
+  }
+
+  .step::after {
+    display: none;
+  }
+
+  .list-header {
+    padding: 16px 16px 0;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-size: 14px !important;
+  }
+
+  .section-title-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 13px;
+  }
+}
+
+/* Tablet Portrait: 768px x 1024px */
+@media screen and (min-width: 768px) and (max-width: 1023.9px) {
+  .referrals-page {
+    padding: 16px;
+  }
+
+  .referrals-header {
+    padding: 32px 28px;
+    margin-bottom: 20px;
+  }
+
+  .referrals-header .page-title {
+    font-size: 24px !important;
+  }
+
+  .referral-stats-card .ant-card-body {
+    padding: 24px !important;
+  }
+
+  .code-value {
+    font-size: 22px;
+    letter-spacing: 3px;
+  }
+
+  .invite-button {
+    height: 50px !important;
+    font-size: 15px !important;
+  }
+
+  .stat-card.referral-stat {
+    padding: 18px;
+  }
+
+  .stat-icon {
+    width: 52px;
+    height: 52px;
+    font-size: 22px;
+  }
+
+  .stat-value {
+    font-size: 28px !important;
+  }
+
+  .how-it-works-card .ant-card-body {
+    padding: 28px 24px !important;
+  }
+
+  .hiw-title {
+    font-size: 19px !important;
+  }
+
+  .steps-timeline {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .step-connector {
+    display: none;
+  }
+
+  .step {
+    padding: 20px 16px;
+  }
+}
+
+/* Tablet Landscape: 1024px x 768px */
+@media screen and (min-width: 1024px) and (max-width: 1335.9px) {
+  .referrals-page {
+    padding: 24px 20px;
+  }
+
+  .referrals-header {
+    padding: 36px 36px;
+    margin-bottom: 24px;
+  }
+
+  .referrals-header .page-title {
+    font-size: 26px !important;
+  }
+
+  .referral-stats-card .ant-card-body {
+    padding: 26px !important;
+  }
+
+  .code-value {
+    font-size: 23px;
+    letter-spacing: 3.5px;
+  }
+
+  .stat-card.referral-stat {
+    padding: 18px;
+  }
+
+  .stat-icon {
+    width: 54px;
+    height: 54px;
+    font-size: 23px;
+  }
+
+  .stat-value {
+    font-size: 29px !important;
+  }
+
+  .how-it-works-card .ant-card-body {
+    padding: 32px 28px !important;
+  }
+
+  .hiw-title {
+    font-size: 19px !important;
+  }
+
+  .steps-timeline {
+    grid-template-columns: 1fr 40px 1fr 40px 1fr 40px 1fr;
+  }
+}
+
+/* Desktop: 1336px x 768px+ */
+@media screen and (min-width: 1336px) {
+  .referrals-page {
+    padding: 28px 24px;
+  }
+
+  .referrals-header {
+    padding: 40px 40px 36px;
+    margin-bottom: 28px;
+  }
+
+  .referrals-header .page-title {
+    font-size: 28px !important;
+  }
+
+  .referral-stats-card .ant-card-body {
+    padding: 28px 28px !important;
+  }
+
+  .stat-card.referral-stat {
+    padding: 20px;
+  }
+
+  .stat-icon {
+    width: 56px;
+    height: 56px;
+    font-size: 24px;
+  }
+
+  .stat-value {
+    font-size: 30px !important;
+  }
+
+  .how-it-works-card .ant-card-body {
+    padding: 36px 32px !important;
+  }
+
+  .hiw-title {
+    font-size: 20px !important;
   }
 }

@@ -126,15 +126,11 @@
   padding: var(--spacing-xl);
   background: var(--bg-white);
   border-radius: var(--radius-2xl);
-  box-shadow: var(--shadow-multi-md);
-  border: 2px solid var(--border-light);
   transition: all var(--transition-spring);
   animation: fadeInUp 1s ease-out;
 }
 
 .partner-header:hover {
-  box-shadow: var(--shadow-multi-lg);
-  border-color: rgba(152, 189, 210, 0.3);
   transform: translateY(-4px);
 }
 

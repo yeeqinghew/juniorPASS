@@ -310,21 +310,22 @@
   gap: var(--spacing-sm);
 }
 
-/* Mobile Responsive */
+/* Mobile: 360px x 480px */
 @media screen and (max-width: 767.9px) {
+  .account-page {
+    padding: 0;
+  }
+
   .account-title {
     font-size: var(--font-size-2xl) !important;
   }
 
   .account-cards-row {
     flex-direction: column;
+    gap: var(--spacing-md);
   }
 
-  .profile-card-wrapper {
-    flex: none;
-    width: 100%;
-  }
-
+  .profile-card-wrapper,
   .info-card-wrapper {
     flex: none;
     width: 100%;
@@ -356,5 +357,63 @@
 
   .action-buttons .ant-btn {
     width: 100%;
+    min-height: 44px;
+  }
+}
+
+/* Tablet Portrait: 768px x 1024px */
+@media screen and (min-width: 768px) and (max-width: 1023.9px) {
+  .account-page {
+    padding: 0;
+  }
+
+  .account-cards-row {
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
+
+  .profile-card-wrapper,
+  .info-card-wrapper {
+    flex: none;
+    width: 100%;
+  }
+
+  .profile-avatar {
+    width: 100px !important;
+    height: 100px !important;
+  }
+
+  .action-buttons .ant-btn {
+    min-height: 44px;
+  }
+}
+
+/* Tablet Landscape: 1024px x 768px */
+@media screen and (min-width: 1024px) and (max-width: 1335.9px) {
+  .account-page {
+    padding: 0;
+  }
+
+  .account-cards-row {
+    gap: var(--spacing-lg);
+  }
+
+  .profile-card-wrapper {
+    flex: 0 0 240px;
+  }
+}
+
+/* Desktop: 1336px x 768px+ */
+@media screen and (min-width: 1336px) {
+  .account-page {
+    padding: 0;
+  }
+
+  .account-cards-row {
+    gap: var(--spacing-xl);
+  }
+
+  .profile-card-wrapper {
+    flex: 0 0 280px;
   }
 }

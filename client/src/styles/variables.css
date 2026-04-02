@@ -214,7 +214,8 @@
 
   /* ===== Breakpoints (for reference in JS) ===== */
   --breakpoint-mobile: 768px;
-  --breakpoint-tablet: 980px;
+  --breakpoint-tablet-portrait: 1024px;
+  --breakpoint-tablet-landscape: 1336px;
   --breakpoint-desktop: 1336px;
 
   /* ===== Filter Effects ===== */

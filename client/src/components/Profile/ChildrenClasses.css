@@ -435,8 +435,12 @@
   box-shadow: 0 2px 8px rgba(255, 77, 79, 0.3) !important;
 }
 
-/* Mobile Responsive */
+/* Mobile: 360px x 480px */
 @media screen and (max-width: 767.9px) {
+  .children-classes-page {
+    padding: 0;
+  }
+
   .children-title {
     font-size: var(--font-size-2xl) !important;
   }
@@ -499,6 +503,77 @@
   .modal-btn {
     height: 44px !important;
     font-size: var(--font-size-base) !important;
+  }
+}
+
+/* Tablet Portrait: 768px x 1024px */
+@media screen and (min-width: 768px) and (max-width: 1023.9px) {
+  .children-classes-page {
+    padding: 0;
+  }
+
+  .children-title {
+    font-size: var(--font-size-3xl) !important;
+  }
+
+  .stat-card .ant-card-body {
+    padding: var(--spacing-md);
+  }
+
+  .stat-card-value {
+    font-size: var(--font-size-3xl);
+  }
+
+  .children-collapse .ant-collapse-header {
+    padding: var(--spacing-md) var(--spacing-lg) !important;
+  }
+
+  .children-collapse .ant-collapse-content-box {
+    padding: var(--spacing-lg) !important;
+  }
+
+  .child-avatar {
+    width: 48px !important;
+    height: 48px !important;
+  }
+
+  .booking-avatar {
+    width: 56px !important;
+    height: 56px !important;
+  }
+
+  .modal-btn {
+    height: 48px !important;
+  }
+}
+
+/* Tablet Landscape: 1024px x 768px */
+@media screen and (min-width: 1024px) and (max-width: 1335.9px) {
+  .children-classes-page {
+    padding: 0;
+  }
+
+  .stat-card .ant-card-body {
+    padding: var(--spacing-md);
+  }
+
+  .children-collapse .ant-collapse-header {
+    padding: var(--spacing-md) var(--spacing-lg) !important;
+  }
+
+  .children-collapse .ant-collapse-content-box {
+    padding: var(--spacing-xl) !important;
+  }
+}
+
+/* Desktop: 1336px x 768px+ */
+@media screen and (min-width: 1336px) {
+  .children-classes-page {
+    padding: 0;
+  }
+
+  .stat-card .ant-card-body {
+    padding: var(--spacing-lg);
   }
 }
 

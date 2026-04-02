@@ -401,7 +401,7 @@
   margin-bottom: var(--spacing-md);
 }
 
-/* Mobile Responsive */
+/* Mobile: 360px x 480px */
 @media screen and (max-width: 767.9px) {
   .credits-page {
     padding: 0;
@@ -416,7 +416,7 @@
   }
 
   .balance-amount {
-    font-size: var(--font-size-6xl);
+    font-size: 48px;
   }
 
   .balance-unit {
@@ -424,8 +424,13 @@
   }
 
   .topup-button {
+    width: 100%;
     height: 48px !important;
     font-size: var(--font-size-md) !important;
+  }
+
+  .balance-actions {
+    width: 100%;
   }
 
   .stat-card .ant-card-body {
@@ -469,7 +474,7 @@
 
   .transaction-item {
     gap: var(--spacing-sm);
-    padding: var(--spacing-base) 0;
+    padding: var(--spacing-sm) 0;
   }
 
   .transaction-icon {
@@ -479,7 +484,7 @@
   }
 
   .transaction-title {
-    font-size: var(--font-size-base);
+    font-size: var(--font-size-sm);
   }
 
   .transaction-amount {
@@ -493,6 +498,76 @@
   .meta-tag {
     font-size: 10px;
     padding: 1px 6px;
+  }
+}
+
+/* Tablet Portrait: 768px x 1024px */
+@media screen and (min-width: 768px) and (max-width: 1023.9px) {
+  .credits-page {
+    padding: 0;
+  }
+
+  .page-title {
+    font-size: var(--font-size-3xl) !important;
+  }
+
+  .balance-card .ant-card-body {
+    padding: var(--spacing-xl);
+  }
+
+  .balance-amount {
+    font-size: 52px;
+  }
+
+  .topup-button {
+    height: 50px !important;
+    font-size: var(--font-size-lg) !important;
+  }
+
+  .stat-card .ant-card-body {
+    padding: var(--spacing-lg);
+  }
+
+  .transactions-card .ant-card-body {
+    padding: var(--spacing-lg);
+  }
+
+  .filter-segmented .ant-segmented-item {
+    font-size: var(--font-size-sm);
+  }
+}
+
+/* Tablet Landscape: 1024px x 768px */
+@media screen and (min-width: 1024px) and (max-width: 1335.9px) {
+  .credits-page {
+    padding: 0;
+  }
+
+  .balance-card .ant-card-body {
+    padding: var(--spacing-xl);
+  }
+
+  .balance-amount {
+    font-size: 54px;
+  }
+
+  .stat-card .ant-card-body {
+    padding: var(--spacing-lg);
+  }
+}
+
+/* Desktop: 1336px x 768px+ */
+@media screen and (min-width: 1336px) {
+  .credits-page {
+    padding: 0;
+  }
+
+  .balance-card .ant-card-body {
+    padding: var(--spacing-2xl);
+  }
+
+  .balance-amount {
+    font-size: 56px;
   }
 }
 
