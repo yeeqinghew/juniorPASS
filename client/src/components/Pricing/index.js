@@ -1,5 +1,5 @@
 import React from "react";
-import { Typography, Card, Col, Row, Space, Button, Badge, Divider, Tag } from "antd";
+import { Typography, Card, Col, Row, Button, Badge, Divider, Tag } from "antd";
 import { 
   CheckOutlined, 
   StarFilled, 
@@ -60,12 +60,12 @@ const CardComponent = ({ plan, onSelect }) => {
         )}
 
         <div className="pricing-section">
-          <Space direction="vertical" size={4} style={{ width: '100%' }}>
+          <div className="pricing-section-content">
             <Text className="card-price">
               <span className="currency">SGD</span> {price}
             </Text>
             <Text className="card-credits">
-              <GiftOutlined style={{ marginRight: 6 }} />
+              <GiftOutlined />
               <b>{credits} credits</b> included
             </Text>
             <Divider className="pricing-divider" />
@@ -77,7 +77,7 @@ const CardComponent = ({ plan, onSelect }) => {
                 {plan.comparison}
               </Text>
             )}
-          </Space>
+          </div>
         </div>
 
         <Button 
@@ -201,7 +201,7 @@ const Pricing = () => {
           Flexible credit packages that grow with your child's learning journey.
           <br />
           <span className="highlight-text">
-            <RocketOutlined style={{ marginRight: 6 }} />
+            <RocketOutlined />
             Buy more, save more — up to 20% off!
           </span>
         </Text>
