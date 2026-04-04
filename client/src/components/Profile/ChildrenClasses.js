@@ -642,19 +642,21 @@ const ChildrenClasses = () => {
       </Card>
 
       {/* Filter Card */}
-      <Card className="filter-card" bordered={false}>
-        <Segmented
-          value={filterType}
-          onChange={setFilterType}
-          options={[
-            { label: `Upcoming (${upcomingCount})`, value: "upcoming" },
-            { label: `Past (${pastCount})`, value: "past" },
-            { label: `All (${filteredBookings.length})`, value: "all" },
-          ]}
-          block
-          className="filter-segmented"
-        />
-      </Card>
+      {activeTab !== "calendar" && (
+        <Card className="filter-card" bordered={false}>
+          <Segmented
+            value={filterType}
+            onChange={setFilterType}
+            options={[
+              { label: `Upcoming (${upcomingCount})`, value: "upcoming" },
+              { label: `Past (${pastCount})`, value: "past" },
+              { label: `All (${filteredBookings.length})`, value: "all" },
+            ]}
+            block
+            className="filter-segmented"
+          />
+        </Card>
+      )}
 
       {/* Calendar View */}
       {activeTab === "calendar" && <CalendarView bookings={filteredBookings} />}

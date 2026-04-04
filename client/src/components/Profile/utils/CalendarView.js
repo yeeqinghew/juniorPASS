@@ -59,9 +59,7 @@ const CalendarView = ({ bookings = [], onAddToEmail }) => {
           <div key={booking.booking_id} className="calendar-event-item">
             <Tag
               color={
-                new Date(booking.start_date) < new Date()
-                  ? "default"
-                  : "green"
+                new Date(booking.start_date) < new Date() ? "default" : "green"
               }
               className="calendar-event-tag"
             >
@@ -88,7 +86,7 @@ const CalendarView = ({ bookings = [], onAddToEmail }) => {
     if (!selectedDate) return [];
     const dateStr = selectedDate.format("YYYY-MM-DD");
     return (bookingsByDate[dateStr] || []).sort(
-      (a, b) => new Date(a.start_date) - new Date(b.start_date)
+      (a, b) => new Date(a.start_date) - new Date(b.start_date),
     );
   }, [selectedDate, bookingsByDate]);
 
@@ -108,11 +106,11 @@ const CalendarView = ({ bookings = [], onAddToEmail }) => {
     const element = document.createElement("a");
     element.setAttribute(
       "href",
-      `data:text/calendar;charset=utf-8,${encodeURIComponent(icalContent)}`
+      `data:text/calendar;charset=utf-8,${encodeURIComponent(icalContent)}`,
     );
     element.setAttribute(
       "download",
-      `${booking.listing_title.replace(/\s+/g, "_")}.ics`
+      `${booking.listing_title.replace(/\s+/g, "_")}.ics`,
     );
     element.style.display = "none";
     document.body.appendChild(element);
@@ -124,7 +122,7 @@ const CalendarView = ({ bookings = [], onAddToEmail }) => {
     }
 
     message.success(
-      "Calendar event downloaded! You can import it to your email calendar."
+      "Calendar event downloaded! You can import it to your email calendar.",
     );
   };
 
@@ -159,7 +157,7 @@ END:VCALENDAR`;
     <div className="calendar-view-container">
       <Card className="calendar-card" bordered={false}>
         <Title level={4} className="calendar-title">
-          <CalendarOutlined /> Class Calendar
+          <CalendarOutlined />
         </Title>
         <Calendar
           fullscreen={false}
@@ -195,8 +193,7 @@ END:VCALENDAR`;
           <List
             dataSource={selectedDateBookings}
             renderItem={(booking) => {
-              const isPast =
-                new Date(booking.start_date) < new Date();
+              const isPast = new Date(booking.start_date) < new Date();
               return (
                 <List.Item
                   key={booking.booking_id}
@@ -219,9 +216,7 @@ END:VCALENDAR`;
                     title={
                       <Space>
                         <Text strong>{booking.listing_title}</Text>
-                        <Tag
-                          color={isPast ? "default" : "green"}
-                        >
+                        <Tag color={isPast ? "default" : "green"}>
                           {isPast ? "Completed" : "Upcoming"}
                         </Tag>
                       </Space>
