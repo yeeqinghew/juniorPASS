@@ -59,8 +59,15 @@ CREATE TABLE users (
     method methods NOT NULL DEFAULT 'email', -- login method used
     credit INTEGER DEFAULT 0,
     display_picture VARCHAR(255),
-    created_on TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
 );
+
+-- automate updated_at timestamp on update
+CREATE TRIGGER set_timestamp_users
+    BEFORE UPDATE ON users
+    FOR EACH ROW
+    EXECUTE FUNCTION trigger_set_timestamp();
 
 CREATE TABLE parents (
     parent_id uuid PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE
@@ -79,11 +86,10 @@ CREATE TABLE referral_codes (
     id SERIAL PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     code VARCHAR(10) UNIQUE NOT NULL,
-    created_on TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_referral_codes_code on referral_codes(code);
-
+-- speeds up fetching a user's referral code by user_id
 CREATE INDEX idx_referral_codes_user on referral_codes(user_id);
 
 CREATE TABLE referrals (
@@ -91,10 +97,16 @@ CREATE TABLE referrals (
     referrer_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     referee_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     status VARCHAR(20) DEFAULT 'pending', -- pending, completed, expired, cancelled
-    created_on TIMESTAMP DEFAULT NOW(),
-    completed_on TIMESTAMP,
-    expired_on TIMESTAMP -- e.g. 30 days after created_on
+    completed_at TIMESTAMP,  -- When referral was completed
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    expired_at TIMESTAMP     -- e.g. 30 days after created_at
 );
+
+CREATE TRIGGER set_timestamp_referrals
+    BEFORE UPDATE ON referrals
+    FOR EACH ROW
+    EXECUTE FUNCTION trigger_set_timestamp();
 
 -- PARTNER PORTAL
 CREATE TABLE partners (
@@ -108,16 +120,22 @@ CREATE TABLE partners (
     credit INTEGER DEFAULT 0,  -- Partner's credit balance from bookings
     picture VARCHAR(1000),
     address VARCHAR(1000) NOT NULL,
-    region VARCHAR(50) NOT NULL, 
+    region VARCHAR(50) NOT NULL,
     contact_number VARCHAR(8),
     categories categories[] NOT NULL,
-    created_on TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
 );
+
+CREATE TRIGGER set_timestamp_partners
+    BEFORE UPDATE ON partners
+    FOR EACH ROW
+    EXECUTE FUNCTION trigger_set_timestamp();
 
 -- If migrating an existing database, run this to add the credit column:
 -- ALTER TABLE partners ADD COLUMN IF NOT EXISTS credit INTEGER DEFAULT 0;
 
-INSERT INTO partners(partner_name, email, password, description, website, picture, address, region, contact_number, categories, created_on)
+INSERT INTO partners(partner_name, email, password, description, website, picture, address, region, contact_number, categories, created_at)
     VALUES
     ('SG Basketball', 'admin@sgbasketball.com', '$2b$10$tk2dxadGFGRMGsj3mjJr2OQ4VpsxvS7cSvajbTUbRJIchUOvYOAGO', 'SG Basketball Pte Ltd is the leading service provider for basketball in Singapore. Our programs and events cater for players of all ages, from beginner to advanced levels. Our coaches and tournament organizers are passionate about ensuring that every participant has a positive experience - and that their sport experience enriches their lives.', 
      'https://www.sgbasketball.com/', 'https://images.squarespace-cdn.com/content/v1/5ad0064b31d4df14309baeb5/1561030353172-ES8S0PN75WS044UIWCDT/SGBASKETBALL.png?format=1500w', '750B Chai Chee Rd #01-02 S(469002)', 'Kembangan', '98763456', '{"Sports"}', CURRENT_TIMESTAMP)
@@ -140,7 +158,7 @@ CREATE TABLE listings (
     credit INTEGER,
     package_types package_types[] NOT NULL,
     description VARCHAR(5000),
-    rating BIGINT NOT NULL DEFAULT 0, 
+    rating BIGINT NOT NULL DEFAULT 0,
     -- rating ON UPDATE CASCADE
     age_groups age_groups[] NOT NULL,
     images JSONB,
@@ -148,17 +166,28 @@ CREATE TABLE listings (
     short_term_start_date TIMESTAMP,
     long_term_start_date TIMESTAMP,
     active BOOLEAN,
-    created_on TIMESTAMP DEFAULT NOW(),
-    last_updated_on TIMESTAMP
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
 );
+
+CREATE TRIGGER set_timestamp_listings
+    BEFORE UPDATE ON listings
+    FOR EACH ROW
+    EXECUTE FUNCTION trigger_set_timestamp();
 
 CREATE TABLE outlets (
     outlet_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     partner_id uuid REFERENCES partners(partner_id) ON DELETE CASCADE,
     address VARCHAR(1000),
     nearest_mrt VARCHAR(200),
-    created_on TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
 );
+
+CREATE TRIGGER set_timestamp_outlets
+    BEFORE UPDATE ON outlets
+    FOR EACH ROW
+    EXECUTE FUNCTION trigger_set_timestamp();
 
 CREATE TABLE listingOutlets (
     listing_outlet_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -175,8 +204,14 @@ CREATE TABLE schedules (
     frequency TEXT CHECK (frequency IN ('Biweekly', 'Weekly', 'Monthly', 'Yearly')),
     slots INTEGER DEFAULT 10 CHECK (slots >= 1 AND slots <= 100),
     credit INTEGER CHECK (credit >= 1 AND credit <= 10),
-    created_on TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
 );
+
+CREATE TRIGGER set_timestamp_schedules
+    BEFORE UPDATE ON schedules
+    FOR EACH ROW
+    EXECUTE FUNCTION trigger_set_timestamp();
 
 CREATE TABLE payment_requests (
     request_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -185,20 +220,26 @@ CREATE TABLE payment_requests (
     reference_number VARCHAR(255) NOT NULL,
     hitpay_payment_id VARCHAR(255) NOT NULL,
     status payment_status DEFAULT 'PENDING',
+    webhook_received BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP,
-    webhook_received BOOLEAN DEFAULT FALSE
+    updated_at TIMESTAMP
 );
 
 CREATE TABLE transactions (
     transaction_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-    parent_id uuid REFERENCES parents(parent_id) NOT NULL,     
+    parent_id uuid REFERENCES parents(parent_id) NOT NULL,
     child_id uuid REFERENCES children(child_id) NOT NULL,
     listing_id uuid REFERENCES listings(listing_id) NOT NULL,
     used_credit INTEGER NOT NULL,
     transaction_type transaction_types NOT NULL,
-    created_on TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
 );
+
+CREATE TRIGGER set_timestamp_transactions
+    BEFORE UPDATE ON transactions
+    FOR EACH ROW
+    EXECUTE FUNCTION trigger_set_timestamp();
 
 CREATE TABLE reviews (
     review_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -207,8 +248,14 @@ CREATE TABLE reviews (
     user_id uuid REFERENCES users(user_id) NOT NULL,
     rating INTEGER NOT NULL,
     comment VARCHAR(5000) NOT NULL,
-    created_on TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
 );
+
+CREATE TRIGGER set_timestamp_reviews
+    BEFORE UPDATE ON reviews
+    FOR EACH ROW
+    EXECUTE FUNCTION trigger_set_timestamp();
 
 CREATE TABLE categoriesListings (
     id SERIAL PRIMARY KEY,
@@ -262,25 +309,31 @@ CREATE TABLE partnerForms (
     contact_person_name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
     message TEXT,
-    created_on TIMESTAMP DEFAULT NOW(),
-    responded BOOLEAN DEFAULT FALSE
+    responded BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
 );
+
+CREATE TRIGGER set_timestamp_partner_forms
+    BEFORE UPDATE ON partnerForms
+    FOR EACH ROW
+    EXECUTE FUNCTION trigger_set_timestamp();
 
 CREATE TABLE passwordResets (
     reset_id SERIAL PRIMARY KEY,
     user_id UUID REFERENCES users(user_id) ON DELETE CASCADE,
     token VARCHAR(255) NOT NULL,
-    expires_at TIMESTAMP NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT NOW(),
+    expires_at TIMESTAMP NOT NULL
 );
 
 CREATE TABLE otpRequests (
     otp_id SERIAL PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
     otp VARCHAR(6) NOT NULL,
-    expires_at TIMESTAMP NOT NULL,
     is_verified BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT NOW(),
+    expires_at TIMESTAMP NOT NULL
 );
 
 -- BOOKINGS: stores user bookings for listings
@@ -291,8 +344,14 @@ CREATE TABLE bookings (
     user_id uuid REFERENCES users(user_id) ON DELETE CASCADE,
     start_date TIMESTAMP NOT NULL,
     end_date TIMESTAMP NOT NULL,
-    created_on TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
 );
+
+CREATE TRIGGER set_timestamp_bookings
+    BEFORE UPDATE ON bookings
+    FOR EACH ROW
+    EXECUTE FUNCTION trigger_set_timestamp();
 
 -- Helpful index for overlap checks by user and date range
 CREATE INDEX idx_bookings_user_date ON bookings (user_id, start_date, end_date);
@@ -310,9 +369,15 @@ CREATE TABLE notifications (
     message VARCHAR(2000),
     data JSONB,                                   -- extra payload e.g. { listing_id, start_date, end_date, credit }
     is_read BOOLEAN DEFAULT FALSE,
-    created_on TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
 );
+
+CREATE TRIGGER set_timestamp_notifications
+    BEFORE UPDATE ON notifications
+    FOR EACH ROW
+    EXECUTE FUNCTION trigger_set_timestamp();
 
 -- Helpful indexes to fetch notifications by recipient
 CREATE INDEX idx_notifications_recipient ON notifications (recipient_type, recipient_id);
-CREATE INDEX idx_notifications_created ON notifications (created_on);
+CREATE INDEX idx_notifications_created_at ON notifications (created_at);
