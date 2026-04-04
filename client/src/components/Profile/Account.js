@@ -33,7 +33,6 @@ const { Title, Text } = Typography;
 
 const Account = () => {
   const { user } = useUserContext();
-  console.log("User data in Account component:", user);
   const baseURL = getBaseURL();
   const [isEditing, setIsEditing] = useState(false);
   const [form] = Form.useForm();
@@ -170,7 +169,6 @@ const Account = () => {
         {/* User Information Section */}
         <div className="info-card-wrapper">
           <Card
-            className="info-card"
             title="Personal Information"
             bordered={false}
             extra={

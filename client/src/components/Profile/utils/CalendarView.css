@@ -8,12 +8,6 @@
   border-radius: 8px;
 }
 
-.calendar-title {
-  margin-bottom: 16px;
-  color: var(--text-dark, #1f1f1f);
-  font-weight: 600;
-}
-
 .custom-calendar {
   border-radius: 8px;
 }

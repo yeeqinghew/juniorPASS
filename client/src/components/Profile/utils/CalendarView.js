@@ -48,7 +48,7 @@ const CalendarView = ({ bookings = [], onAddToEmail }) => {
 
   const cellRender = (current, info) => {
     // Only render for date cells, not month/year cells
-    if (info.type !== 'date') {
+    if (info.type !== "date") {
       return info.originNode;
     }
 
@@ -165,10 +165,8 @@ END:VCALENDAR`;
   return (
     <div className="calendar-view-container">
       <Card className="calendar-card" bordered={false}>
-        <Title level={4} className="calendar-title">
-          <CalendarOutlined />
-        </Title>
         <Calendar
+          mode="month"
           fullscreen={false}
           cellRender={cellRender}
           onSelect={handleDateSelect}
@@ -206,19 +204,23 @@ END:VCALENDAR`;
               return (
                 <List.Item
                   key={booking.booking_id}
-                  actions={[
-                    <Tooltip title="Add to email calendar">
-                      <Button
-                        type="primary"
-                        ghost
-                        icon={<MailOutlined />}
-                        size="small"
-                        onClick={() => handleAddToEmail(booking)}
-                      >
-                        Add to Calendar
-                      </Button>
-                    </Tooltip>,
-                  ]}
+                  actions={
+                    !isPast
+                      ? [
+                          <Tooltip title="Add to email calendar">
+                            <Button
+                              type="primary"
+                              ghost
+                              icon={<MailOutlined />}
+                              size="small"
+                              onClick={() => handleAddToEmail(booking)}
+                            >
+                              Add to Calendar
+                            </Button>
+                          </Tooltip>,
+                        ]
+                      : []
+                  }
                   className={isPast ? "booking-item-past" : ""}
                 >
                   <List.Item.Meta
