@@ -9,8 +9,6 @@ import {
   List,
   Empty,
   Card,
-  Row,
-  Col,
   Tooltip,
   message,
 } from "antd";
@@ -18,7 +16,6 @@ import {
   CalendarOutlined,
   ClockCircleOutlined,
   MailOutlined,
-  DownloadOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
@@ -49,8 +46,13 @@ const CalendarView = ({ bookings = [], onAddToEmail }) => {
     return bookingsByDate[dateStr] || [];
   };
 
-  const dateCellRender = (value) => {
-    const listData = getListData(value);
+  const cellRender = (current, info) => {
+    // Only render for date cells, not month/year cells
+    if (info.type !== 'date') {
+      return info.originNode;
+    }
+
+    const listData = getListData(current);
     if (listData.length === 0) return null;
 
     return (
@@ -78,8 +80,15 @@ const CalendarView = ({ bookings = [], onAddToEmail }) => {
   };
 
   const handleDateSelect = (date) => {
-    setSelectedDate(date);
-    setIsModalOpen(true);
+    // Check if the selected date has any bookings
+    const dateStr = date.format("YYYY-MM-DD");
+    const bookingsForDate = bookingsByDate[dateStr] || [];
+
+    // Only open modal if there are bookings for this date
+    if (bookingsForDate.length > 0) {
+      setSelectedDate(date);
+      setIsModalOpen(true);
+    }
   };
 
   const selectedDateBookings = useMemo(() => {
@@ -161,7 +170,7 @@ END:VCALENDAR`;
         </Title>
         <Calendar
           fullscreen={false}
-          dateCellRender={dateCellRender}
+          cellRender={cellRender}
           onSelect={handleDateSelect}
           className="custom-calendar"
         />

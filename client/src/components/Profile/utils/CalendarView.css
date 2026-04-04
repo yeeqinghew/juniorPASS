@@ -107,8 +107,20 @@
   transition: all 0.3s ease;
 }
 
-.custom-calendar .ant-picker-cell:hover {
+/* Only allow hover effect on dates with bookings */
+.custom-calendar .ant-picker-cell:has(.calendar-events):hover {
   background-color: rgba(24, 144, 255, 0.06);
+  cursor: pointer;
+}
+
+/* Dates without bookings should not show hover effect */
+.custom-calendar .ant-picker-cell:not(:has(.calendar-events)) {
+  cursor: default;
+}
+
+/* Prevent header cells (month/year selector) from triggering modal */
+.custom-calendar .ant-picker-calendar-header .ant-picker-cell {
+  cursor: default !important;
 }
 
 .custom-calendar .ant-picker-cell-selected {
