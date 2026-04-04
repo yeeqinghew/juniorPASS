@@ -17,7 +17,7 @@ router.get("/", authorization, async (req, res) => {
   try {
     const partner = await pool.query(
       "SELECT * FROM partners WHERE partner_id = $1",
-      [req.user]
+      [req.user],
     );
     return res.status(200).json(partner.rows[0]);
   } catch (error) {
@@ -32,7 +32,7 @@ router.post("/login", async (req, res) => {
   try {
     const partner = await pool.query(
       "SELECT * FROM partners WHERE email = $1",
-      [email]
+      [email],
     );
 
     if (partner.rows.length === 0) {
@@ -41,7 +41,7 @@ router.post("/login", async (req, res) => {
 
     const validPassword = bcrypt.compareSync(
       password,
-      partner.rows[0].password
+      partner.rows[0].password,
     );
     if (!validPassword) {
       return res
@@ -64,7 +64,7 @@ router.get("/:partnerId/outlets", authorization, async (req, res) => {
     // Query to get outlets for the specific partner
     const outlets = await pool.query(
       "SELECT * FROM outlets WHERE partner_id = $1",
-      [partnerId]
+      [partnerId],
     );
     return res.status(200).json(outlets.rows);
   } catch (error) {
@@ -117,17 +117,17 @@ router.put("/:id", async (req, res) => {
         contact_number = $4,
         website = $5
       WHERE partner_id = $6 RETURNING *`,
-      [partner_name, description, address, contact_number, website, id]
+      [partner_name, description, address, contact_number, website, id],
     );
     await client.del(`/partners/${id}`);
 
     // Get existing outlets tied to this partner
     const existingOutlets = await pool.query(
       `SELECT * FROM outlets WHERE partner_id = $1`,
-      [id]
+      [id],
     );
     const existingOutletMap = new Map(
-      existingOutlets.rows.map((o) => [o.address, o.outlet_id])
+      existingOutlets.rows.map((o) => [o.address, o.outlet_id]),
     );
 
     // Update existing outlets
@@ -136,8 +136,8 @@ router.put("/:id", async (req, res) => {
       .map(({ outlet_id, address, nearest_mrt }) =>
         pool.query(
           `UPDATE outlets SET address = $1, nearest_mrt = $2 WHERE outlet_id = $3`,
-          [address, nearest_mrt, outlet_id]
-        )
+          [address, nearest_mrt, outlet_id],
+        ),
       );
 
     // Insert new outlets only if they don't exist
@@ -147,7 +147,7 @@ router.put("/:id", async (req, res) => {
         const result = await pool.query(
           `INSERT INTO outlets (partner_id, address, nearest_mrt) 
           VALUES ($1, $2, $3) RETURNING outlet_id`,
-          [id, address, nearest_mrt]
+          [id, address, nearest_mrt],
         );
         return result.rows[0].outlet_id; // Get newly inserted outlet_id
       });
@@ -175,7 +175,7 @@ router.post("/partnerForm", validInfo, async (req, res) => {
         message
       )
       VALUES($1, $2, $3, $4)`,
-      [companyName, companyPersonName, email, message]
+      [companyName, companyPersonName, email, message],
     );
 
     // send email notification to admin
@@ -189,7 +189,7 @@ router.post("/partnerForm", validInfo, async (req, res) => {
       <p><strong>Email:</strong> ${email}</p>
       <p><strong>Message:</strong></p>
       <p>${message}</p>
-      `
+      `,
     );
 
     res.status(201).json({
@@ -217,9 +217,9 @@ const getPartnerByPartnerId = async (partnerId) => {
         region,
         contact_number,
         array_to_json(categories) AS categories,
-        created_on 
+        created_at 
       FROM partners WHERE partner_id = $1`,
-      [partnerId]
+      [partnerId],
     );
     return partner.rows[0];
   } catch (error) {
@@ -231,8 +231,8 @@ const getPartnerByPartnerId = async (partnerId) => {
 const getListingsByPartnerId = async (partnerId) => {
   try {
     const listings = await pool.query(
-      "SELECT * FROM listings WHERE partner_id = $1 ORDER BY created_on DESC",
-      [partnerId]
+      "SELECT * FROM listings WHERE partner_id = $1 ORDER BY created_at DESC",
+      [partnerId],
     );
     return listings.rows;
   } catch (error) {
@@ -245,7 +245,7 @@ const getReviwesByPartnerId = async (partnerId) => {
   try {
     const reviews = await pool.query(
       "SELECT * FROM reviews WHERE partner_id = $1",
-      [partnerId]
+      [partnerId],
     );
     return reviews.rows;
   } catch (error) {
@@ -263,20 +263,25 @@ router.get("/dashboard/overview", authorization, async (req, res) => {
   try {
     const [creditRes, listingsCountRes, bookingsCountRes, unreadNotifRes] =
       await Promise.all([
-        pool.query("SELECT COALESCE(credit, 0) AS credit FROM partners WHERE partner_id = $1", [partnerId]),
-        pool.query("SELECT COUNT(*) AS c FROM listings WHERE partner_id = $1", [partnerId]),
+        pool.query(
+          "SELECT COALESCE(credit, 0) AS credit FROM partners WHERE partner_id = $1",
+          [partnerId],
+        ),
+        pool.query("SELECT COUNT(*) AS c FROM listings WHERE partner_id = $1", [
+          partnerId,
+        ]),
         pool.query(
           `SELECT COUNT(*) AS c
            FROM bookings b
            JOIN listings l ON l.listing_id = b.listing_id
            WHERE l.partner_id = $1`,
-          [partnerId]
+          [partnerId],
         ),
         pool.query(
           `SELECT COUNT(*) AS c
            FROM notifications
            WHERE recipient_type = 'partner' AND recipient_id = $1 AND is_read = false`,
-          [partnerId]
+          [partnerId],
         ),
       ]);
 
@@ -309,16 +314,16 @@ router.get("/dashboard/bookings", authorization, async (req, res) => {
          FROM bookings b
          JOIN listings l ON l.listing_id = b.listing_id
          WHERE l.partner_id = $1
-         ORDER BY b.created_on DESC
+         ORDER BY b.created_at DESC
          LIMIT $2 OFFSET $3`,
-        [partnerId, limit, offset]
+        [partnerId, limit, offset],
       ),
       pool.query(
         `SELECT COUNT(*) AS total
          FROM bookings b
          JOIN listings l ON l.listing_id = b.listing_id
          WHERE l.partner_id = $1`,
-        [partnerId]
+        [partnerId],
       ),
     ]);
 
@@ -348,11 +353,11 @@ router.get("/dashboard/bookings/export", authorization, async (req, res) => {
     let idx = 2;
 
     if (from) {
-      clauses.push(`b.created_on >= $${idx++}`);
+      clauses.push(`b.created_at >= $${idx++}`);
       params.push(new Date(from));
     }
     if (to) {
-      clauses.push(`b.created_on <= $${idx++}`);
+      clauses.push(`b.created_at <= $${idx++}`);
       params.push(new Date(to));
     }
 
@@ -360,17 +365,25 @@ router.get("/dashboard/bookings/export", authorization, async (req, res) => {
 
     const result = await pool.query(
       `
-      SELECT b.booking_id, b.user_id, b.listing_id, l.listing_title, b.start_date, b.end_date, b.created_on
+      SELECT b.booking_id, b.user_id, b.listing_id, l.listing_title, b.start_date, b.end_date, b.created_at
       FROM bookings b
       JOIN listings l ON l.listing_id = b.listing_id
       ${whereSQL}
-      ORDER BY b.created_on DESC
+      ORDER BY b.created_at DESC
       `,
-      params
+      params,
     );
 
     // Build CSV
-    const headers = ["booking_id", "user_id", "listing_id", "listing_title", "start_date", "end_date", "created_on"];
+    const headers = [
+      "booking_id",
+      "user_id",
+      "listing_id",
+      "listing_title",
+      "start_date",
+      "end_date",
+      "created_at",
+    ];
     const rows = result.rows.map((r) =>
       [
         r.booking_id,
@@ -379,16 +392,23 @@ router.get("/dashboard/bookings/export", authorization, async (req, res) => {
         (r.listing_title || "").replaceAll('"', '""'),
         r.start_date?.toISOString?.() || r.start_date,
         r.end_date?.toISOString?.() || r.end_date,
-        r.created_on?.toISOString?.() || r.created_on,
-      ].map((v) => (v === null || typeof v === "undefined" ? "" : `"${String(v)}"`)).join(",")
+        r.created_at?.toISOString?.() || r.created_at,
+      ]
+        .map((v) =>
+          v === null || typeof v === "undefined" ? "" : `"${String(v)}"`,
+        )
+        .join(","),
     );
     const csv = [headers.join(","), ...rows].join("\n");
 
     res.setHeader("Content-Type", "text/csv");
-    res.setHeader("Content-Disposition", "attachment; filename=\"bookings.csv\"");
+    res.setHeader("Content-Disposition", 'attachment; filename="bookings.csv"');
     return res.status(200).send(csv);
   } catch (error) {
-    console.error("ERROR in GET /partners/dashboard/bookings/export", error.message);
+    console.error(
+      "ERROR in GET /partners/dashboard/bookings/export",
+      error.message,
+    );
     return res.status(500).json({ error: error.message });
   }
 });

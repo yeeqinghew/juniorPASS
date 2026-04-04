@@ -218,7 +218,7 @@ const Partner = () => {
                   <CalendarOutlined /> Partner Since
                 </Title>
                 <Text className="partner-since">
-                  {formatDate(partner?.created_on)}
+                  {formatDate(partner?.created_at)}
                 </Text>
               </Card>
             </Col>
@@ -349,7 +349,7 @@ const Partner = () => {
                           className="review-rate"
                         />
                         <Text type="secondary" className="review-date">
-                          {formatDate(review?.created_on)}
+                          {formatDate(review?.created_at)}
                         </Text>
                       </div>
                     </div>

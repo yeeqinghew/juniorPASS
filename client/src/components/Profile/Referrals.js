@@ -323,7 +323,7 @@ const Referrals = () => {
                           <GiftOutlined />+{rewardAmount} credits
                         </div>
                         <div className="reward-date">
-                          {new Date(referral.created_on).toLocaleDateString(
+                          {new Date(referral.created_at).toLocaleDateString(
                             "en-US",
                             { month: "short", day: "numeric", year: "numeric" },
                           )}
@@ -344,7 +344,9 @@ const Referrals = () => {
                   <GiftOutlined style={{ fontSize: 22 }} />
                   How It Works
                 </Title>
-                <span className="hiw-reward-pill">🎁 {rewardAmount} credits each</span>
+                <span className="hiw-reward-pill">
+                  🎁 {rewardAmount} credits each
+                </span>
               </div>
 
               {/* Timeline grid */}

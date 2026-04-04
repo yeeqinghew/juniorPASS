@@ -307,8 +307,8 @@ router.get("/user", authorization, async (req, res) => {
           WHERE parent_id = b.user_id 
             AND listing_id = b.listing_id 
             AND transaction_type = 'DEBIT'
-            AND created_on >= b.created_on
-          ORDER BY created_on ASC
+            AND created_at >= b.created_at
+          ORDER BY created_at ASC
           LIMIT 1
         ) as child_id
       FROM bookings b
@@ -377,11 +377,11 @@ router.delete("/:bookingId", authorization, async (req, res) => {
         b.user_id,
         b.start_date,
         b.end_date,
-        b.created_on,
+        b.created_at,
         l.credit,
         l.partner_id,
         l.listing_title,
-        (SELECT child_id FROM transactions WHERE parent_id = b.user_id AND listing_id = b.listing_id AND transaction_type = 'DEBIT' ORDER BY created_on DESC LIMIT 1) as child_id
+        (SELECT child_id FROM transactions WHERE parent_id = b.user_id AND listing_id = b.listing_id AND transaction_type = 'DEBIT' ORDER BY created_at DESC LIMIT 1) as child_id
       FROM bookings b
       JOIN listings l ON b.listing_id = l.listing_id
       WHERE b.booking_id = $1 AND b.user_id = $2
@@ -539,7 +539,7 @@ router.get("/listing/:listing_id", authorization, async (req, res) => {
         b.booking_id,
         b.start_date,
         b.end_date,
-        b.created_on as booking_date,
+        b.created_at as booking_date,
         u.name as parent_name,
         u.email,
         u.phone_number as phone,
@@ -558,7 +558,7 @@ router.get("/listing/:listing_id", authorization, async (req, res) => {
       )
       LEFT JOIN schedules s ON s.schedule_id = b.schedule_id
       WHERE b.listing_id = $1
-      ORDER BY b.created_on DESC`,
+      ORDER BY b.created_at DESC`,
       [listing_id],
     );
 

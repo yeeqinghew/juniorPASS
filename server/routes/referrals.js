@@ -46,14 +46,14 @@ router.get("/my-referral", authorization, async (req, res) => {
       SELECT
         r.id,
         r.status,
-        r.created_on,
+        r.created_at,
         r.completed_on,
         u.name as referee_name,
         u.email as referee_email
       FROM referrals r
       JOIN users u ON r.referee_id = u.user_id
       WHERE r.referrer_id = $1
-      ORDER BY r.created_on DESC
+      ORDER BY r.created_at DESC
       LIMIT 10
       `,
       [userId],

@@ -182,7 +182,7 @@ const Credits = () => {
           <div className="transaction-footer">
             <Text type="secondary" className="transaction-date">
               <CalendarOutlined style={{ marginRight: 4 }} />
-              {formatDate(item.created_on)}
+              {formatDate(item.created_at)}
             </Text>
           </div>
         </div>

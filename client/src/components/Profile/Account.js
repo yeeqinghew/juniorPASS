@@ -161,7 +161,7 @@ const Account = () => {
 
               <div className="profile-member-since">
                 <CalendarOutlined className="member-icon" />
-                <span>Member since {formatDate(user?.created_on)}</span>
+                <span>Member since {formatDate(user?.created_at)}</span>
               </div>
             </div>
           </Card>

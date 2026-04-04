@@ -17,7 +17,7 @@ router.get("/user", authorization, async (req, res) => {
         t.listing_id,
         t.used_credit,
         t.transaction_type,
-        t.created_on,
+        t.created_at,
         c.name as child_name,
         c.age as child_age,
         l.listing_title,
@@ -29,9 +29,9 @@ router.get("/user", authorization, async (req, res) => {
       JOIN listings l ON t.listing_id = l.listing_id
       JOIN partners p ON l.partner_id = p.partner_id
       WHERE t.parent_id = $1
-      ORDER BY t.created_on DESC
+      ORDER BY t.created_at DESC
     `,
-      [user_id]
+      [user_id],
     );
 
     res.json({
@@ -59,7 +59,7 @@ router.get("/user/stats", authorization, async (req, res) => {
       WHERE parent_id = $1
       GROUP BY transaction_type
     `,
-      [user_id]
+      [user_id],
     );
 
     const result = {

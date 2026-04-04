@@ -165,7 +165,7 @@ router.get("", cacheMiddleware, async (req, res) => {
       LEFT JOIN schedules s ON s.listing_outlet_id = lo.listing_outlet_id
       WHERE l.active = true
       GROUP BY l.listing_id, p.partner_id
-      ORDER BY l.created_on DESC;
+      ORDER BY l.created_at DESC;
       `,
     );
     return res.status(200).json(listings.rows);
@@ -214,7 +214,7 @@ router.get("/:id", cacheMiddleware, async (req, res) => {
       LEFT JOIN schedules s ON s.listing_outlet_id = lo.listing_outlet_id
       WHERE l.listing_id = $1
       GROUP BY l.listing_id, p.partner_id
-      ORDER BY l.created_on DESC;`,
+      ORDER BY l.created_at DESC;`,
       [id],
     );
 
@@ -235,7 +235,7 @@ router.get("/partner/:partnerId", async (req, res) => {
       SELECT * FROM listings l
       WHERE l.partner_id = $1
       ORDER BY 
-          l.created_on DESC;`,
+          l.created_at DESC;`,
       [partnerId],
     );
 
@@ -275,12 +275,14 @@ router.patch("/:id", authorization, async (req, res) => {
       description: req.body.description ?? existingListing.rows[0].description,
       age_groups: req.body.age_groups ?? existingListing.rows[0].age_groups,
       images: req.body.images ?? existingListing.rows[0].images,
-      short_term_start_date: req.body.short_term_start_date !== undefined 
-        ? req.body.short_term_start_date 
-        : existingListing.rows[0].short_term_start_date,
-      long_term_start_date: req.body.long_term_start_date !== undefined 
-        ? req.body.long_term_start_date 
-        : existingListing.rows[0].long_term_start_date,
+      short_term_start_date:
+        req.body.short_term_start_date !== undefined
+          ? req.body.short_term_start_date
+          : existingListing.rows[0].short_term_start_date,
+      long_term_start_date:
+        req.body.long_term_start_date !== undefined
+          ? req.body.long_term_start_date
+          : existingListing.rows[0].long_term_start_date,
     };
 
     // Update listing (credit/price removed - credit is per-schedule)
@@ -292,8 +294,7 @@ router.patch("/:id", authorization, async (req, res) => {
         age_groups = $4,
         images = $5,
         short_term_start_date = $6,
-        long_term_start_date = $7,
-        last_updated_on = NOW()
+        long_term_start_date = $7
       WHERE listing_id = $8 RETURNING *`,
       [
         updatedData.title_name,
@@ -597,7 +598,7 @@ router.get("/search", async (req, res) => {
       FROM listings l
       JOIN partners p ON p.partner_id = l.partner_id
       ${whereSQL}
-      ORDER BY l.created_on DESC
+      ORDER BY l.created_at DESC
       LIMIT $${idx} OFFSET $${idx + 1}
       `,
       [...params, limit, offset],

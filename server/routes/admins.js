@@ -223,16 +223,16 @@ router.get("/metrics/overview", authorization, adminOnly, async (req, res) => {
       debitSum,
       partnersCount,
     ] = await Promise.all([
-      pool.query("SELECT COUNT(*) AS c FROM users WHERE created_on >= $1", [
+      pool.query("SELECT COUNT(*) AS c FROM users WHERE created_at >= $1", [
         since,
       ]),
-      pool.query("SELECT COUNT(*) AS c FROM bookings WHERE created_on >= $1", [
+      pool.query("SELECT COUNT(*) AS c FROM bookings WHERE created_at >= $1", [
         since,
       ]),
       pool.query("SELECT COALESCE(SUM(credit), 0) AS s FROM users"),
       pool.query("SELECT COALESCE(SUM(credit), 0) AS s FROM partners"),
       pool.query(
-        "SELECT COALESCE(SUM(used_credit), 0) AS s FROM transactions WHERE transaction_type = 'DEBIT' AND created_on >= $1",
+        "SELECT COALESCE(SUM(used_credit), 0) AS s FROM transactions WHERE transaction_type = 'DEBIT' AND created_at >= $1",
         [since],
       ),
       pool.query("SELECT COUNT(*) AS c FROM partners"),

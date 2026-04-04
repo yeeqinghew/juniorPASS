@@ -82,8 +82,8 @@ const Class = () => {
     } else if (listing?.short_term_start_date) {
       startDate = dayjs(listing.short_term_start_date);
     } else {
-      // Fallback to created_on or today if no start date is set
-      startDate = listing?.created_on ? dayjs(listing.created_on) : dayjs();
+      // Fallback to created_at or today if no start date is set
+      startDate = listing?.created_at ? dayjs(listing.created_at) : dayjs();
     }
 
     return listing?.schedule_info.reduce((acc, curr) => {

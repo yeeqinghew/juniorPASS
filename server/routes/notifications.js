@@ -18,19 +18,21 @@ router.get("/", authorization, async (req, res) => {
   const offset = (page - 1) * limit;
 
   if (!type || !["user", "partner"].includes(type)) {
-    return res.status(400).json({ error: "Invalid or missing type. Use 'user' or 'partner'." });
+    return res
+      .status(400)
+      .json({ error: "Invalid or missing type. Use 'user' or 'partner'." });
   }
 
   try {
     const list = await pool.query(
       `
-      SELECT notification_id, recipient_type, recipient_id, type, title, message, data, is_read, created_on
+      SELECT notification_id, recipient_type, recipient_id, type, title, message, data, is_read, created_at
       FROM notifications
       WHERE recipient_type = $1 AND recipient_id = $2
-      ORDER BY created_on DESC
+      ORDER BY created_at DESC
       LIMIT $3 OFFSET $4
       `,
-      [type, recipient_id, limit, offset]
+      [type, recipient_id, limit, offset],
     );
 
     const count = await pool.query(
@@ -39,7 +41,7 @@ router.get("/", authorization, async (req, res) => {
       FROM notifications
       WHERE recipient_type = $1 AND recipient_id = $2
       `,
-      [type, recipient_id]
+      [type, recipient_id],
     );
 
     return res.status(200).json({
@@ -67,7 +69,9 @@ router.patch("/:id/read", authorization, async (req, res) => {
   const { type } = req.body;
 
   if (!type || !["user", "partner"].includes(type)) {
-    return res.status(400).json({ error: "Invalid or missing type. Use 'user' or 'partner'." });
+    return res
+      .status(400)
+      .json({ error: "Invalid or missing type. Use 'user' or 'partner'." });
   }
 
   try {
@@ -78,11 +82,13 @@ router.patch("/:id/read", authorization, async (req, res) => {
       WHERE notification_id = $1 AND recipient_type = $2 AND recipient_id = $3
       RETURNING *
       `,
-      [id, type, recipient_id]
+      [id, type, recipient_id],
     );
 
     if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Notification not found or not owned by requester" });
+      return res
+        .status(404)
+        .json({ error: "Notification not found or not owned by requester" });
     }
 
     return res.status(200).json({
