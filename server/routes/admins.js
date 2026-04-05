@@ -62,7 +62,6 @@ router.get("/getAllChildren", authorization, adminOnly, async (req, res) => {
   // TODO: use middleware to check if user is superadmin
   try {
     const allChildren = await pool.query("SELECT * FROM children");
-    console.log("Fetched children:", allChildren.rows);
     return res.status(200).json(allChildren.rows);
   } catch (error) {
     console.error("ERROR in /admins/getAllChildren", error.message);
@@ -254,39 +253,49 @@ router.get("/metrics/overview", authorization, adminOnly, async (req, res) => {
 });
 
 // Get all partner enquiries (partnerForms)
-router.get("/getAllPartnerEnquiries", authorization, adminOnly, async (req, res) => {
-  try {
-    const enquiries = await pool.query(
-      "SELECT * FROM partnerForms ORDER BY created_at DESC"
-    );
-    return res.status(200).json(enquiries.rows);
-  } catch (error) {
-    console.error("ERROR in /admins/getAllPartnerEnquiries", error.message);
-    res.status(500).json({ error: error.message });
-  }
-});
+router.get(
+  "/getAllPartnerEnquiries",
+  authorization,
+  adminOnly,
+  async (req, res) => {
+    try {
+      const enquiries = await pool.query(
+        "SELECT * FROM partnerforms ORDER BY created_at DESC",
+      );
+      return res.status(200).json(enquiries.rows);
+    } catch (error) {
+      console.error("ERROR in /admins/getAllPartnerEnquiries", error.message);
+      res.status(500).json({ error: error.message });
+    }
+  },
+);
 
 // Mark partner enquiry as responded
-router.put("/markEnquiryResponded/:id", authorization, adminOnly, async (req, res) => {
-  const { id } = req.params;
-  try {
-    const result = await pool.query(
-      "UPDATE partnerForms SET responded = true, updated_at = NOW() WHERE id = $1 RETURNING *",
-      [id]
-    );
+router.put(
+  "/markEnquiryResponded/:id",
+  authorization,
+  adminOnly,
+  async (req, res) => {
+    const { id } = req.params;
+    try {
+      const result = await pool.query(
+        "UPDATE partnerForms SET responded = true, updated_at = NOW() WHERE id = $1 RETURNING *",
+        [id],
+      );
 
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Enquiry not found" });
+      if (result.rowCount === 0) {
+        return res.status(404).json({ error: "Enquiry not found" });
+      }
+
+      return res.status(200).json({
+        message: "Enquiry marked as responded successfully",
+        enquiry: result.rows[0],
+      });
+    } catch (error) {
+      console.error("ERROR in /admins/markEnquiryResponded", error.message);
+      res.status(500).json({ error: error.message });
     }
-
-    return res.status(200).json({
-      message: "Enquiry marked as responded successfully",
-      enquiry: result.rows[0]
-    });
-  } catch (error) {
-    console.error("ERROR in /admins/markEnquiryResponded", error.message);
-    res.status(500).json({ error: error.message });
-  }
-});
+  },
+);
 
 module.exports = router;
