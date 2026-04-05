@@ -13,14 +13,19 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS || "")
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow non-browser requests (no Origin header) and whitelisted origins
-      if (
-        !origin ||
-        allowedOrigins.length === 0 ||
-        allowedOrigins.includes(origin)
-      ) {
+      // 1. Allow Postman/Mobile apps (no origin)
+      if (!origin) return callback(null, true);
+
+      // 2. In Development, you might want to allow everything if no list is provided
+      if (allowedOrigins.length === 0) {
+        return callback(null, true);
+      }
+
+      // 3. Check against whitelist
+      if (allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
+        console.error(`CORS Blocked: ${origin}`); // Debugging help
         callback(new Error("Not allowed by CORS"));
       }
     },

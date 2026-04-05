@@ -16,7 +16,7 @@ def launch_project():
     cmd = (
         f'wt.exe nt -p "Ubuntu" --title "Redis" ; '
         f'nt -d "{server_path}" --title "Backend" cmd /k "nodemon" ; '
-        f'nt -d "{client_path}" --title "Frontend" cmd /k "npm start"'
+        f'nt -d "{client_path}" --title "Frontend" cmd /k "npm run dev"'
     )
 
     # Run via shell=True so Windows Terminal handles the semicolons correctly

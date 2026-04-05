@@ -56,6 +56,7 @@
 }
 
 .filter-container {
+    width: 100% !important;
     margin: 0 auto var(--spacing-lg) auto !important;
     padding: var(--spacing-md);
     background: var(--bg-white);
@@ -201,7 +202,7 @@
         min-width: 65px !important;
     }
 
-    /* Force nowrap on filter container */
+    /* Filter container */
     .filter-container {
         width: 100% !important;
         margin: 0 0 12px 0 !important;
@@ -271,14 +272,10 @@
     }
 
     /* Clear All button */
-    .classes>.ant-space>.ant-space:nth-child(3) {
+    .clearall-container {
+        flex-wrap: wrap !important;
+        display: block !important;
         width: 100% !important;
-    }
-
-    .classes>.ant-space>.ant-space:nth-child(3) button {
-        width: 100% !important;
-        height: 38px !important;
-        font-size: 13px !important;
     }
 
     .listingmap-container {

@@ -1,3 +1,6 @@
+/* Import global variables */
+@import '../styles/variables.css';
+
 .ant-menu-horizontal,
 .ant-menu-item::after,
 .ant-menu-submenu::after {
@@ -23,9 +26,6 @@
 .ant-menu-horizontal {
     display: none;
 }
-
-/* Import global variables */
-@import '../styles/variables.css';
 
 .layout-header {
     position: fixed;
@@ -96,6 +96,7 @@
 
 /* Mobile: 360px x 480px (0 - 767.9px) */
 @media screen and (max-width: 767.9px) {
+
     /* Hide desktop menu, show hamburger */
     .desktop-menu {
         display: none !important;
@@ -117,6 +118,7 @@
 
 /* Tablet Portrait: 768px x 1024px (768px - 1023.9px) */
 @media screen and (min-width: 768px) and (max-width: 1023.9px) {
+
     /* Hide desktop menu, show hamburger */
     .desktop-menu {
         display: none !important;
@@ -137,6 +139,7 @@
 
 /* Tablet Landscape: 1024px x 768px (1024px - 1335.9px) */
 @media screen and (min-width: 1024px) and (max-width: 1335.9px) {
+
     /* Show desktop menu, hide hamburger */
     .desktop-menu {
         display: flex !important;
@@ -157,6 +160,7 @@
 
 /* Desktop: 1336px x 768px (1336px+) */
 @media screen and (min-width: 1336px) {
+
     /* Show desktop menu, hide hamburger */
     .desktop-menu {
         display: flex !important;
@@ -167,10 +171,10 @@
     }
 
     .layout-header {
-        padding: 24px 80px;
+        padding: 50px 150px;
     }
 
     .layout-content {
-        padding: 130px 80px 48px 80px;
+        padding: 130px 150px 48px 150px;
     }
 }
