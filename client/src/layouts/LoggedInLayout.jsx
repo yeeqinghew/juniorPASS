@@ -185,7 +185,7 @@ const LoggedInLayout = () => {
               <Title level={5}>PARTNERS</Title>
               <Link to="/partner-contact">Become a partner</Link>
               <a
-                href="www.portal.juniorpass.sg"
+                href="https://partner.juniorpass.sg"
                 target="_blank"
                 rel="noopener noreferrer"
               >

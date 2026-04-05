@@ -331,7 +331,7 @@ const Register = () => {
             <div className="partner-login-wrapper">
               <Text className="partner-text">Are you a partner? </Text>
               <Link
-                to="https://www.portal.juniorpass.sg"
+                to="https://partner.juniorpass.sg"
                 className="partner-link"
                 target="_blank"
                 rel="noopener noreferrer"
