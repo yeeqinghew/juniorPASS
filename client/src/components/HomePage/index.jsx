@@ -173,8 +173,13 @@ function HomePage() {
             placement="right"
             onClose={closeDrawer}
             open={drawerVisible}
-            width={250}
+            width="100%"
             className="homepage-drawer"
+            zIndex={1050}
+            styles={{
+              mask: { zIndex: 1040 },
+              wrapper: { zIndex: 1050 }
+            }}
           >
             <Menu
               mode="vertical"
