@@ -169,7 +169,6 @@ function HomePage() {
 
           {/* Drawer (Hamburger menu for mobile) */}
           <Drawer
-            title="Menu"
             placement="right"
             onClose={closeDrawer}
             open={drawerVisible}
