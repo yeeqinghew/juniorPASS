@@ -171,7 +171,7 @@ const LoggedInLayout = () => {
 
           <Flex style={{ right: 0, width: "90%", justifyContent: "flex-end" }}>
             <Flex vertical gap="large" style={{ width: "20%" }}>
-              <Title level={5}>JuniorPass</Title>
+              <Title level={5}>Junior Pass</Title>
               <Link to="/about-us">About us</Link>
               <Link to="/classes">Classes</Link>
               <Link to="/pricing">Pricing</Link>
@@ -225,7 +225,7 @@ const LoggedInLayout = () => {
             </Flex>
           </Flex>
         </Flex>
-        <Divider></Divider>© Copyright {new Date().getFullYear()} juniorPASS
+        <Divider></Divider>© Copyright {new Date().getFullYear()} Junior Pass
         (UEN: 202411484C)
       </Footer>
     );

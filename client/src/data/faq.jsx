@@ -33,7 +33,7 @@ const faqData = [
   },
   {
     "question": "Where can I use the credits?",
-    "answer": "Credits can be used for all enrichment class transactions available on the JuniorPass platform."
+    "answer": "Credits can be used for all enrichment class transactions available on the Junior Pass platform."
   },
   {
     "question": "I want to be a vendor, what are the steps?",

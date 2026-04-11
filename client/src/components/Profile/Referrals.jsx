@@ -159,7 +159,7 @@ const Referrals = () => {
             Earn Credits, Share the Love 🎁
           </Title>
           <Text className="page-subtitle">
-            Invite friends to juniorPASS — both of you get rewarded
+            Invite friends to Junior Pass — both of you get rewarded
           </Text>
         </div>
       </div>

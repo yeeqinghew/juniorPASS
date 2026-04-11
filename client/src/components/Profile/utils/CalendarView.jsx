@@ -142,7 +142,7 @@ const CalendarView = ({ bookings = [], onAddToEmail }) => {
 
     return `BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//juniorPASS//EN
+PRODID:-//JuniorPass//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 DTSTART:${formatDate(event.start)}
