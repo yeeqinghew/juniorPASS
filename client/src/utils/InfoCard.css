@@ -118,3 +118,97 @@
   position: relative;
   z-index: 2;
 }
+
+/* Mobile: 360px x 480px */
+@media screen and (max-width: 767.9px) {
+  .info-card {
+    min-height: 200px;
+    padding: var(--spacing-md) var(--spacing-sm);
+    border-radius: var(--radius-lg);
+    max-width: 100%;
+  }
+
+  .info-card__body {
+    padding: var(--spacing-md) var(--spacing-sm);
+  }
+
+  .info-card__icon {
+    margin-bottom: var(--spacing-sm);
+    transform: scale(0.85);
+  }
+
+  .info-card--hovered .info-card__icon {
+    transform: scale(1) rotate(5deg);
+  }
+
+  .info-card__icon-glow {
+    width: 60px;
+    height: 60px;
+  }
+
+  .info-card__title {
+    font-size: var(--font-size-lg) !important;
+    margin-bottom: var(--spacing-xs) !important;
+  }
+
+  .info-card__description {
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-normal);
+  }
+
+  /* Reduce hover effects on mobile */
+  .info-card--hovered {
+    transform: translateY(-4px) scale(1);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+/* Tablet Portrait: 768px x 1024px */
+@media screen and (min-width: 768px) and (max-width: 1023.9px) {
+  .info-card {
+    min-height: 240px;
+    padding: var(--spacing-lg) var(--spacing-md);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .info-card__body {
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+
+  .info-card__title {
+    font-size: var(--font-size-2xl) !important;
+  }
+
+  .info-card__description {
+    font-size: var(--font-size-base);
+  }
+}
+
+/* Tablet Landscape & iPad Pro: 1024px - 1335px */
+@media screen and (min-width: 1024px) and (max-width: 1335px) {
+  .info-card {
+    min-height: 240px;
+    padding: var(--spacing-lg) var(--spacing-md);
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .info-card__body {
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+
+  .info-card__icon {
+    margin-bottom: var(--spacing-md);
+  }
+
+  .info-card__title {
+    font-size: var(--font-size-xl) !important;
+    margin-bottom: var(--spacing-sm) !important;
+  }
+
+  .info-card__description {
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-relaxed);
+  }
+}

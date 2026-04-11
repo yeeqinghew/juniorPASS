@@ -100,20 +100,22 @@ const OverallLayout = () => {
             placement="right"
             onClose={closeDrawer}
             open={drawerVisible}
-            width={250}
-            style={{
-              padding: 0,
-              zIndex: 9999,
+            width="100%"
+            className="homepage-drawer"
+            zIndex={1050}
+            styles={{
+              mask: { zIndex: 1040 },
+              wrapper: { zIndex: 1050 }
             }}
           >
             <Menu
               mode="vertical"
               onClick={closeDrawer}
-              style={{ background: "transparent", color: "black" }}
-            >
+              className="homepage-drawer__menu"
+              >
               <Menu.Item key="classes">
                 <Link to="/classes" style={{ fontWeight: "600" }}>
-                  Browse Classes
+                  Browse our classes
                 </Link>
               </Menu.Item>
               <Menu.Item key="plan">

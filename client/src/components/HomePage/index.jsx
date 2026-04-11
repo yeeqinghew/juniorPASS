@@ -169,12 +169,16 @@ function HomePage() {
 
           {/* Drawer (Hamburger menu for mobile) */}
           <Drawer
-            title="Menu"
             placement="right"
             onClose={closeDrawer}
             open={drawerVisible}
-            width={250}
+            width="100%"
             className="homepage-drawer"
+            zIndex={1050}
+            styles={{
+              mask: { zIndex: 1040 },
+              wrapper: { zIndex: 1050 }
+            }}
           >
             <Menu
               mode="vertical"
