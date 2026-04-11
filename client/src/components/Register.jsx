@@ -138,7 +138,7 @@ const Register = () => {
               Create Account
             </Title>
             <Text className="register-subtitle">
-              Join JuniorPASS to explore amazing learning opportunities
+              Join Junior Pass to explore amazing learning opportunities
             </Text>
           </div>
 

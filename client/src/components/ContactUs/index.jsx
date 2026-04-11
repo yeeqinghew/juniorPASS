@@ -95,7 +95,7 @@ const ContactUs = () => {
 
               <Title level={1} className="contact-title">
                 Grow Your Business With{" "}
-                <span className="highlight-text">JuniorPASS</span>
+                <span className="highlight-text">Junior Pass</span>
               </Title>
 
               <Paragraph className="contact-subtitle">

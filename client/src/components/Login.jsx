@@ -66,7 +66,7 @@ const Login = () => {
               Welcome Back
             </Title>
             <Text className="login-subtitle">
-              Sign in to access your JuniorPASS account
+              Sign in to access your Junior Pass account
             </Text>
           </div>
 

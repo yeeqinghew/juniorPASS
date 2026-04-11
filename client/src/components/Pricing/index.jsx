@@ -225,7 +225,7 @@ const Pricing = () => {
       {/* Benefits Section */}
       <div className="benefits-section">
         <Title level={4} className="benefits-title">
-          Why Families Love JuniorPASS
+          Why Families Love Junior Pass
         </Title>
         <Row gutter={[24, 24]} justify="center" className="benefits-grid">
           {benefits.map((benefit, idx) => (
