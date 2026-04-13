@@ -22,7 +22,7 @@ app.use(
       }
 
       // 3. Check against whitelist
-      if (allowedOrigins.indexOf(origin) !== -1) {
+      if (allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
         console.error(`CORS Blocked: ${origin}`); // Debugging help
