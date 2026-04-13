@@ -18,6 +18,7 @@ import toast from "react-hot-toast";
 import ContactUs from "../components/ContactUs";
 import AboutUs from "../components/AboutUs";
 import Partner from "../components/Partner";
+import PackageTypes from "../components/PackageTypes";
 import getBaseURL from "../utils/config";
 
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -135,6 +136,7 @@ const Routers = () => {
           <Route path="/classes" element={<Classes />} />
           <Route path="/class/:classId" element={<Class />} />
           <Route path="/partner/:partnerId" element={<Partner />} />
+          <Route path="/package-types" element={<PackageTypes />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/partner-contact" element={<ContactUs />} />

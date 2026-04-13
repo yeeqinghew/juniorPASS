@@ -190,6 +190,11 @@ function HomePage() {
                   Browse our classes
                 </Link>
               </Menu.Item>
+              <Menu.Item key="package-types">
+                <Link to="/package-types" className="homepage-drawer__menu-item">
+                  Package Types
+                </Link>
+              </Menu.Item>
               <Menu.Item key="plan">
                 <Link to="/pricing" className="homepage-drawer__menu-item">
                   Plans
@@ -210,6 +215,14 @@ function HomePage() {
                 className={`homepage-menu__link ${scrolled ? 'homepage-menu__link--scrolled' : ''}`}
             >
                 Browse our classes
+              </Link>
+            </Menu.Item>
+            <Menu.Item key="package-types">
+              <Link
+                to="/package-types"
+                className={`homepage-menu__link ${scrolled ? 'homepage-menu__link--scrolled' : ''}`}
+              >
+                Package Types
               </Link>
             </Menu.Item>
             <Menu.Item key="plan">
