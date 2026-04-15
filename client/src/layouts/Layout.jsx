@@ -25,6 +25,7 @@ const IconFont = createFromIconfontCN({
 });
 
 const OverallLayout = () => {
+  const isProduction = import.meta.env.VITE_NODE_ENV === "production";
   const [drawerVisible, setDrawerVisible] = useState(false);
   const { user, isAuthenticated, setAuth, setLoading } = useUserContext();
   const navigate = useNavigate();
@@ -105,17 +106,24 @@ const OverallLayout = () => {
             zIndex={1050}
             styles={{
               mask: { zIndex: 1040 },
-              wrapper: { zIndex: 1050 }
+              wrapper: { zIndex: 1050 },
             }}
           >
             <Menu
               mode="vertical"
               onClick={closeDrawer}
               className="homepage-drawer__menu"
-              >
-              <Menu.Item key="classes">
-                <Link to="/classes" style={{ fontWeight: "600" }}>
-                  Browse our classes
+            >
+              {!isProduction && (
+                <Menu.Item key="classes">
+                  <Link to="/classes" style={{ fontWeight: "600" }}>
+                    Browse our classes
+                  </Link>
+                </Menu.Item>
+              )}
+              <Menu.Item key="package-types">
+                <Link to="/package-types" style={{ fontWeight: "600" }}>
+                  Package Types
                 </Link>
               </Menu.Item>
               <Menu.Item key="plan">
@@ -144,18 +152,29 @@ const OverallLayout = () => {
                   </Menu.Item>
                 </>
               ) : (
-                <Menu.Item key="login">
-                  <Link to="/login" style={{ fontWeight: "600" }}>
-                    Login/Register
-                  </Link>
-                </Menu.Item>
+                <>
+                  {!isProduction && (
+                    <Menu.Item key="login">
+                      <Link to="/login" style={{ fontWeight: "600" }}>
+                        Login/Register
+                      </Link>
+                    </Menu.Item>
+                  )}
+                </>
               )}
             </Menu>
           </Drawer>
 
           <Menu mode="horizontal" className="desktop-menu">
-            <Menu.Item key="classes">
-              <Link to="/classes">Browse Classes</Link>
+            {!isProduction && (
+              <Menu.Item key="classes">
+                <Link to="/classes">Browse Classes</Link>
+              </Menu.Item>
+            )}
+            <Menu.Item key="package-types">
+                <Link to="/package-types">
+                  Package Types
+                </Link>
             </Menu.Item>
             <Menu.Item key="plan">
               <Link to="/pricing">Plans</Link>
@@ -190,9 +209,13 @@ const OverallLayout = () => {
                 </Menu.Item>
               </>
             ) : (
-              <Menu.Item key="login">
-                <Link to="/login">Login/Register</Link>
-              </Menu.Item>
+              <>
+                {!isProduction && (
+                  <Menu.Item key="login">
+                    <Link to="/login">Login/Register</Link>
+                  </Menu.Item>
+                )}
+              </>
             )}
           </Menu>
         </Header>

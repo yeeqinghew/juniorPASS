@@ -35,6 +35,7 @@ const { Header, Content } = Layout;
 const { Text, Title } = Typography;
 
 function HomePage() {
+  const isProduction = import.meta.env.VITE_NODE_ENV === "production";
   // Keep track of the hovered card index (-1 means none are hovered)
   const [hoveredIndex, setHoveredIndex] = useState(-1);
   const [drawerVisible, setDrawerVisible] = useState(false);
@@ -185,11 +186,13 @@ function HomePage() {
               onClick={closeDrawer}
               className="homepage-drawer__menu"
             >
-              <Menu.Item key="classes">
-                <Link to="/classes" className="homepage-drawer__menu-item">
-                  Browse our classes
-                </Link>
-              </Menu.Item>
+              {!isProduction && (
+                <Menu.Item key="classes">
+                  <Link to="/classes" className="homepage-drawer__menu-item">
+                    Browse our classes
+                  </Link>
+                </Menu.Item>
+              )}
               <Menu.Item key="package-types">
                 <Link to="/package-types" className="homepage-drawer__menu-item">
                   Package Types
@@ -200,23 +203,27 @@ function HomePage() {
                   Plans
                 </Link>
               </Menu.Item>
-              <Menu.Item key="login">
-                <Link to="/login" className="homepage-drawer__menu-item">
-                  Login/Register
-                </Link>
-              </Menu.Item>
+              {!isProduction && (
+                <Menu.Item key="login">
+                  <Link to="/login" className="homepage-drawer__menu-item">
+                    Login/Register
+                  </Link>
+                </Menu.Item>
+              )}
             </Menu>
           </Drawer>
 
           <Menu mode="horizontal">
-            <Menu.Item key="classes">
-              <Link
-                to="/classes"
-                className={`homepage-menu__link ${scrolled ? 'homepage-menu__link--scrolled' : ''}`}
-            >
-                Browse our classes
-              </Link>
-            </Menu.Item>
+            {!isProduction && (
+              <Menu.Item key="classes">
+                <Link
+                  to="/classes"
+                  className={`homepage-menu__link ${scrolled ? 'homepage-menu__link--scrolled' : ''}`}
+                >
+                  Browse our classes
+                </Link>
+              </Menu.Item>
+            )}
             <Menu.Item key="package-types">
               <Link
                 to="/package-types"
@@ -233,14 +240,16 @@ function HomePage() {
                 Plans
               </Link>
             </Menu.Item>
-            <Menu.Item key="login">
-              <Link
-                to="/login"
-                className={`homepage-menu__link ${scrolled ? 'homepage-menu__link--scrolled' : ''}`}
-              >
-                Login/Register
-              </Link>
-            </Menu.Item>
+            {!isProduction && (
+              <Menu.Item key="login">
+                <Link
+                  to="/login"
+                  className={`homepage-menu__link ${scrolled ? 'homepage-menu__link--scrolled' : ''}`}
+                >
+                  Login/Register
+                </Link>
+              </Menu.Item>
+            )}
           </Menu>
         </Header>
         <Content className="homepage-content">
@@ -277,7 +286,8 @@ function HomePage() {
                 </div>
               </div>
               <div className="headline-cta">
-                <Link to="/register">
+                <Link to="/">
+                {/* <Link to="/register"> */}
                   <Button
                     type="primary"
                     className="headline-button"
@@ -396,7 +406,8 @@ function HomePage() {
                 data-aos="fade-up"
                 data-aos-delay="500"
               >
-                <Link to="/register">
+                <Link to="/">
+                {/* <Link to="/register"> */}
                   <Button
                     type="primary"
                     size="large"

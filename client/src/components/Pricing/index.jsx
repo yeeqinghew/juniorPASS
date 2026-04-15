@@ -179,7 +179,8 @@ const Pricing = () => {
   ];
 
   const handleSelectPlan = (plan) => {
-    navigate("/register", { state: { selectedPlan: plan } });
+    navigate("/pricing", { state: { selectedPlan: plan } });
+    // navigate("/register", { state: { selectedPlan: plan } });
   };
 
   return (
