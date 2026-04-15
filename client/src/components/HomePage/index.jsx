@@ -35,7 +35,7 @@ const { Header, Content } = Layout;
 const { Text, Title } = Typography;
 
 function HomePage() {
-  const isProduction = import.meta.env.VITE_NODE_ENV === "production";
+  const isProduction = import.meta.env.PROD;
   // Keep track of the hovered card index (-1 means none are hovered)
   const [hoveredIndex, setHoveredIndex] = useState(-1);
   const [drawerVisible, setDrawerVisible] = useState(false);

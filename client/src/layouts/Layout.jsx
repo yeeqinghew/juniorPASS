@@ -25,7 +25,7 @@ const IconFont = createFromIconfontCN({
 });
 
 const OverallLayout = () => {
-  const isProduction = import.meta.env.VITE_NODE_ENV === "production";
+  const isProduction = import.meta.env.PROD;
   const [drawerVisible, setDrawerVisible] = useState(false);
   const { user, isAuthenticated, setAuth, setLoading } = useUserContext();
   const navigate = useNavigate();
