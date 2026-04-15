@@ -1,8 +1,10 @@
-const redis = require("redis");
-const client = redis.createClient({
-  host: "127.0.0.1",
-  port: 6379,
-});
+const redis = require("ioredis");
+const client = process.env.REDIS_URL
+  ? new redis(process.env.REDIS_URL)
+  : redis.createClient({
+      host: "127.0.0.1",
+      port: 6379,
+    });
 
 client.on("error", (err) => {
   console.error("Redis error:", err);
