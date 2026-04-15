@@ -91,6 +91,11 @@ app.use("/transactions", require("./routes/transactions"));
 app.use("/notifications", require("./routes/notifications"));
 app.use("/referrals", require("./routes/referrals"));
 
+// health check endpoint
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "OK", message: "Server is up running ✨" });
+});
+
 // Catch-all route to serve React app for any non-API route
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/build", "index.html"));
