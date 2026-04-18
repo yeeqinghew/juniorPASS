@@ -1,7 +1,7 @@
 const express = require("express");
 const path = require("path"); // Import path module
 const cors = require("cors");
-const client = require("./utils/redisClient"); // Import the Redis client
+const client = require("./utils/redisClient");
 const app = express();
 
 // middleware
@@ -94,6 +94,12 @@ app.use("/referrals", require("./routes/referrals"));
 // health check endpoint
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "OK", message: "Server is up running ✨" });
+});
+
+// test DB connection
+app.get("/db-test", async (req, res) => {
+  const result = await pool.query("SELECT NOW()");
+  res.json(result.rows);
 });
 
 // Catch-all route to serve React app for any non-API route
