@@ -96,12 +96,6 @@ app.get("/health", (req, res) => {
   res.status(200).json({ status: "OK", message: "Server is up running ✨" });
 });
 
-// test DB connection
-app.get("/db-test", async (req, res) => {
-  const result = await pool.query("SELECT NOW()");
-  res.json(result.rows);
-});
-
 // Catch-all route to serve React app for any non-API route
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/build", "index.html"));
