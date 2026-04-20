@@ -56,6 +56,7 @@ app.use((req, res, next) => {
     req.path.startsWith("/partners") ||
     req.path.startsWith("/listings") ||
     req.path.startsWith("/misc") ||
+    req.path.startsWith("/media") ||
     req.path.startsWith("/children") ||
     req.path.startsWith("/payment") ||
     req.path.startsWith("/referrals") ||
@@ -84,6 +85,7 @@ app.use("/admins", require("./routes/admins"));
 app.use("/partners", require("./routes/partners"));
 app.use("/listings", require("./routes/listings"));
 app.use("/misc", require("./routes/misc"));
+app.use("/media", require("./routes/media"));
 app.use("/children", require("./routes/children"));
 app.use("/payment", require("./routes/payment"));
 app.use("/bookings", require("./routes/bookings"));

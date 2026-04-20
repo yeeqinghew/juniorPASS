@@ -92,11 +92,67 @@ const Account = () => {
     }
   };
 
-  const handleAvatarUpload = async (info) => {
-    if (info.file.status === "done") {
-      message.success(`${info.file.name} file uploaded successfully`);
-    } else if (info.file.status === "error") {
-      message.error(`${info.file.name} file upload failed.`);
+  const handleAvatarUpload = async ({ file, onSuccess, onError }) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      // 1. Get signature from BE
+      const res = await fetch(`${baseURL}/media/upload/user-dp`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || "Failed to get upload signature");
+
+      // 2. Upload to Cloudinary
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("api_key", data.apiKey);
+      formData.append("timestamp", data.allowedParams.timestamp);
+      formData.append("signature", data.signature);
+      
+      formData.append("folder", data.allowedParams.folder);
+      formData.append("public_id", data.allowedParams.public_id);
+      formData.append("overwrite", data.allowedParams.overwrite);
+      
+      const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${data.cloudName}/image/upload`,{
+                method: "POST",
+                body: formData,
+              }
+      );
+      const uploadData = await uploadRes.json();
+
+      if (!uploadRes.ok) throw new Error(uploadData.error.message || "Upload failed");
+
+      // 3. Update user profile with new image URL
+      const updateRes = await fetch(`${baseURL}/auth/${user.user_id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ display_picture: uploadData?.secure_url }),
+      });
+      const updateData = await updateRes.json();
+      if (!updateRes.ok) throw new Error(updateData.message || "Failed to update profile picture");
+      
+      toast.success("Profile picture updated successfully!");
+      
+      onSuccess(null, file);
+
+      // TODO: make isEditing to false
+      // TODO: update user context to trigger re-render with new DP
+      // TODO: handle loading state for upload button
+      // TODO: handle delete of old DP from Cloudinary (need to store public_id in user profile)
+      // TODO: handle errors and edge cases (e.g. upload cancellation, unsupported file types, large files, etc.)
+
+    } catch (error) {
+      onError(error);
+      toast.error(error.message);
     }
   };
 
@@ -144,8 +200,7 @@ const Account = () => {
               <Upload
                 name="avatar"
                 showUploadList={false}
-                action={`${baseURL}/upload/avatar`}
-                onChange={handleAvatarUpload}
+                customRequest={handleAvatarUpload}
                 disabled={!isEditing}
               >
                 <Button

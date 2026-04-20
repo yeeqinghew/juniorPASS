@@ -5,7 +5,9 @@ const authorization = require("../middleware/authorization");
 const etagMiddleware = require("../middleware/etagMiddleware");
 const cacheMiddleware = require("../middleware/cacheMiddleware");
 const client = require("../utils/redisClient");
-const { deleteS3Objects } = require("../utils/s3");
+const {
+  deleteCloudinaryImage,
+} = require("../services/storage/storage.service");
 
 require("dotenv").config();
 router.use(etagMiddleware);
@@ -333,8 +335,8 @@ router.delete("/:id", async (req, res) => {
     // Extract image URLs from the database result
     const imageURLs = rows[0].images;
     if (Array.isArray(imageURLs) && imageURLs.length > 0) {
-      // Delete images from S3
-      await deleteS3Objects(imageURLs);
+      // Delete images from Cloudinary
+      await deleteCloudinaryImage(imageURLs);
     }
 
     // delete listing from DB

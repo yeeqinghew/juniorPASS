@@ -452,14 +452,15 @@ router.get("/is-verify", authorization, async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", authorization, async (req, res) => {
   try {
-    const userId = req.params.id;
-    const { name, phone_number } = req.body;
+    const userId = req.user;
+    const { name, phone_number, display_picture } = req.body;
 
     await pool.query(
-      `UPDATE users SET name = $1, phone_number = $2 WHERE user_id = $3`,
-      [name, phone_number, userId],
+      `UPDATE users SET name = $1, phone_number = $2, display_picture = $3 
+      WHERE user_id = $4`,
+      [name, phone_number, display_picture, userId],
     );
 
     return res.status(200).json({ message: "Profile updated successfully" });
