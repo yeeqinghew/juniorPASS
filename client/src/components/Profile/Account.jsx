@@ -3,15 +3,13 @@ import {
   Avatar,
   Button,
   Card,
-  Col,
   Form,
   Input,
-  Row,
   Space,
   Typography,
   Upload,
-  message,
 } from "antd";
+
 import {
   EditOutlined,
   SaveOutlined,
@@ -58,7 +56,7 @@ const Account = () => {
     form.setFieldsValue({
       name: user.name,
       email: user.email,
-      phone: user.phone_number || "",
+      phone_number: user.phone_number || "",
     });
   };
 
@@ -66,7 +64,6 @@ const Account = () => {
     try {
       setLoading(true);
       const values = await form.validateFields();
-      console.log("Form values to save:", values);
       const token = localStorage.getItem("token");
 
       const response = await fetch(`${baseURL}/auth/${user.user_id}`, {
@@ -99,39 +96,30 @@ const Account = () => {
       const token = localStorage.getItem("token");
       const oldDisplayPicture = user?.display_picture;
 
-      // 1. Get signature from BE
       const res = await fetch(`${baseURL}/media/upload/user-dp`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       const data = await res.json();
-
       if (!res.ok) throw new Error(data.error || "Failed to get upload signature");
 
-      // 2. Upload to Cloudinary
       const formData = new FormData();
       formData.append("file", file);
       formData.append("api_key", data.apiKey);
       formData.append("timestamp", data.allowedParams.timestamp);
       formData.append("signature", data.signature);
-
       formData.append("folder", data.allowedParams.folder);
       formData.append("public_id", data.allowedParams.public_id);
       formData.append("overwrite", data.allowedParams.overwrite);
 
-      const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${data.cloudName}/image/upload`,{
-                method: "POST",
-                body: formData,
-              }
+      const uploadRes = await fetch(
+        `https://api.cloudinary.com/v1_1/${data.cloudName}/image/upload`,
+        { method: "POST", body: formData }
       );
       const uploadData = await uploadRes.json();
-
       if (!uploadRes.ok) throw new Error(uploadData.error.message || "Upload failed");
 
-      // 3. Update user profile with new image URL
       const updateRes = await fetch(`${baseURL}/auth/${user.user_id}`, {
         method: "PUT",
         headers: {
@@ -143,18 +131,13 @@ const Account = () => {
       const updateData = await updateRes.json();
       if (!updateRes.ok) throw new Error(updateData.message || "Failed to update profile picture");
 
-      // 4. Delete old display picture from Cloudinary (if exists)
-      if (oldDisplayPicture && oldDisplayPicture.includes('cloudinary.com')) {
+      if (oldDisplayPicture && oldDisplayPicture.includes("cloudinary.com")) {
         try {
-          // Extract public_id from Cloudinary URL
-          const urlParts = oldDisplayPicture.split('/upload/');
+          const urlParts = oldDisplayPicture.split("/upload/");
           if (urlParts.length === 2) {
             const pathAfterUpload = urlParts[1];
-            // Remove version if present (v1234567890/) and get the rest
-            const pathWithoutVersion = pathAfterUpload.replace(/^v\d+\//, '');
-            // Remove file extension
-            const publicId = pathWithoutVersion.substring(0, pathWithoutVersion.lastIndexOf('.'));
-
+            const pathWithoutVersion = pathAfterUpload.replace(/^v\d+\//, "");
+            const publicId = pathWithoutVersion.substring(0, pathWithoutVersion.lastIndexOf("."));
             await fetch(`${baseURL}/media/delete`, {
               method: "DELETE",
               headers: {
@@ -165,18 +148,13 @@ const Account = () => {
             });
           }
         } catch (deleteError) {
-          console.error('Failed to delete old image:', deleteError);
-          // Don't throw - old image cleanup is not critical
+          console.error("Failed to delete old image:", deleteError);
         }
       }
 
-      // 5. Update user context to trigger re-render with new DP
       await reauthenticate();
-
       toast.success("Profile picture updated successfully!");
-
       onSuccess(null, file);
-
     } catch (error) {
       onError(error);
       toast.error(error.message || "Failed to upload profile picture");
@@ -186,14 +164,14 @@ const Account = () => {
   };
 
   const beforeUpload = (file) => {
-    const isImage = file.type.startsWith('image/');
+    const isImage = file.type.startsWith("image/");
     if (!isImage) {
-      toast.error('You can only upload image files!');
+      toast.error("You can only upload image files!");
       return false;
     }
     const isLt5M = file.size / 1024 / 1024 < 5;
     if (!isLt5M) {
-      toast.error('Image must be smaller than 5MB!');
+      toast.error("Image must be smaller than 5MB!");
       return false;
     }
     return true;
@@ -210,7 +188,7 @@ const Account = () => {
 
   return (
     <div className="account-page">
-      {/* Header Section */}
+      {/* Header */}
       <div className="account-header">
         <Title level={3} className="account-title">
           <UserOutlined /> My Account
@@ -220,8 +198,8 @@ const Account = () => {
         </Text>
       </div>
 
+      {/* Profile + Info cards */}
       <div className="account-cards-row">
-        {/* Profile Picture Section */}
         <div className="profile-card-wrapper">
           <Card className="profile-card" bordered={false}>
             <div className="profile-card-content">
@@ -267,13 +245,15 @@ const Account = () => {
           </Card>
         </div>
 
-        {/* User Information Section */}
+        {/* Info card — no extra prop; button lives inside body to avoid header overflow */}
         <div className="info-card-wrapper">
           <Card
-            title="Personal Information"
             bordered={false}
-            extra={
-              <Space className="action-buttons">
+          >
+            {/* Card header built manually so we fully control wrapping */}
+            <div className="info-card-header">
+              <span className="info-card-title">Personal Information</span>
+              <div className="action-buttons">
                 {!isEditing ? (
                   <Button
                     type="primary"
@@ -295,60 +275,44 @@ const Account = () => {
                     </Button>
                   </>
                 )}
-              </Space>
-            }
-          >
+              </div>
+            </div>
+
             <Form
               form={form}
               layout="vertical"
               disabled={!isEditing}
               className="account-form"
             >
-              <Row gutter={16}>
-                <Col xs={24} sm={12}>
-                  <Form.Item
-                    name="name"
-                    label="Full Name"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please enter your full name",
-                      },
-                      { min: 2, message: "Name must be at least 2 characters" },
-                    ]}
-                  >
-                    <Input
-                      prefix={<UserOutlined />}
-                      placeholder="Enter your full name"
-                    />
-                  </Form.Item>
-                </Col>
-                <Col xs={24} sm={12}>
-                  <Form.Item name="email" label="Email Address">
-                    <Input disabled prefix={<MailOutlined />} />
-                  </Form.Item>
-                </Col>
-              </Row>
+              <div className="form-grid">
+                <Form.Item
+                  name="name"
+                  label="Full Name"
+                  rules={[
+                    { required: true, message: "Please enter your full name" },
+                    { min: 2, message: "Name must be at least 2 characters" },
+                  ]}
+                >
+                  <Input prefix={<UserOutlined />} placeholder="Enter your full name" />
+                </Form.Item>
 
-              <Row gutter={16}>
-                <Col xs={24} sm={12}>
-                  <Form.Item
-                    name="phone_number"
-                    label="Phone Number"
-                    rules={[
-                      {
-                        pattern: /^[0-9+\-\s()]*$/,
-                        message: "Please enter a valid phone number",
-                      },
-                    ]}
-                  >
-                    <Input
-                      prefix={<PhoneOutlined />}
-                      placeholder="Enter your phone number"
-                    />
-                  </Form.Item>
-                </Col>
-              </Row>
+                <Form.Item name="email" label="Email Address">
+                  <Input disabled prefix={<MailOutlined />} />
+                </Form.Item>
+
+                <Form.Item
+                  name="phone_number"
+                  label="Phone Number"
+                  rules={[
+                    {
+                      pattern: /^[0-9+\-\s()]*$/,
+                      message: "Please enter a valid phone number",
+                    },
+                  ]}
+                >
+                  <Input prefix={<PhoneOutlined />} placeholder="Enter your phone number" />
+                </Form.Item>
+              </div>
             </Form>
 
             {/* Account Details */}
@@ -358,15 +322,13 @@ const Account = () => {
               </Text>
               <div className="detail-row">
                 <span className="detail-label">
-                  <IdcardOutlined className="detail-icon" />
-                  User ID
+                  <IdcardOutlined className="detail-icon" /> User ID
                 </span>
                 <span className="detail-value">{user?.user_id || "N/A"}</span>
               </div>
               <div className="detail-row">
                 <span className="detail-label">
-                  <CheckCircleOutlined className="detail-icon" />
-                  Account Status
+                  <CheckCircleOutlined className="detail-icon" /> Account Status
                 </span>
                 <span className="detail-value active">Active</span>
               </div>
@@ -375,29 +337,26 @@ const Account = () => {
         </div>
       </div>
 
-      {/* Security Section */}
-      <Row gutter={[24, 24]} className="security-row">
-        <Col xs={24}>
-          <Card
-            className="security-card"
-            title={
-              <Space>
-                <LockOutlined />
-                Security
-              </Space>
-            }
-            bordered={false}
-          >
-            <div className="security-item">
-              <div className="security-item-info">
-                <span className="security-item-title">Password</span>
-                <span className="security-item-desc">Last changed: Never</span>
-              </div>
-              <Button type="default">Change Password</Button>
+      {/* Security — plain div, no Ant Row/Col */}
+      <div className="security-row">
+        <Card
+          className="security-card"
+          title={
+            <Space>
+              <LockOutlined /> Security
+            </Space>
+          }
+          bordered={false}
+        >
+          <div className="security-item">
+            <div className="security-item-info">
+              <span className="security-item-title">Password</span>
+              <span className="security-item-desc">Last changed: Never</span>
             </div>
-          </Card>
-        </Col>
-      </Row>
+            <Button type="default">Change Password</Button>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 };

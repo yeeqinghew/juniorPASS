@@ -3,12 +3,13 @@
 
 /* ============================================
    ACCOUNT PAGE - CLEAN DESIGN
-   Using CSS Variables for consistency
    ============================================ */
 
 .account-page {
   padding: 0;
   max-width: 100%;
+  /* Prevent any child from ever causing horizontal scroll */
+  overflow-x: hidden;
 }
 
 /* Header Section */
@@ -35,27 +36,35 @@
   color: var(--text-muted);
 }
 
-/* Account Cards Row - Flexbox for equal heights */
+/* ============================================
+   CARDS ROW
+   ============================================ */
+
 .account-cards-row {
   display: flex;
   gap: var(--spacing-lg);
   align-items: stretch;
   margin-bottom: var(--spacing-lg);
   width: 100%;
-  max-width: 100%;
+  min-width: 0;
 }
 
 .profile-card-wrapper {
   flex: 0 0 280px;
+  min-width: 0;
   display: flex;
 }
 
 .info-card-wrapper {
   flex: 1;
+  min-width: 0;
   display: flex;
 }
 
-/* Profile Card */
+/* ============================================
+   PROFILE CARD
+   ============================================ */
+
 .profile-card {
   border-radius: var(--radius-xl) !important;
   border: 1px solid var(--border-light) !important;
@@ -68,16 +77,14 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 100%;
+  justify-content: flex-start;
 }
 
 .profile-card-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 100%;
+  justify-content: flex-start;
 }
 
 .profile-avatar {
@@ -133,31 +140,58 @@
   color: var(--primary-color);
 }
 
-/* Info Card */
+/* ============================================
+   INFO CARD
+   ============================================ */
+
 .info-card-wrapper .ant-card {
   border-radius: var(--radius-xl) !important;
   border: 1px solid var(--border-light) !important;
   width: 100%;
-  height: 100%;
+  min-width: 0;
 }
 
 .info-card-wrapper .ant-card-head {
-  border-bottom: 1px solid var(--border-light);
-  padding: var(--spacing-md) var(--spacing-lg);
+  display: none;
 }
 
-.info-card-wrapper .ant-card-head-title {
+.info-card-wrapper .ant-card-body {
+  padding: var(--spacing-lg);
+  overflow: hidden;
+}
+
+.info-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.info-card-title {
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
   color: var(--text-dark);
 }
 
-.info-card-wrapper .ant-card-body {
-  padding: var(--spacing-lg);
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 16px;
 }
 
-/* Form Styling - Match Login/Register page */
-.account-form .ant-form-item-label > label {
+.form-grid .ant-form-item:nth-child(3) {
+  grid-column: 1;
+}
+
+/* ============================================
+   FORM STYLING
+   ============================================ */
+
+.account-form .ant-form-item-label>label {
   color: var(--text-dark);
   font-size: 14px;
   font-weight: 600;
@@ -205,7 +239,10 @@
   margin-right: 8px;
 }
 
-/* Account Details Section */
+/* ============================================
+   ACCOUNT DETAILS
+   ============================================ */
+
 .account-details-section {
   margin-top: var(--spacing-lg);
   padding-top: var(--spacing-lg);
@@ -219,7 +256,6 @@
   display: block;
 }
 
-/* Detail Row */
 .detail-row {
   display: flex;
   justify-content: space-between;
@@ -255,7 +291,10 @@
   color: var(--color-success);
 }
 
-/* Security Section */
+/* ============================================
+   SECURITY SECTION
+   ============================================ */
+
 .security-row {
   margin-top: var(--spacing-lg);
 }
@@ -313,12 +352,13 @@
   gap: var(--spacing-sm);
 }
 
-/* Mobile: 360px x 480px */
+/* ============================================
+   MOBILE  ≤ 767px
+   ============================================ */
+
 @media screen and (max-width: 767.9px) {
   .account-page {
     padding: 0;
-    max-width: 100%;
-    overflow-x: hidden;
   }
 
   .account-header {
@@ -333,23 +373,21 @@
     font-size: var(--font-size-sm);
   }
 
+  /* Stack cards vertically */
   .account-cards-row {
     flex-direction: column;
     gap: var(--spacing-md);
-    width: 100%;
   }
 
   .profile-card-wrapper,
   .info-card-wrapper {
     flex: none;
     width: 100%;
-    max-width: 100%;
   }
 
   .profile-card,
   .info-card-wrapper .ant-card {
     width: 100%;
-    max-width: 100%;
   }
 
   .profile-card .ant-card-body {
@@ -365,60 +403,13 @@
     padding: var(--spacing-md);
   }
 
-  .info-card-wrapper .ant-card-head {
-    padding: var(--spacing-md);
-    flex-wrap: wrap;
+  /* Single-column form on mobile */
+  .form-grid {
+    grid-template-columns: 1fr;
   }
 
-  .info-card-wrapper .ant-card-head-title {
-    font-size: var(--font-size-base) !important;
-    margin-bottom: var(--spacing-xs);
-  }
-
-  .info-card-wrapper .ant-card-extra {
-    width: 100%;
-    margin-left: 0 !important;
-    margin-top: var(--spacing-sm);
-  }
-
-  .account-form .ant-row {
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    width: 100%;
-  }
-
-  .account-form .ant-col {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .account-form .ant-form-item {
-    width: 100%;
-  }
-
-  .account-form .ant-input,
-  .account-form .ant-input-affix-wrapper {
-    width: 100%;
-  }
-
-  .security-row {
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    width: 100%;
-  }
-
-  .security-row .ant-col {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .security-card {
-    width: 100%;
-    max-width: 100%;
+  .form-grid .ant-form-item:nth-child(3) {
+    grid-column: 1;
   }
 
   .security-item {
@@ -445,12 +436,13 @@
   }
 }
 
-/* Tablet Portrait: 768px x 1024px */
-@media screen and (min-width: 768px) and (max-width: 1023.9px) {
-  .account-page {
-    padding: 0;
-  }
+/* ============================================
+   TABLET PORTRAIT  768px – 1023px
+   ============================================ */
 
+@media screen and (min-width: 768px) and (max-width: 1023.9px) {
+
+  /* Stack cards vertically on portrait tablet */
   .account-cards-row {
     flex-direction: column;
     gap: var(--spacing-lg);
@@ -467,17 +459,25 @@
     height: 100px !important;
   }
 
+  /* Single-column form on portrait tablet */
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid .ant-form-item:nth-child(3) {
+    grid-column: 1;
+  }
+
   .action-buttons .ant-btn {
     min-height: 44px;
   }
 }
 
-/* Tablet Landscape: 1024px x 768px */
-@media screen and (min-width: 1024px) and (max-width: 1335.9px) {
-  .account-page {
-    padding: 0;
-  }
+/* ============================================
+   TABLET LANDSCAPE  1024px – 1335px
+   ============================================ */
 
+@media screen and (min-width: 1024px) and (max-width: 1335.9px) {
   .account-cards-row {
     gap: var(--spacing-lg);
   }
@@ -487,12 +487,11 @@
   }
 }
 
-/* Desktop: 1336px x 768px+ */
-@media screen and (min-width: 1336px) {
-  .account-page {
-    padding: 0;
-  }
+/* ============================================
+   DESKTOP  ≥ 1336px
+   ============================================ */
 
+@media screen and (min-width: 1336px) {
   .account-cards-row {
     gap: var(--spacing-xl);
   }
