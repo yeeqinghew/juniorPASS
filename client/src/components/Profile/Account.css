@@ -35,12 +35,14 @@
   color: var(--text-muted);
 }
 
-/* Cards Row - Flexbox for equal heights */
+/* Account Cards Row - Flexbox for equal heights */
 .account-cards-row {
   display: flex;
   gap: var(--spacing-lg);
   align-items: stretch;
   margin-bottom: var(--spacing-lg);
+  width: 100%;
+  max-width: 100%;
 }
 
 .profile-card-wrapper {
@@ -315,6 +317,8 @@
 @media screen and (max-width: 767.9px) {
   .account-page {
     padding: 0;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .account-header {
@@ -332,12 +336,20 @@
   .account-cards-row {
     flex-direction: column;
     gap: var(--spacing-md);
+    width: 100%;
   }
 
   .profile-card-wrapper,
   .info-card-wrapper {
     flex: none;
     width: 100%;
+    max-width: 100%;
+  }
+
+  .profile-card,
+  .info-card-wrapper .ant-card {
+    width: 100%;
+    max-width: 100%;
   }
 
   .profile-card .ant-card-body {
@@ -372,11 +384,41 @@
   .account-form .ant-row {
     margin-left: 0 !important;
     margin-right: 0 !important;
+    width: 100%;
   }
 
   .account-form .ant-col {
     padding-left: 0 !important;
     padding-right: 0 !important;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .account-form .ant-form-item {
+    width: 100%;
+  }
+
+  .account-form .ant-input,
+  .account-form .ant-input-affix-wrapper {
+    width: 100%;
+  }
+
+  .security-row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100%;
+  }
+
+  .security-row .ant-col {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .security-card {
+    width: 100%;
+    max-width: 100%;
   }
 
   .security-item {

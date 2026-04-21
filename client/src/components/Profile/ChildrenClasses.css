@@ -9,6 +9,7 @@
 .children-classes-page {
   padding: 0;
   max-width: 100%;
+  overflow-x: hidden;
 }
 
 /* Header Section */
@@ -454,6 +455,8 @@
 @media screen and (max-width: 767.9px) {
   .children-classes-page {
     padding: 0;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .children-header {
@@ -464,6 +467,14 @@
     flex-direction: column;
     align-items: flex-start !important;
     gap: var(--spacing-md);
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100%;
+  }
+
+  .children-header .ant-row > .ant-col {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 
   .children-header .ant-row > .ant-col:last-child {
@@ -483,16 +494,40 @@
     font-size: var(--font-size-sm);
   }
 
+  .search-bar {
+    width: 100%;
+  }
+
   .search-bar .ant-input-affix-wrapper {
     font-size: var(--font-size-base);
+    width: 100%;
   }
 
   .search-bar .ant-input-affix-wrapper-lg {
     padding: 10px 14px;
   }
 
+  .filter-card {
+    width: 100%;
+  }
+
   .filter-card .ant-card-body {
     padding: var(--spacing-sm);
+  }
+
+  .stats-row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100%;
+  }
+
+  .stats-row .ant-col {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  .stat-card {
+    width: 100%;
   }
 
   .stat-card .ant-card-body {
@@ -505,6 +540,10 @@
 
   .stat-card-label {
     font-size: var(--font-size-xs);
+  }
+
+  .children-collapse {
+    width: 100%;
   }
 
   .children-collapse .ant-collapse-header {
@@ -533,10 +572,15 @@
     height: 32px !important;
   }
 
+  .booking-list {
+    width: 100%;
+  }
+
   .booking-list .ant-list-item {
     padding: var(--spacing-sm);
     flex-direction: column;
     align-items: flex-start !important;
+    width: 100%;
   }
 
   .booking-list .ant-list-item-action {
@@ -565,6 +609,21 @@
 
   .booking-title {
     font-size: var(--font-size-md);
+  }
+
+  .booking-meta {
+    width: 100%;
+  }
+
+  .booking-meta .ant-row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100%;
+  }
+
+  .booking-meta .ant-col {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 
   .booking-meta-item {

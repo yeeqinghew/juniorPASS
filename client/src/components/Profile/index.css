@@ -193,6 +193,7 @@
     height: auto;
     overflow: visible;
     background: transparent;
+    width: 100%;
   }
 
   /* Fix for all child components on mobile */
@@ -200,6 +201,25 @@
     border-radius: var(--radius-md);
     margin-bottom: var(--spacing-sm);
     box-shadow: var(--shadow-sm);
+    max-width: 100%;
+  }
+
+  /* Fix row overflow */
+  .profile-tab-content .ant-row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100%;
+  }
+
+  .profile-tab-content .ant-col {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    max-width: 100%;
+  }
+
+  .profile-tab-content > div {
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   /* Exclude stat cards from display block override */

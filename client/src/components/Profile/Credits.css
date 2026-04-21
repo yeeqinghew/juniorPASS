@@ -9,6 +9,7 @@
 .credits-page {
   padding: 0;
   max-width: 100%;
+  overflow-x: hidden;
 }
 
 /* Header Section */
@@ -405,6 +406,8 @@
 @media screen and (max-width: 767.9px) {
   .credits-page {
     padding: 0;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .credits-header {
@@ -419,8 +422,26 @@
     font-size: var(--font-size-sm);
   }
 
+  .balance-card {
+    width: 100%;
+  }
+
   .balance-card .ant-card-body {
     padding: var(--spacing-lg);
+  }
+
+  .balance-card .ant-row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100%;
+  }
+
+  .balance-card .ant-col {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
   }
 
   .balance-content .ant-row {
@@ -452,6 +473,21 @@
     font-size: var(--font-size-md) !important;
   }
 
+  .stats-row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100%;
+  }
+
+  .stats-row .ant-col {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+
+  .stat-card {
+    width: 100%;
+  }
+
   .stat-card .ant-card-body {
     padding: var(--spacing-md);
     flex-direction: column;
@@ -471,6 +507,10 @@
 
   .stat-label {
     font-size: 11px;
+  }
+
+  .transactions-card {
+    width: 100%;
   }
 
   .transactions-card .ant-card-body {
@@ -496,9 +536,14 @@
     padding: 8px 4px;
   }
 
+  .transactions-list {
+    width: 100%;
+  }
+
   .transaction-item {
     gap: var(--spacing-sm);
     padding: var(--spacing-sm) 0;
+    width: 100%;
   }
 
   .transaction-icon {
