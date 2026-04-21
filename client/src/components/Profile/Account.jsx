@@ -32,11 +32,12 @@ import "./Account.css";
 const { Title, Text } = Typography;
 
 const Account = () => {
-  const { user } = useUserContext();
+  const { user, reauthenticate } = useUserContext();
   const baseURL = getBaseURL();
   const [isEditing, setIsEditing] = useState(false);
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [uploadLoading, setUploadLoading] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -94,7 +95,9 @@ const Account = () => {
 
   const handleAvatarUpload = async ({ file, onSuccess, onError }) => {
     try {
+      setUploadLoading(true);
       const token = localStorage.getItem("token");
+      const oldDisplayPicture = user?.display_picture;
 
       // 1. Get signature from BE
       const res = await fetch(`${baseURL}/media/upload/user-dp`, {
@@ -114,11 +117,11 @@ const Account = () => {
       formData.append("api_key", data.apiKey);
       formData.append("timestamp", data.allowedParams.timestamp);
       formData.append("signature", data.signature);
-      
+
       formData.append("folder", data.allowedParams.folder);
       formData.append("public_id", data.allowedParams.public_id);
       formData.append("overwrite", data.allowedParams.overwrite);
-      
+
       const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${data.cloudName}/image/upload`,{
                 method: "POST",
                 body: formData,
@@ -139,21 +142,61 @@ const Account = () => {
       });
       const updateData = await updateRes.json();
       if (!updateRes.ok) throw new Error(updateData.message || "Failed to update profile picture");
-      
-      toast.success("Profile picture updated successfully!");
-      
-      onSuccess(null, file);
 
-      // TODO: make isEditing to false
-      // TODO: update user context to trigger re-render with new DP
-      // TODO: handle loading state for upload button
-      // TODO: handle delete of old DP from Cloudinary (need to store public_id in user profile)
-      // TODO: handle errors and edge cases (e.g. upload cancellation, unsupported file types, large files, etc.)
+      // 4. Delete old display picture from Cloudinary (if exists)
+      if (oldDisplayPicture && oldDisplayPicture.includes('cloudinary.com')) {
+        try {
+          // Extract public_id from Cloudinary URL
+          const urlParts = oldDisplayPicture.split('/upload/');
+          if (urlParts.length === 2) {
+            const pathAfterUpload = urlParts[1];
+            // Remove version if present (v1234567890/) and get the rest
+            const pathWithoutVersion = pathAfterUpload.replace(/^v\d+\//, '');
+            // Remove file extension
+            const publicId = pathWithoutVersion.substring(0, pathWithoutVersion.lastIndexOf('.'));
+
+            await fetch(`${baseURL}/media/delete`, {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ publicIds: [publicId] }),
+            });
+          }
+        } catch (deleteError) {
+          console.error('Failed to delete old image:', deleteError);
+          // Don't throw - old image cleanup is not critical
+        }
+      }
+
+      // 5. Update user context to trigger re-render with new DP
+      await reauthenticate();
+
+      toast.success("Profile picture updated successfully!");
+
+      onSuccess(null, file);
 
     } catch (error) {
       onError(error);
-      toast.error(error.message);
+      toast.error(error.message || "Failed to upload profile picture");
+    } finally {
+      setUploadLoading(false);
     }
+  };
+
+  const beforeUpload = (file) => {
+    const isImage = file.type.startsWith('image/');
+    if (!isImage) {
+      toast.error('You can only upload image files!');
+      return false;
+    }
+    const isLt5M = file.size / 1024 / 1024 < 5;
+    if (!isLt5M) {
+      toast.error('Image must be smaller than 5MB!');
+      return false;
+    }
+    return true;
   };
 
   const formatDate = (dateString) => {
@@ -201,15 +244,18 @@ const Account = () => {
                 name="avatar"
                 showUploadList={false}
                 customRequest={handleAvatarUpload}
-                disabled={!isEditing}
+                beforeUpload={beforeUpload}
+                disabled={!isEditing || uploadLoading}
+                accept="image/*"
               >
                 <Button
                   icon={<UploadOutlined />}
-                  disabled={!isEditing}
+                  disabled={!isEditing || uploadLoading}
+                  loading={uploadLoading}
                   size="small"
                   className="upload-button"
                 >
-                  {isEditing ? "Change Photo" : "Photo"}
+                  {uploadLoading ? "Uploading..." : isEditing ? "Change Photo" : "Photo"}
                 </Button>
               </Upload>
 
