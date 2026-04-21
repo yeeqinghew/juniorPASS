@@ -106,6 +106,23 @@
   margin-top: 4px;
 }
 
+/* Search Bar */
+.search-bar {
+  margin-bottom: var(--spacing-lg);
+}
+
+.search-bar .ant-input-affix-wrapper {
+  border-radius: var(--radius-md);
+  border: 2px solid var(--border-light);
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.search-results-count {
+  display: block;
+  margin-top: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+}
+
 /* Filter Card */
 .filter-card {
   border-radius: var(--radius-lg) !important;
@@ -439,8 +456,43 @@
     padding: 0;
   }
 
+  .children-header {
+    margin-bottom: var(--spacing-md);
+  }
+
+  .children-header .ant-row {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: var(--spacing-md);
+  }
+
+  .children-header .ant-row > .ant-col:last-child {
+    width: 100%;
+  }
+
+  .children-header .ant-btn {
+    width: 100%;
+    height: 44px;
+  }
+
   .children-title {
     font-size: var(--font-size-2xl) !important;
+  }
+
+  .children-subtitle {
+    font-size: var(--font-size-sm);
+  }
+
+  .search-bar .ant-input-affix-wrapper {
+    font-size: var(--font-size-base);
+  }
+
+  .search-bar .ant-input-affix-wrapper-lg {
+    padding: 10px 14px;
+  }
+
+  .filter-card .ant-card-body {
+    padding: var(--spacing-sm);
   }
 
   .stat-card .ant-card-body {
@@ -483,6 +535,27 @@
 
   .booking-list .ant-list-item {
     padding: var(--spacing-sm);
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+
+  .booking-list .ant-list-item-action {
+    margin-left: 0 !important;
+    margin-top: var(--spacing-sm);
+    width: 100%;
+  }
+
+  .booking-list .ant-list-item-action > li {
+    width: 100%;
+  }
+
+  .booking-list .ant-list-item-action .ant-btn {
+    width: 100%;
+    height: 40px;
+  }
+
+  .booking-list .ant-list-item-meta {
+    width: 100%;
   }
 
   .booking-avatar {
@@ -494,13 +567,31 @@
     font-size: var(--font-size-md);
   }
 
+  .booking-meta-item {
+    font-size: var(--font-size-xs);
+  }
+
   .filter-segmented .ant-segmented-item {
     font-size: var(--font-size-xs);
+    padding: 6px 8px;
   }
 
   .modal-btn {
     height: 44px !important;
     font-size: var(--font-size-base) !important;
+  }
+
+  .modal-title {
+    font-size: var(--font-size-xl) !important;
+  }
+
+  .modal-icon-wrapper {
+    width: 56px;
+    height: 56px;
+  }
+
+  .modal-icon-wrapper .anticon {
+    font-size: var(--font-size-3xl);
   }
 }
 

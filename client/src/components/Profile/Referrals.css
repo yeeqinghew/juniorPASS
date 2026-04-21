@@ -3,7 +3,7 @@
 ============================================= */
 
 .referrals-page {
-  padding: 28px 24px;
+  padding: 0;
   min-height: 100vh;
 }
 
@@ -732,7 +732,7 @@
 /* Mobile: 360px x 480px */
 @media screen and (max-width: 767.9px) {
   .referrals-page {
-    padding: 12px;
+    padding: 0;
   }
 
   .referrals-header {
@@ -865,7 +865,7 @@
 /* Tablet Portrait: 768px x 1024px */
 @media screen and (min-width: 768px) and (max-width: 1023.9px) {
   .referrals-page {
-    padding: 16px;
+    padding: 0;
   }
 
   .referrals-header {
@@ -930,7 +930,7 @@
 /* Tablet Landscape: 1024px x 768px */
 @media screen and (min-width: 1024px) and (max-width: 1335.9px) {
   .referrals-page {
-    padding: 24px 20px;
+    padding: 0;
   }
 
   .referrals-header {
@@ -981,7 +981,7 @@
 /* Desktop: 1336px x 768px+ */
 @media screen and (min-width: 1336px) {
   .referrals-page {
-    padding: 28px 24px;
+    padding: 0;
   }
 
   .referrals-header {

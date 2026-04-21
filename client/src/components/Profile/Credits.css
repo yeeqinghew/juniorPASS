@@ -407,12 +407,30 @@
     padding: 0;
   }
 
+  .credits-header {
+    margin-bottom: var(--spacing-md);
+  }
+
   .page-title {
     font-size: var(--font-size-2xl) !important;
   }
 
+  .page-subtitle {
+    font-size: var(--font-size-sm);
+  }
+
   .balance-card .ant-card-body {
     padding: var(--spacing-lg);
+  }
+
+  .balance-content .ant-row {
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
+
+  .balance-content .ant-col {
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
   .balance-amount {
@@ -423,14 +441,15 @@
     font-size: var(--font-size-lg);
   }
 
+  .balance-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
   .topup-button {
     width: 100%;
     height: 48px !important;
     font-size: var(--font-size-md) !important;
-  }
-
-  .balance-actions {
-    width: 100%;
   }
 
   .stat-card .ant-card-body {
@@ -464,12 +483,17 @@
     gap: var(--spacing-sm);
   }
 
+  .transactions-title {
+    width: 100%;
+  }
+
   .filter-segmented {
     width: 100%;
   }
 
   .filter-segmented .ant-segmented-item {
     font-size: var(--font-size-xs);
+    padding: 8px 4px;
   }
 
   .transaction-item {
