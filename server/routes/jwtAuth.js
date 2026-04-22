@@ -334,6 +334,51 @@ router.post("/reset-password", resetPasswordLimiter, async (req, res) => {
   }
 });
 
+router.post("/change-password", authorization, async (req, res) => {
+  const userId = req.user;
+  const { oldPassword, newPassword } = req.body;
+  // if (!isStrongPassword(newPassword)) {
+  //   return res.status(400).json({ message: "Password does not meet complexity requirements" });
+  // }
+
+  try {
+    const userResult = await pool.query(
+      `SELECT password FROM users WHERE user_id = $1`,
+      [userId],
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const validPassword = bcrypt.compareSync(
+      oldPassword,
+      userResult.rows[0].password,
+    );
+
+    console.log("Validating old password for user", userId, ":", validPassword);
+
+    if (!validPassword) {
+      return res.status(401).json({ message: "Old password is incorrect" });
+    }
+
+    const saltRound = 10;
+    const bcryptedPassword = bcrypt.hashSync(newPassword, saltRound);
+    await pool.query(`UPDATE users SET password = $1 WHERE user_id = $2`, [
+      bcryptedPassword,
+      userId,
+    ]);
+
+    const token = jwtGenerator(userId);
+    return res
+      .status(200)
+      .json({ message: "Password changed successfully", token });
+  } catch (err) {
+    console.error("Error in change-password route:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.post("/check-email", async (req, res) => {
   const { email } = req.body;
 
