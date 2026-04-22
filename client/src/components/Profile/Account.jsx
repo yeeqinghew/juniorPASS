@@ -13,6 +13,7 @@ import {
 import { useUserContext } from "../UserContext";
 import toast from "react-hot-toast";
 import getBaseURL from "../../utils/config";
+import CryptoJS from "crypto-js";
 import "./Account.css";
 
 const { Title, Text } = Typography;
@@ -45,7 +46,7 @@ const Account = () => {
       const values = await profileForm.validateFields();
       const token = localStorage.getItem("token");
       const res = await fetch(`${baseURL}/auth/${user.user_id}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(values),
       });
@@ -78,16 +79,30 @@ const Account = () => {
       setPwLoading(true);
       const values = await passwordForm.validateFields();
       const token = localStorage.getItem("token");
-      const res = await fetch(`${baseURL}/auth/${user.user_id}/password`, {
-        method: "PUT",
+
+      const encryptedOldPassword = CryptoJS.SHA256(values.oldPassword).toString(
+        CryptoJS.enc.Hex
+      );
+      const encryptedNewPassword = CryptoJS.SHA256(values.newPassword).toString(
+        CryptoJS.enc.Hex
+      );
+
+      const res = await fetch(`${baseURL}/auth/change-password`, {
+        method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          oldPassword: encryptedOldPassword,
+          newPassword: encryptedNewPassword
+        }),
       });
       const data = await res.json();
       if (res.ok) {
         toast.success("Password changed!");
         setIsChangingPassword(false);
         passwordForm.resetFields();
+        // TODO: log out user from all devices after password change
+        localStorage.removeItem("token");
+        window.location.href = "/login";
       } else {
         toast.error(data.message || "Failed to change password");
       }
@@ -131,7 +146,7 @@ const Account = () => {
       if (!uploadRes.ok) throw new Error(uploadData.error?.message || "Upload failed");
 
       const updateRes = await fetch(`${baseURL}/auth/${user.user_id}`, {
-        method: "PUT",
+        method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ display_picture: uploadData.secure_url }),
       });
@@ -283,23 +298,23 @@ const Account = () => {
             ) : (
               <Form form={passwordForm} layout="vertical" className="ac-form">
                 <div className="ac-form-grid">
-                  <Form.Item name="current_password" label="Current Password"
+                  <Form.Item name="oldPassword" label="Current Password"
                     rules={[{ required: true, message: "Required" }]}>
                     <Input.Password prefix={<LockOutlined />} placeholder="Current password" />
                   </Form.Item>
 
-                  <Form.Item name="new_password" label="New Password"
+                  <Form.Item name="newPassword" label="New Password"
                     rules={[{ required: true, message: "Required" }, { min: 8, message: "At least 8 characters" }]}>
                     <Input.Password prefix={<LockOutlined />} placeholder="New password" />
                   </Form.Item>
 
-                  <Form.Item name="confirm_password" label="Confirm New Password"
-                    dependencies={["new_password"]}
+                  <Form.Item name="confirmPassword" label="Confirm New Password"
+                    dependencies={["newPassword"]}
                     rules={[
                       { required: true, message: "Required" },
                       ({ getFieldValue }) => ({
                         validator(_, value) {
-                          if (!value || getFieldValue("new_password") === value) return Promise.resolve();
+                          if (!value || getFieldValue("newPassword") === value) return Promise.resolve();
                           return Promise.reject("Passwords do not match");
                         },
                       }),
