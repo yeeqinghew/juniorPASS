@@ -1,502 +1,435 @@
-/* Import global variables */
 @import '../../styles/variables.css';
 
-/* ============================================
-   ACCOUNT PAGE - CLEAN DESIGN
-   ============================================ */
+/* ================================================
+   ACCOUNT PAGE
+   Layout: sidebar (fixed-width) + main (flex-1)
+   No Ant Design Row/Col anywhere — zero overflow risk
+   ================================================ */
 
-.account-page {
+/* ── Page shell ── */
+.ac-page {
   padding: 0;
-  max-width: 100%;
-  /* Prevent any child from ever causing horizontal scroll */
-  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* Header Section */
-.account-header {
-  margin-bottom: var(--spacing-lg);
+.ac-page-header {
+  margin-bottom: 28px;
 }
 
-.account-title {
-  margin: 0 0 4px 0 !important;
-  font-size: var(--font-size-3xl) !important;
-  font-weight: var(--font-weight-semibold) !important;
+.ac-page-title {
+  margin: 0 0 4px;
+  font-size: 24px;
+  font-weight: 600;
   color: var(--text-dark);
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
 }
 
-.account-title .anticon {
-  color: var(--primary-color);
-}
-
-.account-subtitle {
-  font-size: var(--font-size-base);
+.ac-page-sub {
+  margin: 0;
+  font-size: 14px;
   color: var(--text-muted);
 }
 
-/* ============================================
-   CARDS ROW
-   ============================================ */
-
-.account-cards-row {
+/* ── Outer layout: sidebar + main side by side ── */
+.ac-layout {
   display: flex;
-  gap: var(--spacing-lg);
-  align-items: stretch;
-  margin-bottom: var(--spacing-lg);
+  align-items: flex-start;
+  gap: 24px;
   width: 100%;
-  min-width: 0;
+  box-sizing: border-box;
 }
 
-.profile-card-wrapper {
-  flex: 0 0 280px;
-  min-width: 0;
+/* ================================================
+   SIDEBAR
+   ================================================ */
+
+.ac-sidebar {
+  flex: 0 0 220px;
+  width: 220px;
+  background: #fff;
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: 28px 20px 24px;
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-sizing: border-box;
 }
 
-.info-card-wrapper {
+/* Avatar + camera overlay */
+.ac-avatar-wrap {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  margin-bottom: 16px;
+}
+
+.ac-avatar {
+  border: 3px solid var(--border-light) !important;
+}
+
+.ac-camera-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--primary-color, #4a90d9);
+  color: #fff;
+  border: 2px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 13px;
+  transition: opacity 0.2s;
+  padding: 0;
+  line-height: 1;
+}
+
+.ac-camera-btn:hover {
+  opacity: 0.85;
+}
+
+.ac-camera-btn.loading {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ac-sidebar-name {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-dark);
+  word-break: break-word;
+}
+
+.ac-sidebar-email {
+  margin: 0 0 20px;
+  font-size: 12px;
+  color: var(--text-muted);
+  word-break: break-all;
+}
+
+/* Meta rows */
+.ac-meta {
+  width: 100%;
+  border-top: 1px solid var(--border-light);
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ac-meta-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+
+.ac-meta-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.ac-meta-val {
+  font-size: 13px;
+  color: var(--text-dark);
+  font-weight: 500;
+}
+
+.ac-active {
+  color: var(--color-success, #52c41a);
+}
+
+.ac-uid {
+  font-size: 11px;
+  font-family: monospace;
+  color: var(--text-muted);
+  word-break: break-all;
+}
+
+/* ================================================
+   MAIN CONTENT
+   ================================================ */
+
+.ac-main {
+  /* CRITICAL: min-width:0 lets this flex child shrink properly */
   flex: 1;
   min-width: 0;
   display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-/* ============================================
-   PROFILE CARD
-   ============================================ */
-
-.profile-card {
-  border-radius: var(--radius-xl) !important;
-  border: 1px solid var(--border-light) !important;
-  text-align: center;
+/* ── Section card ── */
+.ac-section {
+  background: #fff;
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  padding: 24px;
+  box-sizing: border-box;
   width: 100%;
 }
 
-.profile-card .ant-card-body {
-  padding: var(--spacing-xl);
+/* Section top: title+desc on left, buttons on right */
+.ac-section-top {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;          /* wraps buttons below title on narrow cards */
+  margin-bottom: 20px;
 }
 
-.profile-card-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-.profile-avatar {
-  margin-bottom: var(--spacing-md);
-  border: 4px solid var(--border-light);
-  box-shadow: var(--shadow-md);
-}
-
-.profile-name {
-  font-size: var(--font-size-xl) !important;
-  font-weight: var(--font-weight-semibold) !important;
-  color: var(--text-dark);
-  margin-bottom: 4px !important;
-}
-
-.profile-email {
-  font-size: var(--font-size-sm);
-  color: var(--text-muted);
-  margin-bottom: var(--spacing-md);
-}
-
-.profile-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px var(--spacing-md);
-  background: var(--color-success-light);
-  color: var(--color-success);
-  border-radius: var(--radius-full);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  margin-bottom: var(--spacing-md);
-}
-
-.upload-button {
-  border-radius: var(--radius-sm) !important;
-  margin-bottom: var(--spacing-md);
-}
-
-.profile-member-since {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  font-size: var(--font-size-sm);
-  color: var(--text-muted);
-  padding: var(--spacing-sm) var(--spacing-md);
-  background: var(--bg-cream);
-  border-radius: var(--radius-md);
-  margin-top: auto;
-}
-
-.profile-member-since .member-icon {
-  color: var(--primary-color);
-}
-
-/* ============================================
-   INFO CARD
-   ============================================ */
-
-.info-card-wrapper .ant-card {
-  border-radius: var(--radius-xl) !important;
-  border: 1px solid var(--border-light) !important;
-  width: 100%;
+.ac-section-info {
+  flex: 1;
   min-width: 0;
 }
 
-.info-card-wrapper .ant-card-head {
-  display: none;
-}
-
-.info-card-wrapper .ant-card-body {
-  padding: var(--spacing-lg);
-  overflow: hidden;
-}
-
-.info-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-lg);
-  padding-bottom: var(--spacing-md);
-  border-bottom: 1px solid var(--border-light);
-}
-
-.info-card-title {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
+.ac-section-title {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 600;
   color: var(--text-dark);
 }
 
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0 16px;
+.ac-section-desc {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted);
 }
 
-.form-grid .ant-form-item:nth-child(3) {
+.ac-section-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+/* ── Form grid ── */
+.ac-form-grid {
+  display: grid;
+  /* 2 columns on wide, collapses to 1 on narrow */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 20px;
+}
+
+/* Phone field sits alone in col 1 */
+.ac-form-grid .ant-form-item:nth-child(3) {
   grid-column: 1;
 }
 
-/* ============================================
-   FORM STYLING
-   ============================================ */
-
-.account-form .ant-form-item-label>label {
-  color: var(--text-dark);
-  font-size: 14px;
+/* Form field label */
+.ac-form .ant-form-item-label > label {
+  font-size: 13px;
   font-weight: 600;
+  color: var(--text-dark);
 }
 
-.account-form .ant-input,
-.account-form .ant-input-affix-wrapper {
-  border-radius: 12px;
-  border: 2px solid var(--border-light);
-  transition: all 0.3s ease;
-  font-size: 15px;
-  background: transparent;
+/* Inputs */
+.ac-form .ant-input,
+.ac-form .ant-input-affix-wrapper,
+.ac-form .ant-input-password {
+  border-radius: 10px;
+  border: 1.5px solid var(--border-light);
+  font-size: 14px;
+  background: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.account-form .ant-input-affix-wrapper .ant-input {
-  background: transparent;
-}
-
-.account-form .ant-input:hover,
-.account-form .ant-input-affix-wrapper:hover {
+.ac-form .ant-input:hover,
+.ac-form .ant-input-affix-wrapper:hover {
   border-color: var(--primary-color);
 }
 
-.account-form .ant-input:focus,
-.account-form .ant-input-affix-wrapper-focused,
-.account-form .ant-input-affix-wrapper:focus-within {
+.ac-form .ant-input:focus,
+.ac-form .ant-input-affix-wrapper-focused,
+.ac-form .ant-input-affix-wrapper:focus-within {
   border-color: var(--primary-color) !important;
-  box-shadow: 0 0 0 4px rgba(152, 189, 210, 0.15);
+  box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.12);
 }
 
-.account-form .ant-input[disabled],
-.account-form .ant-input-affix-wrapper-disabled {
-  background: var(--bg-cream);
-  color: var(--text-secondary);
+.ac-form .ant-input[disabled],
+.ac-form .ant-input-affix-wrapper-disabled {
+  background: var(--bg-cream, #fafaf8);
+  color: var(--text-muted);
   border-color: var(--border-light);
 }
 
-.account-form .ant-input-affix-wrapper-disabled .ant-input {
-  background: transparent;
-}
-
-.account-form .ant-input-prefix {
+.ac-form .ant-input-prefix {
   color: var(--primary-color);
-  font-size: 16px;
   margin-right: 8px;
 }
 
-/* ============================================
-   ACCOUNT DETAILS
-   ============================================ */
-
-.account-details-section {
-  margin-top: var(--spacing-lg);
-  padding-top: var(--spacing-lg);
-  border-top: 1px solid var(--border-light);
-}
-
-.account-details-title {
-  font-size: var(--font-size-md);
-  color: var(--text-dark);
-  margin-bottom: var(--spacing-md);
-  display: block;
-}
-
-.detail-row {
+/* ── Password idle state ── */
+.ac-pw-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: var(--spacing-sm) 0;
-  border-bottom: 1px solid var(--border-light);
+  gap: 14px;
+  padding: 16px;
+  background: var(--bg-cream, #fafaf8);
+  border-radius: 10px;
 }
 
-.detail-row:last-child {
-  border-bottom: none;
-}
-
-.detail-label {
-  font-size: var(--font-size-sm);
+.ac-pw-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
   color: var(--text-muted);
-  font-weight: var(--font-weight-medium);
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
+  flex-shrink: 0;
 }
 
-.detail-icon {
+.ac-pw-label {
+  margin: 0 0 2px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.ac-pw-hint {
+  margin: 0;
+  font-size: 13px;
   color: var(--text-muted);
 }
 
-.detail-value {
-  font-size: var(--font-size-sm);
-  color: var(--text-dark);
-  font-weight: var(--font-weight-medium);
-}
+/* ================================================
+   RESPONSIVE
+   ================================================ */
 
-.detail-value.active {
-  color: var(--color-success);
-}
-
-/* ============================================
-   SECURITY SECTION
-   ============================================ */
-
-.security-row {
-  margin-top: var(--spacing-lg);
-}
-
-.security-card {
-  border-radius: var(--radius-xl) !important;
-  border: 1px solid var(--border-light) !important;
-}
-
-.security-card .ant-card-head {
-  border-bottom: 1px solid var(--border-light);
-  padding: var(--spacing-md) var(--spacing-lg);
-}
-
-.security-card .ant-card-head-title {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-dark);
-}
-
-.security-card .ant-card-body {
-  padding: var(--spacing-lg);
-}
-
-.security-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--spacing-md);
-  background: var(--bg-cream);
-  border-radius: var(--radius-md);
-}
-
-.security-item-info {
-  flex: 1;
-}
-
-.security-item-title {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-dark);
-  display: block;
-}
-
-.security-item-desc {
-  font-size: var(--font-size-sm);
-  color: var(--text-muted);
-  display: block;
-  margin-top: 2px;
-}
-
-/* Action Buttons */
-.action-buttons {
-  display: flex;
-  gap: var(--spacing-sm);
-}
-
-/* ============================================
-   MOBILE  ≤ 767px
-   ============================================ */
-
-@media screen and (max-width: 767.9px) {
-  .account-page {
-    padding: 0;
+/* ── Desktop ≥ 1336px ── */
+@media (min-width: 1336px) {
+  .ac-sidebar {
+    flex: 0 0 240px;
+    width: 240px;
   }
+}
 
-  .account-header {
-    margin-bottom: var(--spacing-md);
+/* ── Tablet landscape 1024–1335px ── */
+@media (min-width: 1024px) and (max-width: 1335px) {
+  .ac-sidebar {
+    flex: 0 0 200px;
+    width: 200px;
   }
+}
 
-  .account-title {
-    font-size: var(--font-size-2xl) !important;
-  }
-
-  .account-subtitle {
-    font-size: var(--font-size-sm);
-  }
-
-  /* Stack cards vertically */
-  .account-cards-row {
+/* ── Tablet portrait 768–1023px: stack sidebar above main ── */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .ac-layout {
     flex-direction: column;
-    gap: var(--spacing-md);
   }
 
-  .profile-card-wrapper,
-  .info-card-wrapper {
+  .ac-sidebar {
     flex: none;
     width: 100%;
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    gap: 20px;
+    padding: 20px 24px;
   }
 
-  .profile-card,
-  .info-card-wrapper .ant-card {
-    width: 100%;
+  .ac-avatar-wrap {
+    margin-bottom: 0;
+    flex-shrink: 0;
   }
 
-  .profile-card .ant-card-body {
-    padding: var(--spacing-lg);
+  .ac-sidebar-name,
+  .ac-sidebar-email {
+    margin-bottom: 0;
   }
 
-  .profile-avatar {
-    width: 80px !important;
-    height: 80px !important;
+  /* Middle column: name + email */
+  .ac-sidebar > .ac-sidebar-name,
+  .ac-sidebar > .ac-sidebar-email {
+    /* handled by natural order */
   }
 
-  .info-card-wrapper .ant-card-body {
-    padding: var(--spacing-md);
+  .ac-meta {
+    /* push to the right end */
+    margin-left: auto;
+    border-top: none;
+    padding-top: 0;
+    border-left: 1px solid var(--border-light);
+    padding-left: 20px;
+    flex-direction: row;
+    gap: 20px;
+    flex-wrap: wrap;
   }
 
-  /* Single-column form on mobile */
-  .form-grid {
+  .ac-meta-row {
+    min-width: 100px;
+  }
+
+  /* 1-column form on tablet portrait */
+  .ac-form-grid {
     grid-template-columns: 1fr;
   }
 
-  .form-grid .ant-form-item:nth-child(3) {
+  .ac-form-grid .ant-form-item:nth-child(3) {
+    grid-column: 1;
+  }
+}
+
+/* ── Mobile ≤ 767px ── */
+@media (max-width: 767px) {
+  .ac-page-title {
+    font-size: 20px;
+  }
+
+  .ac-layout {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .ac-sidebar {
+    flex: none;
+    width: 100%;
+    padding: 20px 16px;
+  }
+
+  .ac-section {
+    padding: 16px;
+  }
+
+  /* 1-column form on mobile */
+  .ac-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ac-form-grid .ant-form-item:nth-child(3) {
     grid-column: 1;
   }
 
-  .security-item {
+  /* Section top: stack vertically on mobile */
+  .ac-section-top {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .ac-section-actions {
+    width: 100%;
+  }
+
+  .ac-section-actions .ant-btn {
+    flex: 1;
+    min-height: 40px;
+  }
+
+  .ac-pw-row {
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--spacing-sm);
-  }
-
-  .security-item .ant-btn {
-    width: 100%;
-    min-height: 44px;
-  }
-
-  .action-buttons {
-    flex-direction: column;
-    width: 100%;
-    gap: var(--spacing-xs);
-  }
-
-  .action-buttons .ant-btn {
-    width: 100%;
-    min-height: 44px;
-    justify-content: center;
-  }
-}
-
-/* ============================================
-   TABLET PORTRAIT  768px – 1023px
-   ============================================ */
-
-@media screen and (min-width: 768px) and (max-width: 1023.9px) {
-
-  /* Stack cards vertically on portrait tablet */
-  .account-cards-row {
-    flex-direction: column;
-    gap: var(--spacing-lg);
-  }
-
-  .profile-card-wrapper,
-  .info-card-wrapper {
-    flex: none;
-    width: 100%;
-  }
-
-  .profile-avatar {
-    width: 100px !important;
-    height: 100px !important;
-  }
-
-  /* Single-column form on portrait tablet */
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .form-grid .ant-form-item:nth-child(3) {
-    grid-column: 1;
-  }
-
-  .action-buttons .ant-btn {
-    min-height: 44px;
-  }
-}
-
-/* ============================================
-   TABLET LANDSCAPE  1024px – 1335px
-   ============================================ */
-
-@media screen and (min-width: 1024px) and (max-width: 1335.9px) {
-  .account-cards-row {
-    gap: var(--spacing-lg);
-  }
-
-  .profile-card-wrapper {
-    flex: 0 0 240px;
-  }
-}
-
-/* ============================================
-   DESKTOP  ≥ 1336px
-   ============================================ */
-
-@media screen and (min-width: 1336px) {
-  .account-cards-row {
-    gap: var(--spacing-xl);
-  }
-
-  .profile-card-wrapper {
-    flex: 0 0 280px;
+    gap: 10px;
   }
 }
