@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Avatar, Button, Form, Input } from "antd";
+import { Avatar, Button, Form, Input, Typography } from "antd";
 import {
   UserOutlined,
   MailOutlined,
@@ -14,6 +14,8 @@ import { useUserContext } from "../UserContext";
 import toast from "react-hot-toast";
 import getBaseURL from "../../utils/config";
 import "./Account.css";
+
+const { Title, Text } = Typography;
 
 const Account = () => {
   const { user, reauthenticate } = useUserContext();
@@ -37,7 +39,6 @@ const Account = () => {
     }
   }, [user, profileForm]);
 
-  /* ── Save profile ── */
   const handleSaveProfile = async () => {
     try {
       setSaveLoading(true);
@@ -72,7 +73,6 @@ const Account = () => {
     });
   };
 
-  /* ── Change password ── */
   const handleChangePassword = async () => {
     try {
       setPwLoading(true);
@@ -103,37 +103,30 @@ const Account = () => {
     passwordForm.resetFields();
   };
 
-  /* ── Upload avatar ── */
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (!file.type.startsWith("image/")) { toast.error("Only images allowed"); return; }
-    if (file.size / 1024 / 1024 > 5) { toast.error("Image must be under 5MB"); return; }
+    if (!file.type.startsWith("image/")) { toast.error("Only image files allowed"); return; }
+    if (file.size / 1024 / 1024 > 5)    { toast.error("Image must be under 5MB");   return; }
     try {
       setUploadLoading(true);
       const token = localStorage.getItem("token");
       const oldDP = user?.display_picture;
 
-      const sigRes = await fetch(`${baseURL}/media/upload/user-dp`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const sigRes  = await fetch(`${baseURL}/media/upload/user-dp`, { method: "POST", headers: { Authorization: `Bearer ${token}` } });
       const sigData = await sigRes.json();
       if (!sigRes.ok) throw new Error(sigData.error || "Signature failed");
 
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("api_key", sigData.apiKey);
+      formData.append("api_key",   sigData.apiKey);
       formData.append("timestamp", sigData.allowedParams.timestamp);
       formData.append("signature", sigData.signature);
-      formData.append("folder", sigData.allowedParams.folder);
+      formData.append("folder",    sigData.allowedParams.folder);
       formData.append("public_id", sigData.allowedParams.public_id);
       formData.append("overwrite", sigData.allowedParams.overwrite);
 
-      const uploadRes = await fetch(
-        `https://api.cloudinary.com/v1_1/${sigData.cloudName}/image/upload`,
-        { method: "POST", body: formData }
-      );
+      const uploadRes  = await fetch(`https://api.cloudinary.com/v1_1/${sigData.cloudName}/image/upload`, { method: "POST", body: formData });
       const uploadData = await uploadRes.json();
       if (!uploadRes.ok) throw new Error(uploadData.error?.message || "Upload failed");
 
@@ -149,7 +142,7 @@ const Account = () => {
           const parts = oldDP.split("/upload/");
           if (parts.length === 2) {
             const withoutVer = parts[1].replace(/^v\d+\//, "");
-            const publicId = withoutVer.substring(0, withoutVer.lastIndexOf("."));
+            const publicId   = withoutVer.substring(0, withoutVer.lastIndexOf("."));
             await fetch(`${baseURL}/media/delete`, {
               method: "DELETE",
               headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -173,12 +166,14 @@ const Account = () => {
     d ? new Date(d).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : "—";
 
   return (
-    <div className="ac-page">
+    <div className="ac-page fade-in">
 
       {/* Page heading */}
       <div className="ac-page-header">
-        <h2 className="ac-page-title">My Account</h2>
-        <p className="ac-page-sub">Manage your profile and security settings</p>
+        <Title level={3} className="ac-page-title">
+          <UserOutlined /> My Account
+        </Title>
+        <Text className="ac-page-sub">Manage your profile and security settings</Text>
       </div>
 
       <div className="ac-layout">
@@ -186,21 +181,10 @@ const Account = () => {
         {/* ── Sidebar ── */}
         <aside className="ac-sidebar">
           <div className="ac-avatar-wrap">
-            <Avatar
-              size={88}
-              src={user?.display_picture}
-              icon={<UserOutlined />}
-              className="ac-avatar"
-            />
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              style={{ display: "none" }}
-              onChange={handleFileChange}
-            />
+            <Avatar size={88} src={user?.display_picture} icon={<UserOutlined />} className="ac-avatar" />
+            <input ref={fileInputRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleFileChange} />
             <button
-              className={`ac-camera-btn${uploadLoading ? " loading" : ""}`}
+              className="ac-camera-btn"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploadLoading}
               title="Change photo"
@@ -228,7 +212,7 @@ const Account = () => {
           </div>
         </aside>
 
-        {/* ── Main content ── */}
+        {/* ── Main sections ── */}
         <main className="ac-main">
 
           {/* Profile section */}
@@ -240,22 +224,11 @@ const Account = () => {
               </div>
               <div className="ac-section-actions">
                 {!isEditingProfile ? (
-                  <Button icon={<EditOutlined />} onClick={() => setIsEditingProfile(true)}>
-                    Edit
-                  </Button>
+                  <Button icon={<EditOutlined />} onClick={() => setIsEditingProfile(true)}>Edit</Button>
                 ) : (
                   <>
-                    <Button icon={<CloseOutlined />} onClick={handleCancelProfile}>
-                      Cancel
-                    </Button>
-                    <Button
-                      type="primary"
-                      icon={<SaveOutlined />}
-                      loading={saveLoading}
-                      onClick={handleSaveProfile}
-                    >
-                      Save
-                    </Button>
+                    <Button icon={<CloseOutlined />} onClick={handleCancelProfile}>Cancel</Button>
+                    <Button type="primary" icon={<SaveOutlined />} loading={saveLoading} onClick={handleSaveProfile}>Save</Button>
                   </>
                 )}
               </div>
@@ -263,14 +236,8 @@ const Account = () => {
 
             <Form form={profileForm} layout="vertical" disabled={!isEditingProfile} className="ac-form">
               <div className="ac-form-grid">
-                <Form.Item
-                  name="name"
-                  label="Full Name"
-                  rules={[
-                    { required: true, message: "Name is required" },
-                    { min: 2, message: "At least 2 characters" },
-                  ]}
-                >
+                <Form.Item name="name" label="Full Name"
+                  rules={[{ required: true, message: "Name is required" }, { min: 2, message: "At least 2 characters" }]}>
                   <Input prefix={<UserOutlined />} placeholder="Your full name" />
                 </Form.Item>
 
@@ -278,11 +245,8 @@ const Account = () => {
                   <Input prefix={<MailOutlined />} disabled />
                 </Form.Item>
 
-                <Form.Item
-                  name="phone_number"
-                  label="Phone Number"
-                  rules={[{ pattern: /^[0-9+\-\s()]*$/, message: "Invalid phone number" }]}
-                >
+                <Form.Item name="phone_number" label="Phone Number"
+                  rules={[{ pattern: /^[0-9+\-\s()]*$/, message: "Invalid phone number" }]}>
                   <Input prefix={<PhoneOutlined />} placeholder="Your phone number" />
                 </Form.Item>
               </div>
@@ -298,22 +262,11 @@ const Account = () => {
               </div>
               <div className="ac-section-actions">
                 {!isChangingPassword ? (
-                  <Button icon={<LockOutlined />} onClick={() => setIsChangingPassword(true)}>
-                    Change Password
-                  </Button>
+                  <Button icon={<LockOutlined />} onClick={() => setIsChangingPassword(true)}>Change Password</Button>
                 ) : (
                   <>
-                    <Button icon={<CloseOutlined />} onClick={handleCancelPassword}>
-                      Cancel
-                    </Button>
-                    <Button
-                      type="primary"
-                      icon={<SaveOutlined />}
-                      loading={pwLoading}
-                      onClick={handleChangePassword}
-                    >
-                      Update
-                    </Button>
+                    <Button icon={<CloseOutlined />} onClick={handleCancelPassword}>Cancel</Button>
+                    <Button type="primary" icon={<SaveOutlined />} loading={pwLoading} onClick={handleChangePassword}>Update</Button>
                   </>
                 )}
               </div>
@@ -321,9 +274,7 @@ const Account = () => {
 
             {!isChangingPassword ? (
               <div className="ac-pw-row">
-                <div className="ac-pw-icon-wrap">
-                  <LockOutlined />
-                </div>
+                <div className="ac-pw-icon-wrap"><LockOutlined /></div>
                 <div>
                   <p className="ac-pw-label">Password</p>
                   <p className="ac-pw-hint">Click "Change Password" to update your credentials</p>
@@ -332,40 +283,27 @@ const Account = () => {
             ) : (
               <Form form={passwordForm} layout="vertical" className="ac-form">
                 <div className="ac-form-grid">
-                  <Form.Item
-                    name="current_password"
-                    label="Current Password"
-                    rules={[{ required: true, message: "Required" }]}
-                  >
+                  <Form.Item name="current_password" label="Current Password"
+                    rules={[{ required: true, message: "Required" }]}>
                     <Input.Password prefix={<LockOutlined />} placeholder="Current password" />
                   </Form.Item>
 
-                  <Form.Item
-                    name="new_password"
-                    label="New Password"
-                    rules={[
-                      { required: true, message: "Required" },
-                      { min: 8, message: "At least 8 characters" },
-                    ]}
-                  >
+                  <Form.Item name="new_password" label="New Password"
+                    rules={[{ required: true, message: "Required" }, { min: 8, message: "At least 8 characters" }]}>
                     <Input.Password prefix={<LockOutlined />} placeholder="New password" />
                   </Form.Item>
 
-                  <Form.Item
-                    name="confirm_password"
-                    label="Confirm New Password"
+                  <Form.Item name="confirm_password" label="Confirm New Password"
                     dependencies={["new_password"]}
                     rules={[
                       { required: true, message: "Required" },
                       ({ getFieldValue }) => ({
                         validator(_, value) {
-                          if (!value || getFieldValue("new_password") === value)
-                            return Promise.resolve();
+                          if (!value || getFieldValue("new_password") === value) return Promise.resolve();
                           return Promise.reject("Passwords do not match");
                         },
                       }),
-                    ]}
-                  >
+                    ]}>
                     <Input.Password prefix={<LockOutlined />} placeholder="Confirm new password" />
                   </Form.Item>
                 </div>

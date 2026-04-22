@@ -1,46 +1,22 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Card,
-  Empty,
-  List,
-  Typography,
-  Tag,
-  Space,
-  Avatar,
-  Button,
-  Row,
-  Col,
-  Spin,
-  Collapse,
-  Segmented,
-  Modal,
-  Form,
-  Input,
-  Select,
-  InputNumber,
-  Alert,
+  Empty, List, Typography, Tag, Space, Avatar, Button,
+  Spin, Collapse, Segmented, Modal, Form, Input, Select, InputNumber, Alert,
 } from "antd";
 import {
-  CalendarOutlined,
-  ClockCircleOutlined,
-  UserOutlined,
-  BookOutlined,
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  TeamOutlined,
-  SearchOutlined,
+  CalendarOutlined, ClockCircleOutlined, UserOutlined, BookOutlined,
+  PlusOutlined, EditOutlined, DeleteOutlined, TeamOutlined, SearchOutlined,
 } from "@ant-design/icons";
 import toast from "react-hot-toast";
 import { useUserContext } from "../UserContext";
 import getBaseURL from "../../utils/config";
 import "./ChildrenClasses.css";
 import CalendarView from "./utils/CalendarView";
-import boy from "../../images/profile/boys/boy0.png";
+import boy  from "../../images/profile/boys/boy0.png";
 import girl from "../../images/profile/girls/girl0.png";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 const { Panel } = Collapse;
 const { Option } = Select;
 
@@ -48,31 +24,30 @@ const ChildrenClasses = () => {
   const { user, reauthenticate } = useUserContext();
   const baseURL = getBaseURL();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [children, setChildren] = useState([]);
-  const [bookings, setBookings] = useState([]);
-  const [filterType, setFilterType] = useState("upcoming");
-  const [isAddChildModalOpen, setIsAddChildModalOpen] = useState(false);
-  const [editingChild, setEditingChild] = useState(null);
-  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-  const [bookingToCancel, setBookingToCancel] = useState(null);
-  const [cancelLoading, setCancelLoading] = useState(false);
+  const [loading, setLoading]                           = useState(false);
+  const [children, setChildren]                         = useState([]);
+  const [bookings, setBookings]                         = useState([]);
+  const [filterType, setFilterType]                     = useState("upcoming");
+  const [isAddChildModalOpen, setIsAddChildModalOpen]   = useState(false);
+  const [editingChild, setEditingChild]                 = useState(null);
+  const [isCancelModalOpen, setIsCancelModalOpen]       = useState(false);
+  const [bookingToCancel, setBookingToCancel]           = useState(null);
+  const [cancelLoading, setCancelLoading]               = useState(false);
   const [isDeleteChildModalOpen, setIsDeleteChildModalOpen] = useState(false);
-  const [childToDelete, setChildToDelete] = useState(null);
-  const [deleteLoading, setDeleteLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [activeTab, setActiveTab] = useState("list");
+  const [childToDelete, setChildToDelete]               = useState(null);
+  const [deleteLoading, setDeleteLoading]               = useState(false);
+  const [searchTerm, setSearchTerm]                     = useState("");
+  const [activeTab, setActiveTab]                       = useState("list");
   const [form] = Form.useForm();
 
   const filteredBookings = useMemo(() => {
     if (!searchTerm.trim()) return bookings;
     const term = searchTerm.toLowerCase();
     return bookings.filter(
-      (booking) =>
-        booking.listing_title?.toLowerCase().includes(term) ||
-        booking.partner_name?.toLowerCase().includes(term) ||
-        booking.child_name?.toLowerCase().includes(term) ||
-        booking.outlet_address?.toLowerCase().includes(term),
+      (b) => b.listing_title?.toLowerCase().includes(term) ||
+             b.partner_name?.toLowerCase().includes(term)  ||
+             b.child_name?.toLowerCase().includes(term)    ||
+             b.outlet_address?.toLowerCase().includes(term),
     );
   }, [bookings, searchTerm]);
 
@@ -80,373 +55,145 @@ const ChildrenClasses = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-
-      const childrenResponse = await fetch(
-        `${baseURL}/children/${user.user_id}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      const bookingsResponse = await fetch(`${baseURL}/bookings/user`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (childrenResponse.ok && bookingsResponse.ok) {
-        const childrenData = await childrenResponse.json();
-        const bookingsData = await bookingsResponse.json();
-        setChildren(childrenData);
-        setBookings(bookingsData.bookings || []);
+      const [cr, br] = await Promise.all([
+        fetch(`${baseURL}/children/${user.user_id}`, { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } }),
+        fetch(`${baseURL}/bookings/user`,             { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } }),
+      ]);
+      if (cr.ok && br.ok) {
+        setChildren(await cr.json());
+        setBookings((await br.json()).bookings || []);
       }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      toast.error("Failed to fetch data");
-    } finally {
-      setLoading(false);
-    }
+    } catch { toast.error("Failed to fetch data"); }
+    finally  { setLoading(false); }
   };
 
-  useEffect(() => {
-    if (user) {
-      fetchChildrenAndBookings();
-    }
-  }, [user]);
+  useEffect(() => { if (user) fetchChildrenAndBookings(); }, [user]);
 
-  const handleAddChild = () => {
-    setEditingChild(null);
-    form.resetFields();
-    setIsAddChildModalOpen(true);
-  };
+  const handleAddChild = () => { setEditingChild(null); form.resetFields(); setIsAddChildModalOpen(true); };
 
   const handleEditChild = (child) => {
     setEditingChild(child);
-    form.setFieldsValue({
-      name: child.name,
-      age: child.age,
-      gender: child.gender,
-      special_notes: child.special_notes,
-    });
+    form.setFieldsValue({ name: child.name, age: child.age, gender: child.gender, special_notes: child.special_notes });
     setIsAddChildModalOpen(true);
   };
 
   const handleDeleteChild = (child) => {
     const now = new Date();
-    const childUpcomingBookings = bookings.filter(
-      (b) => b.child_id === child.child_id && new Date(b.start_date) >= now,
-    );
-
-    if (childUpcomingBookings.length > 0) {
+    const upcoming = bookings.filter((b) => b.child_id === child.child_id && new Date(b.start_date) >= now);
+    if (upcoming.length > 0) {
       Modal.error({
         title: "Cannot Delete Child Profile",
-        content: (
-          <div>
-            <p className="modal-alert-desc">
-              This child has {childUpcomingBookings.length} upcoming{" "}
-              {childUpcomingBookings.length === 1 ? "class" : "classes"}.
-            </p>
-            <p className="modal-alert-desc">
-              Please cancel all upcoming classes before deleting the profile.
-            </p>
-          </div>
-        ),
-        okText: "Understood",
-        centered: true,
+        content: <div><p>This child has {upcoming.length} upcoming {upcoming.length === 1 ? "class" : "classes"}.</p><p>Please cancel all upcoming classes first.</p></div>,
+        okText: "Understood", centered: true,
       });
       return;
     }
-
     setChildToDelete(child);
     setIsDeleteChildModalOpen(true);
   };
 
   const confirmDeleteChild = async () => {
     if (!childToDelete) return;
-
     setDeleteLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(
-        `${baseURL}/children/${childToDelete.child_id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      if (response.ok) {
-        toast.success("Child profile deleted successfully");
-        await fetchChildrenAndBookings();
-        setIsDeleteChildModalOpen(false);
-        setChildToDelete(null);
-      } else {
-        toast.error("Failed to delete child profile");
-      }
-    } catch (error) {
-      console.error("Error deleting child:", error);
-      toast.error("Failed to delete child profile");
-    } finally {
-      setDeleteLoading(false);
-    }
+      const res = await fetch(`${baseURL}/children/${childToDelete.child_id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+      if (res.ok) { toast.success("Child profile deleted"); await fetchChildrenAndBookings(); setIsDeleteChildModalOpen(false); setChildToDelete(null); }
+      else          toast.error("Failed to delete child profile");
+    } catch { toast.error("Failed to delete child profile"); }
+    finally { setDeleteLoading(false); }
   };
 
   const handleSaveChild = async (values) => {
     try {
       const token = localStorage.getItem("token");
-      const url = editingChild
-        ? `${baseURL}/children/${editingChild.child_id}`
-        : `${baseURL}/children`;
-
-      const method = editingChild ? "PATCH" : "POST";
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          ...values,
-          parent_id: user.user_id,
-        }),
-      });
-
-      if (response.ok) {
-        toast.success(
-          editingChild
-            ? "Child profile updated successfully"
-            : "Child profile added successfully",
-        );
-        setIsAddChildModalOpen(false);
-        form.resetFields();
-        setEditingChild(null);
-        await fetchChildrenAndBookings();
-      } else {
-        toast.error("Failed to save child profile");
-      }
-    } catch (error) {
-      console.error("Error saving child:", error);
-      toast.error("Failed to save child profile");
-    }
+      const res = await fetch(
+        editingChild ? `${baseURL}/children/${editingChild.child_id}` : `${baseURL}/children`,
+        { method: editingChild ? "PATCH" : "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ ...values, parent_id: user.user_id }) },
+      );
+      if (res.ok) { toast.success(editingChild ? "Profile updated" : "Child added"); setIsAddChildModalOpen(false); form.resetFields(); setEditingChild(null); await fetchChildrenAndBookings(); }
+      else         toast.error("Failed to save profile");
+    } catch { toast.error("Failed to save profile"); }
   };
 
   const handleCancelBooking = (booking) => {
-    const classStartTime = new Date(booking.start_date);
-    const now = new Date();
-    const hoursUntilClass = (classStartTime - now) / (1000 * 60 * 60);
-
-    if (hoursUntilClass < 24) {
+    const hoursUntil = (new Date(booking.start_date) - new Date()) / (1000 * 60 * 60);
+    if (hoursUntil < 24) {
       Modal.error({
         title: "Cannot Cancel Booking",
-        content: (
-          <div>
-            <p className="modal-alert-desc">
-              Cancellations must be made at least 24 hours before the class
-              starts.
-            </p>
-            <p
-              className="modal-alert-desc"
-              style={{ color: "var(--text-disabled)" }}
-            >
-              Class starts:{" "}
-              {new Date(booking.start_date).toLocaleString("en-US", {
-                weekday: "short",
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </p>
-          </div>
-        ),
-        okText: "Understood",
-        centered: true,
+        content: <div><p>Cancellations must be made at least 24 hours before the class.</p><p style={{ color: "var(--text-secondary)" }}>Class starts: {new Date(booking.start_date).toLocaleString("en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</p></div>,
+        okText: "Understood", centered: true,
       });
       return;
     }
-
-    setBookingToCancel({
-      bookingId: booking.booking_id,
-      bookingTitle: booking.listing_title,
-    });
+    setBookingToCancel({ bookingId: booking.booking_id, bookingTitle: booking.listing_title });
     setIsCancelModalOpen(true);
   };
 
   const confirmCancelBooking = async () => {
     if (!bookingToCancel) return;
-
     setCancelLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(
-        `${baseURL}/bookings/${bookingToCancel.bookingId}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        toast.success(
-          `Booking cancelled! ${data.refunded_credit} credits refunded.`,
-        );
-        await fetchChildrenAndBookings();
-        await reauthenticate();
-        setIsCancelModalOpen(false);
-        setBookingToCancel(null);
+      const res = await fetch(`${baseURL}/bookings/${bookingToCancel.bookingId}`, { method: "DELETE", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } });
+      if (res.ok) {
+        const data = await res.json();
+        toast.success(`Booking cancelled! ${data.refunded_credit} credits refunded.`);
+        await fetchChildrenAndBookings(); await reauthenticate();
+        setIsCancelModalOpen(false); setBookingToCancel(null);
       } else {
-        const data = await response.json();
+        const data = await res.json();
         toast.error(data.error || "Failed to cancel booking");
       }
-    } catch (error) {
-      console.error("Error cancelling booking:", error);
-      toast.error("Failed to cancel booking");
-    } finally {
-      setCancelLoading(false);
-    }
+    } catch { toast.error("Failed to cancel booking"); }
+    finally  { setCancelLoading(false); }
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      weekday: "short",
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  const formatTime = (dateTimeString) => {
-    return new Date(dateTimeString).toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
-  };
+  const formatDate = (s) => new Date(s).toLocaleDateString("en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" });
+  const formatTime = (s) => new Date(s).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
 
   const getFilteredBookings = (childId) => {
     const now = new Date();
-    let filtered = filteredBookings.filter((b) => b.child_id === childId);
-
-    if (filterType === "upcoming") {
-      filtered = filtered.filter((b) => new Date(b.start_date) >= now);
-    } else if (filterType === "past") {
-      filtered = filtered.filter((b) => new Date(b.start_date) < now);
-    }
-
-    return filtered;
+    let list = filteredBookings.filter((b) => b.child_id === childId);
+    if (filterType === "upcoming") list = list.filter((b) => new Date(b.start_date) >= now);
+    else if (filterType === "past") list = list.filter((b) => new Date(b.start_date) < now);
+    return list;
   };
 
   const getChildImage = (child) => {
-    if (child.display_picture) {
-      return child.display_picture;
-    }
-    try {
-      return child.gender === "M"
-        ? boy
-        : girl;
-    } catch (e) {
-      return null;
-    }
+    if (child.display_picture) return child.display_picture;
+    try { return child.gender === "M" ? boy : girl; } catch { return null; }
   };
 
   const renderBookingItem = (booking) => {
     let imageUrl = null;
     if (booking.images) {
-      try {
-        const imagesArray =
-          typeof booking.images === "string"
-            ? JSON.parse(booking.images)
-            : booking.images;
-        imageUrl = imagesArray[0];
-      } catch (e) {
-        imageUrl = booking.partner_picture;
-      }
-    } else {
-      imageUrl = booking.partner_picture;
-    }
-
+      try { const arr = typeof booking.images === "string" ? JSON.parse(booking.images) : booking.images; imageUrl = arr[0]; }
+      catch { imageUrl = booking.partner_picture; }
+    } else { imageUrl = booking.partner_picture; }
     const isPast = new Date(booking.start_date) < new Date();
 
     return (
       <List.Item
         key={booking.booking_id}
-        actions={
-          !isPast
-            ? [
-                <Button
-                  type="primary"
-                  danger
-                  size="small"
-                  onClick={() => handleCancelBooking(booking)}
-                >
-                  Cancel
-                </Button>,
-              ]
-            : []
-        }
+        actions={!isPast ? [<Button type="primary" danger size="small" onClick={() => handleCancelBooking(booking)}>Cancel</Button>] : []}
       >
         <List.Item.Meta
-          avatar={
-            <Avatar
-              size={64}
-              src={imageUrl}
-              icon={<UserOutlined />}
-              className="booking-avatar"
-            />
-          }
+          avatar={<Avatar size={52} src={imageUrl} icon={<UserOutlined />} className="cc-booking-avatar" />}
           title={
             <Space direction="vertical" size={4}>
-              <Text strong className="booking-title">
-                {booking.listing_title}
-              </Text>
-              <Space size="small" className="booking-tags">
-                <Tag
-                  color={isPast ? "default" : "green"}
-                  className="booking-tag"
-                >
-                  {isPast ? "Completed" : "Confirmed"}
-                </Tag>
-                {booking.partner_name && (
-                  <Tag color="purple" className="booking-tag">
-                    {booking.partner_name}
-                  </Tag>
-                )}
+              <Text strong className="cc-booking-title">{booking.listing_title}</Text>
+              <Space size="small">
+                <Tag color={isPast ? "default" : "green"} style={{ borderRadius: 100, fontSize: 11, fontWeight: 600 }}>{isPast ? "Completed" : "Confirmed"}</Tag>
+                {booking.partner_name && <Tag color="purple" style={{ borderRadius: 100, fontSize: 11, fontWeight: 600 }}>{booking.partner_name}</Tag>}
               </Space>
             </Space>
           }
           description={
-            <div className="booking-meta">
-              <Row gutter={16}>
-                <Col xs={24} sm={12}>
-                  <div className="booking-meta-item">
-                    <CalendarOutlined />
-                    <Text type="secondary">
-                      {formatDate(booking.start_date)}
-                    </Text>
-                  </div>
-                </Col>
-                <Col xs={24} sm={12}>
-                  <div className="booking-meta-item">
-                    <ClockCircleOutlined />
-                    <Text type="secondary">
-                      {formatTime(booking.start_date)} -{" "}
-                      {formatTime(booking.end_date)}
-                    </Text>
-                  </div>
-                </Col>
-              </Row>
+            /* ── Plain flex div — NO Row/Col ── */
+            <div className="cc-booking-meta">
+              <span className="cc-booking-meta-item"><CalendarOutlined /> {formatDate(booking.start_date)}</span>
+              <span className="cc-booking-meta-item"><ClockCircleOutlined /> {formatTime(booking.start_date)} – {formatTime(booking.end_date)}</span>
             </div>
           }
         />
@@ -456,538 +203,197 @@ const ChildrenClasses = () => {
 
   const renderChildPanel = (child) => {
     const childBookings = getFilteredBookings(child.child_id);
-
     return (
       <Panel
         header={
-          <div className="child-panel-header">
-            <Avatar
-              size={48}
-              src={getChildImage(child)}
-              icon={<UserOutlined />}
-              className="child-avatar"
-            />
-            <div className="child-info">
-              <div className="child-name">
+          <div className="cc-child-header">
+            <Avatar size={44} src={getChildImage(child)} icon={<UserOutlined />} className="cc-child-avatar" />
+            <div className="cc-child-info">
+              <div className="cc-child-name">
                 {child.name}
-                <sup>
-                  <Tag
-                    color={childBookings.length > 0 ? "blue" : "default"}
-                    className="child-count-badge"
-                  >
-                    {childBookings.length}
-                  </Tag>
-                </sup>
+                <sup><Tag color={childBookings.length > 0 ? "blue" : "default"} style={{ borderRadius: 100, fontSize: 11, fontWeight: 600, padding: "1px 7px" }}>{childBookings.length}</Tag></sup>
               </div>
-              <Text className="child-meta">
-                Age {child.age} • {child.gender === "M" ? "Male" : "Female"}
-              </Text>
+              <span className="cc-child-meta">Age {child.age} • {child.gender === "M" ? "Male" : "Female"}</span>
             </div>
           </div>
         }
         key={child.child_id}
         extra={
-          <Space onClick={(e) => e.stopPropagation()} className="panel-actions">
-            <Button
-              type="primary"
-              ghost
-              icon={<EditOutlined />}
-              className="panel-action-btn"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleEditChild(child);
-              }}
-            />
-            <Button
-              danger
-              icon={<DeleteOutlined />}
-              className="panel-action-btn"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDeleteChild(child);
-              }}
-            />
+          <Space onClick={(e) => e.stopPropagation()} className="cc-panel-actions">
+            <Button type="primary" ghost icon={<EditOutlined />} className="cc-panel-btn" onClick={(e) => { e.stopPropagation(); handleEditChild(child); }} />
+            <Button danger icon={<DeleteOutlined />}            className="cc-panel-btn" onClick={(e) => { e.stopPropagation(); handleDeleteChild(child); }} />
           </Space>
         }
       >
         {childBookings.length === 0 ? (
-          <Empty
-            description={`No ${filterType} classes`}
-            image={
-              <BookOutlined
-                style={{ fontSize: 48, color: "var(--text-disabled)" }}
-              />
-            }
-            className="empty-state"
-          >
-            {filterType === "upcoming" && (
-              <Button type="primary" onClick={() => navigate("/classes")}>
-                Browse Classes
-              </Button>
-            )}
+          <Empty description={`No ${filterType} classes`} image={<BookOutlined style={{ fontSize: 40, color: "var(--text-light)" }} />} style={{ padding: "28px 0" }}>
+            {filterType === "upcoming" && <Button type="primary" onClick={() => navigate("/classes")}>Browse Classes</Button>}
           </Empty>
         ) : (
-          <List
-            className="booking-list"
-            dataSource={childBookings}
-            renderItem={renderBookingItem}
-          />
+          <List className="cc-booking-list" dataSource={childBookings} renderItem={renderBookingItem} />
         )}
       </Panel>
     );
   };
 
-  const upcomingCount = filteredBookings.filter(
-    (b) => new Date(b.start_date) >= new Date(),
-  ).length;
-  const pastCount = filteredBookings.filter(
-    (b) => new Date(b.start_date) < new Date(),
-  ).length;
+  const upcomingCount = filteredBookings.filter((b) => new Date(b.start_date) >= new Date()).length;
+  const pastCount     = filteredBookings.filter((b) => new Date(b.start_date) < new Date()).length;
 
   return (
-    <div className="children-classes-page">
-      {/* Header Section */}
-      <div className="children-header">
-        <Row justify="space-between" align="middle">
-          <Col>
-            <Title level={3} className="children-title">
-              <TeamOutlined /> Children & Classes
-            </Title>
-            <Text className="children-subtitle">
-              Manage your children and view their booked classes
-            </Text>
-          </Col>
-          <Col>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={handleAddChild}
-            >
-              Add Child
-            </Button>
-          </Col>
-        </Row>
+    <div className="cc-page fade-in">
+
+      {/* Header row */}
+      <div className="cc-header-row">
+        <div>
+          <h2 className="cc-page-title"><TeamOutlined /> Children &amp; Classes</h2>
+          <p className="cc-page-sub">Manage your children and view their booked classes</p>
+        </div>
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleAddChild}>Add Child</Button>
       </div>
 
-      {/* Summary Stats */}
+      {/* Stats — CSS grid, NO Row/Col */}
       {!loading && children.length > 0 && (
-        <Row gutter={[16, 16]} className="stats-row">
-          <Col xs={12} sm={6}>
-            <Card className="stat-card" bordered={false}>
-              <div className="stat-card-content">
-                <span className="stat-card-value info">{children.length}</span>
-                <Text className="stat-card-label">
-                  {children.length === 1 ? "Child" : "Children"}
-                </Text>
-              </div>
-            </Card>
-          </Col>
-          <Col xs={12} sm={6}>
-            <Card className="stat-card" bordered={false}>
-              <div className="stat-card-content">
-                <span className="stat-card-value success">{upcomingCount}</span>
-                <Text className="stat-card-label">Upcoming</Text>
-              </div>
-            </Card>
-          </Col>
-          <Col xs={12} sm={6}>
-            <Card className="stat-card" bordered={false}>
-              <div className="stat-card-content">
-                <span className="stat-card-value muted">{pastCount}</span>
-                <Text className="stat-card-label">Completed</Text>
-              </div>
-            </Card>
-          </Col>
-          <Col xs={12} sm={6}>
-            <Card className="stat-card" bordered={false}>
-              <div className="stat-card-content">
-                <span className="stat-card-value error">
-                  {user?.credit || 0}
-                </span>
-                <Text className="stat-card-label">Credits</Text>
-              </div>
-            </Card>
-          </Col>
-        </Row>
+        <div className="cc-stats-grid">
+          <div className="cc-stat-card">
+            <div className="cc-stat-icon primary"><TeamOutlined /></div>
+            <div><span className="cc-stat-value">{children.length}</span><span className="cc-stat-label">{children.length === 1 ? "Child" : "Children"}</span></div>
+          </div>
+          <div className="cc-stat-card">
+            <div className="cc-stat-icon success"><CalendarOutlined /></div>
+            <div><span className="cc-stat-value">{upcomingCount}</span><span className="cc-stat-label">Upcoming</span></div>
+          </div>
+          <div className="cc-stat-card">
+            <div className="cc-stat-icon muted"><BookOutlined /></div>
+            <div><span className="cc-stat-value">{pastCount}</span><span className="cc-stat-label">Completed</span></div>
+          </div>
+          <div className="cc-stat-card">
+            <div className="cc-stat-icon warning"><UserOutlined /></div>
+            <div><span className="cc-stat-value">{user?.credit || 0}</span><span className="cc-stat-label">Credits</span></div>
+          </div>
+        </div>
       )}
 
-      {/* Search Bar */}
-      <div className="search-bar">
-        <Input
-          placeholder="Search by class name, partner, child name, or location..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          prefix={<SearchOutlined />}
-          allowClear
-          size="large"
-        />
-        {searchTerm && (
-          <Text type="secondary" className="search-results-count">
-            Found {filteredBookings.length} result
-            {filteredBookings.length !== 1 ? "s" : ""}
-          </Text>
-        )}
+      {/* Search */}
+      <div className="cc-search">
+        <Input placeholder="Search class name, partner, child, or location…" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} prefix={<SearchOutlined />} allowClear size="large" />
+        {searchTerm && <span className="cc-search-count">Found {filteredBookings.length} result{filteredBookings.length !== 1 ? "s" : ""}</span>}
       </div>
 
-      {/* View Toggle */}
-      <Card className="filter-card" bordered={false}>
-        <Segmented
-          value={activeTab}
-          onChange={setActiveTab}
-          options={[
-            { label: "📋 List View", value: "list" },
-            { label: "📅 Calendar View", value: "calendar" },
-          ]}
-          block
-          className="filter-segmented"
-        />
-      </Card>
+      {/* View toggle */}
+      <div className="cc-filter-block">
+        <Segmented value={activeTab} onChange={setActiveTab}
+          options={[{ label: "📋 List View", value: "list" }, { label: "📅 Calendar View", value: "calendar" }]} block />
+      </div>
 
-      {/* Filter Card */}
+      {/* Filter */}
       {activeTab !== "calendar" && (
-        <Card className="filter-card" bordered={false}>
-          <Segmented
-            value={filterType}
-            onChange={setFilterType}
+        <div className="cc-filter-block">
+          <Segmented value={filterType} onChange={setFilterType}
             options={[
               { label: `Upcoming (${upcomingCount})`, value: "upcoming" },
-              { label: `Past (${pastCount})`, value: "past" },
+              { label: `Past (${pastCount})`,         value: "past" },
               { label: `All (${filteredBookings.length})`, value: "all" },
-            ]}
-            block
-            className="filter-segmented"
-          />
-        </Card>
+            ]} block />
+        </div>
       )}
 
-      {/* Calendar View */}
       {activeTab === "calendar" && <CalendarView bookings={filteredBookings} />}
 
-      {/* Children List */}
       {activeTab === "list" && (
         <Spin spinning={loading}>
           {children.length === 0 ? (
-            <Card className="empty-card" bordered={false}>
-              <Empty
-                description="No children profiles found"
-                image={
-                  <UserOutlined
-                    style={{ fontSize: 48, color: "var(--text-disabled)" }}
-                  />
-                }
-                className="empty-state"
-              >
-                <Button
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  onClick={handleAddChild}
-                >
-                  Add Your First Child
-                </Button>
+            <div className="cc-empty-card">
+              <Empty description="No children profiles yet" image={<UserOutlined style={{ fontSize: 40, color: "var(--text-light)" }} />}>
+                <Button type="primary" icon={<PlusOutlined />} onClick={handleAddChild}>Add Your First Child</Button>
               </Empty>
-            </Card>
+            </div>
           ) : (
-            <Collapse
-              className="children-collapse"
-              defaultActiveKey={children
-                .filter((c) => getFilteredBookings(c.child_id).length > 0)
-                .map((c) => c.child_id)}
-              expandIconPosition="end"
-            >
-              {children.map((child) => renderChildPanel(child))}
+            <Collapse className="cc-collapse"
+              defaultActiveKey={children.filter((c) => getFilteredBookings(c.child_id).length > 0).map((c) => c.child_id)}
+              expandIconPosition="end">
+              {children.map(renderChildPanel)}
             </Collapse>
           )}
         </Spin>
       )}
 
-      {/* Add/Edit Child Modal */}
-      <Modal
-        title={null}
-        open={isAddChildModalOpen}
-        onCancel={() => {
-          setIsAddChildModalOpen(false);
-          form.resetFields();
-        }}
-        footer={null}
-        centered
-        width={520}
-        maskClosable={false}
-        className="child-modal"
-      >
-        <Space direction="vertical" size={24} style={{ width: "100%" }}>
+      {/* ══ Add / Edit child ══ */}
+      <Modal open={isAddChildModalOpen} onCancel={() => { setIsAddChildModalOpen(false); form.resetFields(); }}
+        footer={null} centered width={500} maskClosable={false} className="cc-modal" title={null}>
+        <Space direction="vertical" size={20} style={{ width: "100%" }}>
           <div style={{ textAlign: "center" }}>
-            <div className="modal-icon-wrapper success">
-              <UserOutlined />
-            </div>
-            <Title level={3} className="modal-title">
-              {editingChild ? "Edit Child Profile" : "Add Child Profile"}
-            </Title>
-            <Text className="modal-subtitle">
-              {editingChild
-                ? "Update your child's information"
-                : "Add a new child to your family account"}
-            </Text>
+            <div className="cc-modal-icon success"><UserOutlined /></div>
+            <h3 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>{editingChild ? "Edit Child Profile" : "Add Child Profile"}</h3>
+            <p style={{ margin: 0, fontSize: 13, color: "var(--text-secondary)" }}>{editingChild ? "Update your child's information" : "Add a new child to your family account"}</p>
           </div>
 
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={handleSaveChild}
-            requiredMark={false}
-            className="modal-form"
-          >
-            <Form.Item
-              label="Child's Name"
-              name="name"
-              rules={[{ required: true, message: "Please enter child name" }]}
-            >
-              <Input placeholder="Enter child's full name" size="large" />
+          <Form form={form} layout="vertical" onFinish={handleSaveChild} requiredMark={false} className="cc-modal-form">
+            <Form.Item label="Child's Name" name="name" rules={[{ required: true, message: "Name required" }]}>
+              <Input placeholder="Full name" size="large" />
             </Form.Item>
-
-            <Row gutter={12}>
-              <Col span={12}>
-                <Form.Item
-                  label="Age"
-                  name="age"
-                  rules={[{ required: true, message: "Please enter age" }]}
-                >
-                  <InputNumber
-                    min={0}
-                    max={18}
-                    style={{ width: "100%" }}
-                    size="large"
-                    placeholder="Age"
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item
-                  label="Gender"
-                  name="gender"
-                  rules={[{ required: true, message: "Please select gender" }]}
-                >
-                  <Select placeholder="Select" size="large">
-                    <Option value="M">Male</Option>
-                    <Option value="F">Female</Option>
-                  </Select>
-                </Form.Item>
-              </Col>
-            </Row>
-            <Form.Item
-              label="Special Notes"
-              name="special_notes"
-              extra="Allergies, medical conditions, or dietary requirements."
-            >
-              <Input.TextArea
-                placeholder="Enter any special notes about the child..."
-                rows={4}
-                maxLength={1000}
-              />
+            {/* Age + Gender — plain grid, NO Row/Col */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 16px" }}>
+              <Form.Item label="Age"    name="age"    rules={[{ required: true, message: "Required" }]}><InputNumber min={0} max={18} style={{ width: "100%" }} size="large" /></Form.Item>
+              <Form.Item label="Gender" name="gender" rules={[{ required: true, message: "Required" }]}><Select placeholder="Select" size="large"><Option value="M">Male</Option><Option value="F">Female</Option></Select></Form.Item>
+            </div>
+            <Form.Item label="Special Notes" name="special_notes" extra="Allergies, medical conditions, dietary requirements.">
+              <Input.TextArea placeholder="Any special notes…" rows={3} maxLength={1000} />
             </Form.Item>
           </Form>
 
-          <Row gutter={12} className="modal-actions">
-            <Col span={12}>
-              <Button
-                block
-                size="large"
-                className="modal-btn"
-                onClick={() => {
-                  setIsAddChildModalOpen(false);
-                  form.resetFields();
-                }}
-              >
-                Cancel
-              </Button>
-            </Col>
-            <Col span={12}>
-              <Button
-                block
-                type="primary"
-                size="large"
-                className="modal-btn success"
-                onClick={() => form.submit()}
-              >
-                {editingChild ? "Update Profile" : "Add Child"}
-              </Button>
-            </Col>
-          </Row>
+          <div className="cc-modal-btns">
+            <Button onClick={() => { setIsAddChildModalOpen(false); form.resetFields(); }}>Cancel</Button>
+            <Button type="primary" onClick={() => form.submit()}>{editingChild ? "Update Profile" : "Add Child"}</Button>
+          </div>
         </Space>
       </Modal>
 
-      {/* Cancel Booking Modal */}
-      <Modal
-        open={isCancelModalOpen}
-        onCancel={() => {
-          setIsCancelModalOpen(false);
-          setBookingToCancel(null);
-        }}
-        footer={null}
-        centered
-        width={500}
-        maskClosable={false}
-        className="child-modal"
-      >
-        <Space direction="vertical" size={24} style={{ width: "100%" }}>
+      {/* ══ Cancel booking ══ */}
+      <Modal open={isCancelModalOpen} onCancel={() => { setIsCancelModalOpen(false); setBookingToCancel(null); }}
+        footer={null} centered width={460} maskClosable={false} className="cc-modal" title={null}>
+        <Space direction="vertical" size={20} style={{ width: "100%" }}>
           <div style={{ textAlign: "center" }}>
-            <div className="modal-icon-wrapper error">
-              <DeleteOutlined />
-            </div>
-            <Title level={3} className="modal-title">
-              Cancel Class Booking
-            </Title>
-            <Text className="modal-subtitle">
-              Are you sure you want to cancel this booking?
-            </Text>
+            <div className="cc-modal-icon danger"><DeleteOutlined /></div>
+            <h3 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>Cancel Booking</h3>
+            <p style={{ margin: 0, fontSize: 13, color: "var(--text-secondary)" }}>Are you sure you want to cancel this booking?</p>
           </div>
-
           {bookingToCancel?.bookingTitle && (
-            <Card className="modal-info-card" bordered={false}>
-              <Text className="modal-info-label">Booking Details</Text>
-              <Text className="modal-info-value">
-                {bookingToCancel.bookingTitle}
-              </Text>
-            </Card>
+            <div className="cc-modal-info-tile">
+              <p style={{ margin: "0 0 4px", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-secondary)" }}>Booking</p>
+              <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: "var(--text-primary)" }}>{bookingToCancel.bookingTitle}</p>
+            </div>
           )}
-
-          <Alert
-            message={
-              <span className="modal-alert-title">
-                Credits will be automatically refunded
-              </span>
-            }
-            description={
-              <Text className="modal-alert-desc">
-                The refunded credits will be available immediately for booking
-                other classes
-              </Text>
-            }
-            type="success"
-            showIcon
-            className="modal-alert success"
-          />
-
-          <Row gutter={12} className="modal-actions">
-            <Col span={12}>
-              <Button
-                block
-                size="large"
-                className="modal-btn"
-                onClick={() => {
-                  setIsCancelModalOpen(false);
-                  setBookingToCancel(null);
-                }}
-              >
-                Keep Booking
-              </Button>
-            </Col>
-            <Col span={12}>
-              <Button
-                block
-                danger
-                size="large"
-                loading={cancelLoading}
-                className="modal-btn error"
-                onClick={confirmCancelBooking}
-              >
-                Cancel Booking
-              </Button>
-            </Col>
-          </Row>
+          <Alert message="Credits will be automatically refunded" description="Refunded credits are available immediately for other bookings" type="success" showIcon style={{ borderRadius: "var(--border-radius)" }} />
+          <div className="cc-modal-btns">
+            <Button onClick={() => { setIsCancelModalOpen(false); setBookingToCancel(null); }}>Keep Booking</Button>
+            <Button danger loading={cancelLoading} onClick={confirmCancelBooking}>Cancel Booking</Button>
+          </div>
         </Space>
       </Modal>
 
-      {/* Delete Child Profile Modal */}
-      <Modal
-        open={isDeleteChildModalOpen}
-        onCancel={() => {
-          setIsDeleteChildModalOpen(false);
-          setChildToDelete(null);
-        }}
-        footer={null}
-        centered
-        width={500}
-        maskClosable={false}
-        className="child-modal"
-      >
-        <Space direction="vertical" size={24} style={{ width: "100%" }}>
+      {/* ══ Delete child ══ */}
+      <Modal open={isDeleteChildModalOpen} onCancel={() => { setIsDeleteChildModalOpen(false); setChildToDelete(null); }}
+        footer={null} centered width={460} maskClosable={false} className="cc-modal" title={null}>
+        <Space direction="vertical" size={20} style={{ width: "100%" }}>
           <div style={{ textAlign: "center" }}>
-            <div className="modal-icon-wrapper error">
-              <UserOutlined />
-            </div>
-            <Title level={3} className="modal-title">
-              Delete Child Profile
-            </Title>
-            <Text className="modal-subtitle">
-              Are you sure you want to delete this child's profile?
-            </Text>
+            <div className="cc-modal-icon danger"><UserOutlined /></div>
+            <h3 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>Delete Child Profile</h3>
+            <p style={{ margin: 0, fontSize: 13, color: "var(--text-secondary)" }}>This action cannot be undone.</p>
           </div>
-
           {childToDelete && (
-            <Card className="modal-info-card" bordered={false}>
-              <Space align="center" style={{ width: "100%" }}>
-                <Avatar
-                  size={56}
-                  src={getChildImage(childToDelete)}
-                  icon={<UserOutlined />}
-                />
-                <Space direction="vertical" size={4} style={{ flex: 1 }}>
-                  <Text strong className="modal-info-value">
-                    {childToDelete.name}
-                  </Text>
-                  <Text className="modal-alert-desc">
-                    Age {childToDelete.age} •{" "}
-                    {childToDelete.gender === "M" ? "Male" : "Female"}
-                  </Text>
-                </Space>
-              </Space>
-            </Card>
+            <div className="cc-modal-info-tile" style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <Avatar size={48} src={getChildImage(childToDelete)} icon={<UserOutlined />} />
+              <div>
+                <p style={{ margin: "0 0 2px", fontWeight: 700, color: "var(--text-primary)" }}>{childToDelete.name}</p>
+                <p style={{ margin: 0, fontSize: 13, color: "var(--text-secondary)" }}>Age {childToDelete.age} • {childToDelete.gender === "M" ? "Male" : "Female"}</p>
+              </div>
+            </div>
           )}
-
-          <Alert
-            message={
-              <span className="modal-alert-title">
-                This action cannot be undone
-              </span>
-            }
-            description={
-              <Text className="modal-alert-desc">
-                All data associated with this child's profile will be
-                permanently deleted
-              </Text>
-            }
-            type="error"
-            showIcon
-            className="modal-alert error"
-          />
-
-          <Row gutter={12} className="modal-actions">
-            <Col span={12}>
-              <Button
-                block
-                size="large"
-                className="modal-btn"
-                onClick={() => {
-                  setIsDeleteChildModalOpen(false);
-                  setChildToDelete(null);
-                }}
-              >
-                Cancel
-              </Button>
-            </Col>
-            <Col span={12}>
-              <Button
-                block
-                danger
-                size="large"
-                loading={deleteLoading}
-                className="modal-btn error"
-                onClick={confirmDeleteChild}
-              >
-                Delete Profile
-              </Button>
-            </Col>
-          </Row>
+          <Alert message="This action cannot be undone" description="All data for this child will be permanently deleted" type="error" showIcon style={{ borderRadius: "var(--border-radius)" }} />
+          <div className="cc-modal-btns">
+            <Button onClick={() => { setIsDeleteChildModalOpen(false); setChildToDelete(null); }}>Cancel</Button>
+            <Button danger loading={deleteLoading} onClick={confirmDeleteChild}>Delete Profile</Button>
+          </div>
         </Space>
       </Modal>
     </div>
