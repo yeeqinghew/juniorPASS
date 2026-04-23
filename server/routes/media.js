@@ -22,7 +22,7 @@ router.post("/upload/user-dp", authorization, (req, res) => {
 // -------------------- PARTNER DP --------------------
 router.post("/upload/partner-dp", authorization, (req, res) => {
   try {
-    const data = getPartnerDPSignature(req.user.partnerId);
+    const data = getPartnerDPSignature(req.user);
     res.json(data);
   } catch (err) {
     res.status(403).json({ error: err.message });
@@ -38,7 +38,7 @@ router.post("/upload/listing-image", authorization, (req, res) => {
       return res.status(400).json({ error: "listingId is required" });
     }
 
-    const data = getListingImageSignature(req.user.partnerId, listingId);
+    const data = getListingImageSignature(req.user, listingId);
 
     res.json(data);
   } catch (err) {
@@ -56,17 +56,15 @@ router.delete("/delete", authorization, async (req, res) => {
     }
 
     const filtered = publicIds.filter((id) => {
-      if (id.startsWith(`users/${req.user.id}/dp`)) return true;
+      if (req.user && id.startsWith(`juniorpass/users/${req.user}/dp`))
+        return true;
 
-      if (
-        req.user.partnerId &&
-        id.startsWith(`partners/${req.user.partnerId}/dp`)
-      )
+      if (req.user && id.startsWith(`juniorpass/partners/${req.user}/dp`))
         return true;
 
       if (
-        req.user.partnerId &&
-        id.startsWith(`partners/${req.user.partnerId}/listings/`)
+        req.user &&
+        id.startsWith(`juniorpass/partners/${req.user}/listings/`)
       )
         return true;
 

@@ -152,21 +152,6 @@ const Account = () => {
       });
       if (!updateRes.ok) throw new Error("Failed to save picture");
 
-      if (oldDP?.includes("cloudinary.com")) {
-        try {
-          const parts = oldDP.split("/upload/");
-          if (parts.length === 2) {
-            const withoutVer = parts[1].replace(/^v\d+\//, "");
-            const publicId   = withoutVer.substring(0, withoutVer.lastIndexOf("."));
-            await fetch(`${baseURL}/media/delete`, {
-              method: "DELETE",
-              headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-              body: JSON.stringify({ publicIds: [publicId] }),
-            });
-          }
-        } catch (_) {}
-      }
-
       await reauthenticate();
       toast.success("Profile picture updated!");
     } catch (err) {

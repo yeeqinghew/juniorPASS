@@ -96,12 +96,13 @@ router.get("/:id", cacheMiddleware, async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.patch("/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const {
       partner_name,
       description,
+      picture,
       address,
       contact_number,
       website,
@@ -111,13 +112,22 @@ router.put("/:id", async (req, res) => {
     const updatedPartner = await pool.query(
       `UPDATE partners 
       SET
-        partner_name = $1,
-        description = $2,
-        address = $3,
-        contact_number = $4,
-        website = $5
-      WHERE partner_id = $6 RETURNING *`,
-      [partner_name, description, address, contact_number, website, id],
+        partner_name = COALESCE($1, partner_name),
+        description = COALESCE($2, description),
+        picture = COALESCE($3, picture),
+        address = COALESCE($4, address),
+        contact_number = COALESCE($5, contact_number),
+        website = COALESCE($6, website)
+      WHERE partner_id = $7 RETURNING *`,
+      [
+        partner_name,
+        description,
+        picture,
+        address,
+        contact_number,
+        website,
+        id,
+      ],
     );
     await client.del(`/partners/${id}`);
 
@@ -131,28 +141,34 @@ router.put("/:id", async (req, res) => {
     );
 
     // Update existing outlets
-    const updateQueries = outlets
-      .filter((outlet) => existingOutletMap.has(outlet.outlet_id))
-      .map(({ outlet_id, address, nearest_mrt }) =>
-        pool.query(
-          `UPDATE outlets SET address = $1, nearest_mrt = $2 WHERE outlet_id = $3`,
-          [address, nearest_mrt, outlet_id],
-        ),
-      );
+    const updateQueries =
+      outlets &&
+      outlets
+        ?.filter((outlet) => existingOutletMap.has(outlet.outlet_id))
+        .map(({ outlet_id, address, nearest_mrt }) =>
+          pool.query(
+            `UPDATE outlets SET address = $1, nearest_mrt = $2 WHERE outlet_id = $3`,
+            [address, nearest_mrt, outlet_id],
+          ),
+        );
 
     // Insert new outlets only if they don't exist
-    const insertOutletQueries = outlets
-      .filter((outlet) => !existingOutletMap.has(outlet.address)) // new outlets
-      .map(async ({ address, nearest_mrt }) => {
-        const result = await pool.query(
-          `INSERT INTO outlets (partner_id, address, nearest_mrt) 
+    const insertOutletQueries =
+      outlets &&
+      outlets
+        .filter((outlet) => !existingOutletMap.has(outlet.address)) // new outlets
+        .map(async ({ address, nearest_mrt }) => {
+          const result = await pool.query(
+            `INSERT INTO outlets (partner_id, address, nearest_mrt) 
           VALUES ($1, $2, $3) RETURNING outlet_id`,
-          [id, address, nearest_mrt],
-        );
-        return result.rows[0].outlet_id; // Get newly inserted outlet_id
-      });
+            [id, address, nearest_mrt],
+          );
+          return result.rows[0].outlet_id; // Get newly inserted outlet_id
+        });
 
-    await Promise.all([...updateQueries, ...insertOutletQueries]);
+    updateQueries &&
+      insertOutletQueries &&
+      (await Promise.all([...updateQueries, ...insertOutletQueries]));
 
     return res.status(200).json({
       message: "Information has been updated successfully!",
@@ -167,7 +183,7 @@ router.put("/:id", async (req, res) => {
 router.post("/partnerForm", validInfo, async (req, res) => {
   try {
     const { companyName, companyPersonName, email, message } = req.body;
-    const request = await pool.query(
+    await pool.query(
       `INSERT INTO partnerForms (
         company_name,
         contact_person_name,

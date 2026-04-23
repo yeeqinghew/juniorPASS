@@ -15,7 +15,9 @@
 }
 
 /* ── Page heading ─────────────────────── */
-.ac-page-header { margin-bottom: var(--spacing-lg); }
+.ac-page-header {
+  margin-bottom: var(--spacing-lg);
+}
 
 .ac-page-title {
   margin: 0 0 4px !important;
@@ -28,7 +30,9 @@
   line-height: 1.2 !important;
 }
 
-.ac-page-title .anticon { color: var(--primary-color); }
+.ac-page-title .anticon {
+  color: var(--primary-color);
+}
 
 .ac-page-sub {
   margin: 0;
@@ -93,8 +97,16 @@
   padding: 0;
   line-height: 1;
 }
-.ac-camera-btn:hover    { background: var(--primary-active); transform: scale(1.1); }
-.ac-camera-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.ac-camera-btn:hover {
+  transform: scale(1.1);
+}
+
+.ac-camera-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
 
 .ac-sidebar-name {
   margin: 0 0 3px;
@@ -156,7 +168,8 @@
 /* ── Main column ──────────────────────── */
 .ac-main {
   flex: 1;
-  min-width: 0; /* CRITICAL — stops flex child overflow */
+  min-width: 0;
+  /* CRITICAL — stops flex child overflow */
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
@@ -184,7 +197,10 @@
   border-bottom: 1px solid var(--border-color);
 }
 
-.ac-section-info { flex: 1; min-width: 0; }
+.ac-section-info {
+  flex: 1;
+  min-width: 0;
+}
 
 .ac-section-title {
   margin: 0 0 3px;
@@ -213,10 +229,12 @@
   gap: 0 20px;
 }
 
-.ac-form-grid .ant-form-item:nth-child(3) { grid-column: 1; }
+.ac-form-grid .ant-form-item:nth-child(3) {
+  grid-column: 1;
+}
 
 /* ── Form field styles ────────────────── */
-.ac-form .ant-form-item-label > label {
+.ac-form .ant-form-item-label>label {
   font-size: 13px;
   font-weight: 600;
   color: var(--text-primary);
@@ -298,17 +316,25 @@
 
 /* Desktop ≥ 1336px */
 @media (min-width: 1336px) {
-  .ac-sidebar { flex: 0 0 240px; width: 240px; }
+  .ac-sidebar {
+    flex: 0 0 240px;
+    width: 240px;
+  }
 }
 
 /* Tablet landscape 1024–1335px */
 @media (min-width: 1024px) and (max-width: 1335px) {
-  .ac-sidebar { flex: 0 0 200px; width: 200px; }
+  .ac-sidebar {
+    flex: 0 0 200px;
+    width: 200px;
+  }
 }
 
 /* Tablet portrait 768–1023px — sidebar becomes top bar */
 @media (min-width: 768px) and (max-width: 1023px) {
-  .ac-layout { flex-direction: column; }
+  .ac-layout {
+    flex-direction: column;
+  }
 
   .ac-sidebar {
     flex: none;
@@ -320,8 +346,14 @@
     padding: var(--spacing-md) var(--spacing-lg);
   }
 
-  .ac-avatar-wrap { margin-bottom: 0; flex-shrink: 0; }
-  .ac-sidebar-email { margin-bottom: 0; }
+  .ac-avatar-wrap {
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+
+  .ac-sidebar-email {
+    margin-bottom: 0;
+  }
 
   .ac-meta {
     margin-left: auto;
@@ -334,13 +366,21 @@
     gap: 12px 24px;
   }
 
-  .ac-form-grid { grid-template-columns: 1fr; }
-  .ac-form-grid .ant-form-item:nth-child(3) { grid-column: 1; }
+  .ac-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ac-form-grid .ant-form-item:nth-child(3) {
+    grid-column: 1;
+  }
 }
 
 /* Mobile ≤ 767px */
 @media (max-width: 767px) {
-  .ac-layout { flex-direction: column; gap: var(--spacing-md); }
+  .ac-layout {
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
 
   .ac-sidebar {
     flex: none;
@@ -348,15 +388,35 @@
     padding: var(--spacing-md) var(--spacing-md);
   }
 
-  .ac-section { padding: var(--spacing-md); }
+  .ac-section {
+    padding: var(--spacing-md);
+  }
 
-  .ac-form-grid { grid-template-columns: 1fr; }
-  .ac-form-grid .ant-form-item:nth-child(3) { grid-column: 1; }
+  .ac-form-grid {
+    grid-template-columns: 1fr;
+  }
 
-  .ac-section-top { flex-direction: column; gap: var(--spacing-xs); }
+  .ac-form-grid .ant-form-item:nth-child(3) {
+    grid-column: 1;
+  }
 
-  .ac-section-actions { width: 100%; }
-  .ac-section-actions .ant-btn { flex: 1; min-height: 42px; }
+  .ac-section-top {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
 
-  .ac-pw-row { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .ac-section-actions {
+    width: 100%;
+  }
+
+  .ac-section-actions .ant-btn {
+    flex: 1;
+    min-height: 42px;
+  }
+
+  .ac-pw-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
 }
