@@ -96,7 +96,7 @@ const VerifyOTP = () => {
     try {
       const response = await fetch(`${baseURL}/auth/send-otp`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", authorization: `Bearer ${localStorage.getItem("token")}` },
         body: JSON.stringify({ email }),
       });
 

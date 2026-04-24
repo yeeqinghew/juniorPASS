@@ -133,7 +133,7 @@ CREATE TABLE partners (
 
 -- For newly invited partners, these will be set to false and true respectively
 -- Existing partners are marked as complete with no password change required
-CREATE INDEX IF NOT EXISTS idex_partners_profile_complete ON patners(is_profile_complete);
+CREATE INDEX IF NOT EXISTS idx_partners_profile_complete ON partners(is_profile_complete);
 CREATE INDEX IF NOT EXISTS idx_partners_password_change ON partners(requires_password_change);
 
 CREATE TRIGGER set_timestamp_partners
