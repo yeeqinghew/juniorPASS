@@ -31,7 +31,8 @@ router.post("/login", async (req, res) => {
 
   try {
     const partner = await pool.query(
-      "SELECT * FROM partners WHERE email = $1",
+      `SELECT partner_id, email, password, requires_password_change, is_profile_complete
+       FROM partners WHERE email = $1`,
       [email],
     );
 
@@ -50,7 +51,12 @@ router.post("/login", async (req, res) => {
     }
 
     const token = jwtGenerator(partner.rows[0].partner_id);
-    return res.status(200).json({ token });
+
+    return res.status(200).json({
+      token,
+      requires_password_change: partner.rows[0].requires_password_change || false,
+      is_profile_complete: partner.rows[0].is_profile_complete !== false // Default true for existing partners
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
@@ -214,6 +220,71 @@ router.post("/partnerForm", validInfo, async (req, res) => {
     });
   } catch (error) {
     console.error("ERROR in /misc/contactUs", error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Change password for partners (especially for first-time login with temp password)
+router.post("/change-password", authorization, async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const partner_id = req.user;
+
+  try {
+    // Get current partner data
+    const partner = await pool.query(
+      "SELECT password FROM partners WHERE partner_id = $1",
+      [partner_id]
+    );
+
+    if (partner.rows.length === 0) {
+      return res.status(404).json({ message: "Partner not found" });
+    }
+
+    // Verify current password
+    const validPassword = bcrypt.compareSync(currentPassword, partner.rows[0].password);
+    if (!validPassword) {
+      return res.status(401).json({ message: "Current password is incorrect" });
+    }
+
+    // Hash new password
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password and clear password change requirement
+    await pool.query(
+      `UPDATE partners
+       SET password = $1, requires_password_change = false, updated_at = NOW()
+       WHERE partner_id = $2`,
+      [hashedNewPassword, partner_id]
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Password changed successfully"
+    });
+  } catch (error) {
+    console.error("ERROR in /partners/change-password", error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Mark profile as complete (called after partner completes their profile setup)
+router.post("/complete-profile", authorization, async (req, res) => {
+  const partner_id = req.user;
+
+  try {
+    await pool.query(
+      `UPDATE partners
+       SET is_profile_complete = true, updated_at = NOW()
+       WHERE partner_id = $1`,
+      [partner_id]
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile marked as complete"
+    });
+  } catch (error) {
+    console.error("ERROR in /partners/complete-profile", error.message);
     res.status(500).json({ error: error.message });
   }
 });

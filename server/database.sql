@@ -113,21 +113,28 @@ CREATE TRIGGER set_timestamp_referrals
 -- PARTNER PORTAL
 CREATE TABLE partners (
     partner_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-    partner_name VARCHAR(50) NOT NULL,
+    partner_name VARCHAR(100) DEFAULT 'New Partner',
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(244) NOT NULL,
-    description VARCHAR(1000),
+    description VARCHAR(1000) DEFAULT 'Profile setup in progress',
     website VARCHAR(1000),
     rating BIGINT DEFAULT 0,
     credit INTEGER DEFAULT 0,  -- Partner's credit balance from bookings
     picture VARCHAR(1000),
-    address VARCHAR(1000) NOT NULL,
-    region VARCHAR(50) NOT NULL,
+    address VARCHAR(1000),
+    region VARCHAR(50),
     contact_number VARCHAR(8),
-    categories categories[] NOT NULL,
+    categories categories[],
+    is_profile_complete BOOLEAN DEFAULT true,
+    requires_password_change BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );
+
+-- For newly invited partners, these will be set to false and true respectively
+-- Existing partners are marked as complete with no password change required
+CREATE INDEX IF NOT EXISTS idex_partners_profile_complete ON patners(is_profile_complete);
+CREATE INDEX IF NOT EXISTS idx_partners_password_change ON partners(requires_password_change);
 
 CREATE TRIGGER set_timestamp_partners
     BEFORE UPDATE ON partners
