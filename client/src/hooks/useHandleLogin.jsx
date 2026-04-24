@@ -1,10 +1,9 @@
 import toast from "react-hot-toast";
-import getBaseURL from "../utils/config";
+import { fetchWithAuth, API_ENDPOINTS } from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import { useUserContext } from "../components/UserContext";
 
 const useHandleLogin = ({ from, setLoading }) => {
-  const baseURL = getBaseURL();
   const navigate = useNavigate();
   const { reauthenticate, setAuth } = useUserContext();
 
@@ -53,11 +52,8 @@ const useHandleLogin = ({ from, setLoading }) => {
       if (setLoading) setLoading(true);
       const { clientId, credential, select_by } = values;
       if (credential) {
-        const response = await fetch(`${baseURL}/auth/login/google`, {
+        const response = await fetchWithAuth(API_ENDPOINTS.GOOGLE_LOGIN, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
           body: JSON.stringify({
             googleCredential: credential,
           }),

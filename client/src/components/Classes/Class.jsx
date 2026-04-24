@@ -28,7 +28,7 @@ import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import { useUserContext } from "../UserContext";
-import getBaseURL from "../../utils/config";
+import { fetchWithAuth, API_ENDPOINTS } from "../../utils/api";
 import Spinner from "../../utils/Spinner";
 import toast from "react-hot-toast";
 import "./Class.css";
@@ -57,7 +57,6 @@ const Class = () => {
   const isToday = dayjs(selectedDate).isSame(dayjs(), "day");
   const dateFormat = "ddd, D MMM YYYY";
   const navigate = useNavigate();
-  const baseURL = getBaseURL();
 
   const formatTimeslot = (timeslot) => {
     const startTime = dayjs(timeslot[0], "HH:mm");
@@ -138,12 +137,7 @@ const Class = () => {
       if (!user) return;
 
       try {
-        const token = localStorage.getItem("token");
-        const response = await fetch(`${baseURL}/bookings/user`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await fetchWithAuth(API_ENDPOINTS.GET_BOOKINGS);
 
         if (response.ok) {
           const data = await response.json();
@@ -158,13 +152,7 @@ const Class = () => {
       if (!user) return;
 
       try {
-        const token = localStorage.getItem("token");
-        const response = await fetch(`${baseURL}/children/${user.user_id}`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token ? `Bearer ${token}` : "",
-          },
-        });
+        const response = await fetchWithAuth(API_ENDPOINTS.GET_CHILDREN);
 
         if (response.ok) {
           const childrenData = await response.json();
@@ -177,7 +165,7 @@ const Class = () => {
 
     fetchUserBookings();
     fetchAllChildren();
-  }, [user, baseURL]);
+  }, [user]);
 
   useEffect(() => {
     async function fetchSlotAvailability() {
@@ -200,8 +188,8 @@ const Class = () => {
           .format("YYYY-MM-DDTHH:mm:ss");
 
         try {
-          const response = await fetch(
-            `${baseURL}/bookings/availability/${slot.location.schedule_id}?start_date=${startDate}&end_date=${endDate}`,
+          const response = await fetchWithAuth(
+            `/bookings/availability/${slot.location.schedule_id}?start_date=${startDate}&end_date=${endDate}`,
           );
 
           if (response.ok) {
@@ -222,14 +210,12 @@ const Class = () => {
     }
 
     fetchSlotAvailability();
-  }, [listing, selectedDate, baseURL]);
+  }, [listing, selectedDate]);
 
   useEffect(() => {
     async function fetchListing() {
       try {
-        const response = await fetch(`${baseURL}/listings/${classId}`, {
-          method: "GET",
-        });
+        const response = await fetchWithAuth(API_ENDPOINTS.GET_LISTING(classId));
         if (!response.ok) {
           throw new Error("Network response was not okay");
         }
@@ -286,13 +272,7 @@ const Class = () => {
     }
 
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${baseURL}/children/${user.user_id}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: token ? `Bearer ${token}` : "",
-        },
-      });
+      const response = await fetchWithAuth(API_ENDPOINTS.GET_CHILDREN);
       if (response.status === 401 || response.status === 403) {
         toast.error("Please login again to access your children profiles.");
         navigate(`/login`, { state: { from: `/class/${classId}` } });
@@ -345,8 +325,8 @@ const Class = () => {
         .format("YYYY-MM-DDTHH:mm:ss");
 
       try {
-        const response = await fetch(
-          `${baseURL}/bookings/availability/${slot.location.schedule_id}?start_date=${slotStartDate}&end_date=${slotEndDate}`,
+        const response = await fetchWithAuth(
+          `/bookings/availability/${slot.location.schedule_id}?start_date=${slotStartDate}&end_date=${slotEndDate}`,
         );
 
         if (response.ok) {
@@ -370,12 +350,7 @@ const Class = () => {
     await reauthenticate();
 
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${baseURL}/bookings/user`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetchWithAuth(API_ENDPOINTS.GET_BOOKINGS);
 
       if (response.ok) {
         const data = await response.json();

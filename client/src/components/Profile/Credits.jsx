@@ -25,14 +25,13 @@ import {
 import { useUserContext } from "../UserContext";
 import TopupModal from "./TopupModal";
 import toast from "react-hot-toast";
-import getBaseURL from "../../utils/config";
+import { fetchWithAuth, API_ENDPOINTS } from "../../utils/api";
 import "./Credits.css";
 
 const { Text, Title } = Typography;
 
 const Credits = () => {
   const { user } = useUserContext();
-  const baseURL = getBaseURL();
   const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -41,13 +40,8 @@ const Credits = () => {
   const fetchTransactions = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${baseURL}/transactions/user`, {
+      const res = await fetchWithAuth(API_ENDPOINTS.GET_TRANSACTION, { 
         method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
       });
       const data = res.ok ? await res.json() : null;
       setTransactions(data?.transactions || []);

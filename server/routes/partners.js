@@ -186,7 +186,7 @@ router.patch("/:id", async (req, res) => {
   }
 });
 
-router.post("/partnerForm", validInfo, async (req, res) => {
+router.post("/partner-form", validInfo, async (req, res) => {
   try {
     const { companyName, companyPersonName, email, message } = req.body;
     await pool.query(

@@ -12,7 +12,7 @@ import {
 } from "@ant-design/icons";
 import { useUserContext } from "../UserContext";
 import toast from "react-hot-toast";
-import getBaseURL from "../../utils/config";
+import { fetchWithAuth, API_ENDPOINTS } from "../../utils/api";
 import CryptoJS from "crypto-js";
 import "./Account.css";
 
@@ -20,7 +20,6 @@ const { Title, Text } = Typography;
 
 const Account = () => {
   const { user, reauthenticate } = useUserContext();
-  const baseURL = getBaseURL();
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [profileForm] = Form.useForm();
@@ -44,10 +43,8 @@ const Account = () => {
     try {
       setSaveLoading(true);
       const values = await profileForm.validateFields();
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${baseURL}/auth/${user.user_id}`, {
+      const res = await fetchWithAuth(API_ENDPOINTS.UPDATE_PROFILE(user.user_id), {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(values),
       });
       const data = await res.json();
@@ -78,7 +75,6 @@ const Account = () => {
     try {
       setPwLoading(true);
       const values = await passwordForm.validateFields();
-      const token = localStorage.getItem("token");
 
       const encryptedOldPassword = CryptoJS.SHA256(values.oldPassword).toString(
         CryptoJS.enc.Hex
@@ -87,9 +83,8 @@ const Account = () => {
         CryptoJS.enc.Hex
       );
 
-      const res = await fetch(`${baseURL}/auth/change-password`, {
+      const res = await fetchWithAuth(API_ENDPOINTS.CHANGE_PASSWORD, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           oldPassword: encryptedOldPassword,
           newPassword: encryptedNewPassword
@@ -125,10 +120,9 @@ const Account = () => {
     if (file.size / 1024 / 1024 > 5)    { toast.error("Image must be under 5MB");   return; }
     try {
       setUploadLoading(true);
-      const token = localStorage.getItem("token");
       const oldDP = user?.display_picture;
 
-      const sigRes  = await fetch(`${baseURL}/media/upload/user-dp`, { method: "POST", headers: { Authorization: `Bearer ${token}` } });
+      const sigRes  = await fetchWithAuth(API_ENDPOINTS.UPLOAD_USER_DP, { method: "POST" });
       const sigData = await sigRes.json();
       if (!sigRes.ok) throw new Error(sigData.error || "Signature failed");
 
@@ -145,9 +139,8 @@ const Account = () => {
       const uploadData = await uploadRes.json();
       if (!uploadRes.ok) throw new Error(uploadData.error?.message || "Upload failed");
 
-      const updateRes = await fetch(`${baseURL}/auth/${user.user_id}`, {
+      const updateRes = await fetchWithAuth(API_ENDPOINTS.UPDATE_PROFILE(user.user_id), {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ display_picture: uploadData.secure_url }),
       });
       if (!updateRes.ok) throw new Error("Failed to save picture");

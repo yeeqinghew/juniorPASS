@@ -20,7 +20,7 @@ import {
   CloseCircleOutlined,
 } from "@ant-design/icons";
 import toast from "react-hot-toast";
-import getBaseURL from "../../utils/config";
+import { fetchWithAuth, API_ENDPOINTS } from "../../utils/api";
 import { useUserContext } from "../UserContext";
 import "./TopupModal.css";
 
@@ -32,7 +32,6 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen, onSuccess }) => {
   const [topUpForm] = Form.useForm();
   const [selectedAmount, setSelectedAmount] = useState(null);
   const [customAmount, setCustomAmount] = useState("");
-  const baseURL = getBaseURL();
   const { user, refreshUser } = useUserContext();
   const isPollingRef = useRef(false);
 
@@ -73,9 +72,8 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen, onSuccess }) => {
     const interval = setInterval(async () => {
       attempts++;
       try {
-        const res = await fetch(
-          `${baseURL}/payment/status/${reference_number}`,
-          {}
+        const res = await fetchWithAuth(
+          API_ENDPOINTS.PAYMENT_STATUS(reference_number)
         );
         const data = await res.json();
 
@@ -93,8 +91,8 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen, onSuccess }) => {
         }
 
         if (attempts >= maxAttempts) {
-          const response = await fetch(
-            `${baseURL}/payment/verify/${reference_number}`
+          const response = await fetchWithAuth(
+            API_ENDPOINTS.PAYMENT_VERIFY(reference_number)
           );
           const verifyData = await response.json();
 
@@ -146,11 +144,8 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen, onSuccess }) => {
       }
 
       setIsLoading(true);
-      const response = await fetch(`${baseURL}/payment/init`, {
+      const response = await fetchWithAuth(API_ENDPOINTS.INIT_PAYMENT, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           amount,
           user,

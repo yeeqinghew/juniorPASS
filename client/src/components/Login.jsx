@@ -12,7 +12,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import toast from "react-hot-toast";
-import getBaseURL from "../utils/config";
+import { fetchWithAuth, API_ENDPOINTS } from "../utils/api";
 import useHandleLogin from "../hooks/useHandleLogin";
 import CryptoJS from "crypto-js";
 import "../Login.css";
@@ -20,7 +20,6 @@ import "../Login.css";
 const { Title, Text } = Typography;
 
 const Login = () => {
-  const baseURL = getBaseURL();
   const location = useLocation();
   const from = location.state?.from || "/";
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -37,11 +36,8 @@ const Login = () => {
       );
       const loginData = { ...values, password: encryptedPassword };
 
-      const response = await fetch(`${baseURL}/auth/login`, {
+      const response = await fetchWithAuth(API_ENDPOINTS.LOGIN, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(loginData),
       });
 

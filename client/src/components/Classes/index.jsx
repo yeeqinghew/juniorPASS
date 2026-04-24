@@ -28,7 +28,7 @@ import Map, {
 } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useNavigate } from "react-router-dom";
-import getBaseURL from "../../utils/config.jsx";
+import { fetchWithAuth, API_ENDPOINTS } from "../../utils/api";
 import toast from "react-hot-toast";
 import "./index.css";
 import useWindowDimensions from "../../hooks/useWindowDimensions.jsx";
@@ -39,7 +39,6 @@ import { applyTimeToDate } from "../../utils/timeHelpers.jsx";
 dayjs.extend(isBetween);
 
 const Classes = () => {
-  const baseURL = getBaseURL();
   const [popupInfo, setPopupInfo] = useState(null);
   const [listings, setListings] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -61,9 +60,7 @@ const Classes = () => {
 
   const getListings = async () => {
     try {
-      const response = await fetch(`${baseURL}/listings`, {
-        method: "GET",
-      });
+      const response = await fetchWithAuth(API_ENDPOINTS.GET_ALL_LISTINGS);
       const jsonData = await response.json();
       setListings(jsonData);
     } catch (error) {
@@ -74,7 +71,7 @@ const Classes = () => {
 
   const getCategories = async () => {
     try {
-      const response = await fetch(`${baseURL}/misc/getAllCategories`);
+      const response = await fetchWithAuth(API_ENDPOINTS.GET_ALL_CATEGORIES);
       const jsonData = await response.json();
       setCategories(jsonData);
     } catch (error) {
@@ -84,7 +81,7 @@ const Classes = () => {
 
   const getAgeGroups = async () => {
     try {
-      const response = await fetch(`${baseURL}/misc/getAllAgeGroups`);
+      const response = await fetchWithAuth(API_ENDPOINTS.GET_ALL_AGE_GROUPS);
       const jsonData = await response.json();
       setAgeGroups(jsonData);
     } catch (error) {
@@ -101,7 +98,7 @@ const Classes = () => {
 
   const getPackageTypes = async () => {
     try {
-      const response = await fetch(`${baseURL}/misc/getAllPackages`);
+      const response = await fetchWithAuth(API_ENDPOINTS.GET_ALL_PACKAGES);
       const jsonData = await response.json();
       setPackageTypes(jsonData);
     } catch (error) {

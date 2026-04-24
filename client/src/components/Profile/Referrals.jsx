@@ -23,14 +23,13 @@ import {
 } from "@ant-design/icons";
 import { useUserContext } from "../UserContext";
 import toast from "react-hot-toast";
-import getBaseURL from "../../utils/config";
+import { fetchWithAuth, API_ENDPOINTS } from "../../utils/api";
 import "./Referrals.css";
 
 const { Text, Title } = Typography;
 
 const Referrals = () => {
   const { user } = useUserContext();
-  const baseURL = getBaseURL();
   const [referralData, setReferralData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
@@ -40,13 +39,7 @@ const Referrals = () => {
   const fetchReferralData = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${baseURL}/referrals/my-referral`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const res = await fetchWithAuth(API_ENDPOINTS.MY_REFERRAL);
       if (res.ok) setReferralData(await res.json());
       else toast.error("Failed to fetch referral data");
     } catch {
@@ -73,13 +66,8 @@ const Referrals = () => {
 
   const handleShareEmail = async (values) => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${baseURL}/referrals/share-email`, {
+      const res = await fetchWithAuth(API_ENDPOINTS.SHARE_REFERRAL_EMAIL, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({
           email: values.email,
           recipient_name: values.recipient_name,

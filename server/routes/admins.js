@@ -459,7 +459,7 @@ router.post(
       });
 
     } catch (error) {
-      console.error("ERROR in /admins/createPartner", error.message);
+      console.error("ERROR in /admins/createPartner:", error);
       res.status(500).json({ message: error.message || "Failed to create partner" });
     }
   }

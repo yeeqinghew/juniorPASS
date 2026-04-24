@@ -10,7 +10,7 @@ import {
 } from "@ant-design/icons";
 import toast from "react-hot-toast";
 import { useUserContext } from "../UserContext";
-import getBaseURL from "../../utils/config";
+import { fetchWithAuth, API_ENDPOINTS } from "../../utils/api";
 import "./ChildrenClasses.css";
 import CalendarView from "./utils/CalendarView";
 import boy  from "../../images/profile/boys/boy0.png";
@@ -22,7 +22,6 @@ const { Option } = Select;
 
 const ChildrenClasses = () => {
   const { user, reauthenticate } = useUserContext();
-  const baseURL = getBaseURL();
   const navigate = useNavigate();
   const [loading, setLoading]                           = useState(false);
   const [children, setChildren]                         = useState([]);
@@ -54,10 +53,9 @@ const ChildrenClasses = () => {
   const fetchChildrenAndBookings = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
       const [cr, br] = await Promise.all([
-        fetch(`${baseURL}/children/${user.user_id}`, { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } }),
-        fetch(`${baseURL}/bookings/user`,             { headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } }),
+        fetchWithAuth(API_ENDPOINTS.GET_CHILDREN),
+        fetchWithAuth(API_ENDPOINTS.GET_BOOKINGS),
       ]);
       if (cr.ok && br.ok) {
         setChildren(await cr.json());
@@ -96,8 +94,7 @@ const ChildrenClasses = () => {
     if (!childToDelete) return;
     setDeleteLoading(true);
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${baseURL}/children/${childToDelete.child_id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetchWithAuth(API_ENDPOINTS.DELETE_CHILD(childToDelete.child_id), { method: "DELETE" });
       if (res.ok) { toast.success("Child profile deleted"); await fetchChildrenAndBookings(); setIsDeleteChildModalOpen(false); setChildToDelete(null); }
       else          toast.error("Failed to delete child profile");
     } catch { toast.error("Failed to delete child profile"); }
@@ -106,10 +103,9 @@ const ChildrenClasses = () => {
 
   const handleSaveChild = async (values) => {
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(
-        editingChild ? `${baseURL}/children/${editingChild.child_id}` : `${baseURL}/children`,
-        { method: editingChild ? "PATCH" : "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ ...values, parent_id: user.user_id }) },
+      const res = await fetchWithAuth(
+        editingChild ? API_ENDPOINTS.UPDATE_CHILD(editingChild.child_id) : API_ENDPOINTS.CREATE_CHILD,
+        { method: editingChild ? "PATCH" : "POST", body: JSON.stringify({ ...values, parent_id: user.user_id }) },
       );
       if (res.ok) { toast.success(editingChild ? "Profile updated" : "Child added"); setIsAddChildModalOpen(false); form.resetFields(); setEditingChild(null); await fetchChildrenAndBookings(); }
       else         toast.error("Failed to save profile");
@@ -134,8 +130,7 @@ const ChildrenClasses = () => {
     if (!bookingToCancel) return;
     setCancelLoading(true);
     try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${baseURL}/bookings/${bookingToCancel.bookingId}`, { method: "DELETE", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` } });
+      const res = await fetchWithAuth(API_ENDPOINTS.CANCEL_BOOKING(bookingToCancel.bookingId), { method: "DELETE" });
       if (res.ok) {
         const data = await res.json();
         toast.success(`Booking cancelled! ${data.refunded_credit} credits refunded.`);
