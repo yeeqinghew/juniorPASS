@@ -54,8 +54,10 @@ const ChildrenClasses = () => {
     setLoading(true);
     try {
       const [cr, br] = await Promise.all([
-        fetchWithAuth(API_ENDPOINTS.GET_CHILDREN),
-        fetchWithAuth(API_ENDPOINTS.GET_BOOKINGS),
+        fetchWithAuth(API_ENDPOINTS.GET_CHILDREN(user.user_id), { 
+          method: "GET",
+        }),
+        fetchWithAuth(API_ENDPOINTS.GET_BOOKINGS, { method: "GET" }),
       ]);
       if (cr.ok && br.ok) {
         setChildren(await cr.json());

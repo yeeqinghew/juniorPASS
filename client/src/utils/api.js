@@ -18,7 +18,8 @@ const getBaseURL = () => {
   const hostname = window.location.hostname;
 
   // Use https in production, http in development
-  const protocol = hostname === 'localhost' || hostname === '127.0.0.1' ? 'http' : 'https';
+  const protocol =
+    hostname === "localhost" || hostname === "127.0.0.1" ? "http" : "https";
 
   return `${protocol}://${hostname}:${port}`;
 };
@@ -36,7 +37,7 @@ export const fetchWithAuth = async (endpoint, options = {}) => {
   const token = localStorage.getItem("token");
 
   // Build full URL
-  const url = endpoint.startsWith('http') ? endpoint : `${baseURL}${endpoint}`;
+  const url = endpoint.startsWith("http") ? endpoint : `${baseURL}${endpoint}`;
 
   // Default headers
   const defaultHeaders = {
@@ -90,22 +91,21 @@ export const API_ENDPOINTS = {
   FORGOT_PASSWORD: "/auth/forgot-password",
   RESET_PASSWORD: "/auth/reset-password",
   CHANGE_PASSWORD: "/auth/change-password",
-  VERIFY_TOKEN: "/auth/verify",
+  VERIFY_TOKEN: "/auth/",
   UPDATE_PROFILE: (userId) => `/auth/${userId}`,
   LOGOUT: "/auth/logout",
 
   // Children
-  GET_CHILDREN: "/children",
+  GET_CHILDREN: (userId) => `/children/${userId}`,
   CREATE_CHILD: "/children",
   UPDATE_CHILD: (childId) => `/children/${childId}`,
   DELETE_CHILD: (childId) => `/children/${childId}`,
 
   // Transactions
   GET_TRANSACTIONS: "/transactions/user",
-  GET_TRANSACTION_STATS: "/transactions/user/stats",
 
   // Bookings
-  GET_BOOKINGS: "/bookings",
+  GET_BOOKINGS: "/bookings/user",
   CREATE_BOOKING: "/bookings",
   CANCEL_BOOKING: (bookingId) => `/bookings/${bookingId}`,
 

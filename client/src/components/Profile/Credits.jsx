@@ -40,7 +40,7 @@ const Credits = () => {
   const fetchTransactions = async () => {
     setLoading(true);
     try {
-      const res = await fetchWithAuth(API_ENDPOINTS.GET_TRANSACTION, { 
+      const res = await fetchWithAuth(API_ENDPOINTS.GET_TRANSACTIONS, { 
         method: "GET",
       });
       const data = res.ok ? await res.json() : null;

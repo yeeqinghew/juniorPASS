@@ -51,7 +51,7 @@ const Routers = () => {
     setIsTimeoutModalOpen(false);
     toast.success("You have been logged out due to inactivity");
     navigate("/login");
-  }, [baseURL, navigate, setAuth, setLoading]);
+  }, [navigate, setAuth, setLoading]);
 
   const handleOnIdle = useCallback(() => {
     if (isAuthenticated) {
