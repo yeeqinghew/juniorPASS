@@ -133,10 +133,10 @@ export const API_ENDPOINTS = {
   CREATE_REFERRAL: "/referrals/create",
 
   // Notifications
-  // GET_NOTIFICATIONS: "/notifications",
-  // GET_UNREAD_COUNT: "/notifications/unread-count",
-  // MARK_NOTIFICATION_READ: (notificationId) => `/notifications/${notificationId}/read`,
-  // MARK_ALL_NOTIFICATIONS_READ: "/notifications/read-all",
+  GET_NOTIFICATIONS: "/notifications",
+  GET_UNREAD_COUNT: "/notifications/unread-count",
+  MARK_NOTIFICATION_READ: (notificationId) => `/notifications/${notificationId}/read`,
+  MARK_ALL_NOTIFICATIONS_READ: "/notifications/read-all",
 
   // Media Upload
   UPLOAD_USER_DP: "/media/upload/user-dp",

@@ -37,6 +37,24 @@
   width: 100%;
   height: 400px;
   object-fit: cover;
+  display: block;
+}
+
+/* Fix Ant Design Image wrapper whitespace */
+.class-hero-card .ant-carousel .slick-slide > div {
+  display: block;
+}
+
+.class-hero-card .ant-carousel .slick-slide .ant-image {
+  display: block;
+  line-height: 0;
+}
+
+.class-hero-card .ant-carousel .slick-slide .ant-image-img {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  display: block;
 }
 
 .class-carousel-overlay {
@@ -305,6 +323,10 @@
     height: 250px;
   }
 
+  .class-hero-card .ant-carousel .slick-slide .ant-image-img {
+    height: 250px;
+  }
+
   .class-carousel-title {
     font-size: var(--font-size-xl) !important;
   }
@@ -330,6 +352,10 @@
   }
 
   .class-carousel-image {
+    height: 350px;
+  }
+
+  .class-hero-card .ant-carousel .slick-slide .ant-image-img {
     height: 350px;
   }
 
