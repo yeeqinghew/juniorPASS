@@ -106,20 +106,20 @@ router.post("", authorization, async (req, res) => {
     await client.del("/listings");
 
     // Admin notifications: new listing created
-    try {
-      await pool.query(
-        `INSERT INTO notifications (recipient_type, recipient_id, type, title, message, data)
-         SELECT 'admin', admin_id, 'new_listing', 'New listing created', 'A new listing has been created.',
-                jsonb_build_object('listing_id', $1, 'partner_id', $2, 'title', $3)
-         FROM admins`,
-        [listing_id, partnerIdFromToken, title],
-      );
-    } catch (notifyErr) {
-      console.error(
-        "Failed to insert admin notification (new listing):",
-        notifyErr.message,
-      );
-    }
+    // try {
+    //   await pool.query(
+    //     `INSERT INTO notifications (recipient_type, recipient_id, type, title, message, data)
+    //      SELECT 'admin', admin_id, 'new_listing', 'New listing created', 'A new listing has been created.',
+    //             jsonb_build_object('listing_id', $1, 'partner_id', $2, 'title', $3)
+    //      FROM admins`,
+    //     [listing_id, partnerIdFromToken, title],
+    //   );
+    // } catch (notifyErr) {
+    //   console.error(
+    //     "Failed to insert admin notification (new listing):",
+    //     notifyErr.message,
+    //   );
+    // }
 
     res.status(201).json({
       message: "Listing has been created!",
@@ -262,8 +262,10 @@ router.patch("/:id", authorization, async (req, res) => {
       return res.status(404).json({ error: "Listing not found" });
     }
 
+    const listing = existingListing.rows[0];
+
     // Authorize partner ownership
-    if (existingListing.rows[0].partner_id !== req.user) {
+    if (listing.partner_id !== req.user) {
       return res
         .status(403)
         .json({ error: "Not authorized to modify this listing" });
@@ -271,21 +273,22 @@ router.patch("/:id", authorization, async (req, res) => {
 
     // Merge existing data with new data (partial update)
     const updatedData = {
-      title_name: req.body.title_name || existingListing.rows[0].listing_title,
-      package_types:
-        req.body.package_types ?? existingListing.rows[0].package_types,
-      description: req.body.description ?? existingListing.rows[0].description,
-      age_groups: req.body.age_groups ?? existingListing.rows[0].age_groups,
-      images: req.body.images ?? existingListing.rows[0].images,
+      listing_title: req.body.listing_title ?? listing.listing_title,
+      package_types: req.body.package_types ?? listing.package_types,
+      description: req.body.description ?? listing.description,
+      age_groups: req.body.age_groups ?? listing.age_groups,
+      images: req.body.images ?? listing.images,
       short_term_start_date:
         req.body.short_term_start_date !== undefined
           ? req.body.short_term_start_date
-          : existingListing.rows[0].short_term_start_date,
+          : listing.short_term_start_date,
       long_term_start_date:
         req.body.long_term_start_date !== undefined
           ? req.body.long_term_start_date
-          : existingListing.rows[0].long_term_start_date,
+          : listing.long_term_start_date,
     };
+
+    console.log("Updated listing data:", updatedData);
 
     // Update listing (credit/price removed - credit is per-schedule)
     const updatedListing = await pool.query(
@@ -299,11 +302,11 @@ router.patch("/:id", authorization, async (req, res) => {
         long_term_start_date = $7
       WHERE listing_id = $8 RETURNING *`,
       [
-        updatedData.title_name,
+        updatedData.listing_title,
         updatedData.package_types,
         updatedData.description,
         updatedData.age_groups,
-        updatedData.images,
+        JSON.stringify(updatedData.images),
         updatedData.short_term_start_date,
         updatedData.long_term_start_date,
         id,
@@ -311,14 +314,14 @@ router.patch("/:id", authorization, async (req, res) => {
     );
 
     // Invalidate cache
-    await client.del(`/listings/${id}`);
+    await Promise.all([client.del(`/listings/${id}`), client.del(`/listings`)]);
 
     res.status(200).json({
       message: "Listing has been updated!",
       data: updatedListing.rows[0],
     });
   } catch (error) {
-    console.error(`ERROR in /listings/${id} PATCH`, error.message);
+    console.error(`ERROR in PATCH /listings/${id}:`, error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -501,21 +504,21 @@ router.patch("/:id/schedules", authorization, async (req, res) => {
           [listing_id],
         );
 
-        const notifications = bookedUsers.rows.map((row) =>
-          pool.query(
-            `INSERT INTO notifications (recipient_type, recipient_id, type, title, message, data)
-             VALUES ($1, $2, $3, $4, $5, $6)`,
-            [
-              "user",
-              row.user_id,
-              "schedule_update",
-              "Class schedule updated",
-              "A class you booked has updated its schedule.",
-              JSON.stringify({ listing_id }),
-            ],
-          ),
-        );
-        await Promise.all(notifications);
+        // const notifications = bookedUsers.rows.map((row) =>
+        //   pool.query(
+        //     `INSERT INTO notifications (recipient_type, recipient_id, type, title, message, data)
+        //      VALUES ($1, $2, $3, $4, $5, $6)`,
+        //     [
+        //       "user",
+        //       row.user_id,
+        //       "schedule_update",
+        //       "Class schedule updated",
+        //       "A class you booked has updated its schedule.",
+        //       JSON.stringify({ listing_id }),
+        //     ],
+        //   ),
+        // );
+        // await Promise.all(notifications);
       } catch (notifyErr) {
         console.error(
           "Failed to insert user notifications (schedule update):",
