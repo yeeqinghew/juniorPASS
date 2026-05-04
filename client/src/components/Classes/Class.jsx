@@ -152,7 +152,7 @@ const Class = () => {
       if (!user) return;
 
       try {
-        const response = await fetchWithAuth(API_ENDPOINTS.GET_CHILDREN);
+        const response = await fetchWithAuth(API_ENDPOINTS.GET_CHILDREN(user.user_id));
 
         if (response.ok) {
           const childrenData = await response.json();
@@ -395,11 +395,6 @@ const Class = () => {
                         preview={false}
                         className="class-carousel-image"
                       />
-                      <div className="class-carousel-overlay">
-                        <Title level={2} className="class-carousel-title">
-                          {listing?.listing_title}
-                        </Title>
-                      </div>
                     </div>
                   ))}
               </Carousel>
@@ -412,6 +407,9 @@ const Class = () => {
                 size="middle"
                 style={{ width: "100%" }}
               >
+                <Title level={2}>
+                  {listing?.listing_title}
+                </Title>
                 {/* Tags */}
                 <Space wrap>
                   {listing?.package_types &&
@@ -646,7 +644,7 @@ const Class = () => {
           </Col>
 
           <Col xs={24} sm={24} md={24} lg={8} xl={8}>
-            <Affix offsetTop={120}>
+           <Affix offsetTop={120} target={() => window}>
               <Card
                 bordered={false}
                 className="class-partner-card"

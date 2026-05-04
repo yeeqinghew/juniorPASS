@@ -288,8 +288,6 @@ router.patch("/:id", authorization, async (req, res) => {
           : listing.long_term_start_date,
     };
 
-    console.log("Updated listing data:", updatedData);
-
     // Update listing (credit/price removed - credit is per-schedule)
     const updatedListing = await pool.query(
       `UPDATE listings SET

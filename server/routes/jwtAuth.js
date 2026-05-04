@@ -356,8 +356,6 @@ router.post("/change-password", authorization, async (req, res) => {
       userResult.rows[0].password,
     );
 
-    console.log("Validating old password for user", userId, ":", validPassword);
-
     if (!validPassword) {
       return res.status(401).json({ message: "Old password is incorrect" });
     }
