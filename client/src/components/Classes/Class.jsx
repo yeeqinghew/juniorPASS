@@ -31,6 +31,7 @@ import { useUserContext } from "../UserContext";
 import { fetchWithAuth, API_ENDPOINTS } from "../../utils/api";
 import Spinner from "../../utils/Spinner";
 import toast from "react-hot-toast";
+import useWindowDimensions from "../../hooks/useWindowDimensions";
 import "./Class.css";
 import BuyNow from "./BuyNow";
 
@@ -54,6 +55,7 @@ const Class = () => {
   const { state } = useLocation();
   const { classId } = useParams();
   const { user, reauthenticate } = useUserContext();
+  const { isDesktop, isTabletLandscape } = useWindowDimensions();
   const isToday = dayjs(selectedDate).isSame(dayjs(), "day");
   const dateFormat = "ddd, D MMM YYYY";
   const navigate = useNavigate();
@@ -644,7 +646,84 @@ const Class = () => {
           </Col>
 
           <Col xs={24} sm={24} md={24} lg={8} xl={8}>
-           <Affix offsetTop={120} target={() => window}>
+            {isDesktop || isTabletLandscape ? (
+              <Affix offsetTop={120}>
+                <Card
+                  bordered={false}
+                  className="class-partner-card"
+                  hoverable
+                  onClick={() => {
+                    navigate(`/partner/${listing?.partner_info?.partner_id}`, {});
+                  }}
+                >
+                  {/* Partner Header */}
+                  <div className="partner-card-header">
+                    <Avatar
+                      size={64}
+                      src={listing?.partner_info?.picture}
+                      className="partner-card-avatar"
+                    />
+                    <div>
+                      <Title level={4} className="partner-card-name">
+                        {listing?.partner_name}
+                      </Title>
+                      <Text className="partner-card-badge">Verified Partner</Text>
+                    </div>
+                  </div>
+
+                  <Divider className="partner-card-divider" />
+
+                  {/* Contact Information */}
+                  <Space
+                    direction="vertical"
+                    size="middle"
+                    style={{ width: "100%" }}
+                  >
+                    <div className="partner-contact-item">
+                      <ShopOutlined className="partner-contact-icon" />
+                      <div>
+                        <Text className="partner-contact-label">Website</Text>
+                        <Text className="partner-contact-value">
+                          {listing?.partner_info?.website || "N/A"}
+                        </Text>
+                      </div>
+                    </div>
+
+                    <div className="partner-contact-item">
+                      <MailOutlined className="partner-contact-icon" />
+                      <div>
+                        <Text className="partner-contact-label">Email</Text>
+                        <Text className="partner-contact-value">
+                          {listing?.partner_info?.email}
+                        </Text>
+                      </div>
+                    </div>
+
+                    <div className="partner-contact-item">
+                      <PhoneOutlined className="partner-contact-icon" />
+                      <div>
+                        <Text className="partner-contact-label">Phone</Text>
+                        <Text className="partner-contact-value">
+                          {listing?.partner_info?.contact_number}
+                        </Text>
+                      </div>
+                    </div>
+                  </Space>
+
+                  <Divider className="partner-card-divider" />
+
+                  {/* View Profile Button */}
+                  <Button
+                    type="primary"
+                    block
+                    size="large"
+                    className="view-partner-btn"
+                  >
+                    View Partner Profile
+                  </Button>
+                </Card>
+              </Affix>
+            ) : (
               <Card
                 bordered={false}
                 className="class-partner-card"
@@ -719,7 +798,7 @@ const Class = () => {
                   View Partner Profile
                 </Button>
               </Card>
-            </Affix>
+            )}
           </Col>
         </Row>
       </div>

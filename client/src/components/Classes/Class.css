@@ -339,11 +339,6 @@
   .class-partner-card {
     margin-top: var(--spacing-lg);
   }
-
-  /* Disable Affix on mobile */
-  .class-page .ant-affix {
-    position: relative !important;
-  }
 }
 
 @media screen and (min-width: 768px) and (max-width: 1023.9px) {
@@ -357,11 +352,6 @@
 
   .class-hero-card .ant-carousel .slick-slide .ant-image-img {
     height: 350px;
-  }
-
-  /* Disable Affix on tablet */
-  .class-page .ant-affix {
-    position: relative !important;
   }
 }
 
