@@ -87,7 +87,7 @@ const LoggedInLayout = () => {
               </Menu.Item>
 
               <Menu.Item key="pricing">
-                <Link to="/pricing">Plans</Link>
+                <Link to="/pricing">Credits</Link>
               </Menu.Item>
 
               <Menu.Item

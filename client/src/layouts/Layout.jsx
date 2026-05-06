@@ -128,7 +128,7 @@ const OverallLayout = () => {
               </Menu.Item>
               <Menu.Item key="plan">
                 <Link to="/pricing" style={{ fontWeight: "600" }}>
-                  Plans
+                  Credits
                 </Link>
               </Menu.Item>
               {isAuthenticated ? (
@@ -177,7 +177,7 @@ const OverallLayout = () => {
                 </Link>
             </Menu.Item>
             <Menu.Item key="plan">
-              <Link to="/pricing">Plans</Link>
+              <Link to="/pricing">Credits</Link>
             </Menu.Item>
             {isAuthenticated ? (
               <>
