@@ -200,7 +200,7 @@ function HomePage() {
               </Menu.Item>
               <Menu.Item key="plan">
                 <Link to="/pricing" className="homepage-drawer__menu-item">
-                  Plans
+                  Credits
                 </Link>
               </Menu.Item>
               {!isProduction && (
@@ -237,7 +237,7 @@ function HomePage() {
                 to="/pricing"
                 className={`homepage-menu__link ${scrolled ? 'homepage-menu__link--scrolled' : ''}`}
               >
-                Plans
+                Credits
               </Link>
             </Menu.Item>
             {!isProduction && (
