@@ -260,10 +260,10 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen, onSuccess }) => {
         </Row>
       </div>
 
-      <Divider style={{ margin: "12px 0" }}>OR</Divider>
+      {/* <Divider style={{ margin: "12px 0" }}>OR</Divider> */}
 
       {/* Custom Amount */}
-      <Form form={topUpForm} layout="vertical" className="modal-form">
+      {/* <Form form={topUpForm} layout="vertical" className="modal-form">
         <Form.Item label={<Text strong>Custom Amount</Text>} style={{ marginBottom: 12 }}>
           <Input
             placeholder="Enter amount (min $5)"
@@ -277,7 +277,7 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen, onSuccess }) => {
             className={customAmount ? "input-selected" : ""}
           />
         </Form.Item>
-      </Form>
+      </Form> */}
 
       {/* Summary Card */}
       {(selectedAmount || customAmount) && (
