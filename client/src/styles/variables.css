@@ -224,3 +224,14 @@
   --filter-grayscale-light: grayscale(20%);
   --filter-grayscale-full: grayscale(100%);
 }
+
+/* ===== Global Text Selection ===== */
+::selection {
+  background-color: rgba(152, 189, 210, 0.2);
+  color: inherit;
+}
+
+::-moz-selection {
+  background-color: rgba(152, 189, 210, 0.2);
+  color: inherit;
+}
