@@ -141,41 +141,45 @@ const Footer = () => {
           <Link to="mailto:admin@juniorpass.sg">admin@juniorpass.sg</Link>
         </Space>
 
-        <Flex
-          vertical={false}
-          gap="large"
-          style={{ width: "15%", justifyContent: "center" }}
-        >
-          <Space
-            direction="horizontal"
-            style={{ justifyContent: "center", alignItems: "center" }}
+        {!isProduction && (
+          <Flex
+            vertical={false}
+            gap="large"
+            style={{ width: "15%", justifyContent: "center" }}
           >
-            <FacebookFilled />
-          </Space>
-          <Space
-            direction="horizontal"
-            style={{ justifyContent: "center", alignItems: "center" }}
-          >
-            <Link to="https://www.instagram.com/juniorpass.sg/">
-              <InstagramOutlined />
-            </Link>
-          </Space>
-          <Space
-            direction="horizontal"
-            style={{ justifyContent: "center", alignItems: "center" }}
-          >
-            <LinkedinFilled />
-          </Space>
-        </Flex>
+            <Space
+              direction="horizontal"
+              style={{ justifyContent: "center", alignItems: "center" }}
+            >
+              <FacebookFilled />
+            </Space>
+            <Space
+              direction="horizontal"
+              style={{ justifyContent: "center", alignItems: "center" }}
+            >
+              <Link to="https://www.instagram.com/juniorpass.sg/">
+                <InstagramOutlined />
+              </Link>
+            </Space>
+            <Space
+              direction="horizontal"
+              style={{ justifyContent: "center", alignItems: "center" }}
+            >
+              <LinkedinFilled />
+            </Space>
+          </Flex>
+        )}
 
         {/* Phone */}
-        <Space
-          direction="horizontal"
-          style={{ justifyContent: "center", alignItems: "center" }}
-        >
-          <PhoneOutlined />
+        {!isProduction && (
+          <Space
+            direction="horizontal"
+            style={{ justifyContent: "center", alignItems: "center" }}
+          >
+            <PhoneOutlined />
           <Text>(65)XXXX-XXXX</Text>
         </Space>
+  )}
       </Flex>
 
       <Divider />
