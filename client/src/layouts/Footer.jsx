@@ -14,6 +14,7 @@ const { Text, Title } = Typography;
 const { Footer: Foot } = Layout;
 
 const Footer = () => {
+  const isProduction = import.meta.env.PROD;
   const { isDesktop, isTabletLandscape } = useWindowDimensions();
 
   // desktop and tablet landscape
@@ -36,11 +37,18 @@ const Footer = () => {
             </Flex>
           </Flex>
 
-          <Flex style={{ right: 0, width: "90%", justifyContent: "flex-end", textAlign: "left" }}>
+          <Flex
+            style={{
+              right: 0,
+              width: "90%",
+              justifyContent: "flex-end",
+              textAlign: "left",
+            }}
+          >
             <Flex vertical gap="large" style={{ width: "20%" }}>
               <Title level={5}>Junior Pass</Title>
               <Link to="/about-us">About us</Link>
-              <Link to="/classes">Classes</Link>
+              {!isProduction && <Link to="/classes">Classes</Link>}
               <Link to="/pricing">Pricing</Link>
             </Flex>
 
@@ -48,7 +56,6 @@ const Footer = () => {
               <Title level={5}>PARTNERS</Title>
               <Link to="/partner-contact">Become a partner</Link>
               <Link to="https://partner.juniorpass.sg">Partner Login</Link>
-              {/* <Link to="/contactus">ContactUs</Link> */}
             </Flex>
 
             <Flex vertical gap="large" style={{ width: "20%" }}>
@@ -57,25 +64,29 @@ const Footer = () => {
                 <MailOutlined />
                 <Link to="mailto:admin@juniorpass.sg">admin@juniorpass.sg</Link>
               </Space>
-              <Flex vertical={false} gap="large" style={{ width: "15%" }}>
-                <Space direction="horizontal">
-                  <FacebookFilled />
-                </Space>
+              {!isProduction && (
+                <Flex vertical={false} gap="large" style={{ width: "15%" }}>
+                  <Space direction="horizontal">
+                    <FacebookFilled />
+                  </Space>
 
-                <Space direction="horizontal">
-                  <Link to="https://www.instagram.com/juniorpass.sg/">
-                    <InstagramOutlined />
-                  </Link>
-                </Space>
+                  <Space direction="horizontal">
+                    <Link to="https://www.instagram.com/juniorpass.sg/">
+                      <InstagramOutlined />
+                    </Link>
+                  </Space>
 
+                  <Space direction="horizontal">
+                    <LinkedinFilled />
+                  </Space>
+                </Flex>
+              )}
+              {!isProduction && (
                 <Space direction="horizontal">
-                  <LinkedinFilled />
+                  <PhoneOutlined />
+                  <Text>(65)XXXX-XXXX</Text>
                 </Space>
-              </Flex>
-              <Space direction="horizontal">
-                <PhoneOutlined />
-                <Text>(65)XXXX-XXXX</Text>
-              </Space>
+              )}
 
               {/* <Space direction="horizontal">
         <WhatsAppOutlined />
