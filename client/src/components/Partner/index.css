@@ -129,7 +129,7 @@
 /* Partner Header */
 .partner-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--spacing-xl);
   margin-bottom: var(--spacing-xl);
   padding: var(--spacing-xl);

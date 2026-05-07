@@ -1,9 +1,10 @@
+import { useEffect } from "react";
 import { Typography, Card, Col, Row, Button, Badge, Divider, Tag } from "antd";
-import { 
-  CheckOutlined, 
-  StarFilled, 
-  ThunderboltFilled, 
-  CrownFilled, 
+import {
+  CheckOutlined,
+  StarFilled,
+  ThunderboltFilled,
+  CrownFilled,
   TrophyFilled,
   ClockCircleOutlined,
   SafetyCertificateOutlined,
@@ -17,7 +18,7 @@ import "./index.css";
 
 const { Text, Title } = Typography;
 
-const CardComponent = ({ plan, onSelect }) => {
+const CardComponent = ({ plan, onSelect, index }) => {
   const isPopular = plan.isPopular;
   const price = plan.price;
   const credits = plan.credits;
@@ -33,68 +34,66 @@ const CardComponent = ({ plan, onSelect }) => {
   return (
     <Col xs={24} sm={24} md={24} lg={8} className="card-container">
       <Card
-        hoverable
         className={`pricing-card ${isPopular ? "popular-card" : ""} ${plan.tierClass || ""}`}
       >
-        {isPopular && <span className="popular-label">🎯 Best Value</span>}
-        {savingsPercent && (
-          <Badge.Ribbon 
-            text={`Save ${savingsPercent}%`} 
-            color="var(--color-success)" 
-            className="savings-ribbon"
-          >
-            <div></div>
-          </Badge.Ribbon>
-        )}
-        
-        <div className="card-header">
-          {tierIcons[plan.tierClass?.replace('-card', '')]}
-          <Title level={3} className="card-title">
-            {plan.name}
-          </Title>
+        <div className="card-badges">
+          {isPopular && <span className="popular-label">🎯 Best Value</span>}
+          {savingsPercent && (
+            <span className="savings-badge">Save {savingsPercent}%</span>
+          )}
         </div>
-        
-        {plan.tagline && (
-          <Text className="card-tagline">{plan.tagline}</Text>
-        )}
 
-        <div className="pricing-section">
-          <div className="pricing-section-content">
-            <Text className="card-price">
-              <span className="currency">SGD</span> {price}
-            </Text>
-            <Text className="card-credits">
-              <GiftOutlined />
-              <b>{credits} credits</b> included
-            </Text>
-            <Divider className="pricing-divider" />
-            <Text className="per-credit-price">
-              <span className="price-label">SGD {perCreditPrice}</span> per credit
-            </Text>
-            {plan.comparison && (
-              <Text className="comparison-text">
-                {plan.comparison}
+        <div className="card-top-section">
+          <div className="card-header">
+            {tierIcons[plan.tierClass?.replace('-card', '')]}
+            <Title level={3} className="card-title">
+              {plan.name}
+            </Title>
+          </div>
+
+          {plan.tagline && (
+            <Text className="card-tagline">{plan.tagline}</Text>
+          )}
+
+          <div className="pricing-section">
+            <div className="pricing-section-content">
+              <Text className="card-price">
+                <span className="currency">SGD</span> {price}
               </Text>
-            )}
+              <Text className="card-credits">
+                <GiftOutlined />
+                <b>{credits} credits</b> included
+              </Text>
+              <Text className="per-credit-price">
+                <span className="price-label">SGD {perCreditPrice}</span> per credit
+              </Text>
+              {plan.comparison && (
+                <Text className="comparison-text">
+                  {plan.comparison}
+                </Text>
+              )}
+            </div>
           </div>
         </div>
 
-        <Button 
-          type="primary" 
-          size="large" 
-          className="choose-plan-btn"
-          onClick={() => onSelect(plan)}
-        >
-          Get Started
-        </Button>
-        
-        <div className="plan-features">
-          {plan.features?.map((feature, idx) => (
-            <div key={idx} className="feature-item">
-              <CheckOutlined className="feature-check" />
-              <Text className="feature-text">{feature}</Text>
-            </div>
-          ))}
+        <div className="card-bottom-section">
+          <Button
+            type="primary"
+            size="large"
+            className="choose-plan-btn"
+            onClick={() => onSelect(plan)}
+          >
+            Get Started
+          </Button>
+
+          <div className="plan-features">
+            {plan.features?.map((feature, idx) => (
+              <div key={idx} className="feature-item">
+                <CheckOutlined className="feature-check" />
+                <Text className="feature-text">{feature}</Text>
+              </div>
+            ))}
+          </div>
         </div>
       </Card>
     </Col>
@@ -103,6 +102,10 @@ const CardComponent = ({ plan, onSelect }) => {
 
 const Pricing = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const plans = [
     {
@@ -115,9 +118,8 @@ const Pricing = () => {
       savingsPercent: null,
       comparison: "Standard rate",
       features: [
-        "12 class credits",
+        "12 credits",
         "Access to all partners",
-        "Flexible scheduling",
         "No expiry date"
       ]
     },
@@ -131,9 +133,8 @@ const Pricing = () => {
       savingsPercent: 10,
       comparison: "Save SGD 12 vs Starter rate",
       features: [
-        "24 class credits",
+        "24 credits",
         "All Starter features",
-        "Priority support",
         "10% discount applied"
       ]
     },
@@ -147,9 +148,8 @@ const Pricing = () => {
       savingsPercent: 20,
       comparison: "Save SGD 38 vs Starter rate",
       features: [
-        "38 class credits",
+        "38 credits",
         "All Popular features",
-        "Dedicated support",
         "20% discount applied"
       ]
     },
@@ -187,21 +187,13 @@ const Pricing = () => {
     <div className="pricing-container">
       {/* Header Section */}
       <div className="pricing-header">
-        <Tag 
-          icon={<TrophyFilled />} 
-          color="gold"
-          className="pricing-badge"
-        >
-          Transparent Pricing
-        </Tag>
         <Title level={1} className="section-title">
-          Choose Your Perfect Plan
+          Credit Packages
         </Title>
         <Text className="section-description">
           Flexible credit packages that grow with your child's learning journey.
           <br />
           <span className="highlight-text">
-            <RocketOutlined />
             Buy more, save more — up to 20% off!
           </span>
         </Text>
@@ -209,16 +201,17 @@ const Pricing = () => {
 
       {/* Pricing Cards */}
       <Row
-        gutter={[24, 24]}
+        gutter={[{ xs: 0, sm: 16, md: 24 }, { xs: 16, sm: 16, md: 24 }]}
         justify="center"
         className="pricing-cards-row"
         wrap={true}
       >
         {plans.map((plan, idx) => (
-          <CardComponent 
-            key={idx} 
-            plan={plan} 
+          <CardComponent
+            key={idx}
+            plan={plan}
             onSelect={handleSelectPlan}
+            index={idx}
           />
         ))}
       </Row>
@@ -228,7 +221,7 @@ const Pricing = () => {
         <Title level={4} className="benefits-title">
           Why Families Love Junior Pass
         </Title>
-        <Row gutter={[24, 24]} justify="center" className="benefits-grid">
+        <Row gutter={[{ xs: 8, sm: 16, md: 24 }, { xs: 8, sm: 16, md: 24 }]} justify="center" className="benefits-grid">
           {benefits.map((benefit, idx) => (
             <Col xs={24} sm={12} md={6} key={idx}>
               <div className="benefit-card">
@@ -246,7 +239,7 @@ const Pricing = () => {
       {/* Footer Note */}
       <div className="pricing-footer">
         <Text className="footer-note">
-          💡 <strong>Pro Tip:</strong> Larger packages offer better value per credit. 
+          💡 <strong>Pro Tip:</strong> Larger packages offer better value per credit.
           Credits never expire, so stock up and save!
         </Text>
       </div>

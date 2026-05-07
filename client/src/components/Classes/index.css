@@ -360,6 +360,14 @@
         text-align: center !important;
         margin-top: 16px !important;
     }
+
+    /* Map styling for mobile */
+    .map {
+        width: 100% !important;
+        height: 70vh !important;
+        min-height: 400px !important;
+        border-radius: 12px !important;
+    }
 }
 
 /* Tablet Portrait: 768px x 1024px */
@@ -412,6 +420,14 @@
     .listing-container .ant-list-item-meta-avatar img {
         width: 200px !important;
         height: 140px !important;
+    }
+
+    /* Map styling for tablet portrait */
+    .map {
+        width: 100% !important;
+        height: 70vh !important;
+        min-height: 500px !important;
+        border-radius: 16px !important;
     }
 }
 

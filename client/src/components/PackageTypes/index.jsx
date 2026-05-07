@@ -30,16 +30,15 @@ function PackageTypes() {
     {
       title: "Pay-As-You-Go",
       icon: <ThunderboltOutlined />,
-      color: "#52c41a",
-      gradient: "linear-gradient(135deg, #52c41a 0%, #73d13d 100%)",
-      tagColor: "success",
+      color: "#98BDD2",
+      gradient: "linear-gradient(135deg, #98BDD2 0%, #6aa4c3 100%)",
+      tagColor: "blue",
       description:
         "Perfect for trying out activities without long-term commitment. Pay only for the classes you attend.",
       features: [
         "No commitment required",
         "Book individual classes",
         "Flexible scheduling",
-        "Cancel anytime without penalty",
         "Try different activities easily",
         "Pay per session attended",
       ],
@@ -49,94 +48,57 @@ function PackageTypes() {
         "Irregular schedules or busy families",
         "One-off events or workshops",
       ],
-      creditUsage: "1-2 credits per class (varies by partner)",
+      creditUsage: "4-6 credits per class (varies by partner)",
       example:
         "Book a single dance class this Saturday, a cooking workshop next week, and a swimming lesson whenever your schedule allows.",
     },
     {
       title: "Short-Term Package",
       icon: <CalendarOutlined />,
-      color: "#1890ff",
-      gradient: "linear-gradient(135deg, #1890ff 0%, #40a9ff 100%)",
-      tagColor: "processing",
+      color: "#f3a5c7",
+      gradient: "linear-gradient(135deg, #f3a5c7 0%, #e88bb1 100%)",
+      tagColor: "magenta",
       description:
-        "Commit to a series of classes over 4-12 weeks. Great for developing skills with some structure and often comes with savings.",
+        "Try a series of classes over 4-8 weeks. Love it? Upgrade to long-term within 24 hours after the last class and just pay the difference!",
       features: [
-        "Fixed duration (4-12 weeks typically)",
-        "Discounted rates vs pay-as-you-go",
-        "Regular weekly schedule",
+        "Fixed duration (4-8 weeks typically)",
         "Build consistency and routine",
-        "Better value for committed learners",
-        "Structured curriculum",
+        "24-hour upgrade window after last class ⏰",
+        "Seamless upgrade - credits carry over",
       ],
       bestFor: [
-        "Children learning a new skill systematically",
+        "Parents wanting to try before committing long-term",
+        "Children exploring a new activity",
         "Building habits and routines",
-        "Families wanting some commitment but not long-term",
-        "Seasonal activities (summer camps, holiday programs)",
+        "Risk-free introduction to new skills",
       ],
-      creditUsage: "Package deal - typically 20-30% savings",
+      creditUsage: "Package deal - upgrade anytime",
       example:
-        "Sign up for an 8-week art course meeting every Tuesday, or a 6-week tennis program to learn fundamentals.",
+        "Sign up for a 2-week basketball course. After 2 classes, get a 24-hour offer to upgrade to the 3-month package by just topping up the remaining credits.",
     },
     {
       title: "Long-Term Package",
       icon: <CrownOutlined />,
-      color: "#722ed1",
-      gradient: "linear-gradient(135deg, #722ed1 0%, #9254de 100%)",
-      tagColor: "purple",
+      color: "#d4af37",
+      gradient: "linear-gradient(135deg, #d4af37 0%, #b8941f 100%)",
+      tagColor: "gold",
       description:
-        "Full commitment for a term or year. Maximum savings and priority access for serious learners building mastery.",
+        "Full commitment for a term or year. Maximum savings and priority access for serious learners building mastery. Upgrade from short-term anytime!",
       features: [
         "Extended duration (3+ months or full term)",
         "Maximum savings (30-50% vs pay-as-you-go)",
-        "Priority booking and slots",
-        "Progress tracking and reports",
         "Deeper learning and mastery",
-        "Community building with classmates",
+        "Upgrade from short-term - just pay the difference",
       ],
       bestFor: [
         "Serious skill development and mastery",
         "Children passionate about an activity",
         "Long-term commitment to a hobby or sport",
-        "Families wanting maximum value",
+        "Families wanting maximum value and savings",
       ],
-      creditUsage: "Bulk package - up to 50% savings on credits",
+      creditUsage: "Bulk credit package - up to 50% savings",
       example:
-        "Enroll in a full-year piano program, a semester of competitive swimming, or a 6-month coding bootcamp.",
-    },
-  ];
-
-  const comparisonData = [
-    {
-      aspect: "Commitment",
-      payAsYouGo: "None - book anytime",
-      shortTerm: "4-12 weeks",
-      longTerm: "3+ months",
-    },
-    {
-      aspect: "Cost Savings",
-      payAsYouGo: "Standard pricing",
-      shortTerm: "20-30% discount",
-      longTerm: "30-50% discount",
-    },
-    {
-      aspect: "Flexibility",
-      payAsYouGo: "High",
-      shortTerm: "Medium",
-      longTerm: "Low",
-    },
-    {
-      aspect: "Cancellation",
-      payAsYouGo: "Cancel anytime",
-      shortTerm: "Partial refund possible",
-      longTerm: "Limited refunds",
-    },
-    {
-      aspect: "Best For",
-      payAsYouGo: "Exploration",
-      shortTerm: "Skill building",
-      longTerm: "Mastery",
+        "Enroll in a full-year piano program, a semester of competitive swimming, or a 6-month coding bootcamp. Or upgrade from your 2-week trial!",
     },
   ];
 
@@ -146,11 +108,11 @@ function PackageTypes() {
         {/* Hero Section */}
         <div className="package-hero" data-aos="fade-down">
           <Title level={1} className="package-hero-title">
-            Choose Your Learning Journey
+            Package Types
           </Title>
           <Paragraph className="package-hero-subtitle">
-            Understanding our package types helps you make the best choice for
-            your child's learning needs and your family's schedule.
+            Select the package that fits your child's learning needs and your family's schedule.
+            Start flexible, upgrade anytime!
           </Paragraph>
         </div>
 
@@ -163,9 +125,6 @@ function PackageTypes() {
                   className="package-card"
                   data-aos="fade-up"
                   data-aos-delay={index * 100}
-                  style={{
-                    borderTop: `4px solid ${pkg.color}`,
-                  }}
                 >
                   <div className="package-card-header">
                     <div
@@ -177,9 +136,6 @@ function PackageTypes() {
                     <Title level={2} className="package-card-title">
                       {pkg.title}
                     </Title>
-                    <Tag color={pkg.tagColor} className="package-tag">
-                      {pkg.title.toUpperCase()}
-                    </Tag>
                   </div>
 
                   <Paragraph className="package-description">
@@ -244,84 +200,6 @@ function PackageTypes() {
           </Row>
         </div>
 
-        {/* Comparison Table */}
-        <div className="comparison-section" data-aos="fade-up">
-          <Title level={2} className="comparison-title">
-            Quick Comparison
-          </Title>
-          <Card className="comparison-card">
-            <div className="comparison-table">
-              <div className="comparison-header">
-                <div className="comparison-cell header-cell">Aspect</div>
-                <div className="comparison-cell header-cell">
-                  <ThunderboltOutlined /> Pay-As-You-Go
-                </div>
-                <div className="comparison-cell header-cell">
-                  <CalendarOutlined /> Short-Term
-                </div>
-                <div className="comparison-cell header-cell">
-                  <CrownOutlined /> Long-Term
-                </div>
-              </div>
-              {comparisonData.map((row, idx) => (
-                <div className="comparison-row" key={idx}>
-                  <div className="comparison-cell aspect-cell">
-                    {row.aspect}
-                  </div>
-                  <div className="comparison-cell">{row.payAsYouGo}</div>
-                  <div className="comparison-cell">{row.shortTerm}</div>
-                  <div className="comparison-cell">{row.longTerm}</div>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </div>
-
-        {/* How It Works Section */}
-        <div className="how-it-works-section" data-aos="fade-up">
-          <Title level={2} className="section-title">
-            How Our Credit System Works
-          </Title>
-          <Row gutter={[24, 24]}>
-            <Col xs={24} sm={12} md={6}>
-              <Card className="step-card">
-                <div className="step-number">1</div>
-                <Title level={4}>Top Up Credits</Title>
-                <Text>
-                  Purchase credits in your account. Credits never expire.
-                </Text>
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Card className="step-card">
-                <div className="step-number">2</div>
-                <Title level={4}>Choose Package</Title>
-                <Text>
-                  Select the package type that fits your needs and schedule.
-                </Text>
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Card className="step-card">
-                <div className="step-number">3</div>
-                <Title level={4}>Book Classes</Title>
-                <Text>
-                  Use your credits to book classes based on your chosen package.
-                </Text>
-              </Card>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Card className="step-card">
-                <div className="step-number">4</div>
-                <Title level={4}>Enjoy Learning</Title>
-                <Text>
-                  Your child attends classes and develops new skills!
-                </Text>
-              </Card>
-            </Col>
-          </Row>
-        </div>
-
         {/* FAQ Section */}
         <div className="package-faq-section" data-aos="fade-up">
           <Title level={2} className="section-title">
@@ -330,11 +208,12 @@ function PackageTypes() {
           <Row gutter={[24, 24]}>
             <Col xs={24} md={12}>
               <Card className="faq-card">
-                <Title level={4}>Can I switch between package types?</Title>
+                <Title level={4}>Can I upgrade my package?</Title>
                 <Paragraph>
-                  Yes! You can try pay-as-you-go classes first, then switch to
-                  a short-term or long-term package when you're ready to
-                  commit. Each class listing shows available package options.
+                  Absolutely! Start with a short-term package to try it out.
+                  After attending any class, you'll get a 24-hour window to upgrade
+                  to the long-term package by simply topping up the remaining credits.
+                  Your existing credits carry over - no waste!
                 </Paragraph>
               </Card>
             </Col>
@@ -351,10 +230,10 @@ function PackageTypes() {
               <Card className="faq-card">
                 <Title level={4}>Which package should I choose?</Title>
                 <Paragraph>
-                  Start with pay-as-you-go if you're exploring. Choose
-                  short-term when you want to build a skill over a few weeks.
-                  Go long-term when you're committed to mastery and want
-                  maximum savings.
+                  Start with pay-as-you-go if you're exploring different activities.
+                  Choose short-term when you want to try an activity with minimal commitment
+                  (you can always upgrade within 24 hours!). Go long-term when you're
+                  committed to mastery and want maximum savings.
                 </Paragraph>
               </Card>
             </Col>

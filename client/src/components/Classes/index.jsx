@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import {
   Space,
   Input,
@@ -57,6 +57,7 @@ const Classes = () => {
   const { isMobile, isTabletPortrait } = useWindowDimensions();
   const isMobileOrTabletPortrait = isMobile || isTabletPortrait;
   const navigate = useNavigate();
+  const mapRef = useRef();
 
   const getListings = async () => {
     try {
@@ -284,6 +285,16 @@ const Classes = () => {
     selectedDateTime,
     useSpecificDate,
   ]);
+
+  // Resize map when view changes (important for mobile)
+  useEffect(() => {
+    if (view === "map" && mapRef.current) {
+      // Small delay to ensure DOM has updated
+      setTimeout(() => {
+        mapRef.current?.resize();
+      }, 100);
+    }
+  }, [view]);
 
   const handleListHover = (listingId) => {
     // Find the listing with the matching listingId
@@ -609,6 +620,7 @@ const Classes = () => {
           )}
           {(view === "map" || !isMobileOrTabletPortrait) && (
             <Map
+              ref={mapRef}
               className={"map"}
               initialViewState={{
                 longitude: 103.8189,
