@@ -9,8 +9,6 @@ import {
   CrownOutlined,
   InfoCircleOutlined,
 } from "@ant-design/icons";
-import AOS from "aos";
-import "aos/dist/aos.css";
 import "./PackageTypes.css";
 
 const { Content } = Layout;
@@ -18,11 +16,6 @@ const { Title, Text, Paragraph } = Typography;
 
 function PackageTypes() {
   useEffect(() => {
-    AOS.init({
-      duration: 800,
-      once: true,
-      offset: 100,
-    });
     window.scrollTo(0, 0);
   }, []);
 
@@ -106,7 +99,7 @@ function PackageTypes() {
     <Layout className="package-types-layout">
       <Content className="package-types-content">
         {/* Hero Section */}
-        <div className="package-hero" data-aos="fade-down">
+        <div className="package-hero">
           <Title level={1} className="package-hero-title">
             Package Types
           </Title>
@@ -123,8 +116,6 @@ function PackageTypes() {
               <Col xs={24} sm={24} md={24} lg={8} key={index}>
                 <Card
                   className="package-card"
-                  data-aos="fade-up"
-                  data-aos-delay={index * 100}
                 >
                   <div className="package-card-header">
                     <div
@@ -201,7 +192,7 @@ function PackageTypes() {
         </div>
 
         {/* FAQ Section */}
-        <div className="package-faq-section" data-aos="fade-up">
+        <div className="package-faq-section">
           <Title level={2} className="section-title">
             Common Questions
           </Title>
