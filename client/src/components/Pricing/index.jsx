@@ -187,10 +187,10 @@ const Pricing = () => {
     <div className="pricing-container">
       {/* Header Section */}
       <div className="pricing-header">
-        <Title level={1} className="section-title">
+        <Title level={1} className="pricing-hero-title">
           Credit Packages
         </Title>
-        <Text className="section-description">
+        <Text className="pricing-hero-subtitle">
           Flexible credit packages that grow with your child's learning journey.
           <br />
           <span className="highlight-text">
