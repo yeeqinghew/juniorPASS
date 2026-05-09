@@ -62,6 +62,7 @@ app.use((req, res, next) => {
     req.path.startsWith("/referrals") ||
     req.path.startsWith("/bookings") ||
     req.path.startsWith("/transactions") ||
+    req.path.startsWith("/outlets") ||
     req.path.startsWith("/notifications");
 
   if (isApiRoute) {
@@ -91,6 +92,7 @@ app.use("/payment", require("./routes/payment"));
 app.use("/bookings", require("./routes/bookings"));
 app.use("/transactions", require("./routes/transactions"));
 app.use("/notifications", require("./routes/notifications"));
+app.use("/outlets", require("./routes/outlets"));
 app.use("/referrals", require("./routes/referrals"));
 
 // health check endpoint

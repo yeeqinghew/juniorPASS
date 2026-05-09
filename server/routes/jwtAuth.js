@@ -82,11 +82,11 @@ router.get("/", authorization, async (req, res) => {
 
 router.post("/register", registerLimiter, validInfo, async (req, res) => {
   const { name, phoneNumber, email, password } = req.body;
-  if (!isStrongPassword(password)) {
-    return res
-      .status(400)
-      .json({ message: "Password does not meet complexity requirements" });
-  }
+  // if (!isStrongPassword(password)) {
+  //   return res
+  //     .status(400)
+  //     .json({ message: "Password does not meet complexity requirements" });
+  // }
 
   try {
     // check if user exists
