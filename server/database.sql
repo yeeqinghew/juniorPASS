@@ -79,10 +79,29 @@ CREATE TABLE children (
     child_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
     parent_id uuid REFERENCES parents(parent_id) ON DELETE CASCADE,
     name VARCHAR(100),
-    age BIGINT,
+    date_of_birth DATE NOT NULL,
     gender genders NOT NULL,
     special_notes TEXT
 );
+
+-- a helper function to caclulate age from dob
+CREATE OR REPLACE FUNCTION calculate_age(dob DATE)
+RETURNS INTEGER AS $$
+BEGIN
+    RETURN EXTRACT(YEAR FROM AGE(CURRENT_DATE, dob));
+END;
+$$ LANGUAGE plpgsql STABLE;
+
+CREATE OR REPLACE VIEW children_with_age AS
+SELECT
+    child_id,
+    parent_id,
+    name,
+    date_of_birth,
+    calculate_age(date_of_birth) AS age,
+    gender,
+    special_notes
+FROM children;
 
 CREATE TABLE referral_codes (
     id SERIAL PRIMARY KEY,
@@ -221,6 +240,19 @@ CREATE TRIGGER set_timestamp_schedules
     BEFORE UPDATE ON schedules
     FOR EACH ROW
     EXECUTE FUNCTION trigger_set_timestamp();
+
+CREATE TABLE scheduleExceptions (
+    exception_id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+    schedule_id uuid REFERENCES schedules(schedule_id) ON DELETE CASCADE,
+    exception_date DATE NOT NULL,
+    exception_type VARCHAR(20) CHECK (exception_type IN ('cancelled', 'rescheduled')) NOT NULL,
+    reason VARCHAR(255),
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE (schedule_id, exception_date)
+);
+
+CREATE INDEX idx_schedule_exceptions_schedule_date ON scheduleExceptions(schedule_id, exception_date);
 
 CREATE TABLE payment_requests (
     request_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
