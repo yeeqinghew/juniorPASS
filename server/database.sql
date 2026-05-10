@@ -232,6 +232,11 @@ CREATE TABLE schedules (
     frequency TEXT CHECK (frequency IN ('Biweekly', 'Weekly', 'Monthly', 'Yearly')),
     slots INTEGER DEFAULT 10 CHECK (slots >= 1 AND slots <= 100),
     credit INTEGER CHECK (credit >= 1 AND credit <= 10),
+    package_types package_types[] DEFAULT ARRAY['pay-as-you-go']::package_types[],
+    is_progressive BOOLEAN DEFAULT false,
+    long_term_start_date TIMESTAMP,
+    long_term_class_count INTEGER,
+    short_term_class_count INTEGER,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );
@@ -253,6 +258,163 @@ CREATE TABLE scheduleExceptions (
 );
 
 CREATE INDEX idx_schedule_exceptions_schedule_date ON scheduleExceptions(schedule_id, exception_date);
+
+CREATE OR REPLACE FUNCTION calculate_short_term_classes(long_term_count INTEGER)
+RETURNS INTEGER AS $$
+BEGIN
+    RETURN CEIL(long_term_count * 0.25);
+END;
+$$ LANGUAGE plpgsql STABLE;
+COMMENT ON FUNCTION calculate_short_term_classes IS 'Calculate short-term package classes as 25% of long-term package classes, rounded up.';
+
+CREATE OR REPLACE FUNCTION is_valid_package_combination(types package_types[])
+RETURNS BOOLEAN AS $$
+BEGIN
+    -- Valid combinations:
+    -- 1) ['pay-as-you-go']
+    -- 2) ['long-term']
+    -- 3} ['long-term', 'short-term']
+    iF array_length(types, 1) = 1 THEN
+        RETURN types[1] IN ('long-term', 'pay-as-you-go');
+    END IF;
+
+    IF array_length(types, 1) = 2 THEN
+        RETURN 'long-term' = ANY(types) AND 'short-term' = ANY(types);
+    END IF;
+
+    -- Invalid if more than 2 types
+    RETURN false;
+END;
+$$ LANGUAGE plpgsql STABLE;
+COMMENT ON FUNCTION is_valid_package_combination IS 'Validate that package type combination is one of the three allowed configurations."]';
+
+
+CREATE OR REPLACE FUNCTION trigger_calculate_short_term_classes()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- only calculate if long-term is in package_types and long_term_class_count is set
+    IF 'long-term' = ANT(NEW.package_types) AND NEW.long_term_class_count IS NOT NULL THEN
+        NEW.short_term_class_count := calculate_short_term_classes(NEW.long_term_class_count);
+    ELSE
+        NEW.short_term_class_count := NULL; -- No short-term classes if no long-term package
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER set_short_term_class_count
+    BEFORE INSERT OR UPDATE OF long_term_class_count ON schedules
+    FOR EACH ROW
+    EXECUTE FUNCTION trigger_calculate_short_term_classes();
+
+CREATE OR REPLACE FUNCTION trigger_update_classes_remaining()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.classes_remaining := NEW.classes_total - NEW.classes_attended;
+
+    -- update extension eligibility for short-term bookings
+    IF NEW.enrolled_package_type = 'short-term' THEN
+        -- can extend if: not already extended AND has classes remaining
+        NEW.can_extend_to_longterm := (
+            NEW.upgraded_from_booking_id IS NULL AND 
+            NEW.classes_remaining > 0
+        );
+
+        IF NEW.classes_remaining = 1 AND NEW.can_extend_to_longterm THEN
+            -- would need to be set based on the actual class start time
+            -- for now, we will set to NULL and handle it in application layer
+            NEW.extension_deadline := NULL;
+        END IF;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_booking_classes
+    BEFORE INSERT OR UPDATE OF classes_attended, classes_total ON bookings
+    FOR EACH ROW
+    EXECUTE FUNCTION trigger_update_classes_remaining();
+
+CREATE OR REPLACE FUNCTION can_book_package_type(
+    p_schedule_id UUID,
+    p_package_type package_types,
+    p_user_id UUID,
+    p_current_time TIMESTAMP DEFAULT NOW()
+)
+RETURNS TABLE(
+    can_book BOOLEAN,
+    reason TEXT
+) AS $$
+DECLARE
+    v_schedule RECORD;
+    v_has_shortterm BOOLEAN;
+BEGIN
+    -- Get schedule details
+    SELECT * FROM schedules
+    WHERE schedule_id = p_schedule_id;
+
+    -- Check if package type is available
+    IF NOT (p_package_type = ANY(v_schedule.package_types)) THEN
+        RETURN QUERY SELECT true, 'Package type not available for this schedule';
+        RETURN;
+    END IF;
+    
+    -- Pay-as-you-go always available
+    IF p_package_type = 'pay-as-you-go' THEN
+        RETURN QUERY SELECT true, 'Pay-as-you-go is always available';
+        RETURN;
+    END IF;
+
+    -- short-term validation
+    IF p_package_type = 'short-term' THEN
+        -- check if user has already used short-term
+        SELECT EXISTS (
+            SELECT 1 FROM bookings b
+            JOIN schedules s ON b.schedule_id = s.schedule_id
+            WHERE b.child_id IN (
+                SELECT child_id FROM children WHERE parent_id = p_user_id
+            )
+            AND s.schedule_id = p_schedule_id
+            AND b.has_used_short_term = true
+        ) INTO v_has_shortterm;
+
+        IF v_has_shortterm THEN
+            RETURN QUERY SELECT false, 'Short-term already used for this schedule';
+            RETURN;
+        END IF;
+
+        -- check if past long-term start date (for progressive schedules)
+        IF v_schedule.is_progressive AND v_schedule.long_term_start_date IS NOT NULL THEN
+            IF p_current_time >= v_schedule.long_term_start_date THEN
+                RETURN QUERY SELECT false, 'Short-term booking window has closed for this schedule';
+                RETURN;
+            END IF;
+        END IF;
+
+        RETURN QUERY SELECT true, 'Short-term booking is available';
+        RETURN;
+    END IF;
+
+    -- long-term validation
+    IF p_package_type = 'long-term' THEN
+        -- check if progressive and past start date
+        IF v_schedule.is_progressive AND v_schedule.long_term_start_date IS NOT NULL THEN
+            IF p_current_time > v_schedule.long_term_start_date THEN 
+               RETURN QUERY SELECT false, 'Cannot join progressive class mid-cycle';
+                RETURN;
+            END IF;
+        END IF;
+
+        RETURN QUERY SELECT true, 'Long-term booking is available';
+        RETURN;
+    END IF;
+
+    RETURN QUERY SELECT false, 'Unknown package type';
+END;
+$$ LANGUAGE plpgsql STABLE;
+COMMENT ON FUNCTION can_book_package_type IS 'Validate if a user can book a specific package type at current time, considering progressive classes and short term usage.';
 
 CREATE TABLE payment_requests (
     request_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -385,6 +547,14 @@ CREATE TABLE bookings (
     user_id uuid REFERENCES users(user_id) ON DELETE CASCADE,
     start_date TIMESTAMP NOT NULL,
     end_date TIMESTAMP NOT NULL,
+    enrolled_package_type package_types,
+    classes_total INTEGER,
+    classes_attended INTEGER DEFAULT 0,
+    classes_remaining INTEGER,
+    has_used_short_term BOOLEAN DEFAULT false,
+    can_extend_to_longterm BOOLEAN DEFAULT false,
+    extension_deadline TIMESTAMP,
+    upgraded_from_booking_id UUID REFERENCES bookings(booking_id),
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );
