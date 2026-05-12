@@ -1,10 +1,16 @@
-import { Avatar, Tabs } from "antd";
+import { Avatar, Tabs, Tooltip } from "antd";
 import Account from "./Account";
 import Credits from "./Credits";
 import ChildrenClasses from "./ChildrenClasses";
 import Referrals from "./Referrals";
 import { useLocation } from "react-router-dom";
 import { useUserContext } from "../UserContext";
+import {
+  UserOutlined,
+  TeamOutlined,
+  CreditCardOutlined,
+  GiftOutlined,
+} from "@ant-design/icons";
 import useWindowDimensions from "../../hooks/useWindowDimensions";
 import "./index.css";
 
@@ -16,7 +22,13 @@ const Profile = () => {
 
   const items = [
     {
-      label: "Account",
+      label: isMobileOrTabletPortrait ? (
+        <Tooltip title="Account">
+          <UserOutlined />
+        </Tooltip>
+      ) : (
+        "Account"
+      ),
       key: "account",
       children: (
         <div className="profile-tab-content">
@@ -25,7 +37,13 @@ const Profile = () => {
       ),
     },
     {
-      label: "Children & Classes",
+      label: isMobileOrTabletPortrait ? (
+        <Tooltip title="Children & Classes">
+          <TeamOutlined />
+        </Tooltip>
+      ) : (
+        "Children & Classes"
+      ),
       key: "children-classes",
       children: (
         <div className="profile-tab-content">
@@ -34,7 +52,13 @@ const Profile = () => {
       ),
     },
     {
-      label: "Credit",
+      label: isMobileOrTabletPortrait ? (
+        <Tooltip title="Credit">
+          <CreditCardOutlined />
+        </Tooltip>
+      ) : (
+        "Credit"
+      ),
       key: "credit",
       children: (
         <div className="profile-tab-content">
@@ -43,7 +67,13 @@ const Profile = () => {
       ),
     },
     {
-      label: "Referral",
+      label: isMobileOrTabletPortrait ? (
+        <Tooltip title="Referral">
+          <GiftOutlined />
+        </Tooltip>
+      ) : (
+        "Referral"
+      ),
       key: "referral",
       children: (
         <div className="profile-tab-content">

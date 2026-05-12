@@ -50,15 +50,8 @@
   transition: var(--transition-base);
 }
 
-.profile-tabs .ant-tabs-tab:hover {
-  background: var(--primary-color);
-  color: var(--bg-black) !important;
-  border-radius: var(--radius-sm);
-}
-
 .profile-tabs .ant-tabs-tab-active {
   background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-  border-radius: var(--radius-sm);
 }
 
 .profile-tabs .ant-tabs-tab-active:hover .ant-tabs-tab-btn {
