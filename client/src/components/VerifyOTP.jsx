@@ -38,7 +38,7 @@ const VerifyOTP = () => {
   const [otpForm] = Form.useForm();
   const navigate = useNavigate();
   const location = useLocation();
-  const { setAuth } = useUserContext();
+  const { setAuth, reauthenticate } = useUserContext();
 
   // User Data
   const userData = location.state || {};
@@ -219,11 +219,13 @@ const VerifyOTP = () => {
       }
 
       localStorage.setItem("token", registerRes.token);
-      setAuth(true);
       clearOtpState();
       toast.success("Registration successful! Redirecting...");
       otpForm.resetFields();
-      navigate("/login");
+
+      // Trigger reauthentication to fetch user data with the new token
+      await reauthenticate();
+      navigate("/profile");
     } catch (error) {
       toast.error(error.message || "An error occurred.");
     } finally {
