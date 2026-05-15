@@ -18,41 +18,52 @@ router.post("", authorization, async (req, res) => {
     const {
       partner_id,
       title,
-      package_types,
+      lesson_type,
       description,
       age_groups,
       images,
-      short_term_start_date,
-      long_term_start_date,
       outlets,
     } = req.body;
 
     const partnerIdFromToken = req.user;
 
+    // Validation: Check for required fields
+    if (!title || !lesson_type || !description || !age_groups || !outlets || outlets.length === 0) {
+      return res.status(400).json({
+        error: "Missing required fields",
+        details: {
+          title: !title ? "Title is required" : null,
+          lesson_type: !lesson_type ? "Lesson type is required" : null,
+          description: !description ? "Description is required" : null,
+          age_groups: !age_groups ? "Age groups are required" : null,
+          outlets: !outlets || outlets.length === 0 ? "At least one outlet is required" : null,
+        }
+      });
+    }
+
+    // Note: We allow empty images array here because images are uploaded after listing creation
+    // The constraint will be enforced when the listing is finalized (PATCH with images)
+
     // insert listing
     const listing = await pool.query(
       `INSERT INTO listings (
-        partner_id, 
-        listing_title, 
-        package_types,      
+        partner_id,
+        listing_title,
+        lesson_type,
         description,
         age_groups,
-        rating, 
+        rating,
         images,
-        short_term_start_date,
-        long_term_start_date,
         active
-      ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
+      ) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
       [
         partnerIdFromToken,
         title,
-        package_types,
+        lesson_type,
         description,
         age_groups,
         0,
         images,
-        short_term_start_date,
-        long_term_start_date,
         true,
       ],
     );
@@ -79,20 +90,54 @@ router.post("", authorization, async (req, res) => {
           timeslot,
           frequency,
           slots,
-          credit: scheduleCredit,
+          package_types,
+          is_progressive,
+          full_term_start_date,
+          full_term_class_count,
+          short_term_class_count,
+          price_payg,
+          price_fullterm,
+          price_shortterm,
         } = schedule;
+
+        // Parse timeslot array: [start, end]
+        const start_time = timeslot && timeslot[0] ? timeslot[0] : null;
+        const end_time = timeslot && timeslot[1] ? timeslot[1] : null;
 
         schedulePromises.push(
           pool.query(
-            `INSERT INTO schedules (listing_outlet_id, day, timeslot, frequency, slots, credit)
-             VALUES($1, $2, $3, $4, $5, $6)`,
+            `INSERT INTO schedules (
+              listing_outlet_id,
+              day,
+              start_time,
+              end_time,
+              frequency,
+              slots,
+              package_types,
+              is_progressive,
+              full_term_start_date,
+              full_term_class_count,
+              short_term_class_count,
+              price_dollars,
+              full_term_price_dollars,
+              short_term_price_dollars
+             )
+             VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
             [
               listing_outlet_id,
               day,
-              timeslot,
+              start_time,
+              end_time,
               frequency,
               slots || 10,
-              scheduleCredit || 1,
+              package_types || ['pay-as-you-go'],
+              is_progressive || false,
+              full_term_start_date || null,
+              full_term_class_count || null,
+              short_term_class_count || null,
+              price_payg || null,
+              price_fullterm || null,
+              price_shortterm || null,
             ],
           ),
         );
@@ -166,6 +211,7 @@ router.get("", cacheMiddleware, async (req, res) => {
       LEFT JOIN outlets o ON o.outlet_id = lo.outlet_id
       LEFT JOIN schedules s ON s.listing_outlet_id = lo.listing_outlet_id
       WHERE l.active = true
+        AND jsonb_array_length(l.images) > 0
       GROUP BY l.listing_id, p.partner_id
       ORDER BY l.created_at DESC;
       `,
@@ -215,6 +261,7 @@ router.get("/:id", cacheMiddleware, async (req, res) => {
       LEFT JOIN outlets o ON o.outlet_id = lo.outlet_id
       LEFT JOIN schedules s ON s.listing_outlet_id = lo.listing_outlet_id
       WHERE l.listing_id = $1
+        AND jsonb_array_length(l.images) > 0
       GROUP BY l.listing_id, p.partner_id
       ORDER BY l.created_at DESC;`,
       [id],
@@ -274,39 +321,35 @@ router.patch("/:id", authorization, async (req, res) => {
     // Merge existing data with new data (partial update)
     const updatedData = {
       listing_title: req.body.listing_title ?? listing.listing_title,
-      package_types: req.body.package_types ?? listing.package_types,
+      lesson_type: req.body.lesson_type ?? listing.lesson_type,
       description: req.body.description ?? listing.description,
       age_groups: req.body.age_groups ?? listing.age_groups,
       images: req.body.images ?? listing.images,
-      short_term_start_date:
-        req.body.short_term_start_date !== undefined
-          ? req.body.short_term_start_date
-          : listing.short_term_start_date,
-      long_term_start_date:
-        req.body.long_term_start_date !== undefined
-          ? req.body.long_term_start_date
-          : listing.long_term_start_date,
     };
+
+    // Validate images: must have at least one image
+    if (!updatedData.images || !Array.isArray(updatedData.images) || updatedData.images.length === 0) {
+      return res.status(400).json({
+        error: "Images validation failed",
+        message: "Listing must have at least one image"
+      });
+    }
 
     // Update listing (credit/price removed - credit is per-schedule)
     const updatedListing = await pool.query(
       `UPDATE listings SET
         listing_title = $1,
-        package_types = $2,
+        lesson_type = $2,
         description = $3,
         age_groups = $4,
-        images = $5,
-        short_term_start_date = $6,
-        long_term_start_date = $7
-      WHERE listing_id = $8 RETURNING *`,
+        images = $5
+      WHERE listing_id = $6 RETURNING *`,
       [
         updatedData.listing_title,
-        updatedData.package_types,
+        updatedData.lesson_type,
         updatedData.description,
         updatedData.age_groups,
         JSON.stringify(updatedData.images),
-        updatedData.short_term_start_date,
-        updatedData.long_term_start_date,
         id,
       ],
     );
@@ -459,7 +502,14 @@ router.patch("/:id/schedules", authorization, async (req, res) => {
             timeslot,
             frequency,
             slots,
-            credit: scheduleCredit,
+            package_types,
+            is_progressive,
+            full_term_start_date,
+            full_term_class_count,
+            short_term_class_count,
+            price_payg,
+            price_fullterm,
+            price_shortterm,
           } = sch;
           if (
             !day ||
@@ -471,16 +521,43 @@ router.patch("/:id/schedules", authorization, async (req, res) => {
             return res.status(400).json({ error: "Invalid schedule payload" });
           }
 
+          // Parse timeslot array: [start, end]
+          const start_time = timeslot[0];
+          const end_time = timeslot[1];
+
           await tx.query(
-            `INSERT INTO schedules (listing_outlet_id, day, timeslot, frequency, slots, credit)
-             VALUES ($1, $2, $3, $4, $5, $6)`,
+            `INSERT INTO schedules (
+              listing_outlet_id,
+              day,
+              start_time,
+              end_time,
+              frequency,
+              slots,
+              package_types,
+              is_progressive,
+              full_term_start_date,
+              full_term_class_count,
+              short_term_class_count,
+              price_dollars,
+              full_term_price_dollars,
+              short_term_price_dollars
+             )
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
             [
               listing_outlet_id,
               day,
-              timeslot,
+              start_time,
+              end_time,
               frequency,
               slots || 10,
-              scheduleCredit || 1,
+              package_types || ['pay-as-you-go'],
+              is_progressive || false,
+              full_term_start_date || null,
+              full_term_class_count || null,
+              short_term_class_count || null,
+              price_payg || null,
+              price_fullterm || null,
+              price_shortterm || null,
             ],
           );
         }
