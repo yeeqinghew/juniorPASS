@@ -193,7 +193,7 @@ router.post("", authorization, async (req, res) => {
 router.get("", cacheMiddleware, async (req, res) => {
   try {
     const listings = await pool.query(
-      ` SELECT 
+      ` SELECT
         l.*,
         json_build_object(
           'partner_id', p.partner_id,
@@ -205,27 +205,64 @@ router.get("", cacheMiddleware, async (req, res) => {
           'picture', p.picture,
           'website', p.website
         ) AS partner_info,
-         jsonb_agg(
-          jsonb_build_object(
-            'schedule_id', s.schedule_id,
-            'day', s.day,
-            'timeslot', s.timeslot,
-            'frequency', s.frequency,
-            'slots', s.slots,
-            'credit', s.credit,
-            'outlet_id', o.outlet_id,
-            'outlet_address', o.address,
-            'nearest_mrt', o.nearest_mrt
+        (
+          SELECT jsonb_agg(
+            jsonb_build_object(
+              'outlet_id', o.outlet_id,
+              'outlet_address', o.address,
+              'nearest_mrt', o.nearest_mrt,
+              'schedule_groups', (
+                SELECT jsonb_agg(
+                  jsonb_build_object(
+                    'schedule_group_id', sg.schedule_group_id,
+                    'package_types', sg.package_types,
+                    'is_progressive', sg.is_progressive,
+                    'full_term_start_date', sg.full_term_start_date,
+                    'full_term_class_count', sg.full_term_class_count,
+                    'short_term_class_count', sg.short_term_class_count,
+                    'price_payg', sg.price_payg,
+                    'price_fullterm', sg.price_fullterm,
+                    'price_shortterm', sg.price_shortterm,
+                    'frequency', sg.frequency,
+                    'slots', sg.slots,
+                    'time_slots', (
+                      SELECT jsonb_agg(
+                        jsonb_build_object(
+                          'schedule_id', s.schedule_id,
+                          'day', s.day,
+                          'start_time', s.start_time,
+                          'end_time', s.end_time
+                        )
+                        ORDER BY
+                          CASE s.day
+                            WHEN 'Monday' THEN 1
+                            WHEN 'Tuesday' THEN 2
+                            WHEN 'Wednesday' THEN 3
+                            WHEN 'Thursday' THEN 4
+                            WHEN 'Friday' THEN 5
+                            WHEN 'Saturday' THEN 6
+                            WHEN 'Sunday' THEN 7
+                          END,
+                          s.start_time
+                      )
+                      FROM schedules s
+                      WHERE s.schedule_group_id = sg.schedule_group_id
+                    )
+                  )
+                )
+                FROM schedule_groups sg
+                WHERE sg.listing_outlet_id = lo.listing_outlet_id
+              )
+            )
           )
-        ) AS schedule_info
+          FROM listingOutlets lo
+          LEFT JOIN outlets o ON o.outlet_id = lo.outlet_id
+          WHERE lo.listing_id = l.listing_id
+        ) AS outlets_info
       FROM listings l
       JOIN partners p ON p.partner_id = l.partner_id
-      LEFT JOIN listingOutlets lo ON lo.listing_id = l.listing_id
-      LEFT JOIN outlets o ON o.outlet_id = lo.outlet_id
-      LEFT JOIN schedules s ON s.listing_outlet_id = lo.listing_outlet_id
       WHERE l.active = true
         AND jsonb_array_length(l.images) > 0
-      GROUP BY l.listing_id, p.partner_id
       ORDER BY l.created_at DESC;
       `,
     );
@@ -243,7 +280,7 @@ router.get("/:id", cacheMiddleware, async (req, res) => {
   try {
     const listing = await pool.query(
       `
-      SELECT 
+      SELECT
         l.*,
         json_build_object(
           'partner_id', p.partner_id,
@@ -255,27 +292,64 @@ router.get("/:id", cacheMiddleware, async (req, res) => {
           'picture', p.picture,
           'website', p.website
         ) AS partner_info,
-         jsonb_agg(
-          jsonb_build_object(
-            'schedule_id', s.schedule_id,
-            'day', s.day,
-            'timeslot', s.timeslot,
-            'frequency', s.frequency,
-            'slots', s.slots,
-            'credit', s.credit,
-            'outlet_id', o.outlet_id,
-            'outlet_address', o.address,
-            'nearest_mrt', o.nearest_mrt
+        (
+          SELECT jsonb_agg(
+            jsonb_build_object(
+              'outlet_id', o.outlet_id,
+              'outlet_address', o.address,
+              'nearest_mrt', o.nearest_mrt,
+              'schedule_groups', (
+                SELECT jsonb_agg(
+                  jsonb_build_object(
+                    'schedule_group_id', sg.schedule_group_id,
+                    'package_types', sg.package_types,
+                    'is_progressive', sg.is_progressive,
+                    'full_term_start_date', sg.full_term_start_date,
+                    'full_term_class_count', sg.full_term_class_count,
+                    'short_term_class_count', sg.short_term_class_count,
+                    'price_payg', sg.price_payg,
+                    'price_fullterm', sg.price_fullterm,
+                    'price_shortterm', sg.price_shortterm,
+                    'frequency', sg.frequency,
+                    'slots', sg.slots,
+                    'time_slots', (
+                      SELECT jsonb_agg(
+                        jsonb_build_object(
+                          'schedule_id', s.schedule_id,
+                          'day', s.day,
+                          'start_time', s.start_time,
+                          'end_time', s.end_time
+                        )
+                        ORDER BY
+                          CASE s.day
+                            WHEN 'Monday' THEN 1
+                            WHEN 'Tuesday' THEN 2
+                            WHEN 'Wednesday' THEN 3
+                            WHEN 'Thursday' THEN 4
+                            WHEN 'Friday' THEN 5
+                            WHEN 'Saturday' THEN 6
+                            WHEN 'Sunday' THEN 7
+                          END,
+                          s.start_time
+                      )
+                      FROM schedules s
+                      WHERE s.schedule_group_id = sg.schedule_group_id
+                    )
+                  )
+                )
+                FROM schedule_groups sg
+                WHERE sg.listing_outlet_id = lo.listing_outlet_id
+              )
+            )
           )
-        ) AS schedule_info
+          FROM listingOutlets lo
+          LEFT JOIN outlets o ON o.outlet_id = lo.outlet_id
+          WHERE lo.listing_id = l.listing_id
+        ) AS outlets_info
       FROM listings l
       JOIN partners p ON p.partner_id = l.partner_id
-      LEFT JOIN listingOutlets lo ON lo.listing_id = l.listing_id
-      LEFT JOIN outlets o ON o.outlet_id = lo.outlet_id
-      LEFT JOIN schedules s ON s.listing_outlet_id = lo.listing_outlet_id
       WHERE l.listing_id = $1
         AND jsonb_array_length(l.images) > 0
-      GROUP BY l.listing_id, p.partner_id
       ORDER BY l.created_at DESC;`,
       [id],
     );
@@ -294,10 +368,65 @@ router.get("/partner/:partnerId", async (req, res) => {
   try {
     const listings = await pool.query(
       `
-      SELECT * FROM listings l
+      SELECT
+        l.*,
+        (
+          SELECT jsonb_agg(
+            jsonb_build_object(
+              'outlet_id', o.outlet_id,
+              'outlet_address', o.address,
+              'nearest_mrt', o.nearest_mrt,
+              'schedule_groups', (
+                SELECT jsonb_agg(
+                  jsonb_build_object(
+                    'schedule_group_id', sg.schedule_group_id,
+                    'package_types', sg.package_types,
+                    'is_progressive', sg.is_progressive,
+                    'full_term_start_date', sg.full_term_start_date,
+                    'full_term_class_count', sg.full_term_class_count,
+                    'short_term_class_count', sg.short_term_class_count,
+                    'price_payg', sg.price_payg,
+                    'price_fullterm', sg.price_fullterm,
+                    'price_shortterm', sg.price_shortterm,
+                    'frequency', sg.frequency,
+                    'slots', sg.slots,
+                    'time_slots', (
+                      SELECT jsonb_agg(
+                        jsonb_build_object(
+                          'schedule_id', s.schedule_id,
+                          'day', s.day,
+                          'start_time', s.start_time,
+                          'end_time', s.end_time
+                        )
+                        ORDER BY
+                          CASE s.day
+                            WHEN 'Monday' THEN 1
+                            WHEN 'Tuesday' THEN 2
+                            WHEN 'Wednesday' THEN 3
+                            WHEN 'Thursday' THEN 4
+                            WHEN 'Friday' THEN 5
+                            WHEN 'Saturday' THEN 6
+                            WHEN 'Sunday' THEN 7
+                          END,
+                          s.start_time
+                      )
+                      FROM schedules s
+                      WHERE s.schedule_group_id = sg.schedule_group_id
+                    )
+                  )
+                )
+                FROM schedule_groups sg
+                WHERE sg.listing_outlet_id = lo.listing_outlet_id
+              )
+            )
+          )
+          FROM listingOutlets lo
+          LEFT JOIN outlets o ON o.outlet_id = lo.outlet_id
+          WHERE lo.listing_id = l.listing_id
+        ) AS outlets_info
+      FROM listings l
       WHERE l.partner_id = $1
-      ORDER BY 
-          l.created_at DESC;`,
+      ORDER BY l.created_at DESC;`,
       [partnerId],
     );
 
@@ -601,14 +730,6 @@ router.patch("/:id/schedules", authorization, async (req, res) => {
           }
         }
       }
-              short_term_class_count || null,
-              price_payg || null,
-              price_fullterm || null,
-              price_shortterm || null,
-            ],
-          );
-        }
-      }
 
       // Invalidate caches
       await client.del(`/listings/${listing_id}`);
@@ -710,7 +831,7 @@ router.get("/search", async (req, res) => {
 
     const listings = await pool.query(
       `
-      SELECT 
+      SELECT
         l.*,
         json_build_object(
           'partner_id', p.partner_id,
@@ -721,7 +842,61 @@ router.get("/search", async (req, res) => {
           'rating', p.rating,
           'picture', p.picture,
           'website', p.website
-        ) AS partner_info
+        ) AS partner_info,
+        (
+          SELECT jsonb_agg(
+            jsonb_build_object(
+              'outlet_id', o.outlet_id,
+              'outlet_address', o.address,
+              'nearest_mrt', o.nearest_mrt,
+              'schedule_groups', (
+                SELECT jsonb_agg(
+                  jsonb_build_object(
+                    'schedule_group_id', sg.schedule_group_id,
+                    'package_types', sg.package_types,
+                    'is_progressive', sg.is_progressive,
+                    'full_term_start_date', sg.full_term_start_date,
+                    'full_term_class_count', sg.full_term_class_count,
+                    'short_term_class_count', sg.short_term_class_count,
+                    'price_payg', sg.price_payg,
+                    'price_fullterm', sg.price_fullterm,
+                    'price_shortterm', sg.price_shortterm,
+                    'frequency', sg.frequency,
+                    'slots', sg.slots,
+                    'time_slots', (
+                      SELECT jsonb_agg(
+                        jsonb_build_object(
+                          'schedule_id', s.schedule_id,
+                          'day', s.day,
+                          'start_time', s.start_time,
+                          'end_time', s.end_time
+                        )
+                        ORDER BY
+                          CASE s.day
+                            WHEN 'Monday' THEN 1
+                            WHEN 'Tuesday' THEN 2
+                            WHEN 'Wednesday' THEN 3
+                            WHEN 'Thursday' THEN 4
+                            WHEN 'Friday' THEN 5
+                            WHEN 'Saturday' THEN 6
+                            WHEN 'Sunday' THEN 7
+                          END,
+                          s.start_time
+                      )
+                      FROM schedules s
+                      WHERE s.schedule_group_id = sg.schedule_group_id
+                    )
+                  )
+                )
+                FROM schedule_groups sg
+                WHERE sg.listing_outlet_id = lo.listing_outlet_id
+              )
+            )
+          )
+          FROM listingOutlets lo
+          LEFT JOIN outlets o ON o.outlet_id = lo.outlet_id
+          WHERE lo.listing_id = l.listing_id
+        ) AS outlets_info
       FROM listings l
       JOIN partners p ON p.partner_id = l.partner_id
       ${whereSQL}
