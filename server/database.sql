@@ -46,7 +46,7 @@ CREATE TYPE user_types AS ENUM ('parent', 'child');
 CREATE TYPE methods AS ENUM('email', 'gmail');
 CREATE TYPE genders AS ENUM('M', 'F');
 CREATE TYPE categories AS ENUM('Sports', 'Music');
-CREATE TYPE package_types AS ENUM('pay-as-you-go', 'short-term', 'long-term');
+CREATE TYPE package_types AS ENUM('trial', 'pay-as-you-go', 'short-term', 'full-term');
 CREATE TYPE transaction_types AS ENUM('CREDIT', 'DEBIT');
 CREATE TYPE age_groups AS ENUM ('infant', 'toddler', 'preschooler', 'above-7');
 CREATE TYPE payment_status AS ENUM ('PENDING', 'COMPLETED', 'FAILED');
@@ -260,27 +260,28 @@ CREATE TABLE scheduleExceptions (
 
 CREATE INDEX idx_schedule_exceptions_schedule_date ON scheduleExceptions(schedule_id, exception_date);
 
-CREATE OR REPLACE FUNCTION calculate_short_term_classes(long_term_count INTEGER)
+CREATE OR REPLACE FUNCTION calculate_short_term_classes(full_term_class_count INTEGER)
 RETURNS INTEGER AS $$
 BEGIN
-    RETURN CEIL(long_term_count * 0.25);
+    RETURN CEIL(full_term_class_count * 0.25);
 END;
 $$ LANGUAGE plpgsql STABLE;
-COMMENT ON FUNCTION calculate_short_term_classes IS 'Calculate short-term package classes as 25% of long-term package classes, rounded up.';
+COMMENT ON FUNCTION calculate_short_term_classes IS 'Calculate short-term package classes as 25% of full-term package classes, rounded up.';
 
 CREATE OR REPLACE FUNCTION is_valid_package_combination(types package_types[])
 RETURNS BOOLEAN AS $$
 BEGIN
     -- Valid combinations:
     -- 1) ['pay-as-you-go']
-    -- 2) ['long-term']
-    -- 3} ['long-term', 'short-term']
+    -- 2) ['full-term']
+    -- 3} ['full-term', 'short-term']
+    -- 4) ['trial']
     iF array_length(types, 1) = 1 THEN
-        RETURN types[1] IN ('long-term', 'pay-as-you-go');
+        RETURN types[1] IN ('full-term', 'pay-as-you-go', 'trial');
     END IF;
 
     IF array_length(types, 1) = 2 THEN
-        RETURN 'long-term' = ANY(types) AND 'short-term' = ANY(types);
+        RETURN 'full-term' = ANY(types) AND 'short-term' = ANY(types);
     END IF;
 
     -- Invalid if more than 2 types
@@ -293,11 +294,11 @@ COMMENT ON FUNCTION is_valid_package_combination IS 'Validate that package type 
 CREATE OR REPLACE FUNCTION trigger_calculate_short_term_classes()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- only calculate if long-term is in package_types and long_term_class_count is set
-    IF 'long-term' = ANT(NEW.package_types) AND NEW.long_term_class_count IS NOT NULL THEN
-        NEW.short_term_class_count := calculate_short_term_classes(NEW.long_term_class_count);
+    -- only calculate if full-term is in package_types and full_term_class_count is set
+    IF 'full-term' = ANY(NEW.package_types) AND NEW.full_term_class_count IS NOT NULL THEN
+        NEW.short_term_class_count := calculate_short_term_classes(NEW.full_term_class_count);
     ELSE
-        NEW.short_term_class_count := NULL; -- No short-term classes if no long-term package
+        NEW.short_term_class_count := NULL; -- No short-term classes if no full-term package
     END IF;
 
     RETURN NEW;
@@ -305,7 +306,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER set_short_term_class_count
-    BEFORE INSERT OR UPDATE OF long_term_class_count ON schedules
+    BEFORE INSERT OR UPDATE OF full_term_class_count ON schedules
     FOR EACH ROW
     EXECUTE FUNCTION trigger_calculate_short_term_classes();
 
@@ -317,12 +318,12 @@ BEGIN
     -- update extension eligibility for short-term bookings
     IF NEW.enrolled_package_type = 'short-term' THEN
         -- can extend if: not already extended AND has classes remaining
-        NEW.can_extend_to_longterm := (
+        NEW.can_extend_to_full_term := (
             NEW.upgraded_from_booking_id IS NULL AND 
             NEW.classes_remaining > 0
         );
 
-        IF NEW.classes_remaining = 1 AND NEW.can_extend_to_longterm THEN
+        IF NEW.classes_remaining = 1 AND NEW.can_extend_to_full_term THEN
             -- would need to be set based on the actual class start time
             -- for now, we will set to NULL and handle it in application layer
             NEW.extension_deadline := NULL;
@@ -386,9 +387,9 @@ BEGIN
             RETURN;
         END IF;
 
-        -- check if past long-term start date (for progressive schedules)
-        IF v_schedule.is_progressive AND v_schedule.long_term_start_date IS NOT NULL THEN
-            IF p_current_time >= v_schedule.long_term_start_date THEN
+        -- check if past full-term start date (for progressive schedules)
+        IF v_schedule.is_progressive AND v_schedule.full_term_start_date IS NOT NULL THEN
+            IF p_current_time >= v_schedule.full_term_start_date THEN
                 RETURN QUERY SELECT false, 'Short-term booking window has closed for this schedule';
                 RETURN;
             END IF;
@@ -398,17 +399,17 @@ BEGIN
         RETURN;
     END IF;
 
-    -- long-term validation
-    IF p_package_type = 'long-term' THEN
+    -- full-term validation
+    IF p_package_type = 'full-term' THEN
         -- check if progressive and past start date
-        IF v_schedule.is_progressive AND v_schedule.long_term_start_date IS NOT NULL THEN
-            IF p_current_time > v_schedule.long_term_start_date THEN 
+        IF v_schedule.is_progressive AND v_schedule.full_term_start_date IS NOT NULL THEN
+            IF p_current_time > v_schedule.full_term_start_date THEN 
                RETURN QUERY SELECT false, 'Cannot join progressive class mid-cycle';
                 RETURN;
             END IF;
         END IF;
 
-        RETURN QUERY SELECT true, 'Long-term booking is available';
+        RETURN QUERY SELECT true, 'Full-term booking is available';
         RETURN;
     END IF;
 
@@ -479,9 +480,10 @@ CREATE TABLE packageTypes (
 
 INSERT INTO packageTypes (name, package_type) 
     VALUES
+    ('Trial', 'trial'),
     ('Pay-as-you-go', 'pay-as-you-go'),
     ('Short term package', 'short-term'),
-    ('Long term package', 'long-term');
+    ('Full term package', 'full-term');
 
 CREATE TABLE ageGroups (
     id SERIAL PRIMARY KEY,
@@ -553,7 +555,7 @@ CREATE TABLE bookings (
     classes_attended INTEGER DEFAULT 0,
     classes_remaining INTEGER,
     has_used_short_term BOOLEAN DEFAULT false,
-    can_extend_to_longterm BOOLEAN DEFAULT false,
+    can_extend_to_full_term BOOLEAN DEFAULT false,
     extension_deadline TIMESTAMP,
     upgraded_from_booking_id UUID REFERENCES bookings(booking_id),
     created_at TIMESTAMP DEFAULT NOW(),

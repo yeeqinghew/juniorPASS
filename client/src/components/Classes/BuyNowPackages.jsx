@@ -57,7 +57,7 @@ const BuyNowWithPackages = ({
     setLoadingEligibility(true);
     try {
       const response = await fetchWithAuth(
-        `/packages/schedule/${selected.location.schedule_id}/eligibility`
+        `/packages/schedule/${selected.location.schedule_id}/eligibility`,
       );
 
       if (response.ok) {
@@ -66,7 +66,7 @@ const BuyNowWithPackages = ({
 
         // Auto-select first available package
         const availablePackages = Object.keys(data.eligibility).filter(
-          (pkg) => data.eligibility[pkg].canBook
+          (pkg) => data.eligibility[pkg].canBook,
         );
         if (availablePackages.length > 0) {
           setSelectedPackageType(availablePackages[0]);
@@ -135,10 +135,10 @@ const BuyNowWithPackages = ({
           `Booking confirmed! ${
             selectedPackageType === "short-term"
               ? "Trial"
-              : selectedPackageType === "long-term"
-              ? "Package"
-              : "Class"
-          } has been added to your schedule.`
+              : selectedPackageType === "full-term"
+                ? "Package"
+                : "Class"
+          } has been added to your schedule.`,
         );
         setIsBuyNowModalOpen(false);
         setSelectedChildId(null);
@@ -170,11 +170,11 @@ const BuyNowWithPackages = ({
             <Radio value={packageType} disabled>
               <Space direction="vertical" size={4}>
                 <Text strong className="package-name">
-                  {packageType === "long-term"
-                    ? "Long-term Package"
+                  {packageType === "full-term"
+                    ? "Full-term Package"
                     : packageType === "short-term"
-                    ? "Short-term Trial"
-                    : "Pay-as-you-go"}
+                      ? "Short-term Trial"
+                      : "Pay-as-you-go"}
                 </Text>
                 <Text type="secondary" className="package-unavailable">
                   {reason}
@@ -199,13 +199,13 @@ const BuyNowWithPackages = ({
             <Space direction="vertical" size={8} style={{ width: "100%" }}>
               <div className="package-header">
                 <Text strong className="package-name">
-                  {packageType === "long-term"
-                    ? "Long-term Package"
+                  {packageType === "full-term"
+                    ? "Full-term Package"
                     : packageType === "short-term"
-                    ? "Short-term Trial"
-                    : "Pay-as-you-go"}
+                      ? "Short-term Trial"
+                      : "Pay-as-you-go"}
                 </Text>
-                {packageType === "long-term" && (
+                {packageType === "full-term" && (
                   <Tag color="green" className="package-badge">
                     Best Value
                   </Tag>
@@ -235,7 +235,7 @@ const BuyNowWithPackages = ({
 
               {packageType === "short-term" && (
                 <Alert
-                  message="You can upgrade to long-term package anytime!"
+                  message="You can upgrade to full-term package anytime!"
                   type="info"
                   showIcon
                   icon={<ThunderboltOutlined />}
@@ -243,7 +243,7 @@ const BuyNowWithPackages = ({
                 />
               )}
 
-              {packageType === "long-term" &&
+              {packageType === "full-term" &&
                 pricing.totalClasses > 1 &&
                 pricing.totalPrice > 0 && (
                   <Text type="secondary" className="package-perclass">
@@ -325,7 +325,7 @@ const BuyNowWithPackages = ({
                     renderPackageOption(packageType, {
                       eligibility: eligibilityData,
                       pricing: packageEligibility.pricing[packageType],
-                    })
+                    }),
                 )}
               </Space>
             </Radio.Group>

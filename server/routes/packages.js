@@ -4,27 +4,32 @@ const pool = require("../db");
 const authorization = require("../middleware/authorization");
 
 /**
- * Helper: Calculate short-term class count (25% of long-term, rounded up)
+ * Helper: Calculate short-term class count (25% of full-term, rounded up)
  */
-function calculateShortTermClasses(longTermCount) {
-  return Math.ceil(longTermCount * 0.25);
+function calculateShortTermClasses(fullTermClassCount) {
+  return Math.ceil(fullTermClassCount * 0.25);
 }
 
 /**
  * Helper: Validate package type combination
- * Valid: [long-term], [long-term, short-term], [pay-as-you-go]
+ * Valid:
+ * ["full-term"],
+ * ["full-term", "short-term"],
+ * ["full-term", "short-term", "trial"],
+ * ["pay-as-you-go"],
+ * ["pay-as-you-go", "trial"],
  */
 function isValidPackageCombination(types) {
   if (!Array.isArray(types) || types.length === 0) return false;
 
   // Single type
   if (types.length === 1) {
-    return types[0] === "long-term" || types[0] === "pay-as-you-go";
+    return types[0] === "full-term" || types[0] === "pay-as-you-go";
   }
 
   // Two types
   if (types.length === 2) {
-    return types.includes("long-term") && types.includes("short-term");
+    return types.includes("full-term") && types.includes("short-term");
   }
 
   return false;
@@ -37,7 +42,7 @@ async function canBookPackageType(scheduleId, packageType, userId) {
   try {
     const result = await pool.query(
       `SELECT * FROM can_book_package_type($1, $2, $3, NOW())`,
-      [scheduleId, packageType, userId]
+      [scheduleId, packageType, userId],
     );
 
     return {
@@ -74,7 +79,7 @@ router.get(
         JOIN outlets o ON lo.outlet_id = o.outlet_id
         JOIN listings l ON lo.listing_id = l.listing_id
         WHERE s.schedule_id = $1`,
-        [scheduleId]
+        [scheduleId],
       );
 
       if (scheduleResult.rowCount === 0) {
@@ -99,16 +104,18 @@ router.get(
           totalPrice: schedule.price || 0,
         };
       }
-      if (schedule.package_types.includes("long-term")) {
-        const longTermTotal = (schedule.price || 0) * schedule.long_term_class_count;
-        pricing["long-term"] = {
+      if (schedule.package_types.includes("full-term")) {
+        const fullTermTotal =
+          (schedule.price || 0) * schedule.full_term_class_count;
+        pricing["full-term"] = {
           pricePerClass: schedule.price || 0,
-          totalClasses: schedule.long_term_class_count,
-          totalPrice: longTermTotal,
+          totalClasses: schedule.full_term_class_count,
+          totalPrice: fullTermTotal,
         };
       }
       if (schedule.package_types.includes("short-term")) {
-        const shortTermTotal = (schedule.price || 0) * schedule.short_term_class_count;
+        const shortTermTotal =
+          (schedule.price || 0) * schedule.short_term_class_count;
         pricing["short-term"] = {
           pricePerClass: schedule.price || 0,
           totalClasses: schedule.short_term_class_count,
@@ -126,8 +133,8 @@ router.get(
           end_time: schedule.end_time,
           package_types: schedule.package_types,
           is_progressive: schedule.is_progressive,
-          long_term_start_date: schedule.long_term_start_date,
-          long_term_class_count: schedule.long_term_class_count,
+          full_term_start_date: schedule.full_term_start_date,
+          full_term_class_count: schedule.full_term_class_count,
           short_term_class_count: schedule.short_term_class_count,
         },
         eligibility,
@@ -137,7 +144,7 @@ router.get(
       console.error("Error checking eligibility:", error);
       res.status(500).json({ error: error.message });
     }
-  }
+  },
 );
 
 /**
@@ -146,19 +153,14 @@ router.get(
  */
 router.post("/book", authorization, async (req, res) => {
   const userId = req.user;
-  const {
-    schedule_id,
-    child_id,
-    package_type,
-    start_date,
-  } = req.body;
+  const { schedule_id, child_id, package_type, start_date } = req.body;
 
   // Validation
   if (!schedule_id || !child_id || !package_type || !start_date) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
-  if (!["long-term", "short-term", "pay-as-you-go"].includes(package_type)) {
+  if (!["full-term", "short-term", "pay-as-you-go"].includes(package_type)) {
     return res.status(400).json({ error: "Invalid package type" });
   }
 
@@ -166,7 +168,7 @@ router.post("/book", authorization, async (req, res) => {
     // Verify child belongs to user
     const childCheck = await pool.query(
       "SELECT parent_id FROM children WHERE child_id = $1",
-      [child_id]
+      [child_id],
     );
 
     if (childCheck.rowCount === 0) {
@@ -181,7 +183,7 @@ router.post("/book", authorization, async (req, res) => {
     const eligibility = await canBookPackageType(
       schedule_id,
       package_type,
-      userId
+      userId,
     );
 
     if (!eligibility.canBook) {
@@ -191,12 +193,12 @@ router.post("/book", authorization, async (req, res) => {
     // Get schedule details for class counts
     const scheduleResult = await pool.query(
       `SELECT
-        long_term_class_count,
+        full_term_class_count,
         short_term_class_count,
         package_types
       FROM schedules
       WHERE schedule_id = $1`,
-      [schedule_id]
+      [schedule_id],
     );
 
     const schedule = scheduleResult.rows[0];
@@ -206,8 +208,8 @@ router.post("/book", authorization, async (req, res) => {
     let hasUsedShortTermTrial = false;
 
     switch (package_type) {
-      case "long-term":
-        classesTotal = schedule.long_term_class_count;
+      case "full-term":
+        classesTotal = schedule.full_term_class_count;
         break;
       case "short-term":
         classesTotal = schedule.short_term_class_count;
@@ -229,7 +231,7 @@ router.post("/book", authorization, async (req, res) => {
         classes_attended,
         classes_remaining,
         has_used_short_term_trial,
-        can_extend_to_longterm
+        can_extend_to_full_term
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *`,
       [
@@ -242,7 +244,7 @@ router.post("/book", authorization, async (req, res) => {
         classesTotal, // classes_remaining
         hasUsedShortTermTrial,
         package_type === "short-term", // can_extend if short-term
-      ]
+      ],
     );
 
     res.status(201).json({
@@ -257,7 +259,7 @@ router.post("/book", authorization, async (req, res) => {
 
 /**
  * POST /packages/extend/:bookingId
- * Extend short-term booking to long-term
+ * Extend short-term booking to full-term
  */
 router.post("/extend/:bookingId", authorization, async (req, res) => {
   const userId = req.user;
@@ -269,14 +271,14 @@ router.post("/extend/:bookingId", authorization, async (req, res) => {
       `SELECT
         b.*,
         c.parent_id,
-        s.long_term_class_count,
+        s.full_term_class_count,
         s.short_term_class_count,
         s.package_types
       FROM bookings b
       JOIN children c ON b.child_id = c.child_id
       JOIN schedules s ON b.schedule_id = s.schedule_id
       WHERE b.booking_id = $1`,
-      [bookingId]
+      [bookingId],
     );
 
     if (bookingResult.rowCount === 0) {
@@ -297,7 +299,7 @@ router.post("/extend/:bookingId", authorization, async (req, res) => {
         .json({ error: "Only short-term bookings can be extended" });
     }
 
-    if (!booking.can_extend_to_longterm) {
+    if (!booking.can_extend_to_full_term) {
       return res
         .status(400)
         .json({ error: "This booking is not eligible for extension" });
@@ -309,25 +311,27 @@ router.post("/extend/:bookingId", authorization, async (req, res) => {
         .json({ error: "Cannot extend after all classes are completed" });
     }
 
-    if (!booking.package_types.includes("long-term")) {
+    if (!booking.package_types.includes("full-term")) {
       return res
         .status(400)
-        .json({ error: "Long-term package not available for this schedule" });
+        .json({ error: "Full-term package not available for this schedule" });
     }
 
     // Check extension deadline (24h before last class)
-    if (booking.extension_deadline && new Date() > new Date(booking.extension_deadline)) {
-      return res
-        .status(400)
-        .json({ error: "Extension deadline has passed" });
+    if (
+      booking.extension_deadline &&
+      new Date() > new Date(booking.extension_deadline)
+    ) {
+      return res.status(400).json({ error: "Extension deadline has passed" });
     }
 
     // Calculate remaining classes in short-term
     const shortTermRemaining = booking.classes_remaining;
-    const longTermTotal = booking.long_term_class_count;
-    const additionalClasses = longTermTotal - (booking.short_term_class_count - shortTermRemaining);
+    const fullTermTotal = booking.full_term_class_count;
+    const additionalClasses =
+      fullTermTotal - (booking.short_term_class_count - shortTermRemaining);
 
-    // Create new long-term booking (inherits start_date, no end_date)
+    // Create new full-term booking (inherits start_date, no end_date)
     const newBookingResult = await pool.query(
       `INSERT INTO bookings (
         schedule_id,
@@ -338,7 +342,7 @@ router.post("/extend/:bookingId", authorization, async (req, res) => {
         classes_attended,
         classes_remaining,
         has_used_short_term_trial,
-        can_extend_to_longterm,
+        can_extend_to_full_term,
         upgraded_from_booking_id
       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING *`,
@@ -346,36 +350,37 @@ router.post("/extend/:bookingId", authorization, async (req, res) => {
         booking.schedule_id,
         booking.child_id,
         booking.start_date,
-        "long-term",
-        longTermTotal,
+        "full-term",
+        fullTermTotal,
         booking.classes_attended, // Carry over attended classes
-        longTermTotal - booking.classes_attended,
+        fullTermTotal - booking.classes_attended,
         true, // Keep short-term trial flag
         false, // Cannot extend again
         bookingId, // Reference to original booking
-      ]
+      ],
     );
 
     // Mark original booking as upgraded
     await pool.query(
       `UPDATE bookings
-      SET can_extend_to_longterm = false
+      SET can_extend_to_full_term = false
       WHERE booking_id = $1`,
-      [bookingId]
+      [bookingId],
     );
 
     // Calculate pricing (short-term cost already paid)
-    const shortTermPrice = booking.short_term_class_count * (booking.price || 0);
-    const longTermPrice = longTermTotal * (booking.price || 0);
-    const additionalCost = longTermPrice - shortTermPrice;
+    const shortTermPrice =
+      booking.short_term_class_count * (booking.price || 0);
+    const fullTermPrice = fullTermTotal * (booking.price || 0);
+    const additionalCost = fullTermPrice - shortTermPrice;
 
     res.json({
-      message: "Booking extended to long-term successfully",
+      message: "Booking extended to full-term successfully",
       original_booking: booking,
       new_booking: newBookingResult.rows[0],
       pricing: {
         short_term_paid: shortTermPrice,
-        long_term_total: longTermPrice,
+        full_term_total: fullTermPrice,
         additional_cost: additionalCost,
         classes_added: additionalClasses,
       },
@@ -402,7 +407,7 @@ router.get(
         `SELECT
           b.*,
           c.parent_id,
-          s.long_term_class_count,
+          s.full_term_class_count,
           s.short_term_class_count,
           s.package_types,
           s.price
@@ -410,7 +415,7 @@ router.get(
         JOIN children c ON b.child_id = c.child_id
         JOIN schedules s ON b.schedule_id = s.schedule_id
         WHERE b.booking_id = $1`,
-        [bookingId]
+        [bookingId],
       );
 
       if (result.rowCount === 0) {
@@ -426,12 +431,14 @@ router.get(
       // Calculate extension details
       const canExtend =
         booking.enrolled_package_type === "short-term" &&
-        booking.can_extend_to_longterm &&
+        booking.can_extend_to_full_term &&
         booking.classes_remaining > 0 &&
-        booking.package_types.includes("long-term");
+        booking.package_types.includes("full-term");
 
-      const shortTermPrice = booking.short_term_class_count * (booking.price || 0);
-      const longTermPrice = booking.long_term_class_count * (booking.price || 0);
+      const shortTermPrice =
+        booking.short_term_class_count * (booking.price || 0);
+      const fullTermPrice =
+        booking.full_term_class_count * (booking.price || 0);
 
       res.json({
         booking_id: bookingId,
@@ -442,17 +449,17 @@ router.get(
         extension_deadline: booking.extension_deadline,
         pricing: {
           short_term_paid: shortTermPrice,
-          long_term_total: longTermPrice,
-          extension_cost: longTermPrice - shortTermPrice,
+          full_term_total: fullTermPrice,
+          extension_cost: fullTermPrice - shortTermPrice,
           classes_to_add:
-            booking.long_term_class_count - booking.short_term_class_count,
+            booking.full_term_class_count - booking.short_term_class_count,
         },
       });
     } catch (error) {
       console.error("Error getting extension status:", error);
       res.status(500).json({ error: error.message });
     }
-  }
+  },
 );
 
 module.exports = router;
