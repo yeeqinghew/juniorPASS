@@ -18,7 +18,7 @@ router.post("", authorization, async (req, res) => {
     const {
       partner_id,
       title,
-      lesson_type,
+      // lesson_type,
       description,
       age_groups,
       images,
@@ -28,16 +28,26 @@ router.post("", authorization, async (req, res) => {
     const partnerIdFromToken = req.user;
 
     // Validation: Check for required fields
-    if (!title || !lesson_type || !description || !age_groups || !outlets || outlets.length === 0) {
+    if (
+      !title ||
+      // !lesson_type ||
+      !description ||
+      !age_groups ||
+      !outlets ||
+      outlets.length === 0
+    ) {
       return res.status(400).json({
         error: "Missing required fields",
         details: {
           title: !title ? "Title is required" : null,
-          lesson_type: !lesson_type ? "Lesson type is required" : null,
+          // lesson_type: !lesson_type ? "Lesson type is required" : null,
           description: !description ? "Description is required" : null,
           age_groups: !age_groups ? "Age groups are required" : null,
-          outlets: !outlets || outlets.length === 0 ? "At least one outlet is required" : null,
-        }
+          outlets:
+            !outlets || outlets.length === 0
+              ? "At least one outlet is required"
+              : null,
+        },
       });
     }
 
@@ -49,17 +59,16 @@ router.post("", authorization, async (req, res) => {
       `INSERT INTO listings (
         partner_id,
         listing_title,
-        lesson_type,
         description,
         age_groups,
         rating,
         images,
         active
-      ) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+      ) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
       [
         partnerIdFromToken,
         title,
-        lesson_type,
+        // lesson_type,
         description,
         age_groups,
         0,
@@ -118,9 +127,9 @@ router.post("", authorization, async (req, res) => {
               full_term_start_date,
               full_term_class_count,
               short_term_class_count,
-              price_dollars,
-              full_term_price_dollars,
-              short_term_price_dollars
+              price,
+              full_term_price,
+              short_term_price
              )
              VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
             [
@@ -130,7 +139,7 @@ router.post("", authorization, async (req, res) => {
               end_time,
               frequency,
               slots || 10,
-              package_types || ['pay-as-you-go'],
+              package_types || ["pay-as-you-go"],
               is_progressive || false,
               full_term_start_date || null,
               full_term_class_count || null,
@@ -321,17 +330,21 @@ router.patch("/:id", authorization, async (req, res) => {
     // Merge existing data with new data (partial update)
     const updatedData = {
       listing_title: req.body.listing_title ?? listing.listing_title,
-      lesson_type: req.body.lesson_type ?? listing.lesson_type,
+      // lesson_type: req.body.lesson_type ?? listing.lesson_type,
       description: req.body.description ?? listing.description,
       age_groups: req.body.age_groups ?? listing.age_groups,
       images: req.body.images ?? listing.images,
     };
 
     // Validate images: must have at least one image
-    if (!updatedData.images || !Array.isArray(updatedData.images) || updatedData.images.length === 0) {
+    if (
+      !updatedData.images ||
+      !Array.isArray(updatedData.images) ||
+      updatedData.images.length === 0
+    ) {
       return res.status(400).json({
         error: "Images validation failed",
-        message: "Listing must have at least one image"
+        message: "Listing must have at least one image",
       });
     }
 
@@ -339,20 +352,21 @@ router.patch("/:id", authorization, async (req, res) => {
     const updatedListing = await pool.query(
       `UPDATE listings SET
         listing_title = $1,
-        lesson_type = $2,
-        description = $3,
-        age_groups = $4,
-        images = $5
-      WHERE listing_id = $6 RETURNING *`,
+        description = $2,
+        age_groups = $3,
+        images = $4
+      WHERE listing_id = $5 RETURNING *`,
       [
         updatedData.listing_title,
-        updatedData.lesson_type,
         updatedData.description,
         updatedData.age_groups,
         JSON.stringify(updatedData.images),
         id,
       ],
     );
+
+    // Invalidate cache
+    await Promise.all([client.del(`/listings/${id}`), client.del(`/listings`)]);
 
     // Invalidate cache
     await Promise.all([client.del(`/listings/${id}`), client.del(`/listings`)]);
@@ -538,9 +552,9 @@ router.patch("/:id/schedules", authorization, async (req, res) => {
               full_term_start_date,
               full_term_class_count,
               short_term_class_count,
-              price_dollars,
-              full_term_price_dollars,
-              short_term_price_dollars
+              price,
+              full_term_price,
+              short_term_price
              )
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
             [
@@ -550,7 +564,7 @@ router.patch("/:id/schedules", authorization, async (req, res) => {
               end_time,
               frequency,
               slots || 10,
-              package_types || ['pay-as-you-go'],
+              package_types || ["pay-as-you-go"],
               is_progressive || false,
               full_term_start_date || null,
               full_term_class_count || null,
