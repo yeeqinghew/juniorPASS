@@ -79,24 +79,21 @@ router.post("", authorization, async (req, res) => {
 
     const listing_id = listing.rows[0].listing_id;
 
-    // Insert into listingOutlets
-    const schedulePromises = [];
-
+    // Insert outlets, schedule groups, and schedules
     for (let outlet of outlets) {
-      const { outlet_id, schedules } = outlet;
+      const { outlet_id, schedule_groups } = outlet;
 
       // Insert into listingOutlets
       const listingOutlet = await pool.query(
-        `
-        INSERT INTO listingOutlets (listing_id, outlet_id) VALUES($1, $2) RETURNING *`,
+        `INSERT INTO listingOutlets (listing_id, outlet_id) VALUES($1, $2) RETURNING *`,
         [listing_id, outlet_id],
       );
       const listing_outlet_id = listingOutlet.rows[0].listing_outlet_id;
 
-      for (let schedule of schedules) {
+      // Each schedule_groups item represents one enrollable program
+      for (let group of schedule_groups || []) {
         const {
-          day,
-          timeslot,
+          time_slots,
           frequency,
           slots,
           package_types,
@@ -107,54 +104,61 @@ router.post("", authorization, async (req, res) => {
           price_payg,
           price_fullterm,
           price_shortterm,
-        } = schedule;
+        } = group;
 
-        // Parse timeslot array: [start, end]
-        const start_time = timeslot && timeslot[0] ? timeslot[0] : null;
-        const end_time = timeslot && timeslot[1] ? timeslot[1] : null;
-
-        schedulePromises.push(
-          pool.query(
-            `INSERT INTO schedules (
-              listing_outlet_id,
-              day,
-              start_time,
-              end_time,
-              frequency,
-              slots,
-              package_types,
-              is_progressive,
-              full_term_start_date,
-              full_term_class_count,
-              short_term_class_count,
-              price,
-              full_term_price,
-              short_term_price
-             )
-             VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
-            [
-              listing_outlet_id,
-              day,
-              start_time,
-              end_time,
-              frequency,
-              slots || 10,
-              package_types || ["pay-as-you-go"],
-              is_progressive || false,
-              full_term_start_date || null,
-              full_term_class_count || null,
-              short_term_class_count || null,
-              price_payg || null,
-              price_fullterm || null,
-              price_shortterm || null,
-            ],
-          ),
+        // 1. Insert schedule_group (the enrollable program)
+        const scheduleGroupResult = await pool.query(
+          `INSERT INTO schedule_groups (
+            listing_outlet_id,
+            package_types,
+            is_progressive,
+            full_term_start_date,
+            full_term_class_count,
+            short_term_class_count,
+            price_payg,
+            price_fullterm,
+            price_shortterm,
+            frequency,
+            slots
+          ) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING schedule_group_id`,
+          [
+            listing_outlet_id,
+            package_types || ["pay-as-you-go"],
+            is_progressive || false,
+            full_term_start_date || null,
+            full_term_class_count || null,
+            short_term_class_count || null,
+            price_payg || null,
+            price_fullterm || null,
+            price_shortterm || null,
+            frequency,
+            slots || 10,
+          ],
         );
+
+        const schedule_group_id = scheduleGroupResult.rows[0].schedule_group_id;
+
+        // 2. Insert time slots (schedules) for this group
+        for (let slot of time_slots || []) {
+          const { day, timeslot } = slot;
+
+          // Parse timeslot array: [start, end]
+          const start_time = timeslot && timeslot[0] ? timeslot[0] : null;
+          const end_time = timeslot && timeslot[1] ? timeslot[1] : null;
+
+          await pool.query(
+            `INSERT INTO schedules (
+              schedule_group_id,
+              listing_outlet_id,
+              day,
+              start_time,
+              end_time
+            ) VALUES($1, $2, $3, $4, $5)`,
+            [schedule_group_id, listing_outlet_id, day, start_time, end_time],
+          );
+        }
       }
     }
-
-    // Execute all schedule insert queries in parallel
-    await Promise.all(schedulePromises);
 
     // Invalidate cache
     await client.del("/listings");
@@ -439,15 +443,25 @@ router.patch("/:listing_id/status", async (req, res) => {
 
 /**
  * Partner: Edit schedules (timeslots) for a listing
- * Replaces schedules for provided outlets atomically. Validates partner ownership.
+ * Replaces schedule groups for provided outlets atomically. Validates partner ownership.
  * Payload:
  * {
  *   "outlets": [
  *     {
  *       "outlet_id": "uuid",
- *       "schedules": [
- *         { "day": "Monday", "timeslot": ["12:00", "13:00"], "frequency": "Weekly" },
- *         ...
+ *       "schedule_groups": [
+ *         {
+ *           "time_slots": [
+ *             { "day": "Saturday", "timeslot": ["09:00", "10:00"] },
+ *             { "day": "Sunday", "timeslot": ["09:00", "10:00"] }
+ *           ],
+ *           "frequency": "Weekly",
+ *           "slots": 10,
+ *           "package_types": ["full-term"],
+ *           "is_progressive": true,
+ *           "full_term_class_count": 20,
+ *           "price_fullterm": 1000
+ *         }
  *       ]
  *     }
  *   ]
@@ -460,7 +474,7 @@ router.patch("/:id/schedules", authorization, async (req, res) => {
   try {
     // Validate input
     if (!Array.isArray(outlets) || outlets.length === 0) {
-      return res.status(400).json({ error: "No outlets/schedules provided" });
+      return res.status(400).json({ error: "No outlets/schedule groups provided" });
     }
 
     // Validate partner owns the listing
@@ -482,8 +496,8 @@ router.patch("/:id/schedules", authorization, async (req, res) => {
       await tx.query("BEGIN");
 
       for (const outlet of outlets) {
-        const { outlet_id, schedules } = outlet;
-        if (!outlet_id || !Array.isArray(schedules)) {
+        const { outlet_id, schedule_groups } = outlet;
+        if (!outlet_id || !Array.isArray(schedule_groups)) {
           await tx.query("ROLLBACK");
           return res.status(400).json({ error: "Invalid outlet payload" });
         }
@@ -504,16 +518,16 @@ router.patch("/:id/schedules", authorization, async (req, res) => {
           listing_outlet_id = loResult.rows[0].listing_outlet_id;
         }
 
-        // Replace schedules for this listing_outlet
-        await tx.query(`DELETE FROM schedules WHERE listing_outlet_id = $1`, [
-          listing_outlet_id,
-        ]);
+        // Delete existing schedule_groups (cascades to schedules)
+        await tx.query(
+          `DELETE FROM schedule_groups WHERE listing_outlet_id = $1`,
+          [listing_outlet_id],
+        );
 
-        // Insert new schedules
-        for (const sch of schedules) {
+        // Insert new schedule groups and their time slots
+        for (const group of schedule_groups) {
           const {
-            day,
-            timeslot,
+            time_slots,
             frequency,
             slots,
             package_types,
@@ -524,50 +538,69 @@ router.patch("/:id/schedules", authorization, async (req, res) => {
             price_payg,
             price_fullterm,
             price_shortterm,
-          } = sch;
-          if (
-            !day ||
-            !Array.isArray(timeslot) ||
-            timeslot.length === 0 ||
-            !frequency
-          ) {
+          } = group;
+
+          if (!frequency || !Array.isArray(time_slots) || time_slots.length === 0) {
             await tx.query("ROLLBACK");
-            return res.status(400).json({ error: "Invalid schedule payload" });
+            return res.status(400).json({ error: "Invalid schedule group payload" });
           }
 
-          // Parse timeslot array: [start, end]
-          const start_time = timeslot[0];
-          const end_time = timeslot[1];
-
-          await tx.query(
-            `INSERT INTO schedules (
+          // Insert schedule_group
+          const groupResult = await tx.query(
+            `INSERT INTO schedule_groups (
               listing_outlet_id,
-              day,
-              start_time,
-              end_time,
-              frequency,
-              slots,
               package_types,
               is_progressive,
               full_term_start_date,
               full_term_class_count,
               short_term_class_count,
-              price,
-              full_term_price,
-              short_term_price
-             )
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
+              price_payg,
+              price_fullterm,
+              price_shortterm,
+              frequency,
+              slots
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING schedule_group_id`,
             [
               listing_outlet_id,
-              day,
-              start_time,
-              end_time,
-              frequency,
-              slots || 10,
               package_types || ["pay-as-you-go"],
               is_progressive || false,
               full_term_start_date || null,
               full_term_class_count || null,
+              short_term_class_count || null,
+              price_payg || null,
+              price_fullterm || null,
+              price_shortterm || null,
+              frequency,
+              slots || 10,
+            ],
+          );
+
+          const schedule_group_id = groupResult.rows[0].schedule_group_id;
+
+          // Insert time slots for this group
+          for (const slot of time_slots) {
+            const { day, timeslot } = slot;
+            if (!day || !Array.isArray(timeslot) || timeslot.length < 2) {
+              await tx.query("ROLLBACK");
+              return res.status(400).json({ error: "Invalid time slot payload" });
+            }
+
+            const start_time = timeslot[0];
+            const end_time = timeslot[1];
+
+            await tx.query(
+              `INSERT INTO schedules (
+                schedule_group_id,
+                listing_outlet_id,
+                day,
+                start_time,
+                end_time
+              ) VALUES ($1, $2, $3, $4, $5)`,
+              [schedule_group_id, listing_outlet_id, day, start_time, end_time],
+            );
+          }
+        }
+      }
               short_term_class_count || null,
               price_payg || null,
               price_fullterm || null,
