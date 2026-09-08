@@ -84,7 +84,9 @@ const Pricing = () => {
         <div className="tier-pricing-grid">
           {CREDIT_PRICING_TIERS.map((tier, index) => (
             <div
-              className={`tier-pricing-item ${index === 3 ? "best-tier" : ""}`}
+              className={`tier-pricing-item ${
+                tier.recommended ? "recommended-tier" : ""
+              } ${index === 3 ? "best-tier" : ""}`}
               key={tier.min}
             >
               <div className="tier-item-topline">
@@ -93,6 +95,9 @@ const Pricing = () => {
                 </span>
                 {index === 3 && (
                   <span className="tier-best-badge">Best value</span>
+                )}
+                {tier.recommended && (
+                  <span className="tier-recommended-badge">Recommended</span>
                 )}
               </div>
               <div className="tier-credit-range">{tier.label}</div>
