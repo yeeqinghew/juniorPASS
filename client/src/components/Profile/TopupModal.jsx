@@ -242,7 +242,7 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen, onSuccess }) => {
             <span className="topup-step-number">1</span>
             <div>
               <Text strong>Choose your amount</Text>
-              <Text>Enter any whole number of credits.</Text>
+              <Text>Enter any whole number. Minimum top-up is 1 credit.</Text>
             </div>
           </div>
 
@@ -281,6 +281,9 @@ const TopupModal = ({ isTopUpModalOpen, setIsTopUpModalOpen, onSuccess }) => {
                     <strong>SGD {tier.rate.toFixed(2)}</strong>
                     <small>per credit</small>
                   </span>
+                  {tier.recommended && (
+                    <span className="topup-recommended-tag">Top pick</span>
+                  )}
                   {tier.max === null && (
                     <span className="topup-best-rate">Best rate</span>
                   )}

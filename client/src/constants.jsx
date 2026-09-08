@@ -115,7 +115,7 @@ export const ERROR_MESSAGES = {
   SESSION_EXPIRED: "Your session has expired. Please login again.",
   PAYMENT_FAILED: "Payment failed. Please try again.",
   INVALID_CREDENTIALS: "Invalid email or password.",
-  MIN_TOPUP: "Minimum top-up amount is $5.",
+  MIN_TOPUP: "Minimum top-up is 1 credit.",
   MAX_TOPUP: "Maximum top-up amount is $1000.",
 };
 

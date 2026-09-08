@@ -321,6 +321,20 @@
   border-radius: var(--radius-full);
 }
 
+.topup-recommended-tag {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  padding: 3px 5px;
+  color: var(--text-white);
+  font-size: 9px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  background: var(--primary-color);
+  border-radius: var(--radius-full);
+}
+
 .topup-tier-check {
   position: absolute;
   right: 10px;
