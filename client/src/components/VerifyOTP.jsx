@@ -199,10 +199,13 @@ const VerifyOTP = () => {
       if (referral_code) {
         try {
           // Validate the code again to get referrer_id
-          const referralValidation = await fetchWithAuth(API_ENDPOINTS.REGISTER_WITH_CODE, {
-            method: "POST",
-            body: JSON.stringify({ referral_code }),
-          });
+          const referralValidation = await fetchWithAuth(
+            API_ENDPOINTS.REGISTER_WITH_CODE,
+            {
+              method: "POST",
+              body: JSON.stringify({ referral_code }),
+            },
+          );
 
           const validationData = await referralValidation.json();
 
@@ -229,7 +232,9 @@ const VerifyOTP = () => {
       // Trigger reauthentication to fetch user data with the new token
       const authenticated = await reauthenticate();
       if (!authenticated) {
-        toast.error("Registration succeeded, but the session could not be verified.");
+        toast.error(
+          "Registration succeeded, but the session could not be verified.",
+        );
         return;
       }
       navigate("/profile");
@@ -272,7 +277,7 @@ const VerifyOTP = () => {
           {!hasRequestedOtp && (
             <Alert
               message="Ready to Verify"
-              description="Click 'Send OTP' to receive your verification code via email. The code will be valid for 10 minutes."
+              description="Click 'Send Verification Code' to receive your verification code via email. The code will be valid for 10 minutes."
               type="info"
               showIcon
               icon={<MailOutlined />}
