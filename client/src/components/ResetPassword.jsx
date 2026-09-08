@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { fetchWithAuth, API_ENDPOINTS } from "../utils/api";
 import CryptoJS from "crypto-js";
+import { strongPasswordRule } from "../utils/passwordValidation";
 
 const { Title, Text } = Typography;
 
@@ -82,11 +83,7 @@ const ResetPassword = () => {
               required: true,
               message: "Please enter your new password!",
             },
-            {
-              pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
-              message:
-                "Use at least 8 characters with uppercase, lowercase, and a number.",
-            },
+            strongPasswordRule,
           ]}
         >
           <Input.Password

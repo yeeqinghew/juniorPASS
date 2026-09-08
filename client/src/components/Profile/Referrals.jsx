@@ -186,7 +186,7 @@ const Referrals = () => {
                 <span className="rf-hero-kicker">
                   <ThunderboltOutlined /> Refer and earn
                 </span>
-                <h3>Give {rewardAmount}. Get {rewardAmount}.</h3>
+                <h3>Refer a friend - both earn {rewardAmount} credits</h3>
                 <p>
                   Your friend receives {rewardAmount} credits after their first
                   top-up, and the same reward is added to your wallet.
@@ -276,7 +276,9 @@ const Referrals = () => {
                       <UserAddOutlined />
                     </span>
                     <h5>Your first reward starts here</h5>
-                    <p>Invite a friend and track their progress in this space.</p>
+                    <p>
+                      Invite a friend and track their progress in this space.
+                    </p>
                     <Button
                       type="primary"
                       icon={<MailOutlined />}
@@ -294,7 +296,8 @@ const Referrals = () => {
                         key={referral.id || referral.referee_email}
                       >
                         <span className="rf-referral-avatar">
-                          {referral.referee_name?.charAt(0)?.toUpperCase() || "?"}
+                          {referral.referee_name?.charAt(0)?.toUpperCase() ||
+                            "?"}
                         </span>
                         <div className="rf-referral-info">
                           <div className="rf-referral-row">

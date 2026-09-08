@@ -45,18 +45,7 @@ const { otpHtmlTemplate } = require("../utils/otpHtmlTemplate");
 const googleClientId =
   process.env.GOOGLE_CLIENT_ID || process.env.googleClientID;
 const client = new OAuth2Client(googleClientId);
-
-function isStrongPassword(pw) {
-  if (typeof pw !== "string") return false;
-  // The current clients submit a SHA-256 digest after validating the raw
-  // password in the form. Accept that established payload format here.
-  if (/^[a-f0-9]{64}$/i.test(pw)) return true;
-  const lengthOK = pw.length >= 8;
-  const lower = /[a-z]/.test(pw);
-  const upper = /[A-Z]/.test(pw);
-  const digit = /[0-9]/.test(pw);
-  return lengthOK && lower && upper && digit;
-}
+const { isStrongPassword } = require("../utils/passwordValidation");
 router.use(etagMiddleware);
 
 router.get("/", authorization, async (req, res) => {
@@ -604,24 +593,19 @@ router.patch("/:id", authorization, async (req, res) => {
   }
 });
 
-router.get(
-  "/getAllUsers",
-  adminAuthorization,
-  adminOnly,
-  async (req, res) => {
-    try {
-      const user = await pool.query(
-        `SELECT user_id, name, email, phone_number, user_type, method, credit,
+router.get("/getAllUsers", adminAuthorization, adminOnly, async (req, res) => {
+  try {
+    const user = await pool.query(
+      `SELECT user_id, name, email, phone_number, user_type, method, credit,
                 display_picture, created_at, updated_at
          FROM users`,
-      );
-      return res.status(200).json(user.rows);
-    } catch (error) {
-      console.error(error.message);
-      res.status(500).json({ error: error.message });
-    }
-  },
-);
+    );
+    return res.status(200).json(user.rows);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 /**
  * Logout: blacklist the current JWT so it cannot be used again.

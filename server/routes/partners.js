@@ -12,12 +12,10 @@ const cacheMiddleware = require("../middleware/cacheMiddleware");
 const client = require("../utils/redisClient");
 const validInfo = require("../middleware/validInfo");
 const sendEmail = require("../utils/emailSender");
-const {
-  issueAuthSession,
-  revokeAuthSession,
-} = require("../utils/authSession");
+const { issueAuthSession, revokeAuthSession } = require("../utils/authSession");
 const { partnerLoginLimiter } = require("../middleware/authRateLimiters");
 const { parseCategoryIds } = require("../utils/categories");
+const { isStrongPassword } = require("../utils/passwordValidation");
 
 router.use(etagMiddleware);
 
@@ -57,7 +55,9 @@ router.post("/login", partnerLoginLimiter, async (req, res) => {
 
   try {
     if (typeof email !== "string" || typeof password !== "string") {
-      return res.status(400).json({ message: "Email and password are required" });
+      return res
+        .status(400)
+        .json({ message: "Email and password are required" });
     }
 
     const partner = await pool.query(
@@ -158,7 +158,9 @@ router.patch("/:id", authorization, async (req, res) => {
   try {
     const { id } = req.params;
     if (req.user !== id) {
-      return res.status(403).json({ error: "Not authorized to edit this profile" });
+      return res
+        .status(403)
+        .json({ error: "Not authorized to edit this profile" });
     }
     const {
       partner_name,
@@ -173,8 +175,13 @@ router.patch("/:id", authorization, async (req, res) => {
 
     const parsedCategoryIds =
       category_ids === undefined ? undefined : parseCategoryIds(category_ids);
-    if (category_ids !== undefined && (!parsedCategoryIds || parsedCategoryIds.length === 0)) {
-      return res.status(400).json({ error: "Select at least one valid category" });
+    if (
+      category_ids !== undefined &&
+      (!parsedCategoryIds || parsedCategoryIds.length === 0)
+    ) {
+      return res
+        .status(400)
+        .json({ error: "Select at least one valid category" });
     }
 
     if (parsedCategoryIds) {
@@ -185,7 +192,9 @@ router.patch("/:id", authorization, async (req, res) => {
         [parsedCategoryIds],
       );
       if (validCategories.rowCount !== parsedCategoryIds.length) {
-        return res.status(400).json({ error: "One or more categories are unavailable" });
+        return res
+          .status(400)
+          .json({ error: "One or more categories are unavailable" });
       }
     }
 
@@ -339,10 +348,7 @@ router.post("/change-password", authorization, async (req, res) => {
   const partner_id = req.user;
 
   try {
-    if (
-      typeof newPassword !== "string" ||
-      !/^[a-f0-9]{64}$/.test(newPassword)
-    ) {
+    if (!isStrongPassword(newPassword)) {
       return res.status(400).json({
         success: false,
         message: "Invalid password format",

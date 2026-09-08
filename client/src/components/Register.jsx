@@ -16,6 +16,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import { GoogleLogin } from "@react-oauth/google";
 import { fetchWithAuth, API_ENDPOINTS } from "../utils/api";
+import { strongPasswordRule } from "../utils/passwordValidation";
 import "../Login.css";
 
 const { Title, Text } = Typography;
@@ -256,7 +257,7 @@ const Register = () => {
               label={<Text strong>Password</Text>}
               rules={[
                 { required: true, message: "Please create a password" },
-                { min: 6, message: "Password must be at least 6 characters" },
+                strongPasswordRule,
               ]}
             >
               <Input.Password

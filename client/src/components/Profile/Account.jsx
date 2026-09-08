@@ -15,6 +15,7 @@ import toast from "react-hot-toast";
 import { fetchWithAuth, API_ENDPOINTS } from "../../utils/api";
 import CryptoJS from "crypto-js";
 import "./Account.css";
+import { strongPasswordRule } from "../../utils/passwordValidation";
 
 const { Title } = Typography;
 
@@ -373,7 +374,7 @@ const Account = () => {
                     label="New Password"
                     rules={[
                       { required: true, message: "Required" },
-                      { min: 8, message: "At least 8 characters" },
+                      strongPasswordRule,
                     ]}
                   >
                     <Input.Password
