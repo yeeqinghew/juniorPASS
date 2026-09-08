@@ -266,7 +266,7 @@ router.post("", authorization, async (req, res) => {
     transactionOpen = false;
 
     // Invalidate cache
-    await client.del("/listings");
+    await invalidateListingCaches();
 
     // Admin notifications: new listing created
     // try {
@@ -393,6 +393,19 @@ router.get("", cacheMiddleware, async (req, res) => {
             WHEN jsonb_typeof(l.images) = 'array' THEN jsonb_array_length(l.images) > 0
             ELSE false
           END
+        )
+        AND EXISTS (
+          SELECT 1
+          FROM listingOutlets available_lo
+          JOIN schedule_groups available_sg
+            ON available_sg.listing_outlet_id = available_lo.listing_outlet_id
+          JOIN schedules available_s
+            ON available_s.schedule_group_id = available_sg.schedule_group_id
+          WHERE available_lo.listing_id = l.listing_id
+            AND available_s.slots > 0
+            AND available_s.start_time IS NOT NULL
+            AND available_s.end_time IS NOT NULL
+            AND COALESCE(cardinality(available_sg.package_types), 0) > 0
         )
       ORDER BY l.created_at DESC;
       `,
@@ -712,7 +725,7 @@ router.patch("/:id", authorization, async (req, res) => {
 
     await db.query("COMMIT");
     transactionOpen = false;
-    await Promise.all([client.del(`/listings/${id}`), client.del(`/listings`)]);
+    await invalidateListingCaches();
 
     res.status(200).json({
       message: "Listing has been updated!",
@@ -754,10 +767,7 @@ router.delete("/:id", authorization, async (req, res) => {
     await pool.query(`DELETE FROM listings WHERE listing_id = $1`, [id]);
 
     // Invalidate the cache
-    await client.del(`/listings/${id}`);
-
-    // Optionally, invalidate or update related cache entries, like the list of all listings
-    await client.del("/listings");
+    await invalidateListingCaches();
 
     res.status(200).json({
       message: "Listing has been deleted!",
@@ -1024,8 +1034,7 @@ router.patch("/:id/schedules", authorization, async (req, res) => {
       }
 
       // Invalidate caches
-      await client.del(`/listings/${listing_id}`);
-      await client.del("/listings");
+      await invalidateListingCaches();
 
       await tx.query("COMMIT");
 
@@ -1096,7 +1105,22 @@ router.get("/search", async (req, res) => {
 
   try {
     // Build dynamic WHERE clauses
-    const whereClauses = ["l.active = true"];
+    const whereClauses = [
+      "l.active = true",
+      `EXISTS (
+        SELECT 1
+        FROM listingOutlets available_lo
+        JOIN schedule_groups available_sg
+          ON available_sg.listing_outlet_id = available_lo.listing_outlet_id
+        JOIN schedules available_s
+          ON available_s.schedule_group_id = available_sg.schedule_group_id
+        WHERE available_lo.listing_id = l.listing_id
+          AND available_s.slots > 0
+          AND available_s.start_time IS NOT NULL
+          AND available_s.end_time IS NOT NULL
+          AND COALESCE(cardinality(available_sg.package_types), 0) > 0
+      )`,
+    ];
     const params = [];
     let idx = 1;
 

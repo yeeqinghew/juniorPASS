@@ -479,6 +479,20 @@ const getListingsByPartnerId = async (partnerId) => {
               ), '[]'::jsonb) AS category_ids
        FROM listings l
        WHERE l.partner_id = $1
+         AND l.active = true
+         AND EXISTS (
+           SELECT 1
+           FROM listingOutlets available_lo
+           JOIN schedule_groups available_sg
+             ON available_sg.listing_outlet_id = available_lo.listing_outlet_id
+           JOIN schedules available_s
+             ON available_s.schedule_group_id = available_sg.schedule_group_id
+           WHERE available_lo.listing_id = l.listing_id
+             AND available_s.slots > 0
+             AND available_s.start_time IS NOT NULL
+             AND available_s.end_time IS NOT NULL
+             AND COALESCE(cardinality(available_sg.package_types), 0) > 0
+         )
        ORDER BY l.created_at DESC`,
       [partnerId],
     );
