@@ -1093,3 +1093,14 @@
         padding: var(--spacing-xl) !important;
     }
 }
+
+.tier-recommended-badge {
+    padding: 4px 9px;
+    color: var(--text-white);
+    font-size: 10px;
+    font-weight: var(--font-weight-bold);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    background: var(--accent-pink);
+    border-radius: var(--radius-full);
+}
