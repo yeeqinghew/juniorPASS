@@ -186,6 +186,20 @@ const Classes = () => {
     return `${ageGroup.min_age}-${ageGroup.max_age} years`;
   };
 
+  const getListingAgeLabel = (ageGroupName) => {
+    const ageGroup = ageGroups.find((group) => group.name === ageGroupName);
+
+    if (!ageGroup) {
+      return ageGroupName.replaceAll("-", " ");
+    }
+
+    if (ageGroup.max_age === null) {
+      return `${ageGroup.min_age}+`;
+    }
+
+    return `${ageGroup.min_age}\u2013${ageGroup.max_age}`;
+  };
+
   const filteredListings = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
 
@@ -784,9 +798,9 @@ const Classes = () => {
                             <div className="class-listing-footer">
                               <span>
                                 Ages{" "}
-                                {normaliseArrayValue(listing?.age_groups).join(
-                                  ", ",
-                                ) || "All ages"}
+                                {normaliseArrayValue(listing?.age_groups)
+                                  .map(getListingAgeLabel)
+                                  .join(", ") || "All"}
                               </span>
 
                               <strong>

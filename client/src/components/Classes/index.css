@@ -258,6 +258,10 @@
     font-size: 12px;
 }
 
+.class-listing-footer>span {
+    white-space: nowrap;
+}
+
 .class-listing-footer strong {
     color: var(--text-dark);
     white-space: nowrap;
