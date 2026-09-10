@@ -16,6 +16,7 @@ const { issueAuthSession, revokeAuthSession } = require("../utils/authSession");
 const { partnerLoginLimiter } = require("../middleware/authRateLimiters");
 const { parseCategoryIds } = require("../utils/categories");
 const { isStrongPassword } = require("../utils/passwordValidation");
+const { withMinimumListingCredits } = require("../utils/listingPricing");
 
 router.use(etagMiddleware);
 
@@ -496,7 +497,7 @@ const getListingsByPartnerId = async (partnerId) => {
        ORDER BY l.created_at DESC`,
       [partnerId],
     );
-    return listings.rows;
+    return listings.rows.map(withMinimumListingCredits);
   } catch (error) {
     console.error("ERROR in getPartnerByPartnerId:", error.message);
     throw error;

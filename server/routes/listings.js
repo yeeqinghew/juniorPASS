@@ -13,6 +13,7 @@ const {
   deleteCloudinaryImage,
 } = require("../services/storage/storage.service");
 const { parseCategoryIds } = require("../utils/categories");
+const { withMinimumListingCredits } = require("../utils/listingPricing");
 
 require("dotenv").config();
 router.use(etagMiddleware);
@@ -117,7 +118,9 @@ router.post("", authorization, async (req, res) => {
 
     const outletIds = outlets.map((outlet) => outlet.outlet_id);
     if (new Set(outletIds).size !== outletIds.length) {
-      return res.status(400).json({ error: "An outlet can only be added once" });
+      return res
+        .status(400)
+        .json({ error: "An outlet can only be added once" });
     }
 
     const ownedOutlets = await pool.query(
@@ -139,7 +142,9 @@ router.post("", authorization, async (req, res) => {
       [parsedCategoryIds],
     );
     if (validCategories.rowCount !== parsedCategoryIds.length) {
-      return res.status(400).json({ error: "One or more categories are unavailable" });
+      return res
+        .status(400)
+        .json({ error: "One or more categories are unavailable" });
     }
 
     db = await pool.connect();
@@ -256,7 +261,14 @@ router.post("", authorization, async (req, res) => {
               end_time,
               slots
             ) VALUES($1, $2, $3, $4, $5, $6)`,
-            [schedule_group_id, listing_outlet_id, day, start_time, end_time, slotCapacity || 10],
+            [
+              schedule_group_id,
+              listing_outlet_id,
+              day,
+              start_time,
+              end_time,
+              slotCapacity || 10,
+            ],
           );
         }
       }
@@ -266,7 +278,7 @@ router.post("", authorization, async (req, res) => {
     transactionOpen = false;
 
     // Invalidate cache
-    await invalidateListingCaches();
+    await client.del("/listings");
 
     // Admin notifications: new listing created
     // try {
@@ -410,7 +422,7 @@ router.get("", cacheMiddleware, async (req, res) => {
       ORDER BY l.created_at DESC;
       `,
     );
-    return res.status(200).json(listings.rows);
+    return res.status(200).json(listings.rows.map(withMinimumListingCredits));
   } catch (err) {
     console.error("ERROR in /listings GET", err.message);
     res.status(500).json({ error: err.message });
@@ -520,7 +532,7 @@ router.get("/:id([0-9a-fA-F-]{36})", cacheMiddleware, async (req, res) => {
       [id],
     );
 
-    return res.status(200).json(listing.rows[0]);
+    return res.status(200).json(withMinimumListingCredits(listing.rows[0]));
   } catch (err) {
     console.error(`ERROR in /listings/${id} GET`, err.message);
     res.status(500).json({ error: err.message });
@@ -614,7 +626,7 @@ router.get("/partner/:partnerId", async (req, res) => {
       [partnerId],
     );
 
-    return res.status(200).json(listings.rows);
+    return res.status(200).json(listings.rows.map(withMinimumListingCredits));
   } catch (error) {
     console.error(`ERROR in /listings/partner/${partnerId} GET`, error.message);
     res.status(500).json({ error: error.message });
@@ -663,7 +675,9 @@ router.patch("/:id", authorization, async (req, res) => {
       req.body.category_ids !== undefined &&
       (!parsedCategoryIds || parsedCategoryIds.length === 0)
     ) {
-      return res.status(400).json({ error: "Select at least one valid category" });
+      return res
+        .status(400)
+        .json({ error: "Select at least one valid category" });
     }
 
     if (parsedCategoryIds) {
@@ -674,7 +688,9 @@ router.patch("/:id", authorization, async (req, res) => {
         [parsedCategoryIds],
       );
       if (validCategories.rowCount !== parsedCategoryIds.length) {
-        return res.status(400).json({ error: "One or more categories are unavailable" });
+        return res
+          .status(400)
+          .json({ error: "One or more categories are unavailable" });
       }
     }
 
@@ -725,7 +741,7 @@ router.patch("/:id", authorization, async (req, res) => {
 
     await db.query("COMMIT");
     transactionOpen = false;
-    await invalidateListingCaches();
+    await Promise.all([client.del(`/listings/${id}`), client.del(`/listings`)]);
 
     res.status(200).json({
       message: "Listing has been updated!",
@@ -753,7 +769,9 @@ router.delete("/:id", authorization, async (req, res) => {
       return res.status(404).json({ error: "Listing not found" });
     }
     if (rows[0].partner_id !== req.user) {
-      return res.status(403).json({ error: "Not authorized to delete this listing" });
+      return res
+        .status(403)
+        .json({ error: "Not authorized to delete this listing" });
     }
 
     // Extract image URLs from the database result
@@ -767,7 +785,10 @@ router.delete("/:id", authorization, async (req, res) => {
     await pool.query(`DELETE FROM listings WHERE listing_id = $1`, [id]);
 
     // Invalidate the cache
-    await invalidateListingCaches();
+    await client.del(`/listings/${id}`);
+
+    // Optionally, invalidate or update related cache entries, like the list of all listings
+    await client.del("/listings");
 
     res.status(200).json({
       message: "Listing has been deleted!",
@@ -801,7 +822,7 @@ router.patch("/:listing_id/status", authorization, async (req, res) => {
        RETURNING listing_id`,
       [active, listing_id, req.user],
     );
-    
+
     if (result.rowCount === 0) {
       const listingCheck = await pool.query(
         `SELECT
@@ -924,10 +945,7 @@ router.patch("/:id/schedules", authorization, async (req, res) => {
           [listing_outlet_id],
         );
         const existingRates = new Map(
-          existingRatesResult.rows.map((row) => [
-            row.schedule_group_id,
-            row,
-          ]),
+          existingRatesResult.rows.map((row) => [row.schedule_group_id, row]),
         );
 
         // Delete existing schedule_groups (cascades to schedules)
@@ -1027,14 +1045,22 @@ router.patch("/:id/schedules", authorization, async (req, res) => {
                 end_time,
                 slots
               ) VALUES ($1, $2, $3, $4, $5, $6)`,
-            [schedule_group_id, listing_outlet_id, day, start_time, end_time, slotCapacity],
-          );
+              [
+                schedule_group_id,
+                listing_outlet_id,
+                day,
+                start_time,
+                end_time,
+                slotCapacity,
+              ],
+            );
           }
         }
       }
 
       // Invalidate caches
-      await invalidateListingCaches();
+      await client.del(`/listings/${listing_id}`);
+      await client.del("/listings");
 
       await tx.query("COMMIT");
 
@@ -1267,7 +1293,7 @@ router.get("/search", async (req, res) => {
       page,
       limit,
       total: parseInt(countResult.rows[0].total, 10),
-      data: listings.rows,
+      data: listings.rows.map(withMinimumListingCredits),
     });
   } catch (error) {
     console.error("ERROR in /listings/search GET", error.message);
