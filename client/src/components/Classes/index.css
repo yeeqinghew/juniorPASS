@@ -407,7 +407,7 @@
     }
 }
 
-/* Tablet portrait and mobile */
+/* Tablet portrait */
 @media screen and (max-width: 1023.9px) {
     .classes {
         padding: 20px 16px 24px;
@@ -439,10 +439,21 @@
     .classes-specific-date .ant-picker {
         flex: 1;
     }
+
+    .class-listing-card {
+        grid-template-columns: 200px minmax(0, 1fr);
+        gap: 16px;
+        padding: 12px;
+    }
+
+    .class-listing-image {
+        width: 200px !important;
+        height: 160px !important;
+    }
 }
 
 /* Mobile */
-@media screen and (max-width: 767.9px) {
+@media screen and (max-width: 479.9px) {
     .classes {
         padding: 16px 12px 24px;
     }
@@ -570,10 +581,7 @@
         height: 38px;
         font-size: 18px;
     }
-}
 
-/* Narrow phones */
-@media screen and (max-width: 390px) {
     .classes-header {
         display: block;
     }
