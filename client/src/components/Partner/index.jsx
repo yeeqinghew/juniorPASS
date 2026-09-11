@@ -14,9 +14,9 @@ import {
   Spin,
   Empty,
   Button,
+  Image,
 } from "antd";
 import {
-  EnvironmentOutlined,
   PhoneOutlined,
   GlobalOutlined,
   TagOutlined,
@@ -25,6 +25,7 @@ import {
   BookOutlined,
   UserOutlined,
   ShopOutlined,
+  EnvironmentOutlined,
 } from "@ant-design/icons";
 import { fetchWithAuth, API_ENDPOINTS } from "../../utils/api";
 import "./index.css";
@@ -34,6 +35,7 @@ const { Title, Text, Paragraph } = Typography;
 const Partner = () => {
   const [partner, setPartner] = useState({});
   const [listings, setListings] = useState([]);
+  const [outlets, setOutlets] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const { partnerId } = useParams();
@@ -48,6 +50,7 @@ const Partner = () => {
       if (success) {
         setPartner(data?.partner);
         setListings(data?.listings);
+        setOutlets(data?.outlets || []);
         setReviews(data?.reviews);
       }
     } catch (err) {
@@ -88,6 +91,27 @@ const Partner = () => {
       return Array.isArray(images) ? images[0] : null;
     } catch (e) {
       return null;
+    }
+  };
+
+  const parseArray = (value) => {
+    if (Array.isArray(value)) return value;
+    if (!value) return [];
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const getOutletAddress = (value) => {
+    if (!value) return "Address not provided";
+    try {
+      const parsed = typeof value === "string" ? JSON.parse(value) : value;
+      return parsed?.ADDRESS || parsed?.SEARCHVAL || value;
+    } catch {
+      return value;
     }
   };
 
@@ -132,29 +156,9 @@ const Partner = () => {
             </Paragraph>
           </Card>
 
-          {/* Contact & Location Info */}
+          {/* Contact Info */}
           <Row gutter={[24, 24]}>
-            <Col xs={24} md={12}>
-              <Card className="info-card" bordered={false}>
-                <Title level={5} className="info-card-title">
-                  <EnvironmentOutlined /> Location
-                </Title>
-                <div className="info-item">
-                  <Text className="info-label">Address</Text>
-                  <Text className="info-value">
-                    {partner?.address || "Not provided"}
-                  </Text>
-                </div>
-                <div className="info-item">
-                  <Text className="info-label">Region</Text>
-                  <Tag color="blue" className="region-tag">
-                    {partner?.region || "N/A"}
-                  </Tag>
-                </div>
-              </Card>
-            </Col>
-
-            <Col xs={24} md={12}>
+            <Col xs={24}>
               <Card className="info-card" bordered={false}>
                 <Title level={5} className="info-card-title">
                   <PhoneOutlined /> Contact
@@ -222,6 +226,71 @@ const Partner = () => {
               </Card>
             </Col>
           </Row>
+        </div>
+      ),
+    },
+    {
+      key: "outlets",
+      label: (
+        <span>
+          <EnvironmentOutlined /> Outlets ({outlets.length})
+        </span>
+      ),
+      children: (
+        <div className="partner-outlets-section">
+          {outlets.length === 0 ? (
+            <Empty
+              description="No locations with available classes"
+              image={<EnvironmentOutlined className="empty-icon" />}
+            />
+          ) : (
+            <div className="partner-outlets-grid">
+              {outlets.map((outlet) => {
+                const images = parseArray(outlet.images);
+                return (
+                  <Card key={outlet.outlet_id} className="partner-outlet-card">
+                    <div className="partner-outlet-media">
+                      {images.length > 0 ? (
+                        <Image
+                          src={images[0]}
+                          alt={outlet.outlet_name || "Outlet"}
+                          preview={{ mask: "View photo" }}
+                        />
+                      ) : (
+                        <div className="partner-outlet-placeholder">
+                          <ShopOutlined />
+                        </div>
+                      )}
+                    </div>
+                    <div className="partner-outlet-content">
+                      <div className="partner-outlet-heading">
+                        <Title level={4}>
+                          {outlet.outlet_name || "Outlet"}
+                        </Title>
+                        <Tag className="partner-outlet-class-count">
+                          {outlet.available_class_count}{" "}
+                          {outlet.available_class_count === 1 ? "class" : "classes"}
+                        </Tag>
+                      </div>
+                      <Text className="partner-outlet-address">
+                        <EnvironmentOutlined /> {getOutletAddress(outlet.address)}
+                      </Text>
+                      {outlet.nearest_mrt && (
+                        <Tag className="partner-outlet-mrt">
+                          {outlet.nearest_mrt} MRT
+                        </Tag>
+                      )}
+                      {outlet.description && (
+                        <Paragraph ellipsis={{ rows: 2 }}>
+                          {outlet.description}
+                        </Paragraph>
+                      )}
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
         </div>
       ),
     },
@@ -403,9 +472,6 @@ const Partner = () => {
               <div className="partner-stats">
                 <Tag color="blue" className="stat-tag">
                   <BookOutlined /> {listings.length} Classes
-                </Tag>
-                <Tag color="green" className="stat-tag">
-                  <EnvironmentOutlined /> {partner?.region}
                 </Tag>
               </div>
             </div>
