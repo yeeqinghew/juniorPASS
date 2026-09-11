@@ -37,6 +37,23 @@ async function invalidateListingCaches() {
   }
 }
 
+function singaporeToday() {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Singapore",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
+function isPastStartDate(value) {
+  if (!value) return false;
+  const date = String(value).slice(0, 10);
+  return /^\d{4}-\d{2}-\d{2}$/.test(date) && date < singaporeToday();
+}
+
 // create listing
 router.post("", authorization, async (req, res) => {
   let db;
@@ -113,6 +130,20 @@ router.post("", authorization, async (req, res) => {
       return res.status(400).json({
         error:
           "Each outlet needs at least one complete schedule with a day, time, and capacity",
+      });
+    }
+
+    const hasPastProgressiveStartDate = outlets.some((outlet) =>
+      outlet.schedule_groups.some(
+        (schedule) =>
+          schedule.is_progressive &&
+          isPastStartDate(schedule.full_term_start_date),
+      ),
+    );
+
+    if (hasPastProgressiveStartDate) {
+      return res.status(400).json({
+        error: "Progressive class start date cannot be earlier than today",
       });
     }
 
@@ -940,7 +971,8 @@ router.patch("/:id/schedules", authorization, async (req, res) => {
         // non-price details. Newly added programs use the active rate.
         const existingRatesResult = await tx.query(
           `SELECT schedule_group_id, pricing_dollars_per_credit,
-                  price_payg, price_fullterm, price_shortterm
+                  price_payg, price_fullterm, price_shortterm,
+                  full_term_start_date
            FROM schedule_groups WHERE listing_outlet_id = $1`,
           [listing_outlet_id],
         );
@@ -970,6 +1002,25 @@ router.patch("/:id/schedules", authorization, async (req, res) => {
             price_shortterm,
           } = schedule;
           const existingPricing = existingRates.get(existingScheduleGroupId);
+
+          const submittedStartDate = full_term_start_date
+            ? String(full_term_start_date).slice(0, 10)
+            : null;
+          const existingStartDate = existingPricing?.full_term_start_date
+            ? String(existingPricing.full_term_start_date).slice(0, 10)
+            : null;
+
+          if (
+            is_progressive &&
+            submittedStartDate !== existingStartDate &&
+            isPastStartDate(submittedStartDate)
+          ) {
+            await tx.query("ROLLBACK");
+            return res.status(400).json({
+              error: "Progressive class start date cannot be earlier than today",
+            });
+          }
+
           const samePrice =
             existingPricing &&
             Number(existingPricing.price_payg || 0) ===
