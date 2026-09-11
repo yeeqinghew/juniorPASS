@@ -1,10 +1,12 @@
 const express = require("express");
 const router = express.Router();
+const pool = require("../db");
 
 const {
   getUserDPSignature,
   getPartnerDPSignature,
   getListingImageSignature,
+  getOutletImageSignature,
   deleteImages,
 } = require("../services/storage/storage.service");
 const { AUTH_ROLES } = require("../constants/auth");
@@ -53,6 +55,28 @@ router.post("/upload/listing-image", partnerAuthorization, (req, res) => {
   }
 });
 
+// -------------------- OUTLET IMAGE --------------------
+router.post("/upload/outlet-image", partnerAuthorization, async (req, res) => {
+  try {
+    const { outletId } = req.body;
+    if (!outletId) {
+      return res.status(400).json({ error: "outletId is required" });
+    }
+
+    const outlet = await pool.query(
+      "SELECT 1 FROM outlets WHERE outlet_id = $1 AND partner_id = $2",
+      [outletId, req.user],
+    );
+    if (outlet.rowCount === 0) {
+      return res.status(404).json({ error: "Outlet not found" });
+    }
+
+    return res.json(getOutletImageSignature(req.user, outletId));
+  } catch (err) {
+    return res.status(403).json({ error: err.message });
+  }
+});
+
 // -------------------- DELETE IMAGES --------------------
 router.delete("/delete", userOrPartnerAuthorization, async (req, res) => {
   try {
@@ -72,6 +96,12 @@ router.delete("/delete", userOrPartnerAuthorization, async (req, res) => {
       if (
         req.user &&
         id.startsWith(`juniorpass/partners/${req.user}/listings/`)
+      )
+        return true;
+
+      if (
+        req.user &&
+        id.startsWith(`juniorpass/partners/${req.user}/outlets/`)
       )
         return true;
 

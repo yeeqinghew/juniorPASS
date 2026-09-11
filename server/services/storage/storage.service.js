@@ -44,6 +44,21 @@ function getListingImageSignature(partnerId, listingId) {
   });
 }
 
+// -------------------- OUTLET IMAGES --------------------
+function getOutletImageSignature(partnerId, outletId) {
+  if (!partnerId) throw new Error("Partner ID required");
+  if (!outletId) throw new Error("Outlet ID required");
+
+  const public_id = `${Date.now()}-${crypto.randomBytes(8).toString("hex")}`;
+
+  return generateUploadSignature({
+    folder: `juniorpass/partners/${partnerId}/outlets/${outletId}/images`,
+    public_id,
+    overwrite: false,
+    resource_type: "image",
+  });
+}
+
 // -------------------- DELETE --------------------
 function deleteImages(publicIds) {
   return deleteCloudinaryImage(publicIds);
@@ -53,5 +68,6 @@ module.exports = {
   getUserDPSignature,
   getPartnerDPSignature,
   getListingImageSignature,
+  getOutletImageSignature,
   deleteImages,
 };

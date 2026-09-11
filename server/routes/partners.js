@@ -25,7 +25,7 @@ router.get("/", authorization, async (req, res) => {
   try {
     const partner = await pool.query(
       `SELECT partner_id, partner_name, email, description, website, rating,
-              credit, picture, address, region, contact_number,
+              credit, picture, contact_number,
               COALESCE((
                 SELECT jsonb_agg(ac.name ORDER BY ac.display_order, ac.name)
                 FROM partner_activity_categories pac
@@ -135,9 +135,10 @@ router.get("/:partnerId/outlets", authorization, async (req, res) => {
 router.get("/:id", cacheMiddleware, async (req, res) => {
   const id = req.params.id;
   try {
-    const [partner, listings, reviews] = await Promise.all([
+    const [partner, listings, outlets, reviews] = await Promise.all([
       getPartnerByPartnerId(id),
       getListingsByPartnerId(id),
+      getPublicOutletsByPartnerId(id),
       getReviwesByPartnerId(id),
     ]);
 
@@ -146,6 +147,7 @@ router.get("/:id", cacheMiddleware, async (req, res) => {
       data: {
         partner,
         listings,
+        outlets,
         reviews,
       },
     });
@@ -167,7 +169,6 @@ router.patch("/:id", authorization, async (req, res) => {
       partner_name,
       description,
       picture,
-      address,
       contact_number,
       website,
       category_ids,
@@ -212,19 +213,17 @@ router.patch("/:id", authorization, async (req, res) => {
           partner_name = COALESCE($1, partner_name),
           description = COALESCE($2, description),
           picture = COALESCE($3, picture),
-          address = COALESCE($4, address),
-          contact_number = COALESCE($5, contact_number),
-          website = COALESCE($6, website)
-         WHERE partner_id = $7
+          contact_number = COALESCE($4, contact_number),
+          website = COALESCE($5, website)
+         WHERE partner_id = $6
          RETURNING partner_id, partner_name, email, description, website,
-                   rating, credit, picture, address, region, contact_number,
+                   rating, credit, picture, contact_number,
                    is_profile_complete,
                    requires_password_change, created_at, updated_at`,
         [
           partner_name,
           description,
           picture,
-          address,
           contact_number,
           website,
           id,
@@ -436,8 +435,6 @@ const getPartnerByPartnerId = async (partnerId) => {
         website,
         rating,
         picture,
-        address,
-        region,
         contact_number,
         COALESCE((
           SELECT jsonb_agg(ac.name ORDER BY ac.display_order, ac.name)
@@ -500,6 +497,33 @@ const getListingsByPartnerId = async (partnerId) => {
     return listings.rows.map(withMinimumListingCredits);
   } catch (error) {
     console.error("ERROR in getPartnerByPartnerId:", error.message);
+    throw error;
+  }
+};
+
+const getPublicOutletsByPartnerId = async (partnerId) => {
+  try {
+    const outlets = await pool.query(
+      `SELECT o.outlet_id, o.outlet_name, o.address, o.nearest_mrt,
+              o.description, o.phone_number, o.images,
+              COUNT(DISTINCT l.listing_id)::int AS available_class_count
+       FROM outlets o
+       JOIN listingOutlets lo ON lo.outlet_id = o.outlet_id
+       JOIN listings l ON l.listing_id = lo.listing_id AND l.active = true
+       JOIN schedule_groups sg ON sg.listing_outlet_id = lo.listing_outlet_id
+       JOIN schedules s ON s.schedule_group_id = sg.schedule_group_id
+       WHERE o.partner_id = $1
+         AND s.slots > 0
+         AND s.start_time IS NOT NULL
+         AND s.end_time IS NOT NULL
+         AND COALESCE(cardinality(sg.package_types), 0) > 0
+       GROUP BY o.outlet_id
+       ORDER BY o.outlet_name ASC`,
+      [partnerId],
+    );
+    return outlets.rows;
+  } catch (error) {
+    console.error("ERROR in getPublicOutletsByPartnerId:", error.message);
     throw error;
   }
 };

@@ -198,7 +198,7 @@ router.get("/getAllPartners", authorization, adminOnly, async (req, res) => {
   try {
     const partners = await pool.query(
       `SELECT partner_id, partner_name, email, description, website, rating,
-              credit, picture, address, region, contact_number,
+              credit, picture, contact_number,
               COALESCE((
                 SELECT jsonb_agg(ac.name ORDER BY ac.display_order, ac.name)
                 FROM partner_activity_categories pac
@@ -469,20 +469,16 @@ router.post(
           partner_name,
           email,
           password,
-          address,
-          region,
           categories,
           description,
           is_profile_complete,
           requires_password_change
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7)
         RETURNING partner_id, email, partner_name`,
         [
           partner_name || "New Partner", // Temporary name
           email,
           hashedPassword,
-          "TBD", // Temporary address
-          "TBD", // Temporary region
           [], // Default category
           "Profile setup in progress", // Temporary description
           false, // Profile not complete
@@ -553,7 +549,6 @@ router.post(
                   <li>Complete your organization profile with:
                     <ul style="margin-top: 8px;">
                       <li>Organization details & description</li>
-                      <li>Headquarters address & region</li>
                       <li>Contact number & website</li>
                       <li>Upload your logo</li>
                       <li>Select service categories</li>
