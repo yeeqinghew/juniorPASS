@@ -23,6 +23,8 @@ import {
   MailOutlined,
   ShopOutlined,
   PhoneOutlined,
+  ClockCircleOutlined,
+  EnvironmentOutlined,
 } from "@ant-design/icons";
 import dayjs from "../../utils/dayjs";
 import duration from "dayjs/plugin/duration";
@@ -39,6 +41,30 @@ const { Title, Text, Paragraph } = Typography;
 
 dayjs.extend(duration);
 dayjs.extend(isSameOrAfter);
+
+const toCredits = (dollarValue, dollarsPerCredit) => {
+  const dollars = Number(dollarValue);
+  const rate = Number(dollarsPerCredit);
+  return Number.isFinite(dollars) && dollars > 0 && Number.isFinite(rate) && rate > 0
+    ? Math.ceil(dollars / rate)
+    : null;
+};
+
+const getMinimumScheduleCredits = (location, listingCredits) => {
+  const packageTypes = location.package_types || [];
+  const prices = {
+    "pay-as-you-go": location.credit,
+    "short-term": location.price_shortterm,
+    "full-term": location.price_fullterm,
+  };
+  const credits = packageTypes
+    .map((type) => toCredits(prices[type], location.pricing_dollars_per_credit))
+    .filter((value) => Number.isInteger(value) && value > 0);
+
+  if (credits.length) return Math.min(...credits);
+  const fallback = Number(listingCredits);
+  return Number.isInteger(fallback) && fallback > 0 ? fallback : null;
+};
 
 const Class = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -618,6 +644,10 @@ const Class = () => {
                       );
 
                     const hasBooking = slotBookings.length > 0;
+                    const minimumCredits = getMinimumScheduleCredits(
+                      item.location,
+                      listing?.credit,
+                    );
 
                     const getItemClassName = () => {
                       let className = "class-schedule-item";
@@ -655,107 +685,60 @@ const Class = () => {
                     return (
                       <List.Item
                         className={getItemClassName()}
-                        actions={[renderAction()]}
                       >
-                        <List.Item.Meta
-                          avatar={
-                            <div
-                              className={`schedule-time-icon ${isPastClass ? "past" : isSoldOut ? "sold-out" : ""}`}
-                            >
-                              {isPastClass ? "⏰" : isSoldOut ? "❌" : "🕐"}
-                            </div>
-                          }
-                          title={
-                            <Space
-                              direction="vertical"
-                              size="small"
-                              style={{ width: "100%" }}
-                            >
-                              <Space wrap>
+                        <div className="schedule-card-content">
+                          <div className="schedule-card-details">
+                            <div className="schedule-card-heading">
+                              <ClockCircleOutlined className="schedule-time-icon" />
+                              <div>
                                 <Text strong className="schedule-time-text">
                                   {item.timeRange}
                                 </Text>
-                                {!isPastClass &&
-                                  !isSoldOut &&
-                                  spotsLeft !== undefined &&
-                                  spotsLeft <= 3 &&
-                                  spotsLeft > 0 && (
-                                    <Tag
-                                      color="orange"
-                                      className="schedule-spots-tag"
-                                    >
-                                      Only {spotsLeft}{" "}
-                                      {spotsLeft === 1 ? "spot" : "spots"} left!
-                                    </Tag>
-                                  )}
-                              </Space>
-                              <Space wrap size="small">
-                                {item.location.package_types &&
-                                  item.location.package_types.map(
-                                    (packageType, idx) => {
-                                      const colors = {
-                                        "pay-as-you-go": "purple",
-                                        "full-term": "green",
-                                        "short-term": "cyan",
-                                      };
-                                      const labels = {
-                                        "pay-as-you-go": "PAYG",
-                                        "full-term": "Full Term",
-                                        "short-term": "Short Term",
-                                      };
-                                      return (
-                                        <Tag
-                                          key={idx}
-                                          color={
-                                            colors[packageType] || "default"
-                                          }
-                                          style={{ fontSize: "11px" }}
-                                        >
-                                          {labels[packageType] || packageType}
-                                        </Tag>
-                                      );
-                                    },
-                                  )}
-                                <Text
-                                  type="secondary"
-                                  style={{ fontSize: "13px" }}
-                                >
-                                  💰 From $
-                                  {item.location.credit || listing?.credit}
-                                </Text>
-                              </Space>
-                            </Space>
-                          }
-                          description={
-                            <Space
-                              direction="vertical"
-                              size="small"
-                              style={{ width: "100%" }}
-                            >
-                              <Space size="small">
-                                <Tag>{item.duration}</Tag>
-                                <Tag color="blue">
-                                  {item.location.nearest_mrt}
-                                </Tag>
-                              </Space>
-                              {hasBooking && bookedChildrenNames.length > 0 && (
-                                <Space size="small" wrap>
-                                  <Text
-                                    type="secondary"
-                                    className="schedule-booked-info"
-                                  >
-                                    Booked for:
-                                  </Text>
-                                  {bookedChildrenNames.map((name, idx) => (
-                                    <Tag key={idx} color="green">
-                                      ✓ {name}
-                                    </Tag>
-                                  ))}
-                                </Space>
+                                <Text className="schedule-duration">{item.duration}</Text>
+                              </div>
+                            </div>
+
+                            <div className="schedule-card-meta">
+                              <span className="schedule-location">
+                                <EnvironmentOutlined />
+                                {item.location.nearest_mrt || "Location unavailable"}
+                              </span>
+                              <span className="schedule-price">
+                                {minimumCredits ? `From ${minimumCredits} credits` : "Credits unavailable"}
+                              </span>
+                            </div>
+
+                            <div className="schedule-package-list">
+                              {(item.location.package_types || []).map((packageType) => {
+                                const labels = {
+                                  "pay-as-you-go": "Pay as you go",
+                                  "full-term": "Full term",
+                                  "short-term": "Short term",
+                                };
+                                return (
+                                  <Tag key={packageType} className="schedule-package-tag">
+                                    {labels[packageType] || packageType}
+                                  </Tag>
+                                );
+                              })}
+                              {!isPastClass && !isSoldOut && spotsLeft > 0 && spotsLeft <= 3 && (
+                                <span className="schedule-spots-tag">
+                                  {spotsLeft} {spotsLeft === 1 ? "spot" : "spots"} left
+                                </span>
                               )}
-                            </Space>
-                          }
-                        />
+                            </div>
+
+                            {hasBooking && bookedChildrenNames.length > 0 && (
+                              <div className="schedule-booked-row">
+                                <Text className="schedule-booked-info">Booked for</Text>
+                                {bookedChildrenNames.map((name) => (
+                                  <Tag key={name} color="green">✓ {name}</Tag>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                          <div className="schedule-card-action">{renderAction()}</div>
+                        </div>
                       </List.Item>
                     );
                   }}

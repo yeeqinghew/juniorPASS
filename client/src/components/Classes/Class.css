@@ -142,8 +142,8 @@
 }
 
 .class-schedule-item {
-  padding: var(--spacing-md) !important;
-  background: var(--bg-cream);
+  padding: var(--spacing-lg) !important;
+  background: var(--bg-white);
   border-radius: var(--radius-lg) !important;
   margin-bottom: var(--spacing-sm) !important;
   border: 1px solid var(--border-light) !important;
@@ -152,7 +152,7 @@
 
 .class-schedule-item:hover {
   border-color: var(--primary-color) !important;
-  transform: translateX(4px);
+  box-shadow: var(--shadow-sm);
 }
 
 .class-schedule-item.booked {
@@ -171,22 +171,16 @@
 }
 
 .schedule-time-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-lg);
-  background: var(--primary-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  color: var(--primary-color);
   font-size: var(--font-size-xl);
 }
 
 .schedule-time-icon.sold-out {
-  background: var(--text-disabled);
+  color: var(--text-disabled);
 }
 
 .schedule-time-icon.past {
-  background: var(--text-disabled);
+  color: var(--text-disabled);
 }
 
 .schedule-time-text {
@@ -201,11 +195,90 @@
 
 .schedule-spots-tag {
   font-size: var(--font-size-xs);
+  color: var(--text-secondary);
 }
 
 .schedule-booked-info {
   font-size: var(--font-size-xs);
   color: var(--text-muted);
+}
+
+.schedule-card-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: var(--spacing-lg);
+}
+
+.schedule-card-details {
+  min-width: 0;
+  flex: 1;
+}
+
+.schedule-card-heading,
+.schedule-card-meta,
+.schedule-package-list,
+.schedule-booked-row {
+  display: flex;
+  align-items: center;
+}
+
+.schedule-card-heading {
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.schedule-card-heading>div {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.schedule-duration,
+.schedule-location {
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.schedule-card-meta {
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+  margin-bottom: var(--spacing-sm);
+}
+
+.schedule-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.schedule-price {
+  color: var(--text-dark);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.schedule-package-list,
+.schedule-booked-row {
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
+.schedule-package-tag {
+  margin: 0 !important;
+  border-color: var(--border-light) !important;
+  background: var(--bg-cream) !important;
+  color: var(--text-secondary) !important;
+}
+
+.schedule-booked-row {
+  margin-top: var(--spacing-sm);
+}
+
+.schedule-card-action {
+  flex-shrink: 0;
 }
 
 /* Book Now Button */
@@ -442,6 +515,24 @@
     transform: none !important;
   }
 
+  .schedule-card-content {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .schedule-card-action,
+  .schedule-card-action .ant-btn,
+  .schedule-card-action .ant-tag {
+    width: 100%;
+  }
+
+  .schedule-card-action .ant-tag {
+    margin: 0;
+    padding: 8px 12px;
+    text-align: center;
+  }
+
   .class-schedule-item .ant-list-item-meta {
     width: 100%;
     align-items: flex-start;
@@ -462,8 +553,6 @@
   }
 
   .schedule-time-icon {
-    width: 40px;
-    height: 40px;
     font-size: var(--font-size-md);
   }
 }
