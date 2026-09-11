@@ -14,6 +14,7 @@ const {
   PaymentSettlementError,
   settleCompletedPayment,
 } = require("../services/paymentSettlement.service");
+const { getPaymentRedirectUrl } = require("../utils/paymentRedirect");
 
 const hitpaySandboxApiKey = process.env.HITPAY_SANDBOX_API_KEY;
 const hitpaySandboxSecretKey = process.env.HITPAY_SANDBOX_SECRET_KEY;
@@ -118,7 +119,7 @@ router.post(
           name,
           reference_number: ref_num,
           description: "Top up store credit",
-          redirect_url: "", // Not redirecting to any URL after payment due to Drop-In UI
+          redirect_url: getPaymentRedirectUrl(req),
           webhook: webhookUrl,
           expiry_date: expiryDate, // 10 minutes expiry
         }),
